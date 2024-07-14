@@ -11,6 +11,13 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
 
+    git-hooks = {
+      url = "github:cachix/pre-commit-hooks.nix";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+
   };
 
   outputs = inputs@{ flake-parts, nixpkgs, ... }:
@@ -39,9 +46,9 @@
           packages = {
             myDoc = self'.checks.module-docs;
           };
+
+
         };
-
-
 
         flake = {
           flakeModule = ./flake-module.nix;

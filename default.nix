@@ -15,8 +15,7 @@ let
       };
     }
     module-options
-  ]
-  ++ programs.modules;
+  ] ++ programs.modules;
 
   # treefmt-nix can be loaded into a submodule. In this case we get our `pkgs` from
   # our own standard option `pkgs`; not externally.
@@ -39,8 +38,7 @@ let
         };
       })
     module-options
-  ]
-  ++ programs.modules;
+  ] ++ programs.modules;
 
   # Use the Nix module system to validate the treefmt config file format.
   #

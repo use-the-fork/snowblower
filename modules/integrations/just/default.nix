@@ -22,6 +22,9 @@ in
         specialArgs = { inherit pkgs; };
       };
       default = { };
+      description = ''
+        The recipes that are avaliable to just
+      '';
     };
   }]
   ++ (listEntries ./recipes);
