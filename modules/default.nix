@@ -1,25 +1,25 @@
-# Evaluate the devshell environment
-nixpkgs:
-{ configuration
-, lib ? nixpkgs.lib
-, extraSpecialArgs ? { }
-}:
+# List all the files in this folder.
+#
 let
-  devenvModules = import ./modules.nix {
-    pkgs = nixpkgs;
-    inherit lib;
-  };
+  # All the directory entries, except default.nix. We assume they are all
+  # files.
+  files = builtins.attrNames
+    (builtins.removeAttrs (builtins.readDir ./.) [ "default.nix" ]);
 
-  module = lib.evalModules {
-    modules = [ configuration ] ++ devenvModules;
-    specialArgs = {
-      modulesPath = builtins.toString ./.;
-      extraModulesPath = builtins.toString ../extra;
-    } // extraSpecialArgs;
-  };
+  filenameToPath = filename: ./. + "/${filename}";
+
+  removeNixExt = filename:
+    builtins.substring 0 (builtins.stringLength filename - 4) filename;
 in
 {
-  inherit (module) config options;
+  # The list of program names. Should map 1:1 with the filename.
+  names = map
+    removeNixExt
+    files;
 
-  shell = module.config.devshell.shell;
+  # The module filenames
+  modules = [
+#    ./integrations/just
+    ./integrations/treefmt
+  ];
 }
