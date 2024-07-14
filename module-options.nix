@@ -4,22 +4,9 @@
 , ...
 }:
 let
-  inherit (lib) mkOption mkPackageOption types;
+  inherit (lib) mkOption types;
 
   # A new kind of option type that calls lib.getExe on derivations
-  exeType = lib.mkOptionType {
-    name = "exe";
-    description = "Path to executable";
-    check = x: lib.isString x || builtins.isPath x || lib.isDerivation x;
-    merge =
-      loc: defs:
-      let
-        res = lib.mergeOneOption loc defs;
-      in
-      if lib.isString res || builtins.isPath res then "${res}" else lib.getExe res;
-  };
-
-  configFormat = pkgs.formats.toml { };
 
 in
 {
@@ -34,9 +21,15 @@ in
       example = "flake.nix";
     };
 
-    enterShell = mkOption {
+    shellPreHook = mkOption {
       type = types.lines;
       description = "Bash code to execute when entering the shell.";
+      default = "";
+    };
+
+    shellPostHook = mkOption {
+      type = types.lines;
+      description = "Bash code to execute when entering the shell but after `shellPreHook`.";
       default = "";
     };
 
@@ -54,11 +47,6 @@ in
 
     shell = lib.mkOption {
       type = types.package;
-      internal = true;
-    };
-
-    ci = lib.mkOption {
-      type = types.listOf types.package;
       internal = true;
     };
 
@@ -110,7 +98,13 @@ in
     devShell = (pkgs.mkShell.override { stdenv = config.stdenv; }) {
       packages = config.packages;
       shellHook = ''
-        ${config.enterShell}
+        ${config.shellPreHook}
+        ${config.shellPostHook}
+        echo
+        echo "Snow Blower: Simple, Fast, Declarative, Reproducible, and Composable Developer Environments"
+        echo
+        echo "Run 'just <recipe>' to get started"
+        just --list
       '';
       nativeBuildInputs = [ ];
       #      ++ (lib.attrValues config.build.programs);

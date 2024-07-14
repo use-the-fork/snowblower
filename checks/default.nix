@@ -9,9 +9,9 @@ let
       programs.${name}.enable = true;
     };
 
-  treefmtEval = snow-blower.evalModule pkgs inputs ../snowblower.nix;
+  sbEval = snow-blower.evalModule pkgs inputs ../snowblower.nix;
 
-  treefmtDocEval = snow-blower.evalModule stubPkgs ../snowblower.nix;
+  sbDocEval = snow-blower.evalModule stubPkgs ../snowblower.nix;
 
   stubPkgs =
     lib.mapAttrs
@@ -26,29 +26,11 @@ let
 
   self = {
 
-    # Check if the examples folder needs to be updated
-    #    examples = pkgs.runCommand
-    #      "test-examples"
-    #      {
-    #        passthru.examples = examples;
-    #      }
-    #      ''
-    #        if ! diff -r ${../examples} ${examples}; then
-    #          echo "The generated ./examples folder is out of sync"
-    #          echo "Run ./examples.sh to fix the issue"
-    #          exit 1
-    #        fi
-    #        touch $out
-    #      '';
-
-    # Check that the repo is formatted
-    #    self-formatting = treefmtEval.config.build.check ../.;
-
-    # Expose the current wrapper
-    self-wrapper = treefmtEval.config.build.devShell;
+    # Expose the current devshell
+    self-shell = sbEval.config.build.devShell;
 
     # Check that the docs render properly
-    module-docs = (pkgs.nixosOptionsDoc { options = treefmtEval.options; }).optionsCommonMark;
+    module-docs = (pkgs.nixosOptionsDoc { options = sbEval.options; }).optionsCommonMark;
   };
 in
 self

@@ -21,7 +21,6 @@
       config.treefmt.build.wrapper
     ];
 
-
     #automatically add treefmt-nix to pre-commit if the user enables it.
     pre-commit.hooks.treefmt.package = config.treefmt.build.wrapper;
   };

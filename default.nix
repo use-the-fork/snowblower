@@ -30,7 +30,7 @@ let
         options.pkgs = mkOption {
           type = types.uniq (types.lazyAttrsOf (types.raw or types.unspecified));
           description = ''
-            Nixpkgs to use in `treefmt`.
+            Nixpkgs to use.
           '';
         };
         config._module.args = {

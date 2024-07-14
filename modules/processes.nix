@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 let
   types = lib.types;
-  processType = types.submodule ({ config, ... }: {
+  processType = types.submodule (_: {
     options = {
       exec = lib.mkOption {
         type = types.str;
@@ -133,7 +133,7 @@ in
     procfileEnv =
       pkgs.writeText "procfile-env" (lib.concatStringsSep "\n" envList);
 
-    procfileScript = pkgs.writeShellScript "devenv-up" ''
+    procfileScript = pkgs.writeShellScript "proc-up" ''
       ${config.process.before}
 
       ${config.processManagerCommand}
@@ -154,7 +154,14 @@ in
       wait
     '';
 
-    ci = [ config.procfileScript ];
+    just.recipes.up = {
+      enable = lib.mkDefault true;
+      justfile = lib.mkDefault ''
+        # Starts the environment.
+        up:
+          ${lib.getExe config.procfileScript}
+      '';
+    };
 
   };
 }

@@ -29,7 +29,7 @@
         systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
         perSystem = { config, self', inputs', pkgs, system, ... }: {
 
-          devShells.default = self'.checks.self-wrapper;
+          devShells.default = self'.checks.self-shell;
 
           checks = (import ./checks {
             inherit inputs;
@@ -44,9 +44,8 @@
           });
 
           packages = {
-            myDoc = self'.checks.module-docs;
+            docs = self'.checks.module-docs;
           };
-
 
         };
 

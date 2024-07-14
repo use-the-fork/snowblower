@@ -26,10 +26,10 @@ in
         You have enabled pre-commit for treefmt but do not have any formatters enabled.
       ''
     ];
-    ci = [ config.pre-commit.run ];
+#    ci = [ config.pre-commit.run ];
 
     # Add the packages for any enabled hooks at the end to avoid overriding the language-defined packages.
     packages = lib.mkAfter ([ config.pre-commit.package ] ++ (config.pre-commit.enabledPackages or [ ]));
-    enterShell = config.pre-commit.installationScript;
+    shellPreHook = config.pre-commit.installationScript;
   };
 }

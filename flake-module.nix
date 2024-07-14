@@ -12,34 +12,31 @@ in
       ({ config, self', inputs', pkgs, system, ... }: {
         options.snow-blower = mkOption {
           description = ''
-            Project-level treefmt configuration
+            Project-level Snow Blower configuration
 
-            Use `config.snow-blower.build.wrapper` to get access to the resulting treefmt
+            Use `config.snow-blower.build.devShell` to get access to the resulting devShell
             package based on this configuration.
 
-            By default snow-blower will set the `devshell.<system>` attribute of the flake,
-            used by the `nix fmt` command.
+            By default snow-blower will set the `devShell.<system>` attribute of the flake,
+            used by the `nix develop` command.
           '';
           type = types.submoduleWith {
             modules = (import ./.).submodule-modules ++ [{
-              options.pkgs = lib.mkOption {
-                default = pkgs;
-                defaultText = "`pkgs` (module argument of `perSystem`)";
-              };
-              options.flakeFormatter = lib.mkOption {
+              options.flakeShell = lib.mkOption {
                 type = types.bool;
                 default = true;
                 description = ''
-                  Enables `treefmt` the default formatter used by the `nix fmt` command
+                  Enables `Snow Blower` as the default devShell used by the `nix develop` command
                 '';
               };
-              options.flakeCheck = lib.mkOption {
-                type = types.bool;
-                default = true;
-                description = ''
-                  Add a flake check to run `treefmt`
-                '';
-              };
+#              FIXME: Can we make this work somehow?
+#              options.flakeCheck = lib.mkOption {
+#                type = types.bool;
+#                default = true;
+#                description = ''
+#                  Add a flake check to run `treefmt`
+#                '';
+#              };
               options.projectRoot = lib.mkOption {
                 type = types.path;
                 default = self;
@@ -53,8 +50,8 @@ in
           };
         };
         config = {
-          checks = lib.mkIf config.snow-blower.flakeCheck { snow-blower = config.snow-blower.build.check config.snow-blower.projectRoot; };
-          formatter = lib.mkIf config.snow-blower.flakeFormatter (lib.mkDefault config.snow-blower.build.wrapper);
+#          checks = lib.mkIf config.snow-blower.flakeCheck { snow-blower = config.snow-blower.build.check config.snow-blower.projectRoot; };
+          devShell = lib.mkIf config.snow-blower.flakeShell (lib.mkDefault config.snow-blower.build.devShell);
         };
       });
   };

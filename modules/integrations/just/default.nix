@@ -55,7 +55,7 @@ in
       config.just.package
     ];
 
-    enterShell =
+    shellPostHook =
       let
         commonJustfile = pkgs.writeTextFile {
           name = "justfile";
@@ -66,12 +66,6 @@ in
       in
       ''
         ln -sf ${builtins.toString commonJustfile} ./${config.just.commonFileName}
-
-        echo
-        echo "https://devenv.sh Fast, Declarative, Reproducible, and Composable Developer Environments 🦾🦾"
-        echo
-        echo "Run 'just <recipe>' to get started"
-        just --list
       '';
   };
 }
