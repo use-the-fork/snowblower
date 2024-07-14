@@ -21,5 +21,6 @@ in
   modules = [
 #    ./integrations/just
     ./integrations/treefmt
+    ./test.nix
   ];
 }

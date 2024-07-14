@@ -1,5 +1,6 @@
 { pkgs, ... }: {
   projectRootFile = "snowblower.nix";
+
 #  programs.mdsh.enable = true;
 #  programs.yamlfmt.enable = true;
 #  programs.deno.enable = pkgs.hostPlatform.system != "riscv64-linux";

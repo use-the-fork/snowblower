@@ -4,6 +4,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
@@ -17,9 +19,10 @@
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
       perSystem = { config, self', inputs', pkgs, system, ... }: {
 
-#          formatter = self'.checks.self-wrapper;
+          devShells.default = self'.checks.self-wrapper;
 
           checks = (import ./checks {
+            inherit inputs;
             pkgs = import inputs.nixpkgs {
               inherit system;
               config = {
@@ -37,27 +40,3 @@
       };
     });
 }
-
-#
-## flake.nix "flake" "imports"
-#{
-#  inputs = {
-#    nixpkgs.url = "nixpkgs";
-#
-#    flake-parts = {
-#      url = "github:hercules-ci/flake-parts";
-#      inputs.nixpkgs-lib.follows = "nixpkgs";
-#    };
-#
-#  };
-#
-#  outputs = inputs@{ self, nixpkgs, flake-parts }: flake-parts.lib.mkFlake { inherit inputs; } {
-#    systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
-#
-#    imports = [];
-#
-#    flake = {
-#      # your existing definitions before using flake-parts...
-#    };
-#  };
-#}

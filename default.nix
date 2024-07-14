@@ -46,31 +46,13 @@ let
   #
   # nixpkgs is an instance of <nixpkgs> that contains treefmt.
   # configuration is an attrset used to configure the nix module
-  evalModule = nixpkgs: configuration:
+  evalModule = nixpkgs: inputs: configuration:
     nixpkgs.lib.evalModules {
+      specialArgs = {
+        inherit inputs;
+      };
       modules = all-modules nixpkgs ++ [ configuration ];
     };
-
-
-  # Returns a treefmt.toml generated from the passed configuration.
-  #
-  # nixpkgs is an instance of <nixpkgs> that contains treefmt.
-  # configuration is an attrset used to configure the nix module
-  mkConfigFile = nixpkgs: configuration:
-    let
-      mod = evalModule nixpkgs configuration;
-    in
-    mod.config.build.configFile;
-
-  # Returns an instance of treefmt, wrapped with some configuration.
-  #
-  # nixpkgs is an instance of <nixpkgs> that contains treefmt.
-  # configuration is an attrset used to configure the nix module
-  mkWrapper = nixpkgs: configuration:
-    let
-      mod = evalModule nixpkgs configuration;
-    in
-    mod.config.build.wrapper;
 in
 {
   inherit
@@ -79,7 +61,5 @@ in
     all-modules
     submodule-modules
     evalModule
-    mkConfigFile
-    mkWrapper
     ;
 }
