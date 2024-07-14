@@ -1,11 +1,16 @@
-{ pkgs, self, lib, inputs, config, ... }:
+{ pkgs, self', lib, inputs, config, ... }:
 let
 
 in {
 
   options.treefmt = lib.mkOption {
     type = lib.types.submoduleWith {
-      modules = inputs.treefmt-nix.lib.submodule-modules;
+      modules = inputs.treefmt-nix.lib.submodule-modules ++ [
+        {
+          projectRootFile = "flake.nix";
+          package = pkgs.treefmt;
+        }
+      ];
       specialArgs = { inherit pkgs; };
       shorthandOnlyDefinesConfig = true;
     };
@@ -18,7 +23,8 @@ in {
       config.treefmt.build.wrapper
     ];
 
+
     #automatically add treefmt-nix to pre-commit if the user enables it.
-#    pre-commit.hooks.treefmt.package = config.treefmt.build.wrapper;
+    #    pre-commit.hooks.treefmt.package = config.treefmt.build.wrapper;
   };
 }

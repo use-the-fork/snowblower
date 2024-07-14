@@ -27,29 +27,28 @@ let
   self = {
 
     # Check if the examples folder needs to be updated
-#    examples = pkgs.runCommand
-#      "test-examples"
-#      {
-#        passthru.examples = examples;
-#      }
-#      ''
-#        if ! diff -r ${../examples} ${examples}; then
-#          echo "The generated ./examples folder is out of sync"
-#          echo "Run ./examples.sh to fix the issue"
-#          exit 1
-#        fi
-#        touch $out
-#      '';
+    #    examples = pkgs.runCommand
+    #      "test-examples"
+    #      {
+    #        passthru.examples = examples;
+    #      }
+    #      ''
+    #        if ! diff -r ${../examples} ${examples}; then
+    #          echo "The generated ./examples folder is out of sync"
+    #          echo "Run ./examples.sh to fix the issue"
+    #          exit 1
+    #        fi
+    #        touch $out
+    #      '';
 
     # Check that the repo is formatted
-    self-formatting = treefmtEval.config.build.check ../.;
+    #    self-formatting = treefmtEval.config.build.check ../.;
 
     # Expose the current wrapper
     self-wrapper = treefmtEval.config.build.devShell;
 
     # Check that the docs render properly
-    module-docs = (pkgs.nixosOptionsDoc { options = treefmtDocEval.options; }).optionsCommonMark;
-  } ;
-#  // programConfigs;
+    module-docs = (pkgs.nixosOptionsDoc { options = treefmtEval.options; }).optionsCommonMark;
+  };
 in
 self

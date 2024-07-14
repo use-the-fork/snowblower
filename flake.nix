@@ -15,9 +15,12 @@
 
   outputs = inputs@{ flake-parts, nixpkgs, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } ({ self, lib, ... }:
-    {
-      systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
-      perSystem = { config, self', inputs', pkgs, system, ... }: {
+      let
+
+
+      in {
+        systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
+        perSystem = { config, self', inputs', pkgs, system, ... }: {
 
           devShells.default = self'.checks.self-wrapper;
 
@@ -32,11 +35,17 @@
             };
             snow-blower = self.lib;
           });
-      };
 
-      flake = {
-        flakeModule = ./flake-module.nix;
-        lib = import ./.;
-      };
-    });
+          packages = {
+            myDoc = self'.checks.module-docs;
+          };
+        };
+
+
+
+        flake = {
+          flakeModule = ./flake-module.nix;
+          lib = import ./.;
+        };
+      });
 }

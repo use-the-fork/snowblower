@@ -78,8 +78,8 @@ in
       shellHook = ''
         ${config.enterShell}
       '';
-      nativeBuildInputs = [ ] ;
-#      ++ (lib.attrValues config.build.programs);
+      nativeBuildInputs = [ ];
+      #      ++ (lib.attrValues config.build.programs);
     };
   };
 }
