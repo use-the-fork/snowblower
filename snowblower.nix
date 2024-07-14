@@ -1,10 +1,17 @@
-{pkgs, ...}: {
+_: {
   projectRootFile = "snowblower.nix";
   treefmt.programs = {
     nixpkgs-fmt.enable = true;
+    deadnix.enable = true;
+    statix = {
+      enable = true;
+      disabled-lints = [
+        "manual_inherit_from"
+      ];
+    };
   };
   pre-commit = {
-    hooks.alejandra.enable = true;
+    hooks.treefmt.enable = true;
   };
   just = {
     enable = true;
