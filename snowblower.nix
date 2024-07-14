@@ -1,7 +1,10 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   projectRootFile = "snowblower.nix";
   treefmt.programs = {
     nixpkgs-fmt.enable = true;
+  };
+  pre-commit = {
+    hooks.alejandra.enable = true;
   };
   just = {
     enable = true;
