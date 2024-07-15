@@ -9,7 +9,7 @@ topLevel @ {
     ./integrations
     ./languages
     ./services
-    ./process-compose.nix
+    ./processes.nix
     ./shell.nix
   ];
   flake.flakeModules.common = flakeModule: {
@@ -20,7 +20,7 @@ topLevel @ {
       topLevel.config.flake.flakeModules.integrations-just
       topLevel.config.flake.flakeModules.integrations-tree-fmt
 
-      topLevel.config.flake.flakeModules.process-compose
+      topLevel.config.flake.flakeModules.processes
 
       topLevel.config.flake.flakeModules.languages-php
 

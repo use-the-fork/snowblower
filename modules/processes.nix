@@ -6,7 +6,7 @@ topLevel @ {
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
   ];
-  flake.flakeModules.process-compose = {
+  flake.flakeModules.processes = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
       pkgs,
