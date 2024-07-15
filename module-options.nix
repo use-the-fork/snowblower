@@ -1,18 +1,14 @@
-{ config
-, lib
-, pkgs
-, ...
-}:
-let
-  inherit (lib) mkOption types;
-
-  # A new kind of option type that calls lib.getExe on derivations
-
-in
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
+  inherit (lib) mkOption types;
+  # A new kind of option type that calls lib.getExe on derivations
+in {
   # Schema
   options = {
-
     projectRootFile = mkOption {
       description = ''
         File to look for to determine the root of the project in the
@@ -36,7 +32,7 @@ in
     packages = mkOption {
       type = types.listOf types.package;
       description = "A list of packages to expose inside the developer environment. See https://search.nixos.org/packages for packages.";
-      default = [ ];
+      default = [];
     };
 
     stdenv = mkOption {
@@ -53,8 +49,13 @@ in
     assertions = lib.mkOption {
       type = types.listOf types.unspecified;
       internal = true;
-      default = [ ];
-      example = [{ assertion = false; message = "you can't enable this for that reason"; }];
+      default = [];
+      example = [
+        {
+          assertion = false;
+          message = "you can't enable this for that reason";
+        }
+      ];
       description = ''
         This option allows modules to express conditions that must
         hold for the evaluation of the configuration to succeed,
@@ -65,8 +66,8 @@ in
     warnings = lib.mkOption {
       type = types.listOf types.str;
       internal = true;
-      default = [ ];
-      example = [ "you should fix this or that" ];
+      default = [];
+      example = ["you should fix this or that"];
       description = ''
         This option allows modules to express warnings about the
         configuration. For example, `lib.mkRenamedOptionModule` uses this to
@@ -94,7 +95,7 @@ in
 
   # Config
   config.build = {
-    devShell = (pkgs.mkShell.override { stdenv = config.stdenv; }) {
+    devShell = (pkgs.mkShell.override {stdenv = config.stdenv;}) {
       packages = config.packages;
       shellHook = ''
         ${config.shellPreHook}
@@ -105,7 +106,7 @@ in
         echo "Run 'just <recipe>' to get started"
         just --list
       '';
-      nativeBuildInputs = [ ];
+      nativeBuildInputs = [];
       #      ++ (lib.attrValues config.build.programs);
     };
   };

@@ -1,4 +1,8 @@
-topLevel@{ inputs, flake-parts-lib, ... }: {
+topLevel @ {
+  inputs,
+  flake-parts-lib,
+  ...
+}: {
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
     ../../common.nix
@@ -8,24 +12,29 @@ topLevel@{ inputs, flake-parts-lib, ... }: {
       topLevel.config.flake.flakeModules.common
     ];
 
-    options.perSystem = flake-parts-lib.mkPerSystemOption ({ lib, pkgs, config, ... }: let
-     inherit (lib) types mkOption mkEnableOption attrsets;
-     inherit (import ./utils.nix { inherit lib pkgs; }) recipeModule recipeType;
-
+    options.perSystem = flake-parts-lib.mkPerSystemOption ({
+      lib,
+      pkgs,
+      config,
+      ...
+    }: let
+      inherit (lib) types mkOption;
+      inherit (import ./utils.nix {inherit lib pkgs;}) recipeType;
     in {
-
-      imports = [{
-        options.snow-blower.just.recipes = mkOption {
-          type = types.submoduleWith {
-            modules = [{ freeformType = types.attrsOf recipeType; }];
-            specialArgs = { inherit pkgs; };
+      imports = [
+        {
+          options.snow-blower.just.recipes = mkOption {
+            type = types.submoduleWith {
+              modules = [{freeformType = types.attrsOf recipeType;}];
+              specialArgs = {inherit pkgs;};
+            };
+            default = {};
+            description = ''
+              The recipes that are avaliable to just
+            '';
           };
-          default = { };
-          description = ''
-            The recipes that are avaliable to just
-          '';
-        };
-      }];
+        }
+      ];
 
       options.snow-blower.just = {
         package = mkOption {
@@ -44,26 +53,22 @@ topLevel@{ inputs, flake-parts-lib, ... }: {
         };
       };
 
-
       config.snow-blower.shell = {
-            packages = [
-              config.snow-blower.just.package
-            ];
+        packages = [
+          config.snow-blower.just.package
+        ];
 
-                shellPostHook =
-                  let
-                    commonJustfile = pkgs.writeTextFile {
-                      name = "justfile";
-                      text =
-                        lib.concatStringsSep "\n"
-                          (lib.mapAttrsToList (name: recipe: recipe.outputs.justfile) config.snow-blower.just.recipes);
-                    };
-                  in
-                  ''
-                    ln -sf ${builtins.toString commonJustfile} ./${config.snow-blower.just.commonFileName}
-                  '';
+        shellPostHook = let
+          commonJustfile = pkgs.writeTextFile {
+            name = "justfile";
+            text =
+              lib.concatStringsSep "\n"
+              (lib.mapAttrsToList (_name: recipe: recipe.outputs.justfile) config.snow-blower.just.recipes);
+          };
+        in ''
+          ln -sf ${builtins.toString commonJustfile} ./${config.snow-blower.just.commonFileName}
+        '';
       };
     });
-
   };
 }

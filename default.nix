@@ -7,26 +7,33 @@ let
   # Program to formatter mapping
   programs = import ./modules;
 
-  all-modules = nixpkgs: [
-    {
-      _module.args = {
-        pkgs = nixpkgs;
-        lib = nixpkgs.lib;
-      };
-    }
-    module-options
-  ] ++ programs.modules;
+  all-modules = nixpkgs:
+    [
+      {
+        _module.args = {
+          pkgs = nixpkgs;
+          lib = nixpkgs.lib;
+        };
+      }
+      module-options
+    ]
+    ++ programs.modules;
 
   # treefmt-nix can be loaded into a submodule. In this case we get our `pkgs` from
   # our own standard option `pkgs`; not externally.
-  submodule-modules = [
-    ({ config, lib, ... }:
-      let
-        inherit (lib)
+  submodule-modules =
+    [
+      ({
+        config,
+        lib,
+        ...
+      }: let
+        inherit
+          (lib)
           mkOption
-          types;
-      in
-      {
+          types
+          ;
+      in {
         options.pkgs = mkOption {
           type = types.uniq (types.lazyAttrsOf (types.raw or types.unspecified));
           description = ''
@@ -37,8 +44,9 @@ let
           pkgs = config.pkgs;
         };
       })
-    module-options
-  ] ++ programs.modules;
+      module-options
+    ]
+    ++ programs.modules;
 
   # Use the Nix module system to validate the treefmt config file format.
   #
@@ -49,10 +57,9 @@ let
       specialArgs = {
         inherit inputs;
       };
-      modules = all-modules nixpkgs ++ [ configuration ];
+      modules = all-modules nixpkgs ++ [configuration];
     };
-in
-{
+in {
   inherit
     module-options
     programs

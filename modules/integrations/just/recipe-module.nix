@@ -1,9 +1,12 @@
-{ config, name, lib, pkgs, ... }:
-let
-  inherit (lib) mkOption mkEnableOption types;
-
-in
 {
+  config,
+  name,
+  lib,
+  pkgs,
+  ...
+}: let
+  inherit (lib) mkOption mkEnableOption types;
+in {
   options = {
     enable = mkEnableOption "this recipe";
     justfile = mkOption {
@@ -12,16 +15,19 @@ in
         The justfile representing this recipe.
       '';
       apply = x:
-        if builtins.isPath x then x else
-        pkgs.writeTextFile {
-          name = "${name}.just";
-          text = x;
-        };
+        if builtins.isPath x
+        then x
+        else
+          pkgs.writeTextFile {
+            name = "${name}.just";
+            text = x;
+          };
     };
     package = mkOption {
       type = types.nullOr types.package;
       default = null;
-      description = lib.mdDoc
+      description =
+        lib.mdDoc
         ''
           An optional package that provides the recipe.
         '';

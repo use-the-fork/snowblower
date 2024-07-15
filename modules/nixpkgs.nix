@@ -1,4 +1,8 @@
-topLevel@{ inputs, flake-parts-lib, ... }: {
+topLevel @ {
+  inputs,
+  flake-parts-lib,
+  ...
+}: {
   imports = [
     ./systems.nix
     inputs.flake-parts.flakeModules.flakeModules
@@ -7,7 +11,7 @@ topLevel@{ inputs, flake-parts-lib, ... }: {
     imports = [
       topLevel.config.flake.flakeModules.systems
     ];
-    options.perSystem = flake-parts-lib.mkPerSystemOption ({ lib, config, pkgs, system, ... }: {
+    options.perSystem = flake-parts-lib.mkPerSystemOption ({system, ...}: {
       imports = [
         "${inputs.nixpkgs}/nixos/modules/misc/nixpkgs.nix"
       ];
