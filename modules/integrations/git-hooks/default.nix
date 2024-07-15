@@ -6,7 +6,7 @@
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
   ];
-  flake.flakeModules.integrations-git-hooks = {
+  flake.flakeModules.integrations = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       self,
       lib,
