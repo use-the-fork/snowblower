@@ -10,6 +10,7 @@ topLevel @ {
     ./languages
     ./services
     ./processes.nix
+    ./scripts
     ./shell.nix
   ];
   flake.flakeModules.common = flakeModule: {
@@ -19,6 +20,8 @@ topLevel @ {
       topLevel.config.flake.flakeModules.integrations-git-hooks
       topLevel.config.flake.flakeModules.integrations-just
       topLevel.config.flake.flakeModules.integrations-tree-fmt
+
+      topLevel.config.flake.flakeModules.scripts
 
       topLevel.config.flake.flakeModules.processes
 

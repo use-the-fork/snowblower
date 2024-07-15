@@ -20,6 +20,15 @@ topLevel @ {
             php.enable = true;
           };
 
+          scripts."devenv-generate-doc-options" = {
+                     just.enable = true;
+                     description = "Generate option docs.";
+                     exec = ''
+                       set -e
+                       echo "did this work?"
+                     '';
+                   };
+
           treefmt = {
             programs = {
               alejandra.enable = true;
