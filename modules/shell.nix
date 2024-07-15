@@ -15,12 +15,6 @@
       ...
     }: let
       inherit (lib) types mkOption;
-
-        envList =
-          lib.mapAttrsToList
-            (name: value: "${name}=${builtins.toJSON value}")
-            config.env;
-
     in {
       options.snow-blower.shell = {
         shellPreHook = mkOption {
@@ -41,6 +35,43 @@
           default = pkgs.stdenv;
         };
 
+        unsetEnvVars = lib.mkOption {
+          type = types.listOf types.str;
+          description = "A list of removed environment variables to make the shell/direnv more lean.";
+          # manually determined with knowledge from https://nixos.wiki/wiki/C
+          default = [
+            "HOST_PATH"
+            "NIX_BUILD_CORES"
+            "__structuredAttrs"
+            "buildInputs"
+            "buildPhase"
+            "builder"
+            "depsBuildBuild"
+            "depsBuildBuildPropagated"
+            "depsBuildTarget"
+            "depsBuildTargetPropagated"
+            "depsHostHost"
+            "depsHostHostPropagated"
+            "depsTargetTarget"
+            "depsTargetTargetPropagated"
+            "dontAddDisableDepTrack"
+            "doCheck"
+            "doInstallCheck"
+            "nativeBuildInputs"
+            "out"
+            "outputs"
+            "patches"
+            "phases"
+            "preferLocalBuild"
+            "propagatedBuildInputs"
+            "propagatedNativeBuildInputs"
+            "shell"
+            "shellHook"
+            "stdenv"
+            "strictDeps"
+          ];
+        };
+
         shell = mkOption {
           type = types.package;
           internal = true;
@@ -57,7 +88,7 @@
       };
 
       config.devShells.default =
-        ((pkgs.mkShell.override { stdenv = config.snow-blower.shell.stdenv; }) {
+        (pkgs.mkShell.override {stdenv = config.snow-blower.shell.stdenv;}) {
           packages = config.snow-blower.packages;
           nativeBuildInputs = [
             self'.packages.watch-server
@@ -72,7 +103,7 @@
             just --list
           '';
         }
-        // config.snow-blower.env);
+        // config.snow-blower.env;
     });
   };
 }

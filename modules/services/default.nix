@@ -3,5 +3,6 @@
     ./adminer
     ./blackfire
     ./mysql
+    ./redis
   ];
 }

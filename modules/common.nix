@@ -9,7 +9,7 @@ topLevel @ {
     ./integrations
     ./languages
     ./services
-    ./processes.nix
+    ./processes
     ./scripts
     ./shell.nix
   ];
@@ -47,7 +47,7 @@ topLevel @ {
 
       profile = pkgs.buildEnv {
         name = "devenv-profile";
-        paths = lib.flatten (builtins.map drvOrPackageToPaths config.packages);
+        paths = lib.flatten (builtins.map drvOrPackageToPaths config.snow-blower.packages);
         ignoreCollisions = true;
       };
     in {
@@ -133,11 +133,6 @@ topLevel @ {
         nixpkgs.config.allowUnsupportedSystem = true;
 
         snow-blower = {
-          shell.shellPreHook = ''
-            FLAKE_ROOT="''$(${lib.getExe config.flake-root.package})"
-            export FLAKE_ROOT
-          '';
-
           internals.state = builtins.toPath (config.snow-blower.internals.dotfile + "/state");
           internals.dotfile = lib.mkDefault (builtins.toPath (config.snow-blower.internals.root + "/.devenv"));
           internals.profile = profile;
@@ -147,6 +142,44 @@ topLevel @ {
           env.SNOWBLOWER_RUNTIME = config.snow-blower.internals.runtime;
           env.SNOWBLOWER_DOTFILE = config.snow-blower.internals.dotfile;
           env.SNOWBLOWER_ROOT = config.snow-blower.internals.root;
+
+
+          shell.shellPreHook = ''
+            FLAKE_ROOT="''$(${lib.getExe config.flake-root.package})"
+            export FLAKE_ROOT
+
+            export PS1="\[\e[0;34m\](devenv)\[\e[0m\] ''${PS1-}"
+
+            # set path to locales on non-NixOS Linux hosts
+            ${lib.optionalString (pkgs.stdenv.isLinux && (pkgs.glibcLocalesUtf8 != null)) ''
+              if [ -z "''${LOCALE_ARCHIVE-}" ]; then
+                export LOCALE_ARCHIVE=${pkgs.glibcLocalesUtf8}/lib/locale/locale-archive
+              fi
+            ''}
+
+            # note what environments are active, but make sure we don't repeat them
+            if [[ ! "''${DIRENV_ACTIVE-}" =~ (^|:)"$PWD"(:|$) ]]; then
+              export DIRENV_ACTIVE="$PWD:''${DIRENV_ACTIVE-}"
+            fi
+
+            # devenv helper
+            if [ ! type -p direnv &>/dev/null && -f .envrc ]; then
+              echo "You have .envrc but direnv command is not installed."
+              echo "Please install direnv: https://direnv.net/docs/installation.html"
+            fi
+
+            mkdir -p "$DEVENV_STATE"
+            if [ ! -L "$DEVENV_DOTFILE/profile" ] || [ "$(${pkgs.coreutils}/bin/readlink $DEVENV_DOTFILE/profile)" != "${profile}" ]
+            then
+              ln -snf ${profile} "$DEVENV_DOTFILE/profile"
+            fi
+            unset ${lib.concatStringsSep " " config.snow-blower.shell.unsetEnvVars}
+
+            mkdir -p ${lib.escapeShellArg config.snow-blower.internals.runtime}
+            ln -snf ${lib.escapeShellArg config.snow-blower.internals.runtime} ${lib.escapeShellArg config.snow-blower.internals.dotfile}/run
+          '';
+
+
         };
       };
     });
