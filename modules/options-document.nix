@@ -16,6 +16,10 @@ topLevel @ {
         snow-blower = {
           just.recipes.treefmt.enable = true;
 
+          languages = {
+            php.enable = true;
+          };
+
           treefmt = {
             programs = {
               alejandra.enable = true;
