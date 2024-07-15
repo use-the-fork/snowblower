@@ -6,17 +6,15 @@
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
   ];
-  flake.flakeModules.languages-javascript = {
+  flake.flakeModules.languages = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
       pkgs,
       config,
       ...
     }: let
-      inherit (lib) types mkOption literalExpression attrValues getAttrs;
+      inherit (lib) types mkOption literalExpression;
       cfg = config.snow-blower.languages.javascript;
-      srv = config.snow-blower.services;
-
     in {
       options.snow-blower.languages.javascript = {
         enable = lib.mkEnableOption "tools for JavaScript development";
@@ -85,40 +83,36 @@
           };
           install.enable = lib.mkEnableOption "bun install during devenv initialisation";
         };
-
       };
 
       config.snow-blower = lib.mkIf cfg.enable {
-
         packages = with pkgs;
           [
             cfg.package
           ]
-          ++ lib.optional cfg.npm.enable (cfg.npm.package)
-          ++ lib.optional cfg.pnpm.enable (cfg.pnpm.package)
-          ++ lib.optional cfg.yarn.enable (cfg.yarn.package.override { nodejs = cfg.package; })
-          ++ lib.optional cfg.bun.enable (cfg.bun.package)
-          ++ lib.optional cfg.corepack.enable (pkgs.runCommand "corepack-enable" { } ''
+          ++ lib.optional cfg.npm.enable cfg.npm.package
+          ++ lib.optional cfg.pnpm.enable cfg.pnpm.package
+          ++ lib.optional cfg.yarn.enable (cfg.yarn.package.override {nodejs = cfg.package;})
+          ++ lib.optional cfg.bun.enable cfg.bun.package
+          ++ lib.optional cfg.corepack.enable (pkgs.runCommand "corepack-enable" {} ''
             mkdir -p $out/bin
             ${cfg.package}/bin/corepack enable --install-directory $out/bin
           '');
 
-          shell.shellPreHook = lib.concatStringsSep "\n" (
-                                  (lib.optional cfg.npm.install.enable ''
-                                    source ${(./init-npm.nix {inherit pkgs lib config; })}
-                                  '')
-                                  ++
-                                  (lib.optional cfg.pnpm.install.enable ''
-                                    source ${(./init-pnpm.nix {inherit pkgs lib config; })}
-                                  '') ++
-                                  (lib.optional cfg.yarn.install.enable ''
-                                    source ${(./init-yarn.nix {inherit pkgs lib config; })}
-                                  '') ++
-                                  (lib.optional cfg.bun.install.enable ''
-                                    source ${(./init-bun.nix {inherit pkgs lib config; })}
-                                  '')
-                                );
-
+        shell.shellPreHook = lib.concatStringsSep "\n" (
+          (lib.optional cfg.npm.install.enable ''
+            source ${(./init-npm.nix {inherit pkgs lib config;})}
+          '')
+          ++ (lib.optional cfg.pnpm.install.enable ''
+            source ${(./init-pnpm.nix {inherit pkgs lib config;})}
+          '')
+          ++ (lib.optional cfg.yarn.install.enable ''
+            source ${(./init-yarn.nix {inherit pkgs lib config;})}
+          '')
+          ++ (lib.optional cfg.bun.install.enable ''
+            source ${(./init-bun.nix {inherit pkgs lib config;})}
+          '')
+        );
       };
     });
   };

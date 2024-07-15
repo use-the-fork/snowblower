@@ -6,7 +6,7 @@
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
   ];
-  flake.flakeModules.languages-php = {
+  flake.flakeModules.languages = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
       pkgs,
