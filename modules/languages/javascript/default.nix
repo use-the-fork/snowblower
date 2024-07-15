@@ -99,7 +99,7 @@
             ${cfg.package}/bin/corepack enable --install-directory $out/bin
           '');
 
-        shell.shellPreHook = lib.concatStringsSep "\n" (
+        shell.startup = lib.concatStringsSep "\n" (
           (lib.optional cfg.npm.install.enable ''
             source ${(./init-npm.nix {inherit pkgs lib config;})}
           '')

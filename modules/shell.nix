@@ -15,61 +15,46 @@
       ...
     }: let
       inherit (lib) types mkOption;
+
+      cfg = config.snow-blower;
+
+      #          ansi = import ../nix/ansi.nix;
+
+      # Write a bash profile to load
+      envBash = pkgs.writeShellScriptBin "devshell-env" ''
+
+        PRJ_ROOT=$FLAKE_ROOT
+
+        if [[ -z "''${PRJ_ROOT:-}" ]]; then
+          echo "ERROR: please set the PRJ_ROOT env var to point to the project root" >&2
+          return 1
+        fi
+
+        export PRJ_ROOT
+
+        ${cfg.shell.startup_env}
+      '';
     in {
       options.snow-blower.shell = {
-        shellPreHook = mkOption {
+        startup = mkOption {
           type = types.lines;
           description = "Bash code to execute when entering the shell.";
           default = "";
         };
 
-        shellPostHook = mkOption {
-          type = types.lines;
-          description = "Bash code to execute when entering the shell but after `shellPreHook`.";
+        startup_env = mkOption {
+          type = types.str;
           default = "";
+          internal = true;
+          description = ''
+            Please ignore. Used by the env module.
+          '';
         };
 
         stdenv = mkOption {
           type = types.package;
           description = "The stdenv to use for the developer environment.";
           default = pkgs.stdenv;
-        };
-
-        unsetEnvVars = lib.mkOption {
-          type = types.listOf types.str;
-          description = "A list of removed environment variables to make the shell/direnv more lean.";
-          # manually determined with knowledge from https://nixos.wiki/wiki/C
-          default = [
-            "HOST_PATH"
-            "NIX_BUILD_CORES"
-            "__structuredAttrs"
-            "buildInputs"
-            "buildPhase"
-            "builder"
-            "depsBuildBuild"
-            "depsBuildBuildPropagated"
-            "depsBuildTarget"
-            "depsBuildTargetPropagated"
-            "depsHostHost"
-            "depsHostHostPropagated"
-            "depsTargetTarget"
-            "depsTargetTargetPropagated"
-            "dontAddDisableDepTrack"
-            "doCheck"
-            "doInstallCheck"
-            "nativeBuildInputs"
-            "out"
-            "outputs"
-            "patches"
-            "phases"
-            "preferLocalBuild"
-            "propagatedBuildInputs"
-            "propagatedNativeBuildInputs"
-            "shell"
-            "shellHook"
-            "stdenv"
-            "strictDeps"
-          ];
         };
 
         shell = mkOption {
@@ -87,23 +72,24 @@
         };
       };
 
-      config.devShells.default =
-        (pkgs.mkShell.override {stdenv = config.snow-blower.shell.stdenv;}) {
-          packages = config.snow-blower.packages;
-          nativeBuildInputs = [
-            self'.packages.watch-server
-          ];
-          shellHook = ''
-                  ${config.snow-blower.shell.shellPreHook}
-                  ${config.snow-blower.shell.shellPostHook}
-            echo
-            echo "Snow Blower: Simple, Fast, Declarative, Reproducible, and Composable Developer Environments"
-            echo
-            echo "Run 'just <recipe>' to get started"
-            just --list
-          '';
-        }
-        // config.snow-blower.env;
+      config.devShells.default = (pkgs.mkShell.override {stdenv = config.snow-blower.shell.stdenv;}) {
+        packages = config.snow-blower.packages;
+        nativeBuildInputs = [
+          self'.packages.watch-server
+        ];
+        shellHook = ''
+              FLAKE_ROOT="''$(${lib.getExe config.flake-root.package})"
+              export FLAKE_ROOT
+
+          source ${lib.getExe envBash}
+          ${config.snow-blower.shell.startup}
+          echo
+          echo "❄️ 💨 Snow Blower: Simple, Fast, Declarative, Reproducible, and Composable Developer Environments"
+          echo
+          echo "Run 'just <recipe>' to get started"
+          just --list
+        '';
+      };
     });
   };
 }

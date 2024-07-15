@@ -48,28 +48,23 @@
         };
       };
 
-      config.snow-blower={
+      config.snow-blower = {
+        packages = [
+          config.snow-blower.just.package
+        ];
 
-              packages = [
-                config.snow-blower.just.package
-              ];
-
-
-
-      shell = {
-
-
-        shellPostHook = let
-          commonJustfile = pkgs.writeTextFile {
-            name = "justfile";
-            text =
-              lib.concatStringsSep "\n"
-              (lib.mapAttrsToList (_name: recipe: recipe.outputs.justfile) config.snow-blower.just.recipes);
-          };
-        in ''
-          ln -sf ${builtins.toString commonJustfile} ./${config.snow-blower.just.commonFileName}
-        '';
-      };
+        shell = {
+          startup = let
+            commonJustfile = pkgs.writeTextFile {
+              name = "justfile";
+              text =
+                lib.concatStringsSep "\n"
+                (lib.mapAttrsToList (_name: recipe: recipe.outputs.justfile) config.snow-blower.just.recipes);
+            };
+          in ''
+            ln -sf ${builtins.toString commonJustfile} ./${config.snow-blower.just.commonFileName}
+          '';
+        };
       };
     });
   };

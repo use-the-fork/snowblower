@@ -281,12 +281,20 @@
 
             env =
               {
-                MYSQL_HOME = config.env.DEVENV_STATE + "/mysql";
-                MYSQL_UNIX_PORT = config.env.DEVENV_RUNTIME + "/mysql.sock";
-                MYSQLX_UNIX_PORT = config.env.DEVENV_RUNTIME + "/mysqlx.sock";
+                "MYSQL_HOME" = {
+                  eval = "\${PRJ_DATA_DIR:-$PRJ_ROOT/mysql}";
+                };
+                "MYSQL_UNIX_PORT" = {
+                  eval = "\${PRJ_RUNTIME_DIR:-$PRJ_ROOT/.snow-blower/mysql.sock}";
+                };
+                "MYSQLX_UNIX_PORT" = {
+                  eval = "\${PRJ_RUNTIME_DIR:-$PRJ_ROOT/.snow-blower/mysqlx.sock}";
+                };
               }
               // (optionalAttrs (hasAttrByPath ["mysqld" "port"] cfg.settings) {
-                MYSQL_TCP_PORT = toString cfg.settings.mysqld.port;
+                "MYSQL_TCP_PORT" = {
+                  value = toString cfg.settings.mysqld.port;
+                };
               });
           };
         };

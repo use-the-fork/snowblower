@@ -5,6 +5,7 @@ topLevel @ {
 }: {
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
+    ./env
     ./nixpkgs.nix
     ./integrations
     ./languages
@@ -15,7 +16,9 @@ topLevel @ {
   ];
   flake.flakeModules.common = flakeModule: {
     imports = [
+      #The Must Haves
       topLevel.config.flake.flakeModules.nixpkgs
+      topLevel.config.flake.flakeModules.env
 
       topLevel.config.flake.flakeModules.integrations
       topLevel.config.flake.flakeModules.scripts
@@ -23,11 +26,10 @@ topLevel @ {
       topLevel.config.flake.flakeModules.languages
       topLevel.config.flake.flakeModules.services
 
-
       topLevel.config.flake.flakeModules.shell
 
+      # how we run this ishh.
       inputs.process-compose-flake.flakeModule
-
       #this gives us the avility to $FLAKE_ROOT as a env varible to be able to get at the root of the flake we are developing in.
       inputs.flake-root.flakeModule
     ];
@@ -52,18 +54,6 @@ topLevel @ {
       };
     in {
       options.snow-blower = {
-        env = lib.mkOption {
-          type = types.submoduleWith {
-            modules = [
-              (_env: {
-                config._module.freeformType = types.lazyAttrsOf types.anything;
-              })
-            ];
-          };
-          description = "Environment variables to be exposed inside the developer environment.";
-          default = {};
-        };
-
         packages = mkOption {
           type = types.listOf types.package;
           description = "A list of packages to expose inside the developer environment. See https://search.nixos.org/packages for packages.";
@@ -96,7 +86,7 @@ topLevel @ {
             # - short so that unix domain sockets won't hit the path length limit
             # - free to create as an unprivileged user across OSes
             default = let
-              runtimeEnv = builtins.getEnv "SNOWBLOWER_RUNTIME";
+              runtimeEnv = builtins.getEnv "PRJ_ROOT";
 
               hashedRoot = builtins.hashString "sha256" config.snow-blower.internals.state;
 
@@ -134,52 +124,25 @@ topLevel @ {
 
         snow-blower = {
           internals.state = builtins.toPath (config.snow-blower.internals.dotfile + "/state");
-          internals.dotfile = lib.mkDefault (builtins.toPath (config.snow-blower.internals.root + "/.devenv"));
+          internals.dotfile = lib.mkDefault (builtins.toPath (config.snow-blower.internals.root + "/.snow-blower"));
           internals.profile = profile;
 
-          env.SNOWBLOWER_PROFILE = config.snow-blower.internals.profile;
-          env.SNOWBLOWER_STATE = config.snow-blower.internals.state;
-          env.SNOWBLOWER_RUNTIME = config.snow-blower.internals.runtime;
-          env.SNOWBLOWER_DOTFILE = config.snow-blower.internals.dotfile;
-          env.SNOWBLOWER_ROOT = config.snow-blower.internals.root;
-
-
-          shell.shellPreHook = ''
-            FLAKE_ROOT="''$(${lib.getExe config.flake-root.package})"
-            export FLAKE_ROOT
-
-            export PS1="\[\e[0;34m\](devenv)\[\e[0m\] ''${PS1-}"
-
-            # set path to locales on non-NixOS Linux hosts
-            ${lib.optionalString (pkgs.stdenv.isLinux && (pkgs.glibcLocalesUtf8 != null)) ''
-              if [ -z "''${LOCALE_ARCHIVE-}" ]; then
-                export LOCALE_ARCHIVE=${pkgs.glibcLocalesUtf8}/lib/locale/locale-archive
-              fi
-            ''}
+          shell.startup = ''
 
             # note what environments are active, but make sure we don't repeat them
-            if [[ ! "''${DIRENV_ACTIVE-}" =~ (^|:)"$PWD"(:|$) ]]; then
-              export DIRENV_ACTIVE="$PWD:''${DIRENV_ACTIVE-}"
+            if [[ ! "''${SNOWBLOWER_ACTIVE-}" =~ (^|:)"$PWD"(:|$) ]]; then
+              export SNOWBLOWER_ACTIVE="$PWD:''${SNOWBLOWER_ACTIVE-}"
             fi
 
             # devenv helper
-            if [ ! type -p direnv &>/dev/null && -f .envrc ]; then
-              echo "You have .envrc but direnv command is not installed."
-              echo "Please install direnv: https://direnv.net/docs/installation.html"
+            if [ ! type -p snow-blower &>/dev/null && -f .envrc ]; then
+              echo "You have .envrc but snow-blower command is not installed."
+              echo "Please install snow-blower: https://direnv.net/docs/installation.html"
             fi
 
-            mkdir -p "$DEVENV_STATE"
-            if [ ! -L "$DEVENV_DOTFILE/profile" ] || [ "$(${pkgs.coreutils}/bin/readlink $DEVENV_DOTFILE/profile)" != "${profile}" ]
-            then
-              ln -snf ${profile} "$DEVENV_DOTFILE/profile"
-            fi
-            unset ${lib.concatStringsSep " " config.snow-blower.shell.unsetEnvVars}
+            mkdir -p "$FLAKE_ROOT/.snow-blower"
 
-            mkdir -p ${lib.escapeShellArg config.snow-blower.internals.runtime}
-            ln -snf ${lib.escapeShellArg config.snow-blower.internals.runtime} ${lib.escapeShellArg config.snow-blower.internals.dotfile}/run
           '';
-
-
         };
       };
     });
