@@ -1,6 +1,6 @@
 {
   imports = [
-      ./adminer
+    ./adminer
     ./blackfire
     ./mysql
   ];
