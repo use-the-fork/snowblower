@@ -34,8 +34,8 @@
       };
 
       config.snow-blower = {
+        packages = lib.mkAfter ([config.snow-blower.git-hooks.package] ++ (config.snow-blower.git-hooks.enabledPackages or []));
         shell = {
-          packages = lib.mkAfter ([config.snow-blower.git-hooks.package] ++ (config.snow-blower.git-hooks.enabledPackages or []));
           shellPreHook = config.snow-blower.git-hooks.installationScript;
         };
       };

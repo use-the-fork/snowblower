@@ -48,10 +48,16 @@
         };
       };
 
-      config.snow-blower.shell = {
-        packages = [
-          config.snow-blower.just.package
-        ];
+      config.snow-blower={
+
+              packages = [
+                config.snow-blower.just.package
+              ];
+
+
+
+      shell = {
+
 
         shellPostHook = let
           commonJustfile = pkgs.writeTextFile {
@@ -63,6 +69,7 @@
         in ''
           ln -sf ${builtins.toString commonJustfile} ./${config.snow-blower.just.commonFileName}
         '';
+      };
       };
     });
   };

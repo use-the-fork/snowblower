@@ -15,6 +15,7 @@
     };
 
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
+    flake-root.url = "github:srid/flake-root";
 
     git-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
@@ -24,7 +25,10 @@
     };
   };
 
-  outputs = inputs @ {flake-parts, ...}: let
+  outputs = inputs @ {
+    flake-parts,
+    ...
+  }: let
     bootstrap =
       inputs.flake-parts.lib.mkFlake {
         inherit inputs;

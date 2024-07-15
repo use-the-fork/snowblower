@@ -46,11 +46,9 @@
           '';
         };
 
-        shell = {
-          packages = [
-            config.snow-blower.treefmt.build.wrapper
-          ];
-        };
+        packages = [
+          config.snow-blower.treefmt.build.wrapper
+        ];
       };
     });
   };
