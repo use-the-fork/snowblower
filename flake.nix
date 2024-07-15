@@ -14,6 +14,8 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
 
+    process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
+
     git-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs = {
@@ -22,31 +24,22 @@
     };
   };
 
-  outputs = inputs @ {
-    flake-parts,
-    ...
-  }: let
+  outputs = inputs @ {flake-parts, ...}: let
     bootstrap =
       inputs.flake-parts.lib.mkFlake {
         inherit inputs;
         moduleLocation = ./flake.nix;
-      } ({ ...}: {
+      } ({...}: {
         imports = [
           ./modules/common.nix
-          ./modules/integrations
-          ./modules/process-compose.nix
           ./modules/options-document.nix
         ];
         systems = import inputs.systems;
       });
   in
-    inputs.flake-parts.lib.mkFlake {inherit inputs;} ({ ...}: {
+    inputs.flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
       imports = [
         bootstrap.flakeModules.common
-        bootstrap.flakeModules.integrations-git-hooks
-        bootstrap.flakeModules.integrations-just
-        bootstrap.flakeModules.integrations-tree-fmt
-        bootstrap.flakeModules.process-compose
         bootstrap.flakeModules.optionsDocument
         #        bootstrap.flakeModules.lib
       ];

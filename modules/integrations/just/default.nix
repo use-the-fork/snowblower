@@ -1,17 +1,12 @@
-topLevel @ {
+{
   inputs,
   flake-parts-lib,
   ...
 }: {
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
-    ../../common.nix
   ];
   flake.flakeModules.integrations-just = {
-    imports = [
-      topLevel.config.flake.flakeModules.common
-    ];
-
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
       pkgs,

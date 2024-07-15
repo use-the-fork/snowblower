@@ -1,0 +1,6 @@
+{
+  imports = [
+    ./adminer.nix
+    ./mysql
+  ];
+}

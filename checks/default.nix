@@ -4,7 +4,6 @@
   snow-blower,
   ...
 }: let
-
   sbEval = snow-blower.evalModule pkgs inputs ../snowblower.nix;
 
   self = {

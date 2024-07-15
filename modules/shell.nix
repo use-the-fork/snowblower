@@ -11,6 +11,7 @@
       lib,
       pkgs,
       config,
+      self',
       ...
     }: let
       inherit (lib) types mkOption;
@@ -55,17 +56,23 @@
         };
       };
 
-      config.devShells.default = pkgs.mkShell {
-        shellHook = ''
-                ${config.snow-blower.shell.shellPreHook}
-                ${config.snow-blower.shell.shellPostHook}
-          echo
-          echo "Snow Blower: Simple, Fast, Declarative, Reproducible, and Composable Developer Environments"
-          echo
-          echo "Run 'just <recipe>' to get started"
-          just --list
-        '';
-      };
+      config.devShells.default =
+        pkgs.mkShell {
+          packages = config.snow-blower.packages;
+          nativeBuildInputs = [
+            self'.packages.watch-server
+          ];
+          shellHook = ''
+                  ${config.snow-blower.shell.shellPreHook}
+                  ${config.snow-blower.shell.shellPostHook}
+            echo
+            echo "Snow Blower: Simple, Fast, Declarative, Reproducible, and Composable Developer Environments"
+            echo
+            echo "Run 'just <recipe>' to get started"
+            just --list
+          '';
+        }
+        // config.snow-blower.env;
     });
   };
 }

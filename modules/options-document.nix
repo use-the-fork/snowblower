@@ -34,6 +34,8 @@ topLevel @ {
               enable = true;
             };
           };
+
+          services.adminer.enable = true;
         };
       }
     );

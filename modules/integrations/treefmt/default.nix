@@ -1,19 +1,12 @@
-topLevel @ {
+{
   inputs,
   flake-parts-lib,
   ...
 }: {
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
-    ../../common.nix
   ];
   flake.flakeModules.integrations-tree-fmt = {
-    imports = [
-      topLevel.config.flake.flakeModules.common
-      topLevel.config.flake.flakeModules.integrations-just
-      topLevel.config.flake.flakeModules.integrations-git-hooks
-    ];
-
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
       pkgs,
