@@ -101,14 +101,14 @@ topLevel @ {
             default = let
               runtimeEnv = builtins.getEnv "SNOWBLOWER_RUNTIME";
 
-              hashedRoot = builtins.hashString "sha256" config.snow-blower.config.state;
+              hashedRoot = builtins.hashString "sha256" config.snow-blower.internals.state;
 
               # same length as git's abbreviated commit hashes
               shortHash = builtins.substring 0 7 hashedRoot;
             in
               if runtimeEnv != ""
               then runtimeEnv
-              else "${config.snow-blower.config.tmpdir}/devenv-${shortHash}";
+              else "${config.snow-blower.internals.tmpdir}/devenv-${shortHash}";
           };
 
           tmpdir = lib.mkOption {
@@ -135,20 +135,22 @@ topLevel @ {
       config = {
         nixpkgs.config.allowUnsupportedSystem = true;
 
-        snow-blower.shell.shellPreHook = ''
-          FLAKE_ROOT="''$(${lib.getExe config.flake-root.package})"
-          export FLAKE_ROOT
-        '';
+        snow-blower = {
+          shell.shellPreHook = ''
+            FLAKE_ROOT="''$(${lib.getExe config.flake-root.package})"
+            export FLAKE_ROOT
+          '';
 
-        snow-blower.internals.state = builtins.toPath (config.snow-blowerinternals.dotfile + "/state");
-        snow-blower.internals.dotfile = lib.mkDefault (builtins.toPath (config.snow-blowerinternals.root + "/.devenv"));
-        snow-blower.internals.profile = profile;
+          internals.state = builtins.toPath (config.snow-blower.internals.dotfile + "/state");
+          internals.dotfile = lib.mkDefault (builtins.toPath (config.snow-blower.internals.root + "/.devenv"));
+          internals.profile = profile;
 
-        env.SNOWBLOWER_PROFILE = config.devenv.profile;
-        env.SNOWBLOWER_STATE = config.devenv.state;
-        env.SNOWBLOWER_RUNTIME = config.devenv.runtime;
-        env.SNOWBLOWER_DOTFILE = config.devenv.dotfile;
-        env.SNOWBLOWER_ROOT = config.devenv.root;
+          env.SNOWBLOWER_PROFILE = config.snow-blower.internals.profile;
+          env.SNOWBLOWER_STATE = config.snow-blower.internals.state;
+          env.SNOWBLOWER_RUNTIME = config.snow-blower.internals.runtime;
+          env.SNOWBLOWER_DOTFILE = config.snow-blower.internals.dotfile;
+          env.SNOWBLOWER_ROOT = config.snow-blower.internals.root;
+        };
       };
     });
   };

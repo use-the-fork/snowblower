@@ -15,6 +15,12 @@
       ...
     }: let
       inherit (lib) types mkOption;
+
+        envList =
+          lib.mapAttrsToList
+            (name: value: "${name}=${builtins.toJSON value}")
+            config.env;
+
     in {
       options.snow-blower.shell = {
         shellPreHook = mkOption {
@@ -51,7 +57,7 @@
       };
 
       config.devShells.default =
-        pkgs.mkShell {
+        ((pkgs.mkShell.override { stdenv = config.snow-blower.shell.stdenv; }) {
           packages = config.snow-blower.packages;
           nativeBuildInputs = [
             self'.packages.watch-server
@@ -66,7 +72,7 @@
             just --list
           '';
         }
-        // config.snow-blower.env;
+        // config.snow-blower.env);
     });
   };
 }
