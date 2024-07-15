@@ -3,10 +3,11 @@ topLevel@{ inputs, flake-parts-lib, ... }: {
     inputs.flake-parts.flakeModules.flakeModules
     ../../common.nix
   ];
-  flake.flakeModules.tree-fmt = {
+  flake.flakeModules.integrations-tree-fmt = {
     imports = [
       topLevel.config.flake.flakeModules.common
       topLevel.config.flake.flakeModules.integrations-just
+      topLevel.config.flake.flakeModules.integrations-git-hooks
     ];
 
     options.perSystem = flake-parts-lib.mkPerSystemOption ({ lib, pkgs, config, ... }: let
@@ -14,7 +15,7 @@ topLevel@{ inputs, flake-parts-lib, ... }: {
 
     in {
 
-      options.snow-blower.tree-fmt = mkOption {
+      options.snow-blower.treefmt = mkOption {
                          type = types.submoduleWith {
                            modules = inputs.treefmt-nix.lib.submodule-modules ++ [
                              {
@@ -31,6 +32,20 @@ topLevel@{ inputs, flake-parts-lib, ... }: {
 
 
       config.snow-blower = {
+
+        #automatically add treefmt-nix to pre-commit if the user enables it.
+        git-hooks.hooks.treefmt.package = config.snow-blower.treefmt.build.wrapper;
+
+        #automatically add treefmt-nix to just.
+        just.recipes.treefmt = {
+                   package = lib.mkDefault config.snow-blower.treefmt.build.wrapper;
+                   justfile = lib.mkDefault ''
+                     # Auto-format the source tree using treefmt
+                     fmt:
+                       ${lib.getExe config.snow-blower.just.recipes.treefmt.package}
+                   '';
+                 };
+
         shell = {
               packages = [
                 config.snow-blower.treefmt.build.wrapper

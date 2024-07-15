@@ -29,6 +29,7 @@
           imports = [
             ./modules/common.nix
             ./modules/integrations
+            ./modules/options-document.nix
           ];
           systems = import inputs.systems;
         });
@@ -38,8 +39,10 @@
 
       imports = [
         bootstrap.flakeModules.common
+        bootstrap.flakeModules.integrations-git-hooks
         bootstrap.flakeModules.integrations-just
-        bootstrap.flakeModules.tree-fmt
+        bootstrap.flakeModules.integrations-tree-fmt
+        bootstrap.flakeModules.optionsDocument
 #        bootstrap.flakeModules.lib
       ];
 

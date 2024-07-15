@@ -58,6 +58,7 @@ topLevel@{ inputs, flake-parts-lib, ... }: {
                                   echo "Snow Blower: Simple, Fast, Declarative, Reproducible, and Composable Developer Environments"
                                   echo
                                   echo "Run 'just <recipe>' to get started"
+                                  just --list
                                 '';
                               };
 
