@@ -1,9 +1,12 @@
-{ pkgs, config, lib, ... }:
-let
-  cfg = config.process-managers.process-compose;
-  settingsFormat = pkgs.formats.yaml { };
-in
 {
+  pkgs,
+  config,
+  lib,
+  ...
+}: let
+  cfg = config.process-managers.process-compose;
+  settingsFormat = pkgs.formats.yaml {};
+in {
   options.process-managers.process-compose = {
     enable = lib.mkEnableOption "process-compose as process-manager";
     package = lib.mkOption {
@@ -18,21 +21,20 @@ in
     };
     settings = lib.mkOption {
       type = settingsFormat.type;
-      default = { };
+      default = {};
       description = ''
         process-compose.yaml specific process attributes.
 
         Example: https://github.com/F1bonacc1/process-compose/blob/main/process-compose.yaml`
       '';
       example = {
-        environment = [ "ENVVAR_FOR_THIS_PROCESS_ONLY=foobar" ];
+        environment = ["ENVVAR_FOR_THIS_PROCESS_ONLY=foobar"];
         availability = {
           restart = "on_failure";
           backoff_seconds = 2;
           max_restarts = 5; # default: 0 (unlimited)
         };
-        depends_on.some-other-process.condition =
-          "process_completed_successfully";
+        depends_on.some-other-process.condition = "process_completed_successfully";
       };
     };
   };
@@ -44,7 +46,7 @@ in
         -U up "$@" &
     '';
 
-    packages = [ cfg.package ];
+    packages = [cfg.package];
 
     process-managers.process-compose = {
       configFile = settingsFormat.generate "process-compose.yaml" cfg.settings;
@@ -53,14 +55,15 @@ in
         is_strict = true;
         port = lib.mkDefault 9999;
         tui = lib.mkDefault true;
-        environment = lib.mapAttrsToList
+        environment =
+          lib.mapAttrsToList
           (name: value: "${name}=${toString value}")
           config.env;
-        processes = lib.mapAttrs
-          (name: value: { command = "exec ${pkgs.writeShellScript name value.exec}"; } // value.process-compose)
+        processes =
+          lib.mapAttrs
+          (name: value: {command = "exec ${pkgs.writeShellScript name value.exec}";} // value.process-compose)
           config.processes;
       };
     };
-
   };
 }
