@@ -14,12 +14,7 @@ in
     };
   };
 
-  config = lib.mkIf config.just.enable {
-    warnings = optionals ((lib.filterAttrs (id: value: value.enable) config.treefmt.programs) == { }) [
-      ''
-        You have enabled the Just runner for treefmt but do not have any formatters enabled.
-      ''
-    ];
+  config = lib.mkIf ((lib.filterAttrs (id: value: value.enable) config.treefmt.programs) != { }) {
 
     just.recipes.treefmt = {
       package = lib.mkDefault config.treefmt.build.wrapper;

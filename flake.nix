@@ -21,37 +21,38 @@
   };
 
   outputs = inputs@{ flake-parts, nixpkgs, ... }:
-    flake-parts.lib.mkFlake { inherit inputs; } ({ self, lib, ... }:
-      let
+    flake-parts.lib.mkFlake { inherit inputs; } (_:
+      {
+        flake.flakeModule = {
+          imports = [
+            ./modules
+          ];
+        };
 
-
-      in {
         systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
-        perSystem = { config, self', inputs', pkgs, system, ... }: {
+        perSystem = { config, pkgs, system, ... }:
+          let
 
-          devShells.default = self'.checks.self-shell;
+            lib = import ./.;
 
-          checks = (import ./checks {
-            inherit inputs;
-            pkgs = import inputs.nixpkgs {
-              inherit system;
-              config = {
-                # required for packer
-                allowUnfree = true;
+            sbChecks = import ./checks {
+              inherit inputs;
+              pkgs = import inputs.nixpkgs {
+                inherit system;
+                config = {
+                  # required for packer
+                  allowUnfree = true;
+                };
               };
+              snow-blower = lib;
             };
-            snow-blower = self.lib;
-          });
 
-          packages = {
-            docs = self'.checks.module-docs;
+          in
+          {
+
+            devShells.default = sbChecks.self-shell;
+
           };
 
-        };
-
-        flake = {
-          flakeModule = ./flake-module.nix;
-          lib = import ./.;
-        };
       });
 }

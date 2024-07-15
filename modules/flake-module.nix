@@ -1,7 +1,7 @@
-{ self, lib, inputs, ... }:
+{ flake-parts-lib, lib, inputs, ... }:
 let
-  inherit (inputs.flake-parts.flake-parts-lib)
-    mkPerSystemOption;
+ inherit (flake-parts-lib) mkPerSystemOption;
+
   inherit (lib)
     mkOption
     types;
@@ -21,7 +21,11 @@ in
             used by the `nix develop` command.
           '';
           type = types.submoduleWith {
-            modules = (import ./.).submodule-modules ++ [{
+            modules = [{
+              options.pkgs = lib.mkOption {
+                default = pkgs;
+                defaultText = "`pkgs` (module argument of `perSystem`)";
+              };
               options.flakeShell = lib.mkOption {
                 type = types.bool;
                 default = true;
@@ -37,9 +41,10 @@ in
 #                  Add a flake check to run `treefmt`
 #                '';
 #              };
+
               options.projectRoot = lib.mkOption {
                 type = types.path;
-                default = self;
+                default = self';
                 defaultText = lib.literalExpression "self";
                 description = ''
                   Path to the root of the project on which treefmt operates
@@ -51,7 +56,7 @@ in
         };
         config = {
 #          checks = lib.mkIf config.snow-blower.flakeCheck { snow-blower = config.snow-blower.build.check config.snow-blower.projectRoot; };
-          devShell = lib.mkIf config.snow-blower.flakeShell (lib.mkDefault config.snow-blower.build.devShell);
+#          devShells.default = lib.mkIf config.snow-blower.flakeShell (lib.mkDefault config.snow-blower.build.devShell);
         };
       });
   };

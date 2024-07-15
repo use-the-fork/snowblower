@@ -14,7 +14,6 @@ _: {
     hooks.treefmt.enable = true;
   };
   just = {
-    enable = true;
     recipes = {
       treefmt.enable = true;
     };
