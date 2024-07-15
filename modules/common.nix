@@ -17,20 +17,12 @@ topLevel @ {
     imports = [
       topLevel.config.flake.flakeModules.nixpkgs
 
-      topLevel.config.flake.flakeModules.integrations-git-hooks
-      topLevel.config.flake.flakeModules.integrations-just
-      topLevel.config.flake.flakeModules.integrations-tree-fmt
-
+      topLevel.config.flake.flakeModules.integrations
       topLevel.config.flake.flakeModules.scripts
-
       topLevel.config.flake.flakeModules.processes
+      topLevel.config.flake.flakeModules.languages
+      topLevel.config.flake.flakeModules.services
 
-      topLevel.config.flake.flakeModules.languages-php
-      topLevel.config.flake.flakeModules.languages-javascript
-
-      topLevel.config.flake.flakeModules.services-adminer
-      topLevel.config.flake.flakeModules.services-blackfire
-      topLevel.config.flake.flakeModules.services-mysql
 
       topLevel.config.flake.flakeModules.shell
 

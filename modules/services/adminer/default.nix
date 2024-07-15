@@ -6,7 +6,7 @@ topLevel @ {
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
   ];
-  flake.flakeModules.services-adminer = {
+  flake.flakeModules.services = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
       pkgs,

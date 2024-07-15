@@ -6,7 +6,7 @@
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
   ];
-  flake.flakeModules.services-mysql = {
+  flake.flakeModules.services = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
       pkgs,
