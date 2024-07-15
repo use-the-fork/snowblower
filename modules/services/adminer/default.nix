@@ -1,4 +1,4 @@
-topLevel @ {
+{
   inputs,
   flake-parts-lib,
   ...
@@ -35,11 +35,10 @@ topLevel @ {
       };
 
       config.process-compose.watch-server = {
-          settings.processes = lib.mkIf cfg.enable {
-              adminer.command = "${config.snow-blower.languages.php.package}/bin/php ${lib.optionalString config.snow-blower.services.mysql.enable "-dmysqli.default_socket=${config.snow-blower.env.MYSQL_UNIX_PORT}"} -S ${cfg.listen} -t ${cfg.package} ${cfg.package}/adminer.php";
-          };
+        settings.processes = lib.mkIf cfg.enable {
+          adminer.command = "${config.snow-blower.languages.php.package}/bin/php ${lib.optionalString config.snow-blower.services.mysql.enable "-dmysqli.default_socket=${config.snow-blower.env.MYSQL_UNIX_PORT}"} -S ${cfg.listen} -t ${cfg.package} ${cfg.package}/adminer.php";
+        };
       };
-
     });
   };
 }

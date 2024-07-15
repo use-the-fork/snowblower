@@ -1,12 +1,12 @@
 {
-pkgs,
-lib,
-config
-}:let
+  pkgs,
+  lib,
+  config,
+}: let
   cfg = config.snow-blower.languages.javascript;
   nodeModulesPath = "${lib.optionalString (cfg.directory != config.devenv.root) ''"${cfg.directory}/"''}node_modules";
 in
-pkgs.writeShellScript "init-pnpm.sh" ''
+  pkgs.writeShellScript "init-pnpm.sh" ''
     function _devenv-pnpm-install()
     {
       # Avoid running "pnpm install" for every shell.

@@ -1,12 +1,12 @@
 {
-pkgs,
-lib,
-config
-}:let
+  pkgs,
+  lib,
+  config,
+}: let
   cfg = config.snow-blower.languages.javascript;
   nodeModulesPath = "${lib.optionalString (cfg.directory != config.devenv.root) ''"${cfg.directory}/"''}node_modules";
 in
-pkgs.writeShellScript "init-npm.sh" ''
+  pkgs.writeShellScript "init-npm.sh" ''
     function _devenv-npm-install()
     {
       # Avoid running "npm install" for every shell.

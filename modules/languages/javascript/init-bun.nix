@@ -1,12 +1,12 @@
 {
-pkgs,
-lib,
-config
-}:let
+  pkgs,
+  lib,
+  config,
+}: let
   cfg = config.snow-blower.languages.javascript;
   nodeModulesPath = "${lib.optionalString (cfg.directory != config.devenv.root) ''"${cfg.directory}/"''}node_modules";
 in
-pkgs.writeShellScript "init-bun.sh" ''
+  pkgs.writeShellScript "init-bun.sh" ''
     function _devenv-bun-install()
     {
       # Avoid running "bun install --yarn" for every shell.

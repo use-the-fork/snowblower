@@ -1,12 +1,12 @@
 {
-pkgs,
-lib,
-config
-}:let
+  pkgs,
+  lib,
+  config,
+}: let
   cfg = config.snow-blower.languages.javascript;
   nodeModulesPath = "${lib.optionalString (cfg.directory != config.devenv.root) ''"${cfg.directory}/"''}node_modules";
 in
-pkgs.writeShellScript "init-yarn.sh" ''
+  pkgs.writeShellScript "init-yarn.sh" ''
     function _devenv-yarn-install()
     {
       # Avoid running "yarn install" for every shell.
