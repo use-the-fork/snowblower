@@ -2,6 +2,9 @@
   description = "snow-blower";
 
   inputs = {
+      # global, so they can be `.follow`ed
+      systems.url = "github:nix-systems/default-linux";
+
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
     treefmt-nix.url = "github:numtide/treefmt-nix";
@@ -20,39 +23,58 @@
 
   };
 
-  outputs = inputs@{ flake-parts, nixpkgs, ... }:
-    flake-parts.lib.mkFlake { inherit inputs; } (_:
-      {
-        flake.flakeModule = {
+  outputs = inputs@{ flake-parts, nixpkgs, ... }: let
+
+        bootstrap = inputs.flake-parts.lib.mkFlake { inherit inputs; moduleLocation = ./flake.nix; } ({ lib, ... }: {
           imports = [
-            ./modules
+            ./modules/common.nix
+            ./modules/integrations
           ];
-        };
+          systems = import inputs.systems;
+        });
 
-        systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
-        perSystem = { config, pkgs, system, ... }:
-          let
+  in
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } ({ lib, ... }: {
 
-            lib = import ./.;
+      imports = [
+        bootstrap.flakeModules.common
+        bootstrap.flakeModules.integrations-just
+        bootstrap.flakeModules.tree-fmt
+#        bootstrap.flakeModules.lib
+      ];
 
-            sbChecks = import ./checks {
-              inherit inputs;
-              pkgs = import inputs.nixpkgs {
-                inherit system;
-                config = {
-                  # required for packer
-                  allowUnfree = true;
-                };
-              };
-              snow-blower = lib;
-            };
+      flake = bootstrap;
 
-          in
-          {
-
-            devShells.default = sbChecks.self-shell;
-
-          };
+#        flake.flakeModule = {
+#          imports = [
+#            ./modules
+#          ];
+#        };
+#
+#        systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
+#        perSystem = { config, pkgs, system, ... }:
+#          let
+#
+#            lib = import ./.;
+#
+#            sbChecks = import ./checks {
+#              inherit inputs;
+#              pkgs = import inputs.nixpkgs {
+#                inherit system;
+#                config = {
+#                  # required for packer
+#                  allowUnfree = true;
+#                };
+#              };
+#              snow-blower = lib;
+#            };
+#
+#          in
+#          {
+#
+#            devShells.default = sbChecks.self-shell;
+#
+#          };
 
       });
 }

@@ -89,7 +89,6 @@ in
         type = types.package;
         readOnly = true;
       };
-
     };
   };
 
