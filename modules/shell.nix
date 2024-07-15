@@ -29,12 +29,6 @@
           default = "";
         };
 
-        packages = mkOption {
-          type = types.listOf types.package;
-          description = "A list of packages to expose inside the developer environment. See https://search.nixos.org/packages for packages.";
-          default = [];
-        };
-
         stdenv = mkOption {
           type = types.package;
           description = "The stdenv to use for the developer environment.";
