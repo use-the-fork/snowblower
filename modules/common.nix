@@ -26,6 +26,7 @@ topLevel @ {
       topLevel.config.flake.flakeModules.processes
 
       topLevel.config.flake.flakeModules.languages-php
+      topLevel.config.flake.flakeModules.languages-javascript
 
       topLevel.config.flake.flakeModules.services-adminer
       topLevel.config.flake.flakeModules.services-blackfire
