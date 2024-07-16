@@ -1,55 +1,61 @@
-topLevel @ {
-  inputs,
-  flake-parts-lib,
-  ...
-}: {
+topLevel@{ inputs, lib, flake-parts-lib, ... }: {
   imports = [
     ./shell.nix
     inputs.flake-parts.flakeModules.flakeModules
   ];
-  flake.flakeModules.optionsDocument = _flakeModule: {
+  flake.flakeModules.optionsDocument = flakeModule: {
     imports = [
       topLevel.config.flake.flakeModules.shell
     ];
     options.perSystem = flake-parts-lib.mkPerSystemOption (
-      _: {
-        snow-blower = {
-          just.recipes.treefmt.enable = true;
+      perSystem@{ pkgs, system, inputs', self', ... }:{
+        packages = rec {
 
-          languages = {
-            php.enable = true;
-          };
+          copy-options-document-to-current-directory = (inputs.nixago.lib.${system}.make {
+            output = options-document.name;
+            data = options-document;
+            engine = { data, ... }: data;
+            hook.mode = "copy";
+          }).install;
 
-          scripts."devenv-generate-doc-options" = {
-            just.enable = true;
-            description = "Generate option docs.";
-            exec = ''
-              set -e
-              echo "did this work?"
-            '';
-          };
-
-          treefmt = {
-            programs = {
-              alejandra.enable = true;
-              deadnix.enable = true;
-              statix = {
-                enable = true;
-                disabled-lints = [
-                  "manual_inherit_from"
-                ];
-              };
+          options-document = (pkgs.nixosOptionsDoc {
+            options = (
+              inputs.flake-parts.lib.evalFlakeModule
+                { inherit inputs; }
+                {
+                  imports = [topLevel.config.flake.flakeModules.common];
+                  options.perSystem = flake-parts-lib.mkPerSystemOption {
+                    config._module.args = {
+                      # Generate document for Linux so that the document includes CUDA related options, which are not available on Darwin.
+                      system = lib.mkDefault "x86_64-linux";
+                      pkgs = lib.mkDefault pkgs;
+                      inputs' = lib.mkDefault inputs';
+                      self' = lib.mkDefault self';
+                    };
+                  };
+                }
+            ).options;
+            documentType = "none";
+            markdownByDefault = true;
+            warningsAreErrors = false;
+            transformOptions = option: option // rec {
+              declarations = lib.concatMap
+                (declaration:
+                  if lib.hasPrefix "${flakeModule.self}/modules/" declaration
+                  then
+                    [
+                      rec {
+                        name = lib.removePrefix "${flakeModule.self}/modules/" declaration;
+                        url = "modules/${builtins.head (builtins.split "," name)}";
+                      }
+                    ]
+                  else [ ])
+                option.declarations;
+              visible = declarations != [ ];
             };
-          };
+          }).optionsCommonMark;
 
-          git-hooks.hooks = {
-            treefmt = {
-              enable = true;
-            };
-          };
-
-          services.adminer.enable = true;
-        };
+      };
       }
     );
   };

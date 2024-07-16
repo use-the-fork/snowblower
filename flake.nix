@@ -17,6 +17,11 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     flake-root.url = "github:srid/flake-root";
 
+    nixago = {
+      url = "github:nix-community/nixago";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     git-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs = {
@@ -35,6 +40,7 @@
           ./modules/common.nix
           ./modules/options-document.nix
         ];
+        debug = true;
         systems = import inputs.systems;
       });
   in
