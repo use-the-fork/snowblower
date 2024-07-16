@@ -7,7 +7,7 @@ topLevel @ {
     ./shell.nix
     inputs.flake-parts.flakeModules.flakeModules
   ];
-  flake.flakeModules.optionsDocument = _flakeModule: {
+  flake.flakeModules.test = _flakeModule: {
     imports = [
       topLevel.config.flake.flakeModules.shell
     ];
@@ -50,12 +50,11 @@ topLevel @ {
 
           services.adminer.enable = true;
 
-            processes = {
-              artisan-serve.exec = ''
-                echo "123"
-              '';
-            };
-
+          process-compose.processes = {
+            artisan-serve.exec = ''
+              echo "123"
+            '';
+          };
         };
       }
     );

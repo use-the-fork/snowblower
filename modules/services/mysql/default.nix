@@ -266,29 +266,25 @@
           };
         };
 
-        config = {
-          process-compose.watch-server = {
-            settings.processes = lib.mkIf cfg.enable {
-              mysql.command = "${startScript}/bin/start-mysql";
-              mysql-configure.command = "${configureScript}/bin/configure-mysql";
-            };
+        config.snow-blower = lib.mkIf cfg.enable {
+          process-compose.processes = {
+            mysql.exec = "${startScript}/bin/start-mysql";
+            mysql-configure.exec = "${configureScript}/bin/configure-mysql";
           };
 
-          snow-blower = lib.mkIf cfg.enable {
-            packages = [
-              cfg.package
-            ];
+          packages = [
+            cfg.package
+          ];
 
-            env =
-              {
-                "MYSQL_HOME" = toString ''$PRJ_DATA_DIR/mysql'';
-                "MYSQL_UNIX_PORT" = toString ''$PRJ_RUNTIME_DIR/mysql.sock'';
-                "MYSQLX_UNIX_PORT" = toString ''$PRJ_RUNTIME_DIR/mysqlx.sock'';
-              }
-              // (optionalAttrs (hasAttrByPath ["mysqld" "port"] cfg.settings) {
-                "MYSQL_TCP_PORT" = toString cfg.settings.mysqld.port;
-              });
-          };
+          env =
+            {
+              "MYSQL_HOME" = toString ''$PRJ_DATA_DIR/mysql'';
+              "MYSQL_UNIX_PORT" = toString ''$PRJ_RUNTIME_DIR/mysql.sock'';
+              "MYSQLX_UNIX_PORT" = toString ''$PRJ_RUNTIME_DIR/mysqlx.sock'';
+            }
+            // (optionalAttrs (hasAttrByPath ["mysqld" "port"] cfg.settings) {
+              "MYSQL_TCP_PORT" = toString cfg.settings.mysqld.port;
+            });
         };
       });
   };

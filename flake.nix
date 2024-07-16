@@ -39,6 +39,7 @@
         imports = [
           ./modules/common.nix
           ./modules/options-document.nix
+          ./modules/test.nix
         ];
         debug = true;
         systems = import inputs.systems;
@@ -48,6 +49,7 @@
       imports = [
         bootstrap.flakeModules.common
         bootstrap.flakeModules.optionsDocument
+        bootstrap.flakeModules.test
       ];
 
       flake =
