@@ -281,20 +281,12 @@
 
             env =
               {
-                "MYSQL_HOME" = {
-                  eval = "\${PRJ_DATA_DIR:-$PRJ_ROOT/mysql}";
-                };
-                "MYSQL_UNIX_PORT" = {
-                  eval = "\${PRJ_RUNTIME_DIR:-$PRJ_ROOT/.snow-blower/mysql.sock}";
-                };
-                "MYSQLX_UNIX_PORT" = {
-                  eval = "\${PRJ_RUNTIME_DIR:-$PRJ_ROOT/.snow-blower/mysqlx.sock}";
-                };
+                "MYSQL_HOME" = toString ''$PRJ_DATA_DIR/mysql'';
+                "MYSQL_UNIX_PORT" = toString ''$PRJ_RUNTIME_DIR/mysql.sock'';
+                "MYSQLX_UNIX_PORT" = toString ''$PRJ_RUNTIME_DIR/mysqlx.sock'';
               }
               // (optionalAttrs (hasAttrByPath ["mysqld" "port"] cfg.settings) {
-                "MYSQL_TCP_PORT" = {
-                  value = toString cfg.settings.mysqld.port;
-                };
+                "MYSQL_TCP_PORT" = toString cfg.settings.mysqld.port;
               });
           };
         };

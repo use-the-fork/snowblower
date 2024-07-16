@@ -20,17 +20,36 @@
 
       #          ansi = import ../nix/ansi.nix;
 
+      #      if [ ! -L "$PRJ_DOTFILE_DIR/profile" ] || [ "$(${pkgs.coreutils}/bin/readlink $PRJ_DOTFILE_DIR/profile)" != "${profile}" ]
+      #      then
+      #        ln -snf ${profile} "$DEVENV_DOTFILE/profile"
+      #      fi
+
       # Write a bash profile to load
       envBash = pkgs.writeShellScriptBin "devshell-env" ''
 
         PRJ_ROOT=$FLAKE_ROOT
 
         if [[ -z "''${PRJ_ROOT:-}" ]]; then
+          echo "ERROR: FLAKE_ROOT did not load and as a result ..." >&2
           echo "ERROR: please set the PRJ_ROOT env var to point to the project root" >&2
           return 1
         fi
 
+        PRJ_DOTFILE_DIR=$PRJ_ROOT/.snow-blower
+        PRJ_DATA_DIR=$PRJ_ROOT/.snow-blower/data
+        PRJ_RUNTIME_DIR=$PRJ_ROOT/.snow-blower/runtime
+
         export PRJ_ROOT
+        export PRJ_DATA_DIR
+        export PRJ_RUNTIME_DIR
+        export PRJ_DOTFILE_DIR
+
+        mkdir -p $PRJ_DATA_DIR
+        mkdir -p $PRJ_RUNTIME_DIR
+        mkdir -p $PRJ_DOTFILE_DIR
+
+        ln -snf ${lib.escapeShellArg "$PRJ_RUNTIME_DIR"} ${lib.escapeShellArg "$PRJ_DOTFILE_DIR"}/run
 
         ${cfg.shell.startup_env}
       '';

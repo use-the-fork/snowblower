@@ -140,7 +140,6 @@ topLevel @ {
               echo "Please install snow-blower: https://direnv.net/docs/installation.html"
             fi
 
-            mkdir -p "$FLAKE_ROOT/.snow-blower"
 
           '';
         };
