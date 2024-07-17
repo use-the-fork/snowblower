@@ -30,32 +30,31 @@
     };
   };
 
-  outputs = inputs @ {flake-parts, ...}: let
+  outputs = inputs @ {self, flake-parts, nixpkgs, ...}: let
     bootstrap =
       inputs.flake-parts.lib.mkFlake {
         inherit inputs;
         moduleLocation = ./flake.nix;
       } ({...}: {
         imports = [
-          ./modules/common.nix
+          ./modules
           ./modules/options-document.nix
           ./modules/test.nix
         ];
+        flake = {
+          sbLib = import ./lib;
+        };
         debug = true;
         systems = import inputs.systems;
       });
   in
     inputs.flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
       imports = [
-        bootstrap.flakeModules.common
+        bootstrap.flakeModules.default
         bootstrap.flakeModules.optionsDocument
         bootstrap.flakeModules.test
       ];
 
-      flake =
-        bootstrap
-        // {
-          flakeModule.default = bootstrap.flakeModules.common;
-        };
+      flake = bootstrap;
     });
 }
