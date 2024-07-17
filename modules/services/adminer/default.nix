@@ -1,7 +1,6 @@
 {
   inputs,
   flake-parts-lib,
-  lib,
   self,
   ...
 }: {
@@ -12,9 +11,10 @@
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       pkgs,
       config,
+      lib,
       ...
     }: let
-      inherit (self.sbLib) mkService;
+            inherit (self.lib) mkService;
 
       cfg = config.snow-blower.services.adminer;
     in {

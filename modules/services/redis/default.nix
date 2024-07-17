@@ -13,25 +13,9 @@
       config,
       ...
     }: let
-      inherit (lib) types mkOption mkEnableOption optionalString;
+      inherit (lib) types mkOption mkEnableOption;
 
       cfg = config.snow-blower.services.redis;
-
-      redisConfig = pkgs.writeText "redis.conf" ''
-        port ${toString cfg.port}
-        ${optionalString (cfg.bind != null) "bind ${cfg.bind}"}
-        ${cfg.extraConfig}
-      '';
-
-      startScript = pkgs.writeShellScriptBin "start-redis" ''
-        set -euo pipefail
-
-        if [[ ! -d "$REDISDATA" ]]; then
-          mkdir -p "$REDISDATA"
-        fi
-
-        exec ${cfg.package}/bin/redis-server ${redisConfig} --dir "$REDISDATA"
-      '';
     in {
       options.snow-blower.services.redis = {
         enable = mkEnableOption "Redis process and expose utilities";
@@ -77,21 +61,21 @@
           env.REDISDATA = config.env.DEVENV_STATE + "/redis";
         };
 
-        process-compose.watch-server = {
-          settings = {
-            processes.redis = {
-              readiness_probe = {
-                exec.command = "${startScript}/bin/start-redis";
-                initial_delay_seconds = 2;
-                period_seconds = 10;
-                timeout_seconds = 4;
-                success_threshold = 1;
-                failure_threshold = 5;
-              };
-              availability.restart = "on_failure";
-            };
-          };
-        };
+        #        process-compose.watch-server = {
+        #          settings = {
+        #            processes.redis = {
+        #              readiness_probe = {
+        #                exec.command = "${startScript}/bin/start-redis";
+        #                initial_delay_seconds = 2;
+        #                period_seconds = 10;
+        #                timeout_seconds = 4;
+        #                success_threshold = 1;
+        #                failure_threshold = 5;
+        #              };
+        #              availability.restart = "on_failure";
+        #            };
+        #          };
+        #        };
       };
     });
   };

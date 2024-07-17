@@ -1,15 +1,13 @@
 {lib, ...}: let
-  inherit (builtins) filter map toString elem;
-  inherit (lib.filesystem) listFilesRecursive;
-  inherit (lib.strings) hasSuffix;
   inherit (lib.options) mkOption mkEnableOption;
   inherit (lib.types) str int;
+
+  # All Credit for this bad boy goes to NotAShelf.
+  # https://github.com/NotAShelf/nyx/
 
   # The `mkService` function takes a few arguments to generate
   # a module for a service without repeating the same options
   # over and over: every online service needs a host and a port.
-  # I can't exactly tell you why, but if I am to be honest
-  # this is actually a horrendous abstraction
   mkService = {
     name,
     package,
@@ -20,10 +18,10 @@
   }: {
     enable = mkEnableOption "${name} ${type} service";
     package = mkOption {
-                        type = lib.package;
-                        description = "The package ${name} should use.";
-                        default = package;
-                      };
+      type = lib.package;
+      description = "The package ${name} should use.";
+      default = package;
+    };
     settings =
       {
         host = mkOption {

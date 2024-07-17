@@ -1,6 +1,7 @@
 {
   inputs,
   flake-parts-lib,
+  self,
   ...
 }: {
   imports = [
@@ -12,125 +13,124 @@
       pkgs,
       config,
       ...
-    }:
-      with lib; let
-        cfg = config.snow-blower.services.mysql;
-        isMariaDB = getName cfg.package == getName pkgs.mariadb;
-        format = pkgs.formats.ini {listsAsDuplicateKeys = true;};
-        configFile = format.generate "my.cnf" cfg.settings;
-        # Generate an empty config file to not resolve globally installed MySQL config like in /etc/my.cnf or ~/.my.cnf
-        emptyConfig = format.generate "empty.cnf" {};
-        mysqldOptions = "--defaults-file=${configFile} --datadir=$MYSQL_HOME --basedir=${cfg.package}";
+    }: let
+      inherit (self.lib) mkService;
+      inherit (lib) mkOption types getName hasAttrByPath optionalString concatMapStrings concatStringsSep mapAttrsToList optionalAttrs literalExpression;
 
-        mysqlWrappedEmpty = pkgs.writeShellScriptBin "mysql" ''
-          exec ${cfg.package}/bin/mysql --defaults-file=${emptyConfig} "$@"
-        '';
+      cfg = config.snow-blower.services.mysql;
+      settings = cfg.settings;
 
-        mysqladminWrappedEmpty = pkgs.writeShellScriptBin "mysqladmin" ''
-          exec ${cfg.package}/bin/mysqladmin --defaults-file=${emptyConfig} "$@"
-        '';
+      isMariaDB = getName cfg.package == getName pkgs.mariadb;
+      format = pkgs.formats.ini {listsAsDuplicateKeys = true;};
+      configFile = format.generate "my.cnf" cfg.settings;
+      # Generate an empty config file to not resolve globally installed MySQL config like in /etc/my.cnf or ~/.my.cnf
+      emptyConfig = format.generate "empty.cnf" {};
+      mysqldOptions = "--defaults-file=${configFile} --datadir=$MYSQL_HOME --basedir=${cfg.package}";
 
-        initDatabaseCmd =
-          if isMariaDB
-          then "${cfg.package}/bin/mysql_install_db ${mysqldOptions} --auth-root-authentication-method=normal"
-          else "${cfg.package}/bin/mysqld ${mysqldOptions} --default-time-zone=SYSTEM --initialize-insecure";
+      mysqlWrappedEmpty = pkgs.writeShellScriptBin "mysql" ''
+        exec ${cfg.package}/bin/mysql --defaults-file=${emptyConfig} "$@"
+      '';
 
-        importTimeZones =
-          if (cfg.importTimeZones != null)
-          then cfg.importTimeZones
-          else hasAttrByPath ["settings" "mysqld" "default-time-zone"] cfg;
+      mysqladminWrappedEmpty = pkgs.writeShellScriptBin "mysqladmin" ''
+        exec ${cfg.package}/bin/mysqladmin --defaults-file=${emptyConfig} "$@"
+      '';
 
-        configureTimezones = ''
-          # Start a temp database with the default-time-zone to import tz data
-          # and hide the temp database from the configureScript by setting a custom socket
-          nohup ${cfg.package}/bin/mysqld ${mysqldOptions} --socket="$DEVENV_RUNTIME/config.sock" --skip-networking --default-time-zone=SYSTEM &
+      initDatabaseCmd =
+        if isMariaDB
+        then "${cfg.package}/bin/mysql_install_db ${mysqldOptions} --auth-root-authentication-method=normal"
+        else "${cfg.package}/bin/mysqld ${mysqldOptions} --default-time-zone=SYSTEM --initialize-insecure";
 
-          while ! MYSQL_PWD="" ${mysqladminWrappedEmpty}/bin/mysqladmin --socket="$DEVENV_RUNTIME/config.sock" ping -u root --silent; do
-            sleep 1
-          done
+      importTimeZones =
+        if (settings.importTimeZones != null)
+        then settings.importTimeZones
+        else hasAttrByPath ["settings" "mysqld" "default-time-zone"] cfg;
 
-          ${cfg.package}/bin/mysql_tzinfo_to_sql ${pkgs.tzdata}/share/zoneinfo/ | MYSQL_PWD="" ${mysqlWrappedEmpty}/bin/mysql --socket="$DEVENV_RUNTIME/config.sock" -u root mysql
+      configureTimezones = ''
+        # Start a temp database with the default-time-zone to import tz data
+        # and hide the temp database from the configureScript by setting a custom socket
+        nohup ${cfg.package}/bin/mysqld ${mysqldOptions} --socket="$DEVENV_RUNTIME/config.sock" --skip-networking --default-time-zone=SYSTEM &
 
-          # Shutdown the temp database
-          MYSQL_PWD="" ${mysqladminWrappedEmpty}/bin/mysqladmin --socket="$DEVENV_RUNTIME/config.sock" shutdown -u root
-        '';
+        while ! MYSQL_PWD="" ${mysqladminWrappedEmpty}/bin/mysqladmin --socket="$DEVENV_RUNTIME/config.sock" ping -u root --silent; do
+          sleep 1
+        done
 
-        startScript = pkgs.writeShellScriptBin "start-mysql" ''
-          set -euo pipefail
+        ${cfg.package}/bin/mysql_tzinfo_to_sql ${pkgs.tzdata}/share/zoneinfo/ | MYSQL_PWD="" ${mysqlWrappedEmpty}/bin/mysql --socket="$DEVENV_RUNTIME/config.sock" -u root mysql
 
-          if [[ ! -d "$MYSQL_HOME" || ! -f "$MYSQL_HOME/ibdata1" ]]; then
-            mkdir -p "$MYSQL_HOME"
-            ${initDatabaseCmd}
-            ${optionalString importTimeZones configureTimezones}
-          fi
+        # Shutdown the temp database
+        MYSQL_PWD="" ${mysqladminWrappedEmpty}/bin/mysqladmin --socket="$DEVENV_RUNTIME/config.sock" shutdown -u root
+      '';
 
-          exec ${cfg.package}/bin/mysqld ${mysqldOptions}
-        '';
+      startScript = pkgs.writeShellScriptBin "start-mysql" ''
+        set -euo pipefail
 
-        configureScript = pkgs.writeShellScriptBin "configure-mysql" ''
-          PATH="${lib.makeBinPath [cfg.package pkgs.coreutils]}:$PATH"
-          set -euo pipefail
+        if [[ ! -d "$MYSQL_HOME" || ! -f "$MYSQL_HOME/ibdata1" ]]; then
+          mkdir -p "$MYSQL_HOME"
+          ${initDatabaseCmd}
+          ${optionalString importTimeZones configureTimezones}
+        fi
 
-          while ! MYSQL_PWD="" ${mysqladminWrappedEmpty}/bin/mysqladmin ping -u root --silent; do
-            echo "Sleeping 1s while we wait for MySQL to come up"
-            sleep 1
-          done
+        exec ${cfg.package}/bin/mysqld ${mysqldOptions}
+      '';
 
-          ${concatMapStrings (database: ''
-              # Create initial databases
-              exists="$(
-                MYSQL_PWD="" ${mysqlWrappedEmpty}/bin/mysql -u root -sB information_schema \
-                  <<< 'select count(*) from schemata where schema_name = "${database.name}"'
-              )"
-              if [[ "$exists" -eq 0 ]]; then
-                echo "Creating initial database: ${database.name}"
-                ( echo 'create database `${database.name}`;'
-                  ${optionalString (database.schema != null) ''
-                echo 'use `${database.name}`;'
-                # TODO: this silently falls through if database.schema does not exist,
-                # we should catch this somehow and exit, but can't do it here because we're in a subshell.
-                if [ -f "${database.schema}" ]
-                then
-                    cat ${database.schema}
-                elif [ -d "${database.schema}" ]
-                then
-                    cat ${database.schema}/mysql-databases/*.sql
-                fi
-              ''}
-                ) | MYSQL_PWD="" ${mysqlWrappedEmpty}/bin/mysql -u root -N
-              else
-                echo "Database ${database.name} exists, skipping creation."
+      configureScript = pkgs.writeShellScriptBin "configure-mysql" ''
+        PATH="${lib.makeBinPath [cfg.package pkgs.coreutils]}:$PATH"
+        set -euo pipefail
+
+        while ! MYSQL_PWD="" ${mysqladminWrappedEmpty}/bin/mysqladmin ping -u root --silent; do
+          echo "Sleeping 1s while we wait for MySQL to come up"
+          sleep 1
+        done
+
+        ${concatMapStrings (database: ''
+            # Create initial databases
+            exists="$(
+              MYSQL_PWD="" ${mysqlWrappedEmpty}/bin/mysql -u root -sB information_schema \
+                <<< 'select count(*) from schemata where schema_name = "${database.name}"'
+            )"
+            if [[ "$exists" -eq 0 ]]; then
+              echo "Creating initial database: ${database.name}"
+              ( echo 'create database `${database.name}`;'
+                ${optionalString (database.schema != null) ''
+              echo 'use `${database.name}`;'
+              # TODO: this silently falls through if database.schema does not exist,
+              # we should catch this somehow and exit, but can't do it here because we're in a subshell.
+              if [ -f "${database.schema}" ]
+              then
+                  cat ${database.schema}
+              elif [ -d "${database.schema}" ]
+              then
+                  cat ${database.schema}/mysql-databases/*.sql
               fi
-            '')
-            cfg.initialDatabases}
-
-          ${concatMapStrings (user: ''
-              echo "Adding user: ${user.name}"
-              ${optionalString (user.password != null) "password='${user.password}'"}
-              ( echo "CREATE USER IF NOT EXISTS '${user.name}'@'localhost' ${optionalString (user.password != null) "IDENTIFIED BY '$password'"};"
-                ${concatStringsSep "\n" (mapAttrsToList (database: permission: ''
-                  echo 'GRANT ${permission} ON ${database} TO `${user.name}`@`localhost`;'
-                '')
-                user.ensurePermissions)}
+            ''}
               ) | MYSQL_PWD="" ${mysqlWrappedEmpty}/bin/mysql -u root -N
-            '')
-            cfg.ensureUsers}
+            else
+              echo "Database ${database.name} exists, skipping creation."
+            fi
+          '')
+          cfg.initialDatabases}
 
-          # We need to sleep until infinity otherwise all processes stop
-          sleep infinity
-        '';
-      in {
-        options.snow-blower.services.mysql = {
-          enable = mkEnableOption "MySQL process and expose utilities";
+        ${concatMapStrings (user: ''
+            echo "Adding user: ${user.name}"
+            ${optionalString (user.password != null) "password='${user.password}'"}
+            ( echo "CREATE USER IF NOT EXISTS '${user.name}'@'localhost' ${optionalString (user.password != null) "IDENTIFIED BY '$password'"};"
+              ${concatStringsSep "\n" (mapAttrsToList (database: permission: ''
+                echo 'GRANT ${permission} ON ${database} TO `${user.name}`@`localhost`;'
+              '')
+              user.ensurePermissions)}
+            ) | MYSQL_PWD="" ${mysqlWrappedEmpty}/bin/mysql -u root -N
+          '')
+          settings.ensureUsers}
 
-          package = mkOption {
-            type = types.package;
-            description = "Which package of MySQL to use";
-            default = pkgs.mariadb;
-            defaultText = lib.literalExpression "pkgs.mariadb";
-          };
-
-          settings = mkOption {
+        # We need to sleep until infinity otherwise all processes stop
+        sleep infinity
+      '';
+    in {
+      options.snow-blower.services.mysql = mkService {
+        name = "MySQL";
+        package = pkgs.mariadb;
+        port = 3306;
+        extraOptions = {
+          configuration = mkOption {
             type = types.lazyAttrsOf (types.lazyAttrsOf types.anything);
             default = {};
             description = ''
@@ -149,38 +149,6 @@
                   max_allowed_packet = "16M";
                 };
               }
-            '';
-          };
-
-          initialDatabases = mkOption {
-            type = types.listOf (types.submodule {
-              options = {
-                name = mkOption {
-                  type = types.str;
-                  description = ''
-                    The name of the database to create.
-                  '';
-                };
-                schema = mkOption {
-                  type = types.nullOr types.path;
-                  default = null;
-                  description = ''
-                    The initial schema of the database; if null (the default),
-                    an empty database is created.
-                  '';
-                };
-              };
-            });
-            default = [];
-            description = ''
-              List of database names and their initial schemas that should be used to create databases on the first startup
-              of MySQL. The schema attribute is optional: If not specified, an empty database is created.
-            '';
-            example = literalExpression ''
-              [
-                { name = "foodatabase"; schema = ./foodatabase.sql; }
-                { name = "bardatabase"; }
-              ]
             '';
           };
 
@@ -264,28 +232,61 @@
               ]
             '';
           };
-        };
 
-        config.snow-blower = lib.mkIf cfg.enable {
-          process-compose.processes = {
-            mysql.exec = "${startScript}/bin/start-mysql";
-            mysql-configure.exec = "${configureScript}/bin/configure-mysql";
-          };
-
-          packages = [
-            cfg.package
-          ];
-
-          env =
-            {
-              "MYSQL_HOME" = toString ''$PRJ_DATA_DIR/mysql'';
-              "MYSQL_UNIX_PORT" = toString ''$PRJ_RUNTIME_DIR/mysql.sock'';
-              "MYSQLX_UNIX_PORT" = toString ''$PRJ_RUNTIME_DIR/mysqlx.sock'';
-            }
-            // (optionalAttrs (hasAttrByPath ["mysqld" "port"] cfg.settings) {
-              "MYSQL_TCP_PORT" = toString cfg.settings.mysqld.port;
+          initialDatabases = mkOption {
+            type = types.listOf (types.submodule {
+              options = {
+                name = mkOption {
+                  type = types.str;
+                  description = ''
+                    The name of the database to create.
+                  '';
+                };
+                schema = mkOption {
+                  type = types.nullOr types.path;
+                  default = null;
+                  description = ''
+                    The initial schema of the database; if null (the default),
+                    an empty database is created.
+                  '';
+                };
+              };
             });
+            default = [];
+            description = ''
+              List of database names and their initial schemas that should be used to create databases on the first startup
+              of MySQL. The schema attribute is optional: If not specified, an empty database is created.
+            '';
+            example = literalExpression ''
+              [
+                { name = "foodatabase"; schema = ./foodatabase.sql; }
+                { name = "bardatabase"; }
+              ]
+            '';
+          };
         };
-      });
+      };
+
+      config.snow-blower = lib.mkIf cfg.enable {
+        process-compose.processes = {
+          mysql.exec = "${startScript}/bin/start-mysql";
+          mysql-configure.exec = "${configureScript}/bin/configure-mysql";
+        };
+
+        packages = [
+          cfg.package
+        ];
+
+        env =
+          {
+            "MYSQL_HOME" = toString ''$PRJ_DATA_DIR/mysql'';
+            "MYSQL_UNIX_PORT" = toString ''$PRJ_RUNTIME_DIR/mysql.sock'';
+            "MYSQLX_UNIX_PORT" = toString ''$PRJ_RUNTIME_DIR/mysqlx.sock'';
+          }
+          // (optionalAttrs (hasAttrByPath ["mysqld" "port"] settings.configuration) {
+            "MYSQL_TCP_PORT" = toString settings.configuration.mysqld.port;
+          });
+      };
+    });
   };
 }

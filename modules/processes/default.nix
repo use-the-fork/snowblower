@@ -199,14 +199,15 @@
                 is_strict = true;
                 port = lib.mkDefault 9999;
                 tui = lib.mkDefault true;
-                environment = lib.mapAttrsToList
+                environment =
+                  lib.mapAttrsToList
                   (name: value: "${name}=${toString value}")
                   config.snow-blower.env;
-                processes = lib.mapAttrs
-                  (name: value: { command = "exec ${pkgs.writeShellScript name value.exec}"; } // value.process-compose)
+                processes =
+                  lib.mapAttrs
+                  (name: value: {command = "exec ${pkgs.writeShellScript name value.exec}";} // value.process-compose)
                   cfg.processes;
               };
-
             };
 
             just.recipes.up = {

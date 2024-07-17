@@ -30,7 +30,10 @@
     };
   };
 
-  outputs = inputs @ {self, flake-parts, nixpkgs, ...}: let
+  outputs = inputs @ {
+    flake-parts,
+    ...
+  }: let
     bootstrap =
       inputs.flake-parts.lib.mkFlake {
         inherit inputs;
@@ -41,9 +44,6 @@
           ./modules/options-document.nix
           ./modules/test.nix
         ];
-        flake = {
-          sbLib = import ./lib;
-        };
         debug = true;
         systems = import inputs.systems;
       });

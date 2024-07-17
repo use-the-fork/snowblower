@@ -6,6 +6,7 @@ topLevel @ {
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
     ./env
+    ./lib
     ./nixpkgs.nix
     ./integrations
     ./languages
@@ -17,6 +18,7 @@ topLevel @ {
   flake.flakeModules.default = flakeModule: {
     imports = [
       #The Must Haves
+      topLevel.config.flake.flakeModules.lib
       topLevel.config.flake.flakeModules.nixpkgs
       topLevel.config.flake.flakeModules.env
 
@@ -28,8 +30,6 @@ topLevel @ {
 
       topLevel.config.flake.flakeModules.shell
 
-      # how we run this ishh.
-      inputs.process-compose-flake.flakeModule
       #this gives us the avility to $FLAKE_ROOT as a env varible to be able to get at the root of the flake we are developing in.
       inputs.flake-root.flakeModule
     ];
