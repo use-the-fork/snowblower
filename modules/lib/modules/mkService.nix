@@ -18,7 +18,7 @@
   }: {
     enable = mkEnableOption "${name} ${type} service";
     package = mkOption {
-      type = lib.package;
+      type = lib.types.package;
       description = "The package ${name} should use.";
       default = package;
     };

@@ -13,7 +13,7 @@ topLevel @ {
     ./services
     ./processes
     ./scripts
-    ./shell.nix
+    ./shell
   ];
   flake.flakeModules.default = flakeModule: {
     imports = [
@@ -124,7 +124,7 @@ topLevel @ {
 
         snow-blower = {
           internals.state = builtins.toPath (config.snow-blower.internals.dotfile + "/state");
-          internals.dotfile = lib.mkDefault (builtins.toPath (config.snow-blower.internals.root + "/.snow-blower"));
+          internals.dotfile = lib.mkDefault (builtins.toPath (config.snow-blower.internals.root + "/.sb"));
           internals.profile = profile;
 
           shell.startup = ''

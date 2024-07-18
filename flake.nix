@@ -31,12 +31,13 @@
   };
 
   outputs = inputs @ {
+    self,
     flake-parts,
     ...
   }: let
     bootstrap =
       inputs.flake-parts.lib.mkFlake {
-        inherit inputs;
+        inherit inputs self;
         moduleLocation = ./flake.nix;
       } ({...}: {
         imports = [

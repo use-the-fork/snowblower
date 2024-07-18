@@ -4,7 +4,7 @@ topLevel @ {
   ...
 }: {
   imports = [
-    ./shell.nix
+    ./shell
     inputs.flake-parts.flakeModules.flakeModules
   ];
   flake.flakeModules.test = _flakeModule: {
