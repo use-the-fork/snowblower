@@ -16,52 +16,47 @@
       inherit (lib) types mkOption;
 
       cfg = config.snow-blower.shell;
-      sanitizedName = lib.strings.sanitizeDerivationName "❄️ 💨 Snow Blower";
+      sanitizedName = lib.strings.sanitizeDerivationName "sb";
 
       bashBin = "${cfg.bashPackage}/bin";
       bashPath = "${cfg.bashPackage}/bin/bash";
 
-      mkFlakeApp = bin: {
-        type = "app";
-        program = "${bin}";
-      };
-
-      mkSetupHook = rc:
-        pkgs.stdenvNoCC.mkDerivation {
-          name = "devshell-setup-hook";
-          setupHook = pkgs.writeText "devshell-setup-hook.sh" ''
-            source ${rc}
-          '';
-          dontUnpack = true;
-          dontBuild = true;
-          dontInstall = true;
-        };
+      ansi = import ./ansi.nix;
 
       # Write a bash profile to load
       envBash = pkgs.writeText "devshell-env.bash" ''
-          if [[ -n ''${IN_NIX_SHELL:-} || ''${DIRENV_IN_ENVRC:-} = 1 ]]; then
-            # We know that PWD is always the current directory in these contexts
-            PRJ_ROOT=$PWD
-          elif [[ -z ''${PRJ_ROOT:-} ]]; then
+            if [[ -n ''${IN_NIX_SHELL:-} || ''${DIRENV_IN_ENVRC:-} = 1 ]]; then
+              # We know that PWD is always the current directory in these contexts
+              PRJ_ROOT=$PWD
+            elif [[ -z ''${PRJ_ROOT:-} ]]; then
 
 
-            if [[ -z "''${PRJ_ROOT:-}" ]]; then
-              echo "ERROR: please set the PRJ_ROOT env var to point to the project root" >&2
-              return 1
+              if [[ -z "''${PRJ_ROOT:-}" ]]; then
+                echo "ERROR: please set the PRJ_ROOT env var to point to the project root" >&2
+                return 1
+              fi
             fi
-          fi
 
-        export PRJ_ROOT
+          export PRJ_ROOT
 
-        # Expose the folder that contains the assembled environment.
-        export DEVSHELL_DIR=@DEVSHELL_DIR@
+          # Expose the folder that contains the assembled environment.
+          export DEVSHELL_DIR=@DEVSHELL_DIR@
 
-        # Prepend the PATH with the devshell dir and bash
-        PATH=''${PATH%:/path-not-set}
-        PATH=''${PATH#${bashBin}:}
-        export PATH=$DEVSHELL_DIR/bin:${bashBin}:$PATH
+          # Prepend the PATH with the devshell dir and bash
+          PATH=''${PATH%:/path-not-set}
+          PATH=''${PATH#${bashBin}:}
+          export PATH=$DEVSHELL_DIR/bin:${bashBin}:$PATH
 
-        ${cfg.startup_env}
+          ${cfg.startup_env}
+
+        ${builtins.concatStringsSep "\n" cfg.startup}
+
+        # Interactive sessions
+        if [[ $- == *i* ]]; then
+
+        ${builtins.concatStringsSep "\n" cfg.interactive}
+
+        fi # Interactive session
 
       '';
 
@@ -163,7 +158,7 @@
         else [drvOrPackage];
 
       # Builds the DEVSHELL_DIR with all the dependencies
-      devshell_dir = pkgs.buildEnv rec {
+      profile = pkgs.buildEnv rec {
         name = "${sanitizedName}-dir";
         paths = lib.flatten (builtins.map drvOrPackageToPaths config.snow-blower.packages);
         ignoreCollisions = true;
@@ -191,14 +186,74 @@
         meta.mainProgram = sanitizedName;
       };
 
-      # Write a bash profile to load
+      #      # Write a bash profile to load
+      #      setupShell = ''
+      #        # devenv helper
+      #        if [ ! type -p direnv &>/dev/null && -f .envrc ]; then
+      #          echo "You have .envrc but direnv command is not installed."
+      #          echo "Please install direnv: https://direnv.net/docs/installation.html"
+      #        fi
+      #
+      #        #Setup Snowblower directory
+      #        PRJ_DOTFILE="$FLAKE_ROOT/.sb"
+      #        export PRJ_DOTFILE
+      #        mkdir -p "$PRJ_DOTFILE"
+      #
+      #        #setup state directory
+      #        PRJ_STATE="$PRJ_DOTFILE/state"
+      #        export PRJ_STATE
+      #        mkdir -p "$PRJ_STATE"
+      #        if [ ! -L "$PRJ_DOTFILE/profile" ] || [ "$(${pkgs.coreutils}/bin/readlink $PRJ_DOTFILE/profile)" != "${profile}" ]
+      #        then
+      #          ln -snf ${profile} "$PRJ_DOTFILE/profile"
+      #        fi
+      #
+      #        #setup runtime
+      #        PRJ_RUNTIME="$FLAKE_ROOT/.sb-runtime"
+      #        export PRJ_RUNTIME
+      #        mkdir -p "$PRJ_RUNTIME"
+      #        ln -snf "$PRJ_RUNTIME" "$PRJ_DOTFILE/run"
+      #
+      #        source "$PRJ_DOTFILE/profile/env.bash"`
+      #      '';
+
       setupShell = ''
+        # Remove all the unnecessary noise that is set by the build env
+        unset NIX_BUILD_TOP NIX_BUILD_CORES NIX_STORE
+        unset TEMP TEMPDIR TMP TMPDIR
+        # $name variable is preserved to keep it compatible with pure shell https://github.com/sindresorhus/pure/blob/47c0c881f0e7cfdb5eaccd335f52ad17b897c060/pure.zsh#L235
+        unset builder out shellHook stdenv system
+        # Flakes stuff
+        unset dontAddDisableDepTrack outputs
+
+        # For `nix develop`. We get /noshell on Linux and /sbin/nologin on macOS.
+        if [[ "$SHELL" == "/noshell" || "$SHELL" == "/sbin/nologin" ]]; then
+          export SHELL=${bashPath}
+        fi
+
         # devenv helper
         if [ ! type -p direnv &>/dev/null && -f .envrc ]; then
           echo "You have .envrc but direnv command is not installed."
           echo "Please install direnv: https://direnv.net/docs/installation.html"
         fi
+
+        # Load the environment
+        source "${profile}/env.bash"
       '';
+
+      nakedStdenv = pkgs.writeTextFile {
+        name = "naked-stdenv";
+        destination = "/setup";
+        text = ''
+          # Fix for `nix develop`
+          : ''${outputs:=out}
+
+          runHook() {
+            eval "$shellHook"
+            unset runHook
+          }
+        '';
+      };
     in {
       options.snow-blower.shell = {
         bashPackage = mkOption {
@@ -210,8 +265,14 @@
         };
 
         startup = mkOption {
-          type = types.lines;
-          description = "Bash code to execute when entering the shell.";
+          type = types.listOf types.str;
+          description = "Bash code to execute on startup.";
+          default = "";
+        };
+
+        interactive = mkOption {
+          type = types.listOf types.str;
+          description = "Bash code to execute on interactive startups";
           default = "";
         };
 
@@ -221,6 +282,25 @@
           internal = true;
           description = ''
             Please ignore. Used by the env module.
+          '';
+        };
+
+        motd = mkOption {
+          type = types.str;
+          default = ''
+            {202}❄️ 💨 Snow Blower: Simple, Fast, Declarative, Reproducible, and Composable Developer Environments{reset}
+          '';
+          apply =
+            lib.replaceStrings
+            (map (key: "{${key}}") (lib.attrNames ansi))
+            (lib.attrValues ansi);
+          description = ''
+            Message Of The Day.
+
+            This is the welcome message that is being printed when the user opens
+            the shell.
+
+            You may use any valid ansi color from the 8-bit ansi color table. For example, to use a green color you would use something like {106}. You may also use {bold}, {italic}, {underline}. Use {reset} to turn off all attributes.
           '';
         };
 
@@ -246,33 +326,83 @@
       };
 
       config = {
+        snow-blower.shell = {
+          startup = lib.mkAfter [
+            ''
+              __devshell-motd() {
+                cat <<DEVSHELL_PROMPT
+              ${cfg.motd}
+              Run 'just <recipe>' to get started
+              DEVSHELL_PROMPT
+              just --list
+              }
+
+              if [[ ''${DEVSHELL_NO_MOTD:-} = 1 ]]; then
+                # Skip if that env var is set
+                :
+              elif [[ ''${DIRENV_IN_ENVRC:-} = 1 ]]; then
+                # Print the motd in direnv
+                __devshell-motd
+              else
+                # Print information if the prompt is displayed. We have to make
+                # that distinction because `nix-shell -c "cmd"` is running in
+                # interactive mode.
+                __devshell-prompt() {
+                  __devshell-motd
+                  # Make it a noop
+                  __devshell-prompt() { :; }
+                }
+                PROMPT_COMMAND=__devshell-prompt''${PROMPT_COMMAND+;$PROMPT_COMMAND}
+              fi
+            ''
+          ];
+
+          interactive = [
+            ''
+              if [[ -n "''${PRJ_ROOT:-}" ]]; then
+                # Print the path relative to $PRJ_ROOT
+                rel_root() {
+                  local path
+                  path=$(${pkgs.coreutils}/bin/realpath --relative-to "$PRJ_ROOT" "$PWD")
+                  if [[ $path != . ]]; then
+                    echo " $path "
+                  fi
+                }
+              else
+                # If PRJ_ROOT is unset, print only the current directory name
+                rel_root() {
+                  echo " \W "
+                }
+              fi
+            ''
+          ];
+        };
+
         devShells.default = pkgs.mkShellNoCC {
-          name = "❄️ 💨 Snow Blower";
+          name = "snow blower";
           meta.description = ''
             Pure NixOS devshells.
           '';
 
+          # `nix develop` actually checks and uses builder. And it must be bash.
+          builder = bashPath;
+
+          args = ["-ec" "${pkgs.coreutils}/bin/ln -s ${profile} $out; exit 0"];
+          stdenv = nakedStdenv;
+
           # First we run our must haves then we run our enter shell commands.
           shellHook = ''
+            # This is pretty critical for us to figure out where the flake is located
+            FLAKE_ROOT="''$(${lib.getExe config.flake-root.package})"
+            export FLAKE_ROOT
             ${setupShell}
-             ${config.snow-blower.shell.startup}
-             echo
-             echo "❄️ 💨 Snow Blower: Simple, Fast, Declarative, Reproducible, and Composable Developer Environments"
-             echo
-             echo "Run 'just <recipe>' to get started"
-             just --list
           '';
           # Tell Direnv to shut up.
           DIRENV_LOG_FORMAT = "";
-
-          inputsFrom = [(mkSetupHook "${devshell_dir}/env.bash")];
           packages = [
-            #          entrypoint
             config.snow-blower.packages
           ];
         };
-
-        packages = [mkFlakeApp "${devshell_dir}/entrypoint"];
       };
     });
   };

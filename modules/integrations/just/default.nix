@@ -61,9 +61,11 @@
                 lib.concatStringsSep "\n"
                 (lib.mapAttrsToList (_name: recipe: recipe.outputs.justfile) config.snow-blower.just.recipes);
             };
-          in ''
-            ln -sf ${builtins.toString commonJustfile} ./${config.snow-blower.just.commonFileName}
-          '';
+          in [
+            ''
+              ln -sf ${builtins.toString commonJustfile} ./${config.snow-blower.just.commonFileName}
+            ''
+          ];
         };
       };
     });

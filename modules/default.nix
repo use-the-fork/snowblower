@@ -126,22 +126,6 @@ topLevel @ {
           internals.state = builtins.toPath (config.snow-blower.internals.dotfile + "/state");
           internals.dotfile = lib.mkDefault (builtins.toPath (config.snow-blower.internals.root + "/.sb"));
           internals.profile = profile;
-
-          shell.startup = ''
-
-            # note what environments are active, but make sure we don't repeat them
-            if [[ ! "''${SNOWBLOWER_ACTIVE-}" =~ (^|:)"$PWD"(:|$) ]]; then
-              export SNOWBLOWER_ACTIVE="$PWD:''${SNOWBLOWER_ACTIVE-}"
-            fi
-
-            # devenv helper
-            if [ ! type -p snow-blower &>/dev/null && -f .envrc ]; then
-              echo "You have .envrc but snow-blower command is not installed."
-              echo "Please install snow-blower: https://direnv.net/docs/installation.html"
-            fi
-
-
-          '';
         };
       };
     });

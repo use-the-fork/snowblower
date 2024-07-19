@@ -99,20 +99,24 @@
             ${cfg.package}/bin/corepack enable --install-directory $out/bin
           '');
 
-        shell.startup = lib.concatStringsSep "\n" (
-          (lib.optional cfg.npm.install.enable ''
-            source ${(./init-npm.nix {inherit pkgs lib config;})}
-          '')
-          ++ (lib.optional cfg.pnpm.install.enable ''
-            source ${(./init-pnpm.nix {inherit pkgs lib config;})}
-          '')
-          ++ (lib.optional cfg.yarn.install.enable ''
-            source ${(./init-yarn.nix {inherit pkgs lib config;})}
-          '')
-          ++ (lib.optional cfg.bun.install.enable ''
-            source ${(./init-bun.nix {inherit pkgs lib config;})}
-          '')
-        );
+        shell.startup = [
+          lib.concatStringsSep
+          "\n"
+          (
+            (lib.optional cfg.npm.install.enable ''
+              source ${(./init-npm.nix {inherit pkgs lib config;})}
+            '')
+            ++ (lib.optional cfg.pnpm.install.enable ''
+              source ${(./init-pnpm.nix {inherit pkgs lib config;})}
+            '')
+            ++ (lib.optional cfg.yarn.install.enable ''
+              source ${(./init-yarn.nix {inherit pkgs lib config;})}
+            '')
+            ++ (lib.optional cfg.bun.install.enable ''
+              source ${(./init-bun.nix {inherit pkgs lib config;})}
+            '')
+          )
+        ];
       };
     });
   };
