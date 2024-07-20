@@ -71,6 +71,19 @@
 
       config.snow-blower = {
         packages = lib.mapAttrsToList (_: script: script.scriptPackage) config.snow-blower.scripts;
+
+        just = {
+          recipes = lib.genAttrs (builtins.attrNames config.snow-blower.scripts) (name: let
+            script = config.snow-blower.scripts.${name};
+          in {
+            enable = lib.mkDefault script.just.enable;
+            justfile = lib.mkDefault ''
+              #${script.description}
+              ${name}:
+                ${name}
+            '';
+          });
+        };
       };
     });
   };
