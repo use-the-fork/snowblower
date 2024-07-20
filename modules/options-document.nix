@@ -37,7 +37,7 @@ topLevel @ {
                   inputs.flake-parts.lib.evalFlakeModule
                   {inherit inputs;}
                   {
-                    imports = [topLevel.config.flake.flakeModules.common];
+                    imports = [topLevel.config.flake.flakeModules.default];
                     options.perSystem = flake-parts-lib.mkPerSystemOption {
                       config._module.args = {
                         # Generate document for Linux so that the document includes CUDA related options, which are not available on Darwin.

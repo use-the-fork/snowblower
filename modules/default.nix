@@ -77,14 +77,44 @@ topLevel @ {
             internal = true;
           };
 
-          runtime = lib.mkOption {
-            type = types.str;
-            internal = true;
-          };
-
           profile = lib.mkOption {
             type = types.package;
             internal = true;
+          };
+
+          runtime = lib.mkOption {
+            type = types.str;
+            internal = true;
+            # The path has to be
+            # - unique to each DEVENV_STATE to let multiple devenv environments coexist
+            # - deterministic so that it won't change constantly
+            # - short so that unix domain sockets won't hit the path length limit
+            # - free to create as an unprivileged user across OSes
+            default = let
+              runtimeEnv = builtins.getEnv "PROJECT_RUNTIME";
+
+              hashedRoot = builtins.hashString "sha256" config.snow-blower.paths.state;
+
+              # same length as git's abbreviated commit hashes
+              shortHash = builtins.substring 0 7 hashedRoot;
+            in
+              if runtimeEnv != ""
+              then runtimeEnv
+              else "${config.snow-blower.paths.tmpdir}/sb-runtime-${shortHash}";
+          };
+
+          tmpdir = lib.mkOption {
+            type = types.str;
+            internal = true;
+            default = let
+              xdg = builtins.getEnv "XDG_RUNTIME_DIR";
+              tmp = builtins.getEnv "TMPDIR";
+            in
+              if xdg != ""
+              then xdg
+              else if tmp != ""
+              then tmp
+              else "/tmp";
           };
         };
       };
@@ -95,8 +125,6 @@ topLevel @ {
           "process-compose-up" = config.snow-blower.process-compose.internals.procfileScript;
         };
       };
-
-
     });
   };
 }

@@ -17,9 +17,6 @@
 
       cfg = config.snow-blower.shell;
 
-      #      bashBin = "${cfg.bashPackage}/bin";
-      #      bashPath = "${cfg.bashPackage}/bin/bash";
-
       drvOrPackageToPaths = drvOrPackage:
         if drvOrPackage ? outputs
         then builtins.map (output: drvOrPackage.${output}) drvOrPackage.outputs
@@ -54,6 +51,7 @@
 
         # setup the runtime directory
         mkdir -p ${lib.escapeShellArg config.snow-blower.paths.runtime}
+        ln -snf ${lib.escapeShellArg config.snow-blower.paths.runtime} ${lib.escapeShellArg config.snow-blower.paths.dotfile}/run
 
         #Run our Startup hooks.
         ${builtins.concatStringsSep "\n" cfg.startup}
@@ -130,11 +128,9 @@
           paths = {
             dotfile = lib.mkDefault (builtins.toPath (config.snow-blower.paths.root + "/.sb"));
             state = builtins.toPath (config.snow-blower.paths.dotfile + "/state");
-            runtime = builtins.toPath (config.snow-blower.paths.dotfile + "/run");
-            inherit profile;
+            profile = profile;
           };
 
-          ####################################
           shell = {
             startup = lib.mkAfter [
               ''
@@ -183,34 +179,6 @@
             '';
           }
           // config.snow-blower.env);
-
-        #        devShells.default = pkgs.mkShellNoCC ({
-        #          name = "snow blower";
-        #          meta.description = ''
-        #            Pure NixOS devshells.
-        #          '';
-        #
-        #          # `nix develop` actually checks and uses builder. And it must be bash.
-        #          builder = bashPath;
-        #
-        #          args = ["-ec" "${pkgs.coreutils}/bin/ln -s ${profile} $out; exit 0"];
-        #          stdenv = nakedStdenv;
-        #
-        ##          inputsFrom = [ config.flake-root.devShell ];
-        #
-        #          # First we run our must haves then we run our enter shell commands.
-        #          shellHook = ''
-        #            ${setupShell}
-        #          '';
-        #          packages = [
-        #            config.snow-blower.packages
-        #          ];
-        #
-        #          # Tell Direnv to shut up.
-        #          DIRENV_LOG_FORMAT = "";
-        #
-        #          #Import our env.
-        #        } // config.snow-blower.env);
       };
     });
   };

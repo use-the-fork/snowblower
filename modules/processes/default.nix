@@ -22,6 +22,21 @@
           (name: value: "${name}=${builtins.toJSON value}")
           config.snow-blower.env;
 
+
+          justCommand = pkgs.writeScriptBin "snow-blower-process-compose-just" ''
+            #!/usr/bin/env bash
+
+            # we want subshells to fail the program
+            set -e
+            procfilescript=$(nix build '.#process-compose-up' --no-link --print-out-paths --impure)
+            if [ "$(cat $procfilescript|tail -n +2)" = "" ]; then
+              echo "No 'processes' option defined: TODO"
+              exit 1
+            else
+              exec $procfilescript "$@"
+            fi
+          '';
+
         processType = types.submodule (_: {
           options = {
             exec = lib.mkOption {
@@ -164,22 +179,22 @@
             packages = [cfg.package];
 
             process-compose = {
-              settings.server = {
-                version = "0.5";
-                is_strict = true;
-                port = lib.mkDefault 9999;
-                tui = lib.mkDefault true;
-                environment =
-                  lib.mapAttrsToList
-                  (name: value: "${name}=${toString value}")
-                  config.snow-blower.env;
-                processes =
-                  lib.mapAttrs
-                  (name: value: {command = "exec ${pkgs.writeShellScript name value.exec}";} // value.process-compose)
-                  cfg.processes;
-              };
-
               internals = {
+                settings = {
+                  version = "0.5";
+                  is_strict = true;
+                  port = lib.mkDefault 9999;
+                  tui = lib.mkDefault true;
+                  environment =
+                    lib.mapAttrsToList
+                    (name: value: "${name}=${toString value}")
+                    config.snow-blower.env;
+                  processes =
+                    lib.mapAttrs
+                    (name: value: {command = "exec ${pkgs.writeShellScript name value.exec}";} // value.process-compose)
+                    cfg.processes;
+                };
+
                 command = ''
                   ${cfg.package}/bin/process-compose --config ${cfg.internals.configFile} \
                     --unix-socket ''${PC_SOCKET_PATH:-${toString cfg.settings.server.unix-socket}} \
@@ -197,9 +212,6 @@
                 procfileScript = pkgs.writeShellScript "process-compose-up" ''
                   ${cfg.settings.before}
 
-                  echo "HERE I AM"
-                  echo "${cfg.internals.configFile}"
-
                   ${cfg.internals.command}
 
 
@@ -211,6 +223,7 @@
                     wait $backgroundPID
                     ${cfg.settings.after}
                     echo "Processes stopped."
+                    rm -rf ${config.snow-blower.paths.runtime}
 
                   }
 
@@ -219,17 +232,17 @@
                   wait
                 '';
 
-                configFile = settingsFormat.generate "process-compose.yaml" cfg.settings.server;
+                configFile = settingsFormat.generate "process-compose.yaml" cfg.internals.settings;
               };
+            };
 
-              just.recipes.up = {
-                enable = lib.mkDefault true;
-                justfile = lib.mkDefault ''
-                  # Starts the environment.
-                  up:
-                    ${config.snow-blower.process-compose.internals.procfileScript}
-                '';
-              };
+            just.recipes.up = {
+              enable = lib.mkDefault true;
+              justfile = lib.mkDefault ''
+                # Starts the environment.
+                up:
+                  ${lib.getExe justCommand}
+              '';
             };
           };
         };
