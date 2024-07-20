@@ -10,7 +10,6 @@
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
       config,
-      pkgs,
       ...
     }:
       with lib; let
@@ -38,11 +37,18 @@
         config.snow-blower = {
           # Default env
           env = {
-            # Expose the path to nixpkgs
-            "NIXPKGS_PATH" = toString pkgs.path;
+            "PROJECT_ROOT" = toString config.snow-blower.paths.root;
+            "PROJECT_DOTFILE" = toString config.snow-blower.paths.dotfile;
 
-            # This is used by bash-completions to find new completions on demand
-            "XDG_DATA_DIRS" = ''$DEVSHELL_DIR/share:''${XDG_DATA_DIRS:-/usr/local/share:/usr/share}'';
+            "PROJECT_PROFILE" = toString config.snow-blower.paths.profile;
+            "PROJECT_STATE" = toString config.snow-blower.paths.state;
+            "PROJECT_RUNTIME" = toString config.snow-blower.paths.runtime;
+
+            #            # Expose the path to nixpkgs
+            #            "NIXPKGS_PATH" = toString pkgs.path;
+            #
+            #            # This is used by bash-completions to find new completions on demand
+            #            "XDG_DATA_DIRS" = ''$DEVSHELL_DIR/share:''${XDG_DATA_DIRS:-/usr/local/share:/usr/share}'';
           };
 
           shell.startup_env = generateExportString config.snow-blower.env;

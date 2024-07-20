@@ -29,6 +29,8 @@ topLevel @ {
             '';
           };
 
+          #          services.mysql.enable = true;
+
           treefmt = {
             programs = {
               alejandra.enable = true;

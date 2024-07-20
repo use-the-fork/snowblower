@@ -62,7 +62,7 @@
 
       config.snow-blower = lib.mkIf cfg.enable {
         # Maps the resolved .env to the flakes env using a new attribute structure
-        env = lib.mapAttrs (_: attrs: lib.mkDefault attrs) cfg.resolved;
+        #        env = lib.mapAttrs (_: attrs: lib.mkDefault attrs) cfg.resolved;
         shell.startup = [dotenvPaths];
         dotenv.resolved = mergeEnvFiles dotenvPaths;
       };
