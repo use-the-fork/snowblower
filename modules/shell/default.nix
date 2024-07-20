@@ -62,8 +62,6 @@
         fi # Interactive session
 
       '';
-      #              # Load the environment
-      #              source "${profile}/env.bash"
     in {
       options.snow-blower.shell = {
         startup = mkOption {
@@ -128,7 +126,7 @@
           paths = {
             dotfile = lib.mkDefault (builtins.toPath (config.snow-blower.paths.root + "/.sb"));
             state = builtins.toPath (config.snow-blower.paths.dotfile + "/state");
-            profile = profile;
+            inherit profile;
           };
 
           shell = {
