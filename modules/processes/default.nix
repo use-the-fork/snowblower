@@ -17,6 +17,11 @@
         cfg = config.snow-blower.process-compose;
         settingsFormat = pkgs.formats.yaml {};
 
+        envList =
+          lib.mapAttrsToList
+          (name: value: "${name}=${builtins.toJSON value}")
+          config.snow-blower.env;
+
         processType = types.submodule (_: {
           options = {
             exec = lib.mkOption {
@@ -70,13 +75,13 @@
               '';
               default = {
                 version = "0.5";
-                unix-socket = "${config.snow-blower.internals.runtime}/pc.sock";
+                unix-socket = "${config.snow-blower.paths.runtime}/pc.sock";
                 tui = true;
               };
               defaultText = lib.literalExpression ''
                 {
                   version = "0.5";
-                  unix-socket = "''${config.snow-blower.runtime}/pc.sock";
+                  unix-socket = "''${config.snow-blower.paths.runtime}/pc.sock";
                   tui = true;
                 }
               '';
@@ -152,49 +157,14 @@
           };
         };
 
-        config = {
-          snow-blower = lib.mkIf (cfg.processes != {}) {
+        config = lib.mkIf (cfg.processes != {}) {
+          #Expose process-compose as a buildable package.
+
+          snow-blower = {
             packages = [cfg.package];
 
-            process-compose.internals = {
-              command = ''
-                ${cfg.package}/bin/process-compose --config ${cfg.internals.configFile} \
-                  --unix-socket ''${PC_SOCKET_PATH:-${toString cfg.settings.server.unix-socket}} \
-                  --tui=''${PC_TUI_ENABLED:-${lib.boolToString cfg.settings.server.tui}} \
-                  -U up "$@" &
-              '';
-
-              procfile = pkgs.writeText "procfile" (lib.concatStringsSep "\n"
-                (lib.mapAttrsToList (name: process: "${name}: exec ${pkgs.writeShellScript name process.exec}")
-                  cfg.processes));
-
-              procfileEnv =
-                pkgs.writeText "procfile-env" (lib.concatStringsSep "\n" envList);
-
-              procfileScript = pkgs.writeShellScript "process-compose-up" ''
-                ${cfg.settings.before}
-
-                ${cfg.internals.command}
-
-                backgroundPID=$!
-
-                down() {
-                  echo "Stopping processes..."
-                  kill -TERM $backgroundPID
-                  wait $backgroundPID
-                  ${cfg.settings.after}
-                  echo "Processes stopped."
-                  rm -rf ${config.snow-blower.internals.runtime}
-                }
-
-                trap down SIGINT SIGTERM
-
-                wait
-              '';
-
-              configFile = settingsFormat.generate "process-compose.yaml" cfg.internals.settings;
-
-              settings = {
+            process-compose = {
+              settings.server = {
                 version = "0.5";
                 is_strict = true;
                 port = lib.mkDefault 9999;
@@ -208,15 +178,58 @@
                   (name: value: {command = "exec ${pkgs.writeShellScript name value.exec}";} // value.process-compose)
                   cfg.processes;
               };
-            };
 
-            just.recipes.up = {
-              enable = lib.mkDefault true;
-              justfile = lib.mkDefault ''
-                # Starts the environment.
-                up:
-                  ${lib.getExe' cfg.internals.procfileScript "process-compose-up"}
-              '';
+              internals = {
+                command = ''
+                  ${cfg.package}/bin/process-compose --config ${cfg.internals.configFile} \
+                    --unix-socket ''${PC_SOCKET_PATH:-${toString cfg.settings.server.unix-socket}} \
+                    --tui=''${PC_TUI_ENABLED:-${lib.boolToString cfg.settings.server.tui}} \
+                    -U up "$@" &
+                '';
+
+                procfile = pkgs.writeText "procfile" (lib.concatStringsSep "\n"
+                  (lib.mapAttrsToList (name: process: "${name}: exec ${pkgs.writeShellScript name process.exec}")
+                    cfg.processes));
+
+                procfileEnv =
+                  pkgs.writeText "procfile-env" (lib.concatStringsSep "\n" envList);
+
+                procfileScript = pkgs.writeShellScript "process-compose-up" ''
+                  ${cfg.settings.before}
+
+                  echo "HERE I AM"
+                  echo "${cfg.internals.configFile}"
+
+                  ${cfg.internals.command}
+
+
+                  backgroundPID=$!
+
+                  down() {
+                    echo "Stopping processes..."
+                    kill -TERM $backgroundPID
+                    wait $backgroundPID
+                    ${cfg.settings.after}
+                    echo "Processes stopped."
+
+                  }
+
+                  trap down SIGINT SIGTERM
+
+                  wait
+                '';
+
+                configFile = settingsFormat.generate "process-compose.yaml" cfg.settings.server;
+              };
+
+              just.recipes.up = {
+                enable = lib.mkDefault true;
+                justfile = lib.mkDefault ''
+                  # Starts the environment.
+                  up:
+                    ${config.snow-blower.process-compose.internals.procfileScript}
+                '';
+              };
             };
           };
         };
