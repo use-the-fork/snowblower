@@ -4,13 +4,11 @@
   lib,
   ...
 }: let
-  mkService = import ./modules/mkService.nix {inherit lib;};
-  mkIntegration = import ./modules/mkIntegration.nix {inherit lib;};
-
   sb = {
-    inherit (mkService) mkService;
-    inherit (mkIntegration) mkIntegration;
+    mkService = import ./modules/mkService.nix {inherit lib;};
+    mkIntegration = import ./modules/mkIntegration.nix {inherit lib;};
     mkEnableOption' = import ./mkEnableOption.nix {inherit lib;};
+    mkCmdArgs = import ./mkCmdArgs.nix {inherit lib;};
   };
 in {
   # I personally HATE this abstraction. But I could not for the life of me

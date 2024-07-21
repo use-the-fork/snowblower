@@ -15,6 +15,4 @@
     };
     inherit settings;
   };
-in {
-  inherit mkIntegration;
-}
+in mkIntegration
