@@ -6,6 +6,7 @@ topLevel @ {
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
     ./core
+    ./ai
     ./env
     ./lib
     ./integrations

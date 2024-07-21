@@ -53,6 +53,7 @@
       imports = [
         bootstrap.flakeModules.default
         bootstrap.flakeModules.optionsDocument
+        bootstrap.flakeModules.ai
         bootstrap.flakeModules.test
       ];
 
