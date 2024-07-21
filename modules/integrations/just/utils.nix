@@ -5,11 +5,11 @@
 }: let
   inherit (lib) types;
 
-  recipeModule = {
-    imports = [./recipe-module.nix];
+  featureModule = {
+    imports = [./feature-module.nix];
     config._module.args = {inherit pkgs;};
   };
-  recipeType = types.submodule recipeModule;
+  featureType = types.submodule featureModule;
 
   mkCmdArgs = predActionList:
     lib.concatStringsSep
@@ -20,5 +20,5 @@
       []
       predActionList);
 in {
-  inherit mkCmdArgs recipeModule recipeType;
+  inherit mkCmdArgs featureModule featureType;
 }

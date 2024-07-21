@@ -5,6 +5,7 @@
 }: {
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
+    ./recipes/convco.nix
   ];
   flake.flakeModules.integrations = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
@@ -14,13 +15,13 @@
       ...
     }: let
       inherit (lib) types mkOption;
-      inherit (import ./utils.nix {inherit lib pkgs;}) recipeType;
+      inherit (import ./utils.nix {inherit lib pkgs;}) featureType;
     in {
       imports = [
         {
-          options.snow-blower.just.recipes = mkOption {
+          options.snow-blower.just.features = mkOption {
             type = types.submoduleWith {
-              modules = [{freeformType = types.attrsOf recipeType;}];
+              modules = [{freeformType = types.attrsOf featureType;}];
               specialArgs = {inherit pkgs;};
             };
             default = {};
@@ -59,7 +60,7 @@
               name = "justfile";
               text =
                 lib.concatStringsSep "\n"
-                (lib.mapAttrsToList (_name: recipe: recipe.outputs.justfile) config.snow-blower.just.recipes);
+                (lib.mapAttrsToList (_name: recipe: recipe.outputs.justfile) config.snow-blower.just.features);
             };
           in [
             ''

@@ -14,7 +14,7 @@
       config,
       ...
     }: let
-      inherit (self.lib) mkService;
+      inherit (self.lib.sb) mkService;
       inherit (lib) mkOption types getName hasAttrByPath optionalString concatMapStrings concatStringsSep mapAttrsToList optionalAttrs literalExpression;
 
       cfg = config.snow-blower.services.mysql;

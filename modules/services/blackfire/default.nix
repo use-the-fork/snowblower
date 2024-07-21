@@ -15,7 +15,7 @@
       ...
     }: let
       inherit (lib) types mkOption;
-      inherit (self.lib) mkService;
+      inherit (self.lib.sb) mkService;
 
       cfg = config.snow-blower.services.blackfire;
       settings = config.snow-blower.services.blackfire.settings;

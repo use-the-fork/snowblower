@@ -14,7 +14,7 @@
       lib,
       ...
     }: let
-      inherit (self.lib) mkService;
+      inherit (self.lib.sb) mkService;
 
       cfg = config.snow-blower.services.adminer;
     in {

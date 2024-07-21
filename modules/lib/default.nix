@@ -5,6 +5,12 @@
   ...
 }: let
   mkService = import ./modules/mkService.nix {inherit lib;};
+  mkJustRecipe = import ./modules/mkJustRecipe.nix {inherit lib;};
+
+  sb = {
+    inherit (mkService) mkService;
+    inherit (mkJustRecipe) mkJustRecipe;
+  };
 in {
   # I personally HATE this abstraction. But I could not for the life of me
   # figure out a better way to do this. if you happend to be looking at this
@@ -27,7 +33,7 @@ in {
     };
 
     config.flake.lib = {
-      inherit (mkService) mkService;
+      inherit sb;
     };
   };
 }

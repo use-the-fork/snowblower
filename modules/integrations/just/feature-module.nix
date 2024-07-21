@@ -23,15 +23,6 @@ in {
             text = x;
           };
     };
-    package = mkOption {
-      type = types.nullOr types.package;
-      default = null;
-      description =
-        lib.mdDoc
-        ''
-          An optional package that provides the recipe.
-        '';
-    };
     outputs.justfile = mkOption {
       type = types.str;
       readOnly = true;
