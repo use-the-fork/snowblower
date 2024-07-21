@@ -1,6 +1,7 @@
 {
   inputs,
   flake-parts-lib,
+  self,
   ...
 }: {
   imports = [
@@ -13,43 +14,21 @@
       config,
       ...
     }: let
-      inherit (lib) types mkOption mkEnableOption;
+      inherit (lib) types mkOption optionalString;
+      inherit (self.lib.sb) mkService;
 
       cfg = config.snow-blower.services.redis;
     in {
-      options.snow-blower.services.redis = {
-        enable = mkEnableOption "Redis process and expose utilities";
-
-        package = mkOption {
-          type = types.package;
-          description = "Which package of Redis to use";
-          default = pkgs.redis;
-          defaultText = lib.literalExpression "pkgs.redis";
-        };
-
-        bind = mkOption {
-          type = types.nullOr types.str;
-          default = "127.0.0.1";
-          description = ''
-            The IP interface to bind to.
-            `null` means "all interfaces".
-          '';
-          example = "127.0.0.1";
-        };
-
-        port = mkOption {
-          type = types.port;
-          default = 6379;
-          description = ''
-            The TCP port to accept connections.
-            If port 0 is specified Redis, will not listen on a TCP socket.
-          '';
-        };
-
-        extraConfig = mkOption {
-          type = types.lines;
-          default = "locale-collate C";
-          description = "Additional text to be appended to `redis.conf`.";
+      options.snow-blower.services.redis = mkService {
+        name = "Redis";
+        package = pkgs.redis;
+        port = 6379;
+        extraOptions = {
+          extraConfig = mkOption {
+            type = types.lines;
+            default = "locale-collate C";
+            description = "Additional text to be appended to `redis.conf`.";
+          };
         };
       };
 
@@ -58,24 +37,42 @@
           packages = [
             cfg.package
           ];
-          env.REDISDATA = config.env.DEVENV_STATE + "/redis";
-        };
+          env.REDISDATA = config.env.PROJECT_STATE + "/redis";
 
-        #        process-compose.watch-server = {
-        #          settings = {
-        #            processes.redis = {
-        #              readiness_probe = {
-        #                exec.command = "${startScript}/bin/start-redis";
-        #                initial_delay_seconds = 2;
-        #                period_seconds = 10;
-        #                timeout_seconds = 4;
-        #                success_threshold = 1;
-        #                failure_threshold = 5;
-        #              };
-        #              availability.restart = "on_failure";
-        #            };
-        #          };
-        #        };
+          process-compose.processes.redis = let
+            redisConfig = pkgs.writeText "redis.conf" ''
+              port ${toString cfg.settings.port}
+              ${optionalString (cfg.settings.host != null) "bind ${cfg.settings.host}"}
+              ${cfg.settings.extraConfig}
+            '';
+
+            startScript = pkgs.writeShellScriptBin "start-redis" ''
+              set -euo pipefail
+
+              if [[ ! -d "$REDISDATA" ]]; then
+                mkdir -p "$REDISDATA"
+              fi
+
+              exec ${cfg.package}/bin/redis-server ${redisConfig} --dir "$REDISDATA"
+            '';
+          in {
+            exec = "${startScript}/bin/start-redis";
+
+            process-compose = {
+              readiness_probe = {
+                exec.command = "${cfg.package}/bin/redis-cli -p ${toString cfg.settings.port} ping";
+                initial_delay_seconds = 2;
+                period_seconds = 10;
+                timeout_seconds = 4;
+                success_threshold = 1;
+                failure_threshold = 5;
+              };
+
+              # https://github.com/F1bonacc1/process-compose#-auto-restart-if-not-healthy
+              availability.restart = "on_failure";
+            };
+          };
+        };
       };
     });
   };
