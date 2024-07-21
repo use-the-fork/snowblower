@@ -88,7 +88,7 @@
         motd = mkOption {
           type = types.str;
           default = ''
-            ❄️ 💨 Snow Blower: Simple, Fast, Declarative, Reproducible, and Composable Developer Environments
+            ❄️ 💨 Snow Blower: All flake no fluff.
           '';
           description = ''
             Message Of The Day.
