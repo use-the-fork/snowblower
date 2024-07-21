@@ -4,5 +4,6 @@
     ./blackfire
     ./mysql
     ./redis
+    ./memcached
   ];
 }
