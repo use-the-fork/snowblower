@@ -6,7 +6,7 @@
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
   ];
-  flake.flakeModules.integrations = {
+  flake.flakeModules.just = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
       pkgs,

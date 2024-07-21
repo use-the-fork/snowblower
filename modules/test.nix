@@ -18,13 +18,23 @@ topLevel @ {
             php.enable = true;
           };
 
-          scripts."devenv-generate-doc-options" = {
-            just.enable = true;
-            description = "Generate option docs.";
-            exec = ''
-              set -e
-              echo "did this work?"
-            '';
+          scripts = {
+            "reload" = {
+              just.enable = true;
+              description = "reloads devenv.";
+              exec = ''
+                devenv reload
+              '';
+            };
+
+            "devenv-generate-doc-options" = {
+              just.enable = true;
+              description = "Generate option docs.";
+              exec = ''
+                set -e
+                echo "did this work?"
+              '';
+            };
           };
 
           integrations = {

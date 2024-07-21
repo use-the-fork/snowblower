@@ -5,10 +5,11 @@ topLevel @ {
 }: {
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
+    ./core
     ./env
     ./lib
-    ./nixpkgs.nix
     ./integrations
+    ./just
     ./languages
     ./services
     ./processes
@@ -22,6 +23,11 @@ topLevel @ {
       topLevel.config.flake.flakeModules.nixpkgs
       topLevel.config.flake.flakeModules.env
 
+      # Yes, just can be considered an integration however since
+      # it's used in most integrations as well as other submodules
+      # I see it as more of a core function.
+      topLevel.config.flake.flakeModules.just
+
       topLevel.config.flake.flakeModules.integrations
       topLevel.config.flake.flakeModules.scripts
       topLevel.config.flake.flakeModules.processes
@@ -30,8 +36,6 @@ topLevel @ {
 
       topLevel.config.flake.flakeModules.shell
 
-      #this gives us the avility to $FLAKE_ROOT as a env varible to be able to get at the root of the flake we are developing in.
-      inputs.flake-root.flakeModule
     ];
 
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
@@ -41,17 +45,6 @@ topLevel @ {
       ...
     }: let
       inherit (lib) types mkOption;
-
-      drvOrPackageToPaths = drvOrPackage:
-        if drvOrPackage ? outputs
-        then builtins.map (output: drvOrPackage.${output}) drvOrPackage.outputs
-        else [drvOrPackage];
-
-      profile = pkgs.buildEnv {
-        name = "devenv-profile";
-        paths = lib.flatten (builtins.map drvOrPackageToPaths config.snow-blower.packages);
-        ignoreCollisions = true;
-      };
     in {
       options.snow-blower = {
         packages = mkOption {
@@ -86,7 +79,7 @@ topLevel @ {
             type = types.str;
             internal = true;
             # The path has to be
-            # - unique to each DEVENV_STATE to let multiple devenv environments coexist
+            # - unique to each PROJECT_STATE to let multiple devenv environments coexist
             # - deterministic so that it won't change constantly
             # - short so that unix domain sockets won't hit the path length limit
             # - free to create as an unprivileged user across OSes
