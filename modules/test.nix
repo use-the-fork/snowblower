@@ -38,6 +38,8 @@ topLevel @ {
           };
 
           integrations = {
+            git-cliff.enable = true;
+
             treefmt = {
               programs = {
                 alejandra.enable = true;

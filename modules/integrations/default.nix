@@ -4,5 +4,6 @@
     ./dotenv
     ./treefmt
     ./git-hooks
+    ./git-cliff
   ];
 }
