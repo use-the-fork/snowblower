@@ -37,8 +37,8 @@
         git-hooks.hooks.treefmt.package = config.snow-blower.treefmt.build.wrapper;
 
         #automatically add treefmt-nix to just.
-        just.features.treefmt = {
-          enable = true;
+        just.recipes.treefmt = {
+          enable = lib.mkDefault true;
           justfile = lib.mkDefault ''
             # Auto-format the source tree using treefmt
             fmt:

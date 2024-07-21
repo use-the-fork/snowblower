@@ -5,11 +5,11 @@
   ...
 }: let
   mkService = import ./modules/mkService.nix {inherit lib;};
-  mkJustRecipe = import ./modules/mkJustRecipe.nix {inherit lib;};
+  mkIntegration = import ./modules/mkIntegration.nix {inherit lib;};
 
   sb = {
     inherit (mkService) mkService;
-    inherit (mkJustRecipe) mkJustRecipe;
+    inherit (mkIntegration) mkIntegration;
   };
 in {
   # I personally HATE this abstraction. But I could not for the life of me

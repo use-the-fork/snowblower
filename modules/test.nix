@@ -14,9 +14,6 @@ topLevel @ {
     options.perSystem = flake-parts-lib.mkPerSystemOption (
       _: {
         snow-blower = {
-          just.features.treefmt.enable = true;
-          just.recipes.convco.enable = true;
-#          just.recipes.git-cliff.enable = true;
 
           languages = {
             php.enable = true;

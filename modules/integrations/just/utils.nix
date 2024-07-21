@@ -5,20 +5,11 @@
 }: let
   inherit (lib) types;
 
-  featureModule = {
-    imports = [./feature-module.nix];
+  recipeModule = {
+    imports = [./recipe-module.nix];
     config._module.args = {inherit pkgs;};
   };
-  featureType = types.submodule featureModule;
-
-  mkCmdArgs = predActionList:
-    lib.concatStringsSep
-    " "
-    (builtins.foldl'
-      (acc: entry:
-        acc ++ lib.optional (builtins.elemAt entry 0) (builtins.elemAt entry 1))
-      []
-      predActionList);
+  recipeType = types.submodule recipeModule;
 in {
-  inherit mkCmdArgs featureModule featureType;
+  inherit recipeModule recipeType;
 }

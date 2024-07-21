@@ -236,7 +236,7 @@
               };
             };
 
-            just.features.up = {
+            just.recipes.up = {
               enable = lib.mkDefault true;
               justfile = lib.mkDefault ''
                 # Starts the environment.

@@ -73,7 +73,7 @@
         packages = lib.mapAttrsToList (_: script: script.scriptPackage) config.snow-blower.scripts;
 
         just = {
-          features = lib.genAttrs (builtins.attrNames config.snow-blower.scripts) (name: let
+          recipes = lib.genAttrs (builtins.attrNames config.snow-blower.scripts) (name: let
             script = config.snow-blower.scripts.${name};
           in {
             enable = lib.mkDefault script.just.enable;
