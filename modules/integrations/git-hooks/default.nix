@@ -15,8 +15,9 @@
       ...
     }: let
       inherit (lib) types mkOption;
+      cfg = config.snow-blower.integrations.git-hooks;
     in {
-      options.snow-blower.git-hooks = lib.mkOption {
+      options.snow-blower.integrations.git-hooks = lib.mkOption {
         type = lib.types.submoduleWith {
           modules = [
             (inputs.git-hooks + "/modules/all-modules.nix")
@@ -30,13 +31,13 @@
           shorthandOnlyDefinesConfig = true;
         };
         default = {};
-        description = "Integration of https://github.com/cachix/pre-commit-hooks.nix";
+        description = "Integration of https://github.com/cachix/git-hooks.nix";
       };
 
       config.snow-blower = {
-        packages = lib.mkAfter ([config.snow-blower.git-hooks.package] ++ (config.snow-blower.git-hooks.enabledPackages or []));
+        packages = lib.mkAfter ([cfg.package] ++ (cfg.enabledPackages or []));
         shell = {
-          startup = [config.snow-blower.git-hooks.installationScript];
+          startup = [cfg.installationScript];
         };
       };
     });

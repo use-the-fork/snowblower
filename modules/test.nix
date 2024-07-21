@@ -14,7 +14,6 @@ topLevel @ {
     options.perSystem = flake-parts-lib.mkPerSystemOption (
       _: {
         snow-blower = {
-
           languages = {
             php.enable = true;
           };
@@ -28,22 +27,24 @@ topLevel @ {
             '';
           };
 
-          treefmt = {
-            programs = {
-              alejandra.enable = true;
-              deadnix.enable = true;
-              statix = {
-                enable = true;
-                disabled-lints = [
-                  "manual_inherit_from"
-                ];
+          integrations = {
+            treefmt = {
+              programs = {
+                alejandra.enable = true;
+                deadnix.enable = true;
+                statix = {
+                  enable = true;
+                  disabled-lints = [
+                    "manual_inherit_from"
+                  ];
+                };
               };
             };
-          };
 
-          git-hooks.hooks = {
-            treefmt = {
-              enable = true;
+            git-hooks.hooks = {
+              treefmt = {
+                enable = true;
+              };
             };
           };
 

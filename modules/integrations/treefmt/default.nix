@@ -1,6 +1,7 @@
 {
   inputs,
   flake-parts-lib,
+  self,
   ...
 }: {
   imports = [
@@ -13,9 +14,12 @@
       config,
       ...
     }: let
-      inherit (lib) types mkOption;
+      inherit (lib) types mkOption mkIf;
+      inherit (self.lib.sb) mkEnableOption';
+
+      cfg = config.snow-blower.integrations.treefmt;
     in {
-      options.snow-blower.treefmt = mkOption {
+      options.snow-blower.integrations.treefmt = mkOption {
         type = types.submoduleWith {
           modules =
             inputs.treefmt-nix.lib.submodule-modules
@@ -23,6 +27,11 @@
               {
                 projectRootFile = "flake.nix";
                 package = pkgs.treefmt;
+              }
+              {
+                options.just = {
+                  enable = mkEnableOption' "enable just command";
+                };
               }
             ];
           specialArgs = {inherit pkgs;};
@@ -33,21 +42,21 @@
       };
 
       config.snow-blower = {
-        #automatically add treefmt-nix to pre-commit if the user enables it.
-        git-hooks.hooks.treefmt.package = config.snow-blower.treefmt.build.wrapper;
-
         #automatically add treefmt-nix to just.
-        just.recipes.treefmt = {
+        just.recipes.treefmt = mkIf cfg.just.enable {
           enable = lib.mkDefault true;
           justfile = lib.mkDefault ''
             # Auto-format the source tree using treefmt
             fmt:
-              ${lib.getExe config.snow-blower.treefmt.build.wrapper}
+              ${lib.getExe cfg.build.wrapper}
           '';
         };
 
+        #automatically add treefmt-nix to pre-commit if the user enables it.
+        integrations.git-hooks.hooks.treefmt.package = cfg.build.wrapper;
+
         packages = [
-          config.snow-blower.treefmt.build.wrapper
+          cfg.build.wrapper
         ];
       };
     });
