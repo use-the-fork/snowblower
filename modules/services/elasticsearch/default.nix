@@ -106,7 +106,7 @@
               es7 = builtins.compareVersions cfg.package.version "7" >= 0;
 
               esConfig = ''
-                network.host: ${cfg.settings.listenAddress}
+                network.host: ${cfg.settings.host}
                 cluster.name: ${cfg.settings.cluster_name}
                 ${lib.optionalString cfg.settings.single_node "discovery.type: single-node"}
                 http.port: ${toString cfg.settings.port}
@@ -163,7 +163,7 @@
                 mkdir -m 0700 -p "$ELASTICSEARCH_DATA/logs"
 
                 # Start it
-                exec ${cfg.package}/bin/elasticsearch ${toString cfg.extraCmdLineOptions}
+                exec ${cfg.package}/bin/elasticsearch ${toString cfg.settings.extraCmdLineOptions}
               '';
 
 
@@ -172,7 +172,7 @@
 
                   process-compose = {
                     readiness_probe = {
-                      exec.command = "${pkgs.curl}/bin/curl -f -k http://${cfg.settings.listenAddress}:${toString cfg.settings.port}";
+                      exec.command = "${pkgs.curl}/bin/curl -f -k http://${cfg.settings.host}:${toString cfg.settings.port}";
                       initial_delay_seconds = 15;
                       period_seconds = 10;
                       timeout_seconds = 2;
