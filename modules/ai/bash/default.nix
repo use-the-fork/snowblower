@@ -1,6 +1,7 @@
 {
   inputs,
   flake-parts-lib,
+  self,
   ...
 }: {
   imports = [
@@ -13,12 +14,13 @@
       config,
       ...
     }: let
-      inherit (lib) types mkOption mkEnableOption mkIf;
+      inherit (lib) mkIf;
+      inherit (self.lib.sb) mkAi;
 
-      cfg = config.snow-blower.ai.laravel;
+      cfg = config.snow-blower.ai.shell;
 
       system_message = ''        ${cfg.settings.systemMessage.before}
-                      You are a helpful assistant trained to generate Laravel commands based on the users request.
+                      Create a single line command that one can enter in a terminal and run, based on what is specified in the prompt.
 
                       Only respond with the laravel command, NOTHING ELSE, DO NOT wrap it in quotes or backticks.
 
@@ -58,7 +60,7 @@
         then ""
         else ''max_tokens: ${toString cfg.settings.maxTokens},'';
 
-      ai-commit = pkgs.writeShellScriptBin "ai-commit" ''
+      ai-shell = pkgs.writeShellScriptBin "ai-shell" ''
         # The first argument is the file where the commit message is stored
 
         # Define the system message
@@ -121,52 +123,18 @@
         exit 0
       '';
     in {
-      options.snow-blower.ai.laravel = {
-        enable = lib.mkEnableOption "Laravel AI";
-        settings = {
-          model = mkOption {
-            type = types.enum [
-              "gpt-4-turbo"
-              "gpt-4o"
-              "gpt-4o-mini"
-            ];
-            default = "gpt-4-turbo";
-            description = "The name of the dotenv file to load, or a list of dotenv files to load in order of precedence.";
-          };
-          temperature = mkOption {
-            type = types.int;
-            default = 1;
-            description = "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.";
-          };
-          maxTokens = mkOption {
-            type = types.nullOr types.int;
-            default = null;
-            description = "The maximum number of tokens that can be generated in the chat completion. The total length of input tokens and generated tokens is limited by the model's context length.";
-          };
-
-          systemMessage = {
-            before = mkOption {
-              type = types.nullOr types.string;
-              default = "";
-              description = "This will be inserted at the start of the system message";
-            };
-            after = mkOption {
-              type = types.string;
-              default = "";
-              description = "This will be inserted at the end of the system message";
-            };
-          };
-        };
+      options.snow-blower.ai.shell = mkAi {
+        name = "Bash";
       };
 
       config.snow-blower = mkIf cfg.enable {
-        packages = [ai-commit];
-        just.recipes.ai-laravel = {
+        packages = [ai-bash];
+        just.recipes.ai-shell = {
           enable = true;
           justfile = lib.mkDefault ''
-            #generates a `artisan` command.
-            @ai-artisan:
-              ${lib.getExe ai-commit}
+            #generates a `shell` command.
+            @ai-shell:
+              ${lib.getExe ai-shell}
           '';
         };
       };
