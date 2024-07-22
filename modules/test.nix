@@ -18,6 +18,7 @@ topLevel @ {
             php.enable = true;
           };
 
+          ai.shell.enable = true;
           ai.laravel.enable = true;
 
           scripts = {
