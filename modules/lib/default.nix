@@ -5,6 +5,7 @@
   ...
 }: let
   sb = {
+    mkAi = import ./modules/mkAi.nix {inherit lib;};
     mkService = import ./modules/mkService.nix {inherit lib;};
     mkIntegration = import ./modules/mkIntegration.nix {inherit lib;};
     mkEnableOption' = import ./mkEnableOption.nix {inherit lib;};
