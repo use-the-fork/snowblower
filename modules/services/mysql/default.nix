@@ -22,7 +22,7 @@
 
       isMariaDB = getName cfg.package == getName pkgs.mariadb;
       format = pkgs.formats.ini {listsAsDuplicateKeys = true;};
-      configFile = format.generate "my.cnf" cfg.settings;
+      configFile = format.generate "my.cnf" cfg.settings.configuration;
       # Generate an empty config file to not resolve globally installed MySQL config like in /etc/my.cnf or ~/.my.cnf
       emptyConfig = format.generate "empty.cnf" {};
       mysqldOptions = "--defaults-file=${configFile} --datadir=$MYSQL_HOME --basedir=${cfg.package}";
@@ -48,16 +48,16 @@
       configureTimezones = ''
         # Start a temp database with the default-time-zone to import tz data
         # and hide the temp database from the configureScript by setting a custom socket
-        nohup ${cfg.package}/bin/mysqld ${mysqldOptions} --socket="$DEVENV_RUNTIME/config.sock" --skip-networking --default-time-zone=SYSTEM &
+        nohup ${cfg.package}/bin/mysqld ${mysqldOptions} --socket="$PROJECT_RUNTIME/config.sock" --skip-networking --default-time-zone=SYSTEM &
 
-        while ! MYSQL_PWD="" ${mysqladminWrappedEmpty}/bin/mysqladmin --socket="$DEVENV_RUNTIME/config.sock" ping -u root --silent; do
+        while ! MYSQL_PWD="" ${mysqladminWrappedEmpty}/bin/mysqladmin --socket="$PROJECT_RUNTIME/config.sock" ping -u root --silent; do
           sleep 1
         done
 
-        ${cfg.package}/bin/mysql_tzinfo_to_sql ${pkgs.tzdata}/share/zoneinfo/ | MYSQL_PWD="" ${mysqlWrappedEmpty}/bin/mysql --socket="$DEVENV_RUNTIME/config.sock" -u root mysql
+        ${cfg.package}/bin/mysql_tzinfo_to_sql ${pkgs.tzdata}/share/zoneinfo/ | MYSQL_PWD="" ${mysqlWrappedEmpty}/bin/mysql --socket="$PROJECT_RUNTIME/config.sock" -u root mysql
 
         # Shutdown the temp database
-        MYSQL_PWD="" ${mysqladminWrappedEmpty}/bin/mysqladmin --socket="$DEVENV_RUNTIME/config.sock" shutdown -u root
+        MYSQL_PWD="" ${mysqladminWrappedEmpty}/bin/mysqladmin --socket="$PROJECT_RUNTIME/config.sock" shutdown -u root
       '';
 
       startScript = pkgs.writeShellScriptBin "start-mysql" ''
@@ -107,7 +107,7 @@
               echo "Database ${database.name} exists, skipping creation."
             fi
           '')
-          cfg.initialDatabases}
+          settings.initialDatabases}
 
         ${concatMapStrings (user: ''
             echo "Adding user: ${user.name}"
@@ -279,12 +279,13 @@
 
         env =
           {
-            "MYSQL_HOME" = toString ''$PRJ_DATA_DIR/mysql'';
-            "MYSQL_UNIX_PORT" = toString ''$PRJ_RUNTIME_DIR/mysql.sock'';
-            "MYSQLX_UNIX_PORT" = toString ''$PRJ_RUNTIME_DIR/mysqlx.sock'';
+            MYSQL_HOME = config.snow-blower.env.PROJECT_STATE + "/mysql";
+            MYSQL_UNIX_PORT = config.snow-blower.env.PROJECT_RUNTIME + "/mysql.sock";
+            MYSQLX_UNIX_PORT = config.snow-blower.env.PROJECT_RUNTIME + "/mysqlx.sock";
+
           }
           // (optionalAttrs (hasAttrByPath ["mysqld" "port"] settings.configuration) {
-            "MYSQL_TCP_PORT" = toString settings.configuration.mysqld.port;
+            MYSQL_TCP_PORT = toString settings.configuration.mysqld.port;
           });
       };
     });
