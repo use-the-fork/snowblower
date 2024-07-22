@@ -88,7 +88,7 @@
             then "1"
             else "0";
 
-          process-compose.processes.blackfire-agent.exec = "${lib.getExe' cfg.package "blackfire"} agent:start --config=${configFile}";
+          processes.blackfire-agent.exec = "${lib.getExe' cfg.package "blackfire"} agent:start --config=${configFile}";
         };
       };
     });

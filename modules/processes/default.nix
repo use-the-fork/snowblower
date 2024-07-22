@@ -14,6 +14,7 @@
       ...
     }:
       with lib; let
+        processes = config.snow-blower.processes;
         cfg = config.snow-blower.process-compose;
         settingsFormat = pkgs.formats.yaml {};
 
@@ -67,112 +68,116 @@
           };
         });
       in {
-        options.snow-blower.process-compose = {
-          processes = lib.mkOption {
-            type = types.attrsOf processType;
-            default = {};
-            description = "Processes can be started with ``just up`` and run in foreground mode.";
-          };
+        options.snow-blower = {
+                  processes = lib.mkOption {
+                    type = types.attrsOf processType;
+                    default = {};
+                    description = "Processes can be started with ``just up`` and run in foreground mode.";
+                  };
 
-          package = lib.mkOption {
-            type = lib.types.package;
-            default = pkgs.process-compose;
-            defaultText = lib.literalExpression "pkgs.process-compose";
-            description = "The process-compose package to use.";
-          };
 
-          settings = {
-            server = lib.mkOption {
-              # NOTE: https://github.com/F1bonacc1/process-compose/blob/1c706e7c300df2455de7a9b259dd35dea845dcf3/src/app/config.go#L11-L16
-              type = types.attrs;
-              description = ''
-                Top-level process-compose.yaml options when that implementation is used.
-              '';
-              default = {
-                version = "0.5";
-                unix-socket = "${config.snow-blower.paths.runtime}/pc.sock";
-                tui = true;
-              };
-              defaultText = lib.literalExpression ''
-                {
+        process-compose = {
+
+            package = lib.mkOption {
+              type = lib.types.package;
+              default = pkgs.process-compose;
+              defaultText = lib.literalExpression "pkgs.process-compose";
+              description = "The process-compose package to use.";
+            };
+
+            settings = {
+              server = lib.mkOption {
+                # NOTE: https://github.com/F1bonacc1/process-compose/blob/1c706e7c300df2455de7a9b259dd35dea845dcf3/src/app/config.go#L11-L16
+                type = types.attrs;
+                description = ''
+                  Top-level process-compose.yaml options when that implementation is used.
+                '';
+                default = {
                   version = "0.5";
-                  unix-socket = "''${config.snow-blower.paths.runtime}/pc.sock";
+                  unix-socket = "${config.snow-blower.paths.runtime}/pc.sock";
                   tui = true;
-                }
-              '';
-              example = {
-                version = "0.5";
-                log_location = "/path/to/combined/output/logfile.log";
-                log_level = "fatal";
+                };
+                defaultText = lib.literalExpression ''
+                  {
+                    version = "0.5";
+                    unix-socket = "''${config.snow-blower.paths.runtime}/pc.sock";
+                    tui = true;
+                  }
+                '';
+                example = {
+                  version = "0.5";
+                  log_location = "/path/to/combined/output/logfile.log";
+                  log_level = "fatal";
+                };
+              };
+
+              before = lib.mkOption {
+                type = types.lines;
+                description = "Bash code to execute before starting processes.";
+                default = "";
+              };
+
+              after = lib.mkOption {
+                type = types.lines;
+                description = "Bash code to execute after stopping processes.";
+                default = "";
               };
             };
 
-            before = lib.mkOption {
-              type = types.lines;
-              description = "Bash code to execute before starting processes.";
-              default = "";
-            };
+            internals = {
+              command = lib.mkOption {
+                type = types.str;
+                internal = true;
+                description = ''
+                  The command to run the process-manager. This is meant to be set by the process-manager.''${implementation}.
+                '';
+              };
 
-            after = lib.mkOption {
-              type = types.lines;
-              description = "Bash code to execute after stopping processes.";
-              default = "";
-            };
-          };
+              procfile = lib.mkOption {
+                type = types.package;
+                internal = true;
+              };
 
-          internals = {
-            command = lib.mkOption {
-              type = types.str;
-              internal = true;
-              description = ''
-                The command to run the process-manager. This is meant to be set by the process-manager.''${implementation}.
-              '';
-            };
+              procfileEnv = lib.mkOption {
+                internal = true;
+                type = types.package;
+              };
 
-            procfile = lib.mkOption {
-              type = types.package;
-              internal = true;
-            };
+              procfileScript = lib.mkOption {
+                type = types.package;
+                internal = true;
+                default = pkgs.writeShellScript "no-processes" "";
+              };
 
-            procfileEnv = lib.mkOption {
-              internal = true;
-              type = types.package;
-            };
+              configFile = lib.mkOption {
+                type = lib.types.path;
+                internal = true;
+              };
 
-            procfileScript = lib.mkOption {
-              type = types.package;
-              internal = true;
-              default = pkgs.writeShellScript "no-processes" "";
-            };
+              settings = lib.mkOption {
+                type = settingsFormat.type;
+                default = {};
+                internal = true;
+                description = ''
+                  process-compose.yaml specific process attributes.
 
-            configFile = lib.mkOption {
-              type = lib.types.path;
-              internal = true;
-            };
-
-            settings = lib.mkOption {
-              type = settingsFormat.type;
-              default = {};
-              internal = true;
-              description = ''
-                process-compose.yaml specific process attributes.
-
-                Example: https://github.com/F1bonacc1/process-compose/blob/main/process-compose.yaml`
-              '';
-              example = {
-                environment = ["ENVVAR_FOR_THIS_PROCESS_ONLY=foobar"];
-                availability = {
-                  restart = "on_failure";
-                  backoff_seconds = 2;
-                  max_restarts = 5; # default: 0 (unlimited)
+                  Example: https://github.com/F1bonacc1/process-compose/blob/main/process-compose.yaml`
+                '';
+                example = {
+                  environment = ["ENVVAR_FOR_THIS_PROCESS_ONLY=foobar"];
+                  availability = {
+                    restart = "on_failure";
+                    backoff_seconds = 2;
+                    max_restarts = 5; # default: 0 (unlimited)
+                  };
+                  depends_on.some-other-process.condition = "process_completed_successfully";
                 };
-                depends_on.some-other-process.condition = "process_completed_successfully";
               };
             };
           };
         };
 
-        config = lib.mkIf (cfg.processes != {}) {
+        config = lib.mkIf (processes != {}) {
           #Expose process-compose as a buildable package.
 
           snow-blower = {
@@ -192,7 +197,7 @@
                   processes =
                     lib.mapAttrs
                     (name: value: {command = "exec ${pkgs.writeShellScript name value.exec}";} // value.process-compose)
-                    cfg.processes;
+                    processes;
                 };
 
                 command = ''
@@ -204,7 +209,7 @@
 
                 procfile = pkgs.writeText "procfile" (lib.concatStringsSep "\n"
                   (lib.mapAttrsToList (name: process: "${name}: exec ${pkgs.writeShellScript name process.exec}")
-                    cfg.processes));
+                    processes));
 
                 procfileEnv =
                   pkgs.writeText "procfile-env" (lib.concatStringsSep "\n" envList);

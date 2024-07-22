@@ -24,7 +24,7 @@
         port = 8080;
       };
 
-      config.snow-blower.process-compose.processes = lib.mkIf cfg.enable {
+      config.snow-blower.processes = lib.mkIf cfg.enable {
         adminer.exec = "${config.snow-blower.languages.php.package}/bin/php ${lib.optionalString config.snow-blower.services.mysql.enable "-dmysqli.default_socket=${config.snow-blower.env.MYSQL_UNIX_PORT}"} -S ${cfg.settings.host}:${toString cfg.settings.port} -t ${cfg.package} ${cfg.package}/adminer.php";
       };
     });

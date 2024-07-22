@@ -102,7 +102,7 @@
 
           env.ELASTICSEARCH_DATA = config.snow-blower.env.PROJECT_STATE + "/elasticsearch";
 
-          process-compose.processes.elasticsearch = let
+          processes.elasticsearch = let
               es7 = builtins.compareVersions cfg.package.version "7" >= 0;
 
               esConfig = ''

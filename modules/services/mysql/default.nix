@@ -268,7 +268,7 @@
       };
 
       config.snow-blower = lib.mkIf cfg.enable {
-        process-compose.processes = {
+        processes = {
           mysql.exec = "${startScript}/bin/start-mysql";
           mysql-configure.exec = "${configureScript}/bin/configure-mysql";
         };

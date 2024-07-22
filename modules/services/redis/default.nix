@@ -39,7 +39,7 @@
           ];
           env.REDISDATA = config.snow-blower.env.PROJECT_STATE + "/redis";
 
-          process-compose.processes.redis = let
+          processes.redis = let
             redisConfig = pkgs.writeText "redis.conf" ''
               port ${toString cfg.settings.port}
               ${optionalString (cfg.settings.host != null) "bind ${cfg.settings.host}"}

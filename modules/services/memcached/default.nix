@@ -41,7 +41,7 @@
             cfg.package
           ];
 
-          process-compose.processes.memcached = {
+          processes.memcached = {
             exec = "${cfg.package}/bin/memcached --port=${toString cfg.settings.port} --listen=${cfg.settings.bind} ${lib.concatStringsSep " " cfg.settings.startArgs}";
 
             process-compose = {
