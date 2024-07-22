@@ -100,6 +100,7 @@
           '');
 
         shell.startup = [
+        (
           lib.concatStringsSep
           "\n"
           (
@@ -115,6 +116,7 @@
             ++ (lib.optional cfg.bun.install.enable ''
               source ${(./init-bun.nix {inherit pkgs lib config;})}
             '')
+          )
           )
         ];
       };
