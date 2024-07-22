@@ -13,41 +13,50 @@
       config,
       ...
     }: let
-      inherit (lib) types mkOption;
+      inherit (lib) types mkOption mkEnableOption mkIf;
 
-      system_message = ''        You are a helpful assistant trained to generate Laravel commands based on the users request.
+      cfg = config.snow-blower.ai.laravel;
 
-              Only respond with the laravel command, NOTHING ELSE, DO NOT wrap it in quotes or backticks.
+      system_message = ''        ${cfg.settings.systemMessage.before}
+                      You are a helpful assistant trained to generate Laravel commands based on the users request.
 
-              # Examples
+                      Only respond with the laravel command, NOTHING ELSE, DO NOT wrap it in quotes or backticks.
 
-              user: a command that sends emails.
-              response: php artisan make:command SendEmails
+                      # Examples
 
-              user: a model for flights include the migration
-              response: php artisan make:model Flight --migration
+                      user: a command that sends emails.
+                      response: php artisan make:command SendEmails
 
-              user: a model for flights include the migration resource and request
-              response: php artisan make:model Flight --controller --resource --requests
+                      user: a model for flights include the migration
+                      response: php artisan make:model Flight --migration
 
-              user: Flight model overview
-              response: php artisan model:show Flight
+                      user: a model for flights include the migration resource and request
+                      response: php artisan make:model Flight --controller --resource --requests
 
-              user: Flight controller
-              response: php artisan make:controller FlightController
+                      user: Flight model overview
+                      response: php artisan model:show Flight
 
-              user: erase and reseed the database forefully
-              response: php artisan migrate:fresh --seed --force
+                      user: Flight controller
+                      response: php artisan make:controller FlightController
 
-              user: what routes are avliable?
-              response: php artisan route:list
+                      user: erase and reseed the database forefully
+                      response: php artisan migrate:fresh --seed --force
 
-              user: rollback migrations 5 times
-              response: php artisan migrate:rollback --step=5
+                      user: what routes are avliable?
+                      response: php artisan route:list
 
-              user: start a q worker
-              response: php artisan queue:work
+                      user: rollback migrations 5 times
+                      response: php artisan migrate:rollback --step=5
+
+                      user: start a q worker
+                      response: php artisan queue:work
+                      ${cfg.settings.systemMessage.after}
       '';
+
+      maxTokensPart =
+        if cfg.settings.maxTokens == null
+        then ""
+        else ''max_tokens: ${toString cfg.settings.maxTokens},'';
 
       ai-commit = pkgs.writeShellScriptBin "ai-commit" ''
         # The first argument is the file where the commit message is stored
@@ -71,7 +80,7 @@
         json_payload=$(${pkgs.jq}/bin/jq -n \
                           --arg userCommand "$user_command" \
                           --arg systemMessage "$system_message" \
-                          '{model: "gpt-4-turbo", messages: [
+                          '{model: "${cfg.settings.model}", temperature: ${toString cfg.settings.temperature}, ${maxTokensPart} messages: [
                               {role: "system", content: $systemMessage},
                               {role: "user", content: $userCommand}
                             ]}')
@@ -113,31 +122,45 @@
       '';
     in {
       options.snow-blower.ai.laravel = {
-        enable = lib.mkOption {
-          type = lib.types.either lib.types.str (lib.types.listOf lib.types.str);
-          default = ".env";
-          description = "The name of the dotenv file to load, or a list of dotenv files to load in order of precedence.";
+        enable = lib.mkEnableOption "Laravel AI";
+        settings = {
+          model = mkOption {
+            type = types.enum [
+              "gpt-4-turbo"
+              "gpt-4o"
+              "gpt-4o-mini"
+            ];
+            default = "gpt-4-turbo";
+            description = "The name of the dotenv file to load, or a list of dotenv files to load in order of precedence.";
+          };
+          temperature = mkOption {
+            type = types.int;
+            default = 1;
+            description = "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.";
+          };
+          maxTokens = mkOption {
+            type = types.nullOr types.int;
+            default = null;
+            description = "The maximum number of tokens that can be generated in the chat completion. The total length of input tokens and generated tokens is limited by the model's context length.";
+          };
+
+          systemMessage = {
+            before = mkOption {
+              type = types.nullOr types.string;
+              default = "";
+              description = "This will be inserted at the start of the system message";
+            };
+            after = mkOption {
+              type = types.string;
+              default = "";
+              description = "This will be inserted at the end of the system message";
+            };
+          };
         };
-        #        model = mkOption {
-        #                                         type = types.str;
-        #                                         default = "gpt-4-turbo";
-        #                                         description = "The name of the dotenv file to load, or a list of dotenv files to load in order of precedence.";
-        #                                       };
-        #        temperature = mkOption {
-        #                                         type = types.int;
-        #                                         default = 1;
-        #                                         description = "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.";
-        #                                       };
-        #        max_tokens = mkOption {
-        #                                         type = types.str;
-        #                                         default = ".env";
-        #                                         description = "The name of the dotenv file to load, or a list of dotenv files to load in order of precedence.";
-        #                                       };
       };
 
-      config.snow-blower = {
+      config.snow-blower = mkIf cfg.enable {
         packages = [ai-commit];
-
         just.recipes.ai-laravel = {
           enable = true;
           justfile = lib.mkDefault ''

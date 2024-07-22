@@ -18,6 +18,8 @@ topLevel @ {
             php.enable = true;
           };
 
+          ai.laravel.enable = true;
+
           scripts = {
             "reload" = {
               just.enable = true;
