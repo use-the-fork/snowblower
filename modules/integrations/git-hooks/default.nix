@@ -5,10 +5,11 @@
 }: {
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
+    inputs.git-hooks.flakeModule
   ];
   flake.flakeModules.integrations = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
-      self,
+      self',
       lib,
       pkgs,
       config,
@@ -20,9 +21,10 @@
       options.snow-blower.integrations.git-hooks = lib.mkOption {
         type = lib.types.submoduleWith {
           modules = [
+            (inputs.git-hooks + "/modules/hooks.nix")
             (inputs.git-hooks + "/modules/all-modules.nix")
             {
-              rootSrc = self;
+              rootSrc = self';
               package = pkgs.pre-commit;
               tools = import (inputs.git-hooks + "/nix/call-tools.nix") pkgs;
             }

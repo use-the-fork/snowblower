@@ -62,7 +62,7 @@ topLevel @ {
 
           services.adminer.enable = true;
 
-          process-compose.processes = {
+          processes = {
             artisan-serve.exec = ''
               echo "123"
             '';
