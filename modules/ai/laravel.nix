@@ -15,40 +15,39 @@
     }: let
       inherit (lib) types mkOption;
 
-      system_message = ''You are a helpful assistant trained to generate Laravel commands based on the users request.
+      system_message = ''        You are a helpful assistant trained to generate Laravel commands based on the users request.
 
-      Only respond with the laravel command, NOTHING ELSE, DO NOT wrap it in quotes or backticks.
+              Only respond with the laravel command, NOTHING ELSE, DO NOT wrap it in quotes or backticks.
 
-      # Examples
+              # Examples
 
-      user: a command that sends emails.
-      response: php artisan make:command SendEmails
+              user: a command that sends emails.
+              response: php artisan make:command SendEmails
 
-      user: a model for flights include the migration
-      response: php artisan make:model Flight --migration
+              user: a model for flights include the migration
+              response: php artisan make:model Flight --migration
 
-      user: a model for flights include the migration resource and request
-      response: php artisan make:model Flight --controller --resource --requests
+              user: a model for flights include the migration resource and request
+              response: php artisan make:model Flight --controller --resource --requests
 
-      user: Flight model overview
-      response: php artisan model:show Flight
+              user: Flight model overview
+              response: php artisan model:show Flight
 
-      user: Flight controller
-      response: php artisan make:controller FlightController
+              user: Flight controller
+              response: php artisan make:controller FlightController
 
-      user: erase and reseed the database forefully
-      response: php artisan migrate:fresh --seed --force
+              user: erase and reseed the database forefully
+              response: php artisan migrate:fresh --seed --force
 
-      user: what routes are avliable?
-      response: php artisan route:list
+              user: what routes are avliable?
+              response: php artisan route:list
 
-      user: rollback migrations 5 times
-      response: php artisan migrate:rollback --step=5
+              user: rollback migrations 5 times
+              response: php artisan migrate:rollback --step=5
 
-      user: start a q worker
-      response: php artisan queue:work
+              user: start a q worker
+              response: php artisan queue:work
       '';
-
 
       ai-commit = pkgs.writeShellScriptBin "ai-commit" ''
         # The first argument is the file where the commit message is stored
@@ -112,25 +111,40 @@
         # Exit after successful completion
         exit 0
       '';
-
-
     in {
-#      options.snow-blower.ai = lib.mkOption {
-#        type = types.attrsOf scriptType;
-#        default = {};
-#        description = "A set of scripts available when the environment is active.";
-#      };
+      options.snow-blower.ai.laravel = {
+        enable = lib.mkOption {
+          type = lib.types.either lib.types.str (lib.types.listOf lib.types.str);
+          default = ".env";
+          description = "The name of the dotenv file to load, or a list of dotenv files to load in order of precedence.";
+        };
+        #        model = mkOption {
+        #                                         type = types.str;
+        #                                         default = "gpt-4-turbo";
+        #                                         description = "The name of the dotenv file to load, or a list of dotenv files to load in order of precedence.";
+        #                                       };
+        #        temperature = mkOption {
+        #                                         type = types.int;
+        #                                         default = 1;
+        #                                         description = "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.";
+        #                                       };
+        #        max_tokens = mkOption {
+        #                                         type = types.str;
+        #                                         default = ".env";
+        #                                         description = "The name of the dotenv file to load, or a list of dotenv files to load in order of precedence.";
+        #                                       };
+      };
 
       config.snow-blower = {
         packages = [ai-commit];
 
         just.recipes.ai-laravel = {
-            enable = true;
-            justfile = lib.mkDefault ''
-              #generates a `artisan` command.
-              ai-artisan:
-                ${lib.getExe ai-commit}
-            '';
+          enable = true;
+          justfile = lib.mkDefault ''
+            #generates a `artisan` command.
+            @ai-artisan:
+              ${lib.getExe ai-commit}
+          '';
         };
       };
     });
