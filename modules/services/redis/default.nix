@@ -37,7 +37,7 @@
           packages = [
             cfg.package
           ];
-          env.REDISDATA = config.env.PROJECT_STATE + "/redis";
+          env.REDISDATA = config.snow-blower.env.PROJECT_STATE + "/redis";
 
           process-compose.processes.redis = let
             redisConfig = pkgs.writeText "redis.conf" ''
