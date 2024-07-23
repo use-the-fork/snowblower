@@ -24,13 +24,13 @@ topLevel @ {
           scripts = {
             "reload" = {
               just.enable = true;
-              description = "reloads devenv.";
+              description = "reloads snow blower.";
               exec = ''
-                devenv reload
+                direnv reload
               '';
             };
 
-            "devenv-generate-doc-options" = {
+            "generate-doc-options" = {
               just.enable = true;
               description = "Generate option docs.";
               exec = ''

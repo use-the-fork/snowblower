@@ -80,7 +80,7 @@ topLevel @ {
             type = types.str;
             internal = true;
             # The path has to be
-            # - unique to each PROJECT_STATE to let multiple devenv environments coexist
+            # - unique to each PROJECT_STATE to let multiple snow-blower environments coexist
             # - deterministic so that it won't change constantly
             # - short so that unix domain sockets won't hit the path length limit
             # - free to create as an unprivileged user across OSes

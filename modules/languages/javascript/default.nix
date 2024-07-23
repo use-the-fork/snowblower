@@ -20,11 +20,11 @@
         enable = lib.mkEnableOption "tools for JavaScript development";
         directory = lib.mkOption {
           type = lib.types.str;
-          default = config.devenv.root;
-          defaultText = lib.literalExpression "config.devenv.root";
+          default = config.snow-blower.paths.root;
+          defaultText = lib.literalExpression "config.snow-blower.paths.root";
           description = ''
             The JavaScript project's root directory. Defaults to the root of the devenv project.
-            Can be an absolute path or one relative to the root of the devenv project.
+            Can be an absolute path or one relative to the root of the snow blower project.
           '';
           example = "./directory";
         };
@@ -48,7 +48,7 @@
             defaultText = lib.literalExpression "pkgs.nodejs";
             description = "The Node.js package to use.";
           };
-          install.enable = lib.mkEnableOption "npm install during devenv initialisation";
+          install.enable = lib.mkEnableOption "npm install during snow blower initialisation";
         };
 
         pnpm = {
@@ -59,7 +59,7 @@
             defaultText = lib.literalExpression "pkgs.nodePackages.pnpm";
             description = "The pnpm package to use.";
           };
-          install.enable = lib.mkEnableOption "pnpm install during devenv initialisation";
+          install.enable = lib.mkEnableOption "pnpm install during snow blower initialisation";
         };
 
         yarn = {
@@ -70,7 +70,7 @@
             defaultText = lib.literalExpression "pkgs.yarn";
             description = "The yarn package to use.";
           };
-          install.enable = lib.mkEnableOption "yarn install during devenv initialisation";
+          install.enable = lib.mkEnableOption "yarn install during snow blower initialisation";
         };
 
         bun = {
@@ -81,7 +81,7 @@
             defaultText = lib.literalExpression "pkgs.bun";
             description = "The bun package to use.";
           };
-          install.enable = lib.mkEnableOption "bun install during devenv initialisation";
+          install.enable = lib.mkEnableOption "bun install during snow blower initialisation";
         };
       };
 

@@ -224,9 +224,9 @@
             example = literalExpression ''
               [
                 {
-                  name = "devenv";
+                  name = "snow";
                   ensurePermissions = {
-                    "devenv.*" = "ALL PRIVILEGES";
+                    "snow.*" = "ALL PRIVILEGES";
                   };
                 }
               ]

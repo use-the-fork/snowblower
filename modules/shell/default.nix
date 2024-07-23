@@ -139,7 +139,7 @@
 
               ''
               ''
-                # devenv helper
+                # direnv helper
                 if [ ! type -p direnv &>/dev/null && -f .envrc ]; then
                   echo "You have .envrc but direnv command is not installed."
                   echo "Please install direnv: https://direnv.net/docs/installation.html"
@@ -170,7 +170,7 @@
         };
 
         devShells.default = (pkgs.mkShell.override {stdenv = cfg.stdenv;}) ({
-            name = "devenv-shell";
+            name = "snow-blower";
             packages = config.snow-blower.packages;
             shellHook = ''
               ${setupShell}
