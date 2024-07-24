@@ -43,7 +43,6 @@
         imports = [
           ./modules
           ./modules/options-document.nix
-          ./modules/templates.nix
           ./modules/test.nix
         ];
         debug = true;
@@ -56,9 +55,20 @@
         bootstrap.flakeModules.optionsDocument
         bootstrap.flakeModules.ai
         bootstrap.flakeModules.test
-        bootstrap.flakeModules.templates
       ];
 
-      flake = bootstrap;
+      flake =
+        bootstrap
+        // {
+          templates = let
+            base = {
+              path = ./templates/flake-parts;
+              description = "The base snow blower flake.";
+            };
+          in {
+            inherit base;
+            default = base;
+          };
+        };
     });
 }
