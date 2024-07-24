@@ -15,7 +15,7 @@
       ...
     }: let
       inherit (lib) types mkOption optionalString;
-      inherit (self.lib.sb) mkService;
+      inherit (import ../utils.nix {inherit lib;}) mkService;
 
       cfg = config.snow-blower.services.memcached;
     in {

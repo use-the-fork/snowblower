@@ -16,6 +16,7 @@ topLevel @ {
         "${inputs.nixpkgs}/nixos/modules/misc/nixpkgs.nix"
       ];
       nixpkgs.hostPlatform = system;
+      nixpkgs.config.allowUnfree = true;
     });
   };
 }

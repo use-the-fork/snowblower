@@ -1,6 +1,5 @@
 {
   inputs,
-  self,
   flake-parts-lib,
   ...
 }: {
@@ -15,7 +14,7 @@
       ...
     }: let
       inherit (lib) types mkOption mkIf mkEnableOption;
-      inherit (self.lib.sb) mkIntegration;
+      inherit (import ../utils.nix {inherit lib;}) mkIntegration;
 
       cfg = config.snow-blower.integrations.git-cliff;
     in {

@@ -15,7 +15,7 @@
       ...
     }: let
       inherit (lib) types mkOption mkIf;
-      inherit (self.lib.sb) mkEnableOption';
+      inherit (import ../utils.nix {inherit lib;}) mkEnableOption';
 
       cfg = config.snow-blower.integrations.treefmt;
     in {

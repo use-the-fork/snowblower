@@ -1,7 +1,6 @@
 {
   inputs,
   flake-parts-lib,
-  self,
   ...
 }: {
   imports = [
@@ -14,7 +13,7 @@
       lib,
       ...
     }: let
-      inherit (self.lib.sb) mkService;
+      inherit (import ../utils.nix {inherit lib;}) mkService;
 
       cfg = config.snow-blower.services.adminer;
     in {

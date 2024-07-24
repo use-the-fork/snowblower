@@ -1,7 +1,6 @@
 {
   inputs,
   flake-parts-lib,
-  self,
   ...
 }: {
   imports = [
@@ -15,7 +14,7 @@
       ...
     }: let
       inherit (lib) types mkOption;
-      inherit (self.lib.sb) mkService;
+      inherit (import ../utils.nix {inherit lib;}) mkService;
 
       cfg = config.snow-blower.services.blackfire;
       settings = config.snow-blower.services.blackfire.settings;

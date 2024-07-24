@@ -1,7 +1,6 @@
 {
   inputs,
   flake-parts-lib,
-  self,
   ...
 }: {
   imports = [
@@ -14,7 +13,7 @@
       config,
       ...
     }: let
-      inherit (self.lib.sb) mkService;
+      inherit (import ../utils.nix {inherit lib;}) mkService;
       inherit (lib) mkOption types getName hasAttrByPath optionalString concatMapStrings concatStringsSep mapAttrsToList optionalAttrs literalExpression;
 
       cfg = config.snow-blower.services.mysql;
@@ -282,7 +281,6 @@
             MYSQL_HOME = config.snow-blower.env.PROJECT_STATE + "/mysql";
             MYSQL_UNIX_PORT = config.snow-blower.env.PROJECT_RUNTIME + "/mysql.sock";
             MYSQLX_UNIX_PORT = config.snow-blower.env.PROJECT_RUNTIME + "/mysqlx.sock";
-
           }
           // (optionalAttrs (hasAttrByPath ["mysqld" "port"] settings.configuration) {
             MYSQL_TCP_PORT = toString settings.configuration.mysqld.port;

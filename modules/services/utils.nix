@@ -38,4 +38,6 @@
       }
       // extraOptions;
   };
-in mkService
+in {
+  inherit mkService;
+}

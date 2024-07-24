@@ -8,7 +8,6 @@ topLevel @ {
     ./core
     ./ai
     ./env
-    ./lib
     ./integrations
     ./just
     ./languages
@@ -20,7 +19,6 @@ topLevel @ {
   flake.flakeModules.default = flakeModule: {
     imports = [
       #The Must Haves
-      topLevel.config.flake.flakeModules.lib
       topLevel.config.flake.flakeModules.nixpkgs
       topLevel.config.flake.flakeModules.env
 
@@ -114,7 +112,6 @@ topLevel @ {
       };
 
       config = {
-        nixpkgs.config.allowUnsupportedSystem = true;
         packages = {
           "process-compose-up" = config.snow-blower.process-compose.internals.procfileScript;
         };
