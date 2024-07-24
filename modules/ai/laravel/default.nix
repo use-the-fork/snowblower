@@ -15,7 +15,7 @@
       ...
     }: let
       inherit (lib) types mkOption mkEnableOption mkIf;
-      inherit (self.lib.sb) mkAi;
+      inherit (import ../utils.nix {inherit lib;}) mkAi;
 
       cfg = config.snow-blower.ai.laravel;
 

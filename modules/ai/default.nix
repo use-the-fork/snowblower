@@ -1,6 +1,5 @@
 {
   imports = [
-    ./bash
     ./laravel
   ];
 }
