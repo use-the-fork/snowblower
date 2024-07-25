@@ -19,6 +19,7 @@ topLevel @ {
           };
 
           ai.laravel.enable = true;
+          ai.nix.enable = true;
 
           scripts = {
             "reload" = {

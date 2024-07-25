@@ -1,5 +1,6 @@
 {
   imports = [
-    ./laravel
+    ./laravel.nix
+    ./nix-flake.nix
   ];
 }
