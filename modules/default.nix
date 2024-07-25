@@ -32,6 +32,8 @@ topLevel @ {
       topLevel.config.flake.flakeModules.processes
       topLevel.config.flake.flakeModules.languages
       topLevel.config.flake.flakeModules.services
+      topLevel.config.flake.flakeModules.ai
+
 
       topLevel.config.flake.flakeModules.shell
 

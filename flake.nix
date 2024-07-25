@@ -35,6 +35,12 @@
     flake-parts,
     ...
   }: let
+    coreInputs =
+      inputs
+      // {
+        src = ./.;
+      };
+
     bootstrap =
       inputs.flake-parts.lib.mkFlake {
         inherit inputs self;
@@ -48,12 +54,12 @@
         debug = true;
         systems = import inputs.systems;
       });
+    mkSnowBlower = import ./mkSnowBlower.nix {inherit coreInputs;};
   in
     inputs.flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
       imports = [
         bootstrap.flakeModules.default
         bootstrap.flakeModules.optionsDocument
-        bootstrap.flakeModules.ai
         bootstrap.flakeModules.test
       ];
 
@@ -69,6 +75,9 @@
             inherit base;
             default = base;
           };
+        }
+        // {
+          inherit mkSnowBlower;
         };
     });
 }
