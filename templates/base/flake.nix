@@ -2,18 +2,19 @@
   inputs = {
     systems.url = "github:nix-systems/default-linux";
     snow-blower.url = "github:use-the-fork/snow-blower";
-    flake-parts = {
-      url = "github:hercules-ci/flake-parts";
-      inputs.nixpkgs-lib.follows = "nixpkgs";
-    };
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
-  outputs = inputs@{ flake-parts, ... }:
-    flake-parts.lib.mkFlake { inherit inputs; } {
+  outputs = inputs:
+    inputs.snow-blower.mkSnowBlower {
+      inherit inputs;
+
       imports = [
         inputs.snow-blower.flakeModule
       ];
-      systems = import inputs.systems;
+
+      src = ./.;
 
       perSystem = { config, self', inputs', pkgs, system, ... }: {
         # Per-system attributes can be defined here. The self' and inputs'
@@ -21,11 +22,11 @@
         # system.
         # IE. You dont have to do `inputs.flake-parts.YOURSYSTEM.package` you can just do `inputs'.flake-parts.package`
 
-        snow-blower = {
+        imports = [
+          # ./foo.nix
+        ];
 
-          imports = [
-            # ./foo.nix
-          ];
+        snow-blower = {
 
            integrations = {
               #the options here mirror the offical repo: https://github.com/numtide/treefmt-nix/tree/main
@@ -56,9 +57,9 @@
 
           packages = [ pkgs.hello ];
 
-          shell.startup = ''
+          shell.startup = [''
             hello
-          '';
+          ''];
 
           processes.hello.exec = "hello";
         };
