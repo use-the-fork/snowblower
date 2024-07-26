@@ -49,15 +49,21 @@
         src = ./.;
       };
 
+    src = ./.;
+
     bootstrap =
       inputs.flake-parts.lib.mkFlake {
         inherit inputs self;
         moduleLocation = ./flake.nix;
       } ({...}: {
         imports = [
+          {
+            _module.args = {
+              inherit src;
+            };
+          }
           ./modules
           ./modules/options-document.nix
-          ./modules/test.nix
         ];
         debug = true;
         systems = import inputs.systems;
@@ -68,7 +74,6 @@
       imports = [
         bootstrap.flakeModules.default
         bootstrap.flakeModules.optionsDocument
-        bootstrap.flakeModules.test
       ];
 
       flake =

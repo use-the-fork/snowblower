@@ -2,14 +2,11 @@
 
 mkSnowBlower = flakeOptions @ {
     inputs,
-    src,
-    perSystem,
     imports ? [],
+    perSystem ? {},
     snow-blower ? {},
     ...
-  }: let
-  in
-    inputs.flake-parts.lib.mkFlake {inherit inputs;} {
+  }: inputs.flake-parts.lib.mkFlake {inherit inputs;} {
        imports = [
           inputs.snow-blower.flakeModule
         ] ++ imports;
@@ -17,5 +14,4 @@ mkSnowBlower = flakeOptions @ {
       systems = inputs.nixpkgs.lib.systems.flakeExposed;
       inherit perSystem;
     };
-
 in  mkSnowBlower

@@ -520,75 +520,6 @@ list of string
 
 
 
-## perSystem\.snow-blower\.integrations\.agenix\.keys
-
-
-
-Attrset of public keys\.
-
-
-
-*Type:*
-attribute set of (submodule)
-
-
-
-*Example:*
-
-```
-{
-  user1.key  = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL0idNvgGiucWgup/mP78zyC23uFjYq0evcWdjGQUaBH";
-}
-
-```
-
-*Declared by:*
- - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
-
-
-
-## perSystem\.snow-blower\.integrations\.agenix\.keys\.\<name>\.key
-
-
-
-The public key used to encrypt the secrets
-
-
-
-*Type:*
-string
-
-
-
-*Example:*
-` "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDpVA+jisOuuNDeCJ67M11qUP8YY29cipajWzTFAobi" `
-
-*Declared by:*
- - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
-
-
-
-## perSystem\.snow-blower\.integrations\.agenix\.keys\.\<name>\.name
-
-
-
-Name of the variable containing the public key\.
-
-
-
-*Type:*
-unspecified value
-
-
-
-*Default:*
-` <name> `
-
-*Declared by:*
- - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
-
-
-
 ## perSystem\.snow-blower\.integrations\.agenix\.secrets
 
 
@@ -606,10 +537,10 @@ attribute set of (submodule)
 
 ```
 {
-  foo.file = "secrets/foo.age";
-  bar = {
+  foo = {
     file = "secrets/bar.age";
     mode = "0440";
+    publicKeys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDpVA+jisOuuNDeCJ67M11qUP8YY29cipajWzTFAobi"];
   };
 }
 
@@ -629,7 +560,7 @@ Age file the secret is loaded from\.
 
 
 *Type:*
-path
+string
 
 *Declared by:*
  - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
@@ -713,7 +644,28 @@ string
 
 
 *Default:*
-` "${config.agenix-shell.secretsPath}/<name>" `
+` "${config.snow-blower.integrations.agenix.secretsPath}/<name>" `
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.agenix\.secrets\.\<name>\.publicKeys
+
+
+
+A list of public keys that are used to encrypt the secret\.
+
+
+
+*Type:*
+list of string
+
+
+
+*Example:*
+` ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDpVA+jisOuuNDeCJ67M11qUP8YY29cipajWzTFAobi"] `
 
 *Declared by:*
  - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
@@ -2425,6 +2377,8 @@ package
 
 ## perSystem\.snow-blower\.services\.elasticsearch\.settings\.cluster_name
 
+
+
 Elasticsearch name that identifies your cluster for auto-discovery\.
 
 
@@ -2464,8 +2418,6 @@ list of string
 
 
 ## perSystem\.snow-blower\.services\.elasticsearch\.settings\.extraConf
-
-
 
 Extra configuration for elasticsearch\.
 

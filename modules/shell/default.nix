@@ -132,6 +132,8 @@
           shell = {
             startup = lib.mkAfter [
               ''
+                echo
+                echo
                 echo ${cfg.motd}
                 echo
                 echo Run 'just <recipe>' to get started

@@ -17,6 +17,11 @@
     }: let
       inherit (lib) mkOption mkPackageOption types mkEnableOption;
 
+      cfg = config.snow-blower.integrations.agenix;
+
+      #We use this to figure out where our age file is in relation to the root of the flake.
+      cfgPath = config.snow-blower.paths.src;
+
       secretType = types.submodule ({config, ...}: {
         options = {
           name = mkOption {
@@ -32,15 +37,24 @@
           };
 
           file = mkOption {
-            type = types.path;
-            description = "Age file the secret is loaded from.";
+            type = types.str;
+            description = ''
+              Age file the secret is loaded from. Realitve to your flake root.
+            '';
+          };
+
+          ageFilePath = mkOption {
+            type = types.str;
+            internal = true;
+            default = "${cfgPath}/${config.file}";
           };
 
           path = mkOption {
             type = types.str;
             default = "${cfg.secretsPath}/${config.name}";
+            internal = true;
             description = "Path where the decrypted secret is installed.";
-            defaultText = lib.literalExpression ''"''${config.agenix-shell.secretsPath}/<name>"'';
+            defaultText = lib.literalExpression ''"''${config.snow-blower.integrations.agenix.secretsPath}/<name>"'';
           };
 
           mode = mkOption {
@@ -56,8 +70,6 @@
           };
         };
       });
-
-      cfg = config.snow-blower.integrations.agenix;
     in {
       options.snow-blower.integrations.agenix = {
         enable = mkEnableOption "Agenix Integration";
@@ -67,10 +79,10 @@
           description = "Attrset of secrets.";
           example = lib.literalExpression ''
             {
-              foo.file = "secrets/foo.age";
-              bar = {
+              foo = {
                 file = "secrets/bar.age";
                 mode = "0440";
+                publicKeys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDpVA+jisOuuNDeCJ67M11qUP8YY29cipajWzTFAobi"];
               };
             }
           '';
@@ -105,82 +117,125 @@
         };
       };
 
-      config.snow-blower = lib.mkIf cfg.enable {
-        packages = [cfg.package];
-        shell = let
-          #          secretsfile = pkgs.writeTextFile {
-          #            name = "secrets";
-          #            text = "{\n" +
-          #              (lib.concatStringsSep "\n"
-          #                (lib.mapAttrsToList
-          #                  (_name: secret:
-          #                    "\"${toString secret.file}\".publicKeys = [" +
-          #                    lib.concatStringsSep ", " (map (key: "\"${key}\"") secret.publicKeys) +
-          #                    "];\n")
-          #                  cfg.secrets))
-          #              + "\n}";
-          #          };
-          secretsfile = pkgs.writeTextFile {
-            name = "secrets";
-            text =
-              "{\n"
-              + (lib.concatStringsSep "\n"
-                (lib.mapAttrsToList
-                  (_name: secret: let
-                    parts = builtins.split "/" (toString secret.file);
-                    relativePath = builtins.head (builtins.tail parts);
-                  in
-                    "\"${relativePath}\".publicKeys = ["
-                    + lib.concatStringsSep ", " (map (key: "\"${key}\"") secret.publicKeys)
-                    + "];\n")
-                  cfg.secrets))
-              + "\n}";
+      config = lib.mkIf cfg.enable {
+        snow-blower = let
+          editSecret = pkgs.writeShellScriptBin "edit-secret" (''
+              #!/usr/bin/env bash
+
+              # Define the list of options
+              options=(''
+            + (lib.concatStringsSep " "
+              (lib.mapAttrsToList
+                (_name: secret: "\"${toString secret.file}\"")
+                cfg.secrets))
+            + '')
+                # Function to display options and prompt the user for choice
+                select_option() {
+                    echo "Available options:"
+                    for i in "''${!options[@]}"; do
+                        printf "%3d) %s\n" $((i+1)) "''${options[i]}"
+                    done
+
+                    # Prompt for a choice
+                    read -rp "Enter option number: " choice
+
+                    # Validate the choice
+                    if [[ ! $choice =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ''${#options[@]} )); then
+                        echo "Invalid selection."
+                        exit 1
+                    fi
+
+                    # Execute agenix -e with the selected option
+                    agenix -e "''${options[choice-1]}"
+                }
+
+                # Call the function to execute the selection process
+                select_option
+            '');
+        in {
+          packages = [cfg.package editSecret];
+
+          just.recipes.agenix = {
+            enable = lib.mkDefault true;
+            justfile = lib.mkDefault ''
+              # Choose a secret to edit.
+              agenix:
+                ${lib.getExe editSecret}
+            '';
           };
 
-          #          _installSecret = secret: ''
-          #                                         SECRET_PATH=${secret.path}
-          #
-          #                                         # shellcheck disable=SC2193
-          #                                         [ "$SECRET_PATH" != "${cfg.secretsPath}/${secret.name}" ] && mkdir -p "$(dirname "$SECRET_PATH")"
-          #                                         (
-          #                                           umask u=r,g=,o=
-          #                                           test -f "${secret.file}" || echo '[agenix] WARNING: encrypted file ${secret.file} does not exist!'
-          #                                           test -d "$(dirname "$SECRET_PATH")" || echo "[agenix] WARNING: $(dirname "$SECRET_PATH") does not exist!"
-          #                                           LANG=${config.i18n.defaultLocale or "C"} ${lib.getExe cfg.package} --decrypt "''${IDENTITIES[@]}" -o "$SECRET_PATH" "${secret.file}"
-          #                                         )
-          #
-          #                                         chmod ${secret.mode} "$SECRET_PATH"
-          #
-          #                                         ${secret.name}=$(cat "$SECRET_PATH")
-          #                                         ${secret.namePath}="$SECRET_PATH"
-          #                                         export ${secret.name}
-          #                                         export ${secret.namePath}
-          #                                       '';
+          shell = let
+            secretsfile = pkgs.writeTextFile {
+              name = "secrets";
+              text =
+                "{\n"
+                + (lib.concatStringsSep "\n"
+                  (lib.mapAttrsToList
+                    (_name: secret:
+                      "\"${toString secret.file}\".publicKeys = ["
+                      + lib.concatStringsSep " " (map (key: "\"${key}\"") secret.publicKeys)
+                      + "];\n")
+                    cfg.secrets))
+                + "\n}";
+            };
 
-          # this is an option in the agenix-shell package but since we want to make it condintally we move it here.
-          # In addition we want to link up our own secrets file.
-          installationScript = ''
-            ln -sf ${builtins.toString secretsfile} ./secrets.nix
-          '';
-          #
-          #                                  # shellcheck disable=SC2086
-          #                                  rm -rf "${cfg.secretsPath}"
-          #
-          #                                  IDENTITIES=()
-          #                                  # shellcheck disable=2043
-          #                                  for identity in ${builtins.toString cfg.identityPaths}; do
-          #                                    test -r "$identity" || continue
-          #                                    IDENTITIES+=(-i)
-          #                                    IDENTITIES+=("$identity")
-          #                                  done
-          #
-          #                                  test "''${#IDENTITIES[@]}" -eq 0 && echo "[agenix] WARNING: no readable identities found!"
-          #
-          #                                  mkdir -p "${cfg.secretsPath}"
-          #                                ''
-          #                                + lib.concatStrings (lib.mapAttrsToList (_: _installSecret) cfg.secrets);
-        in {
-          startup = [installationScript];
+
+            _installSecret = secret: let
+
+            in ''
+               SECRET_PATH=${secret.path}
+
+               # shellcheck disable=SC2193
+               [ "$SECRET_PATH" != "${cfg.secretsPath}/${secret.name}" ] && mkdir -p "$(dirname "$SECRET_PATH")"
+               (
+                 umask u=r,g=,o=
+                 test -f "${secret.ageFilePath}" || echo "''${RED}[agenix] WARNING: encrypted file ${secret.file} does not exist! Is it part of your repo?''${NC}"
+                 test -d "$(dirname "$SECRET_PATH")" || echo "''${RED}[agenix] WARNING: $(dirname "$SECRET_PATH") does not exist!''${NC}"
+                 LANG=${config.i18n.defaultLocale or "C"} ${lib.getExe cfg.package} --decrypt "''${IDENTITIES[@]}" -o "$SECRET_PATH" "${secret.ageFilePath}"
+               )
+
+               # Capture the exit status of the subshell
+               exit_status=$?
+
+              if [ "$exit_status" -eq 0 ]; then
+                  chmod ${secret.mode} "$SECRET_PATH"
+
+                ${secret.name}=$(cat "$SECRET_PATH")
+                ${secret.namePath}="$SECRET_PATH"
+                export ${secret.name}
+                export ${secret.namePath}
+              else
+                  echo "''${RED}Failed to prepare ${secret.name}.''${NC}"
+                  echo "''${YELLOW}This usually means the .age file dosen't exsist. Run 'just agenix' or 'edit-secret' to fix this. ''${NC}"
+                  echo
+              fi
+            '';
+
+            # this is an option in the agenix-shell package but since we want to make it condintally we move it here.
+            # In addition we want to link up our own secrets file.
+            installationScript =
+              ''
+                ln -sf ${builtins.toString secretsfile} ./secrets.nix
+
+                # shellcheck disable=SC2086
+                rm -rf "${cfg.secretsPath}"
+
+                IDENTITIES=()
+                # shellcheck disable=2043
+                for identity in ${builtins.toString cfg.identityPaths}; do
+                  test -r "$identity" || continue
+                  IDENTITIES+=(-i)
+                  IDENTITIES+=("$identity")
+                done
+
+                test "''${#IDENTITIES[@]}" -eq 0 && echo "[agenix] WARNING: no readable identities found!"
+
+                mkdir -p "${cfg.secretsPath}"
+              ''
+              + lib.concatStrings (lib.mapAttrsToList (_: _installSecret) cfg.secrets);
+          in {
+            startup = [installationScript];
+          };
         };
       };
     });
