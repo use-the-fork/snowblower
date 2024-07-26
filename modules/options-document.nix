@@ -20,6 +20,21 @@ topLevel @ {
         self',
         ...
       }: {
+        snow-blower = {
+          scripts = {
+            "generate-docs" = {
+              just.enable = true;
+              description = "Generate option docs.";
+              exec = ''
+                set -e
+                nix build .#options-document
+                nix build .#copy-options-document-to-current-directory
+                ./result/bin/nixago_shell_hook
+              '';
+            };
+          };
+        };
+
         packages = rec {
           copy-options-document-to-current-directory =
             (inputs.nixago.lib.${system}.make {

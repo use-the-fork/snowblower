@@ -1,5 +1,6 @@
 {
   imports = [
+    ./agenix
     ./convco
     ./dotenv
     ./treefmt

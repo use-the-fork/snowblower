@@ -29,18 +29,19 @@ topLevel @ {
                 direnv reload
               '';
             };
-
-            "generate-doc-options" = {
-              just.enable = true;
-              description = "Generate option docs.";
-              exec = ''
-                set -e
-                echo "did this work?"
-              '';
-            };
           };
 
           integrations = {
+            agenix = {
+              enable = true;
+              secrets = {
+                foo = {
+                  file = ./secrets/foo.age;
+                  publicKeys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL0idNvgGiucWgup/mP78zyC23uFjYq0evcWdjGQUaBH"];
+                };
+              };
+            };
+
             git-cliff.enable = true;
 
             treefmt = {

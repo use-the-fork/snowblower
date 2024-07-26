@@ -10,44 +10,350 @@ Modules defined here have access to the suboptions and [some convenient module a
 module
 
 *Declared by:*
- - [shell\.nix, via option flake\.flakeModules\.shell](modules/shell.nix)
+ - [shell, via option flake\.flakeModules\.shell](modules/shell)
+ - [ai/nix-flake\.nix, via option flake\.flakeModules\.ai](modules/ai/nix-flake.nix)
+ - [ai/laravel\.nix, via option flake\.flakeModules\.ai](modules/ai/laravel.nix)
+ - [services/memcached, via option flake\.flakeModules\.services](modules/services/memcached)
  - [services/redis, via option flake\.flakeModules\.services](modules/services/redis)
  - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
+ - [services/elasticsearch, via option flake\.flakeModules\.services](modules/services/elasticsearch)
  - [services/blackfire, via option flake\.flakeModules\.services](modules/services/blackfire)
  - [services/adminer, via option flake\.flakeModules\.services](modules/services/adminer)
  - [languages/javascript, via option flake\.flakeModules\.languages](modules/languages/javascript)
  - [languages/php, via option flake\.flakeModules\.languages](modules/languages/php)
  - [processes, via option flake\.flakeModules\.processes](modules/processes)
  - [scripts, via option flake\.flakeModules\.scripts](modules/scripts)
+ - [integrations/git-cliff, via option flake\.flakeModules\.integrations](modules/integrations/git-cliff)
  - [integrations/git-hooks, via option flake\.flakeModules\.integrations](modules/integrations/git-hooks)
- - [integrations/just, via option flake\.flakeModules\.integrations](modules/integrations/just)
  - [integrations/treefmt, via option flake\.flakeModules\.integrations](modules/integrations/treefmt)
  - [integrations/dotenv, via option flake\.flakeModules\.integrations](modules/integrations/dotenv)
+ - [integrations/convco, via option flake\.flakeModules\.integrations](modules/integrations/convco)
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+ - [just, via option flake\.flakeModules\.just](modules/just)
  - [env, via option flake\.flakeModules\.env](modules/env)
- - [nixpkgs\.nix, via option flake\.flakeModules\.nixpkgs](modules/nixpkgs.nix)
- - [common\.nix, via option flake\.flakeModules\.common](modules/common.nix)
+ - [core/nixpkgs\.nix, via option flake\.flakeModules\.nixpkgs](modules/core/nixpkgs.nix)
  - [options-document\.nix](modules/options-document.nix)
 
 
 
-## perSystem\.snow-blower\.packages
+## perSystem\.snow-blower\.ai\.laravel\.enable
 
 
 
-A list of packages to expose inside the developer environment\. See https://search\.nixos\.org/packages for packages\.
+Whether to enable Laravel ai command\.
 
 
 
 *Type:*
-list of package
+boolean
 
 
 
 *Default:*
-` [ ] `
+` false `
+
+
+
+*Example:*
+` true `
 
 *Declared by:*
- - [common\.nix, via option flake\.flakeModules\.common](modules/common.nix)
+ - [ai/laravel\.nix, via option flake\.flakeModules\.ai](modules/ai/laravel.nix)
+
+
+
+## perSystem\.snow-blower\.ai\.laravel\.prompt\.examples
+
+
+
+A good prompt should always be a few shot or multi shot prompt\.
+
+
+
+*Type:*
+strings concatenated with “\\n”
+
+
+
+*Default:*
+
+```
+''
+  user: a command that sends emails.
+          response: php artisan make:command SendEmails
+  
+           user: a model for flights include the migration
+           response: php artisan make:model Flight --migration
+  
+           user: a model for flights include the migration resource and request
+           response: php artisan make:model Flight --controller --resource --requests
+  
+           user: Flight model overview
+           response: php artisan model:show Flight
+  
+           user: Flight controller
+           response: php artisan make:controller FlightController
+  
+           user: erase and reseed the database forefully
+           response: php artisan migrate:fresh --seed --force
+  
+           user: what routes are avliable?
+           response: php artisan route:list
+  
+           user: rollback migrations 5 times
+           response: php artisan migrate:rollback --step=5
+  
+           user: start a q worker
+           response: php artisan queue:work''
+```
+
+*Declared by:*
+ - [ai/laravel\.nix, via option flake\.flakeModules\.ai](modules/ai/laravel.nix)
+
+
+
+## perSystem\.snow-blower\.ai\.laravel\.prompt\.message
+
+
+
+The system message that will be used at the start of the prompt\.
+
+
+
+*Type:*
+strings concatenated with “\\n”
+
+
+
+*Default:*
+
+```
+''
+  You are a helpful assistant trained to generate Laravel commands based on the users request.
+          Only respond with the laravel command, NOTHING ELSE, DO NOT wrap it in quotes or backticks.''
+```
+
+*Declared by:*
+ - [ai/laravel\.nix, via option flake\.flakeModules\.ai](modules/ai/laravel.nix)
+
+
+
+## perSystem\.snow-blower\.ai\.laravel\.settings\.maxTokens
+
+
+
+The maximum number of tokens that can be generated in the chat completion\. The total length of input tokens and generated tokens is limited by the model’s context length\.
+
+
+
+*Type:*
+null or signed integer
+
+
+
+*Default:*
+` null `
+
+*Declared by:*
+ - [ai/laravel\.nix, via option flake\.flakeModules\.ai](modules/ai/laravel.nix)
+
+
+
+## perSystem\.snow-blower\.ai\.laravel\.settings\.model
+
+
+
+The name of the dotenv file to load, or a list of dotenv files to load in order of precedence\.
+
+
+
+*Type:*
+one of “gpt-4-turbo”, “gpt-4o”, “gpt-4o-mini”
+
+
+
+*Default:*
+` "gpt-4-turbo" `
+
+*Declared by:*
+ - [ai/laravel\.nix, via option flake\.flakeModules\.ai](modules/ai/laravel.nix)
+
+
+
+## perSystem\.snow-blower\.ai\.laravel\.settings\.temperature
+
+
+
+What sampling temperature to use, between 0 and 2\. Higher values like 0\.8 will make the output more random, while lower values like 0\.2 will make it more focused and deterministic\.
+
+
+
+*Type:*
+signed integer
+
+
+
+*Default:*
+` 1 `
+
+*Declared by:*
+ - [ai/laravel\.nix, via option flake\.flakeModules\.ai](modules/ai/laravel.nix)
+
+
+
+## perSystem\.snow-blower\.ai\.nix\.enable
+
+
+
+Whether to enable NIX ai command\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [ai/nix-flake\.nix, via option flake\.flakeModules\.ai](modules/ai/nix-flake.nix)
+
+
+
+## perSystem\.snow-blower\.ai\.nix\.prompt\.examples
+
+
+
+A good prompt should always be a few shot or multi shot prompt\.
+
+
+
+*Type:*
+strings concatenated with “\\n”
+
+
+
+*Default:*
+
+```
+''
+  user: show the outputs provided by my flake
+          response: nix flake show
+  
+           user: update flake lock file
+           response: nix flake update
+  
+           user: build my foo package
+           response: nix build .#foo
+  
+           user: garbage collect anything older then 3 days
+           response: sudo nix-collect-garbage --delete-older-than 3d && nix-collect-garbage -d
+  
+           user: list all of my systems generations
+           response: sudo nix-env --list-generations --profile /nix/var/nix/profiles/system
+  
+           user: repair the nix store
+           response: nix-store --verify --check-contents --repair''
+```
+
+*Declared by:*
+ - [ai/nix-flake\.nix, via option flake\.flakeModules\.ai](modules/ai/nix-flake.nix)
+
+
+
+## perSystem\.snow-blower\.ai\.nix\.prompt\.message
+
+
+
+The system message that will be used at the start of the prompt\.
+
+
+
+*Type:*
+strings concatenated with “\\n”
+
+
+
+*Default:*
+
+```
+''
+  You are a helpful assistant trained to generate Nix commands based on the users request.
+          Only respond with the nix command, NOTHING ELSE, DO NOT wrap it in quotes or backticks.''
+```
+
+*Declared by:*
+ - [ai/nix-flake\.nix, via option flake\.flakeModules\.ai](modules/ai/nix-flake.nix)
+
+
+
+## perSystem\.snow-blower\.ai\.nix\.settings\.maxTokens
+
+
+
+The maximum number of tokens that can be generated in the chat completion\. The total length of input tokens and generated tokens is limited by the model’s context length\.
+
+
+
+*Type:*
+null or signed integer
+
+
+
+*Default:*
+` null `
+
+*Declared by:*
+ - [ai/nix-flake\.nix, via option flake\.flakeModules\.ai](modules/ai/nix-flake.nix)
+
+
+
+## perSystem\.snow-blower\.ai\.nix\.settings\.model
+
+
+
+The name of the dotenv file to load, or a list of dotenv files to load in order of precedence\.
+
+
+
+*Type:*
+one of “gpt-4-turbo”, “gpt-4o”, “gpt-4o-mini”
+
+
+
+*Default:*
+` "gpt-4-turbo" `
+
+*Declared by:*
+ - [ai/nix-flake\.nix, via option flake\.flakeModules\.ai](modules/ai/nix-flake.nix)
+
+
+
+## perSystem\.snow-blower\.ai\.nix\.settings\.temperature
+
+
+
+What sampling temperature to use, between 0 and 2\. Higher values like 0\.8 will make the output more random, while lower values like 0\.2 will make it more focused and deterministic\.
+
+
+
+*Type:*
+signed integer
+
+
+
+*Default:*
+` 1 `
+
+*Declared by:*
+ - [ai/nix-flake\.nix, via option flake\.flakeModules\.ai](modules/ai/nix-flake.nix)
 
 
 
@@ -119,11 +425,567 @@ lazy attribute set of anything
 
 
 
-## perSystem\.snow-blower\.git-hooks
+## perSystem\.snow-blower\.integrations\.agenix\.enable
 
 
 
-Integration of https://github\.com/cachix/pre-commit-hooks\.nix
+Whether to enable Agenix Integration\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.agenix\.package
+
+
+
+The age package to use\.
+
+
+
+*Type:*
+package
+
+
+
+*Default:*
+` pkgs.rage `
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.agenix\.flakeName
+
+
+
+Command returning the name of the flake, used as part of the secrets path\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "git rev-parse --show-toplevel | xargs basename" `
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.agenix\.identityPaths
+
+
+
+Path to SSH keys to be used as identities in age decryption\.
+
+
+
+*Type:*
+list of string
+
+
+
+*Default:*
+
+```
+[
+  "$HOME/.ssh/id_ed25519"
+  "$HOME/.ssh/id_rsa"
+]
+```
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.agenix\.keys
+
+
+
+Attrset of public keys\.
+
+
+
+*Type:*
+attribute set of (submodule)
+
+
+
+*Example:*
+
+```
+{
+  user1.key  = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL0idNvgGiucWgup/mP78zyC23uFjYq0evcWdjGQUaBH";
+}
+
+```
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.agenix\.keys\.\<name>\.key
+
+
+
+The public key used to encrypt the secrets
+
+
+
+*Type:*
+string
+
+
+
+*Example:*
+` "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDpVA+jisOuuNDeCJ67M11qUP8YY29cipajWzTFAobi" `
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.agenix\.keys\.\<name>\.name
+
+
+
+Name of the variable containing the public key\.
+
+
+
+*Type:*
+unspecified value
+
+
+
+*Default:*
+` <name> `
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.agenix\.secrets
+
+
+
+Attrset of secrets\.
+
+
+
+*Type:*
+attribute set of (submodule)
+
+
+
+*Example:*
+
+```
+{
+  foo.file = "secrets/foo.age";
+  bar = {
+    file = "secrets/bar.age";
+    mode = "0440";
+  };
+}
+
+```
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.agenix\.secrets\.\<name>\.file
+
+
+
+Age file the secret is loaded from\.
+
+
+
+*Type:*
+path
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.agenix\.secrets\.\<name>\.mode
+
+
+
+Permissions mode of the decrypted secret in a format understood by chmod\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "0400" `
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.agenix\.secrets\.\<name>\.name
+
+
+
+Name of the variable containing the secret\.
+
+
+
+*Type:*
+unspecified value
+
+
+
+*Default:*
+` <name> `
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.agenix\.secrets\.\<name>\.namePath
+
+
+
+Name of the variable containing the path to the secret\.
+
+
+
+*Type:*
+unspecified value
+
+
+
+*Default:*
+` <name>_PATH `
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.agenix\.secrets\.\<name>\.path
+
+
+
+Path where the decrypted secret is installed\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "${config.agenix-shell.secretsPath}/<name>" `
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.agenix\.secretsPath
+
+
+
+Where the secrets are stored\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "/run/user/$(id -u)/agenix-shell/$(${config.agenix-shell.flakeName})/$(uuidgen)" `
+
+*Declared by:*
+ - [integrations/agenix, via option flake\.flakeModules\.integrations](modules/integrations/agenix)
+
+
+
+## perSystem\.snow-blower\.integrations\.convco\.enable
+
+
+
+Whether to enable Convco just command\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [integrations/convco, via option flake\.flakeModules\.integrations](modules/integrations/convco)
+
+
+
+## perSystem\.snow-blower\.integrations\.convco\.package
+
+
+
+The package Convco should use\.
+
+
+
+*Type:*
+package
+
+
+
+*Default:*
+` <derivation convco-0.5.1> `
+
+*Declared by:*
+ - [integrations/convco, via option flake\.flakeModules\.integrations](modules/integrations/convco)
+
+
+
+## perSystem\.snow-blower\.integrations\.convco\.settings\.file-name
+
+
+
+The name of the file to output the chaneglog to\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "CHANGELOG.md" `
+
+*Declared by:*
+ - [integrations/convco, via option flake\.flakeModules\.integrations](modules/integrations/convco)
+
+
+
+## perSystem\.snow-blower\.integrations\.git-cliff\.enable
+
+
+
+Whether to enable Git-Cliff just command\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [integrations/git-cliff, via option flake\.flakeModules\.integrations](modules/integrations/git-cliff)
+
+
+
+## perSystem\.snow-blower\.integrations\.git-cliff\.package
+
+
+
+The package Git-Cliff should use\.
+
+
+
+*Type:*
+package
+
+
+
+*Default:*
+` <derivation git-cliff-2.4.0> `
+
+*Declared by:*
+ - [integrations/git-cliff, via option flake\.flakeModules\.integrations](modules/integrations/git-cliff)
+
+
+
+## perSystem\.snow-blower\.integrations\.git-cliff\.settings\.config-file
+
+
+
+The git-cliff config to use\.
+
+See https://git-cliff\.org/docs/configuration/
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+
+```
+''
+  [changelog]
+  header = """
+  # Changelog\n
+  All notable changes to this project will be documented in this file.\n
+  """
+  body = """
+  {% if version %}\
+      ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+  {% else %}\
+      ## [unreleased]
+  {% endif %}\
+  {% for group, commits in commits | group_by(attribute="group") %}
+      ### {{ group | striptags | trim | upper_first }}
+      {% for commit in commits %}
+          - {% if commit.scope %}*({{ commit.scope }})* {% endif %}\
+              {% if commit.breaking %}[**breaking**] {% endif %}\
+              {{ commit.message | upper_first }}\
+      {% endfor %}
+  {% endfor %}\n
+  """
+  # template for the changelog footer
+  footer = """
+  <!-- generated by git-cliff -->
+  """
+  # remove the leading and trailing s
+  trim = true
+  
+  [git]
+  conventional_commits = true
+  filter_unconventional = true
+  split_commits = false
+  commit_parsers = [
+    { message = "^feat", group = "<!-- 0 -->🚀 Features" },
+    { message = "^fix", group = "<!-- 1 -->🐛 Bug Fixes" },
+    { message = "^doc", group = "<!-- 3 -->📚 Documentation" },
+    { message = "^perf", group = "<!-- 4 -->⚡ Performance" },
+    { message = "^refactor", group = "<!-- 2 -->🚜 Refactor" },
+    { message = "^style", group = "<!-- 5 -->🎨 Styling" },
+    { message = "^test", group = "<!-- 6 -->🧪 Testing" },
+    { message = "^chore\\(release\\): prepare for", skip = true },
+    { message = "^chore\\(deps.*\\)", skip = true },
+    { message = "^chore\\(pr\\)", skip = true },
+    { message = "^chore\\(pull\\)", skip = true },
+    { message = "^chore|^ci", group = "<!-- 7 -->⚙️ Miscellaneous Tasks" },
+    { body = ".*security", group = "<!-- 8 -->🛡️ Security" },
+    { message = "^revert", group = "<!-- 9 -->◀️ Revert" },
+  ]
+  protect_breaking_commits = false
+  filter_commits = false
+  topo_order = false
+  sort_commits = "oldest"
+''
+```
+
+*Declared by:*
+ - [integrations/git-cliff, via option flake\.flakeModules\.integrations](modules/integrations/git-cliff)
+
+
+
+## perSystem\.snow-blower\.integrations\.git-cliff\.settings\.file-name
+
+
+
+The name of the file to output the chaneglog to\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "CHANGELOG.md" `
+
+*Declared by:*
+ - [integrations/git-cliff, via option flake\.flakeModules\.integrations](modules/integrations/git-cliff)
+
+
+
+## perSystem\.snow-blower\.integrations\.git-cliff\.settings\.integrations\.github\.enable
+
+
+
+Whether to enable Enable the GitHub integration\. See https://git-cliff\.org/docs/integration/github\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [integrations/git-cliff, via option flake\.flakeModules\.integrations](modules/integrations/git-cliff)
+
+
+
+## perSystem\.snow-blower\.integrations\.git-hooks
+
+
+
+Integration of https://github\.com/cachix/git-hooks\.nix
 
 
 
@@ -137,6 +999,69 @@ submodule
 
 *Declared by:*
  - [integrations/git-hooks, via option flake\.flakeModules\.integrations](modules/integrations/git-hooks)
+
+
+
+## perSystem\.snow-blower\.integrations\.treefmt
+
+
+
+Integration of https://github\.com/numtide/treefmt-nix
+
+
+
+*Type:*
+submodule
+
+
+
+*Default:*
+` { } `
+
+*Declared by:*
+ - [integrations/treefmt, via option flake\.flakeModules\.integrations](modules/integrations/treefmt)
+
+
+
+## perSystem\.snow-blower\.integrations\.treefmt\.just\.enable
+
+
+
+Whether to enable enable just command\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` true `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [integrations/treefmt, via option flake\.flakeModules\.integrations](modules/integrations/treefmt)
+
+
+
+## perSystem\.snow-blower\.integrations\.treefmt\.pkgs
+
+
+
+Nixpkgs to use in ` treefmt `\.
+
+
+
+*Type:*
+lazy attribute set of raw value
+
+*Declared by:*
+ - [integrations/treefmt, via option flake\.flakeModules\.integrations](modules/integrations/treefmt)
 
 
 
@@ -157,7 +1082,7 @@ package
 ` pkgs.just `
 
 *Declared by:*
- - [integrations/just, via option flake\.flakeModules\.integrations](modules/integrations/just)
+ - [just, via option flake\.flakeModules\.just](modules/just)
 
 
 
@@ -178,7 +1103,7 @@ string
 ` "just-flake.just" `
 
 *Declared by:*
- - [integrations/just, via option flake\.flakeModules\.integrations](modules/integrations/just)
+ - [just, via option flake\.flakeModules\.just](modules/just)
 
 
 
@@ -199,7 +1124,7 @@ attribute set of (submodule)
 ` { } `
 
 *Declared by:*
- - [integrations/just, via option flake\.flakeModules\.integrations](modules/integrations/just)
+ - [just, via option flake\.flakeModules\.just](modules/just)
 
 
 
@@ -225,28 +1150,7 @@ boolean
 ` true `
 
 *Declared by:*
- - [integrations/just/recipe-module\.nix](modules/integrations/just/recipe-module.nix)
-
-
-
-## perSystem\.snow-blower\.just\.recipes\.\<name>\.package
-
-
-
-An optional package that provides the recipe\.
-
-
-
-*Type:*
-null or package
-
-
-
-*Default:*
-` null `
-
-*Declared by:*
- - [integrations/just/recipe-module\.nix](modules/integrations/just/recipe-module.nix)
+ - [just/recipe-module\.nix](modules/just/recipe-module.nix)
 
 
 
@@ -262,7 +1166,7 @@ The justfile representing this recipe\.
 string or path
 
 *Declared by:*
- - [integrations/just/recipe-module\.nix](modules/integrations/just/recipe-module.nix)
+ - [just/recipe-module\.nix](modules/just/recipe-module.nix)
 
 
 
@@ -285,7 +1189,7 @@ string *(read only)*
 ` "" `
 
 *Declared by:*
- - [integrations/just/recipe-module\.nix](modules/integrations/just/recipe-module.nix)
+ - [just/recipe-module\.nix](modules/just/recipe-module.nix)
 
 
 
@@ -387,7 +1291,7 @@ package
 
 
 
-Whether to enable bun install during devenv initialisation\.
+Whether to enable bun install during snow blower initialisation\.
 
 
 
@@ -440,7 +1344,7 @@ boolean
 
 
 The JavaScript project’s root directory\. Defaults to the root of the devenv project\.
-Can be an absolute path or one relative to the root of the devenv project\.
+Can be an absolute path or one relative to the root of the snow blower project\.
 
 
 
@@ -450,7 +1354,7 @@ string
 
 
 *Default:*
-` config.devenv.root `
+` config.snow-blower.paths.root `
 
 
 
@@ -513,7 +1417,7 @@ package
 
 
 
-Whether to enable npm install during devenv initialisation\.
+Whether to enable npm install during snow blower initialisation\.
 
 
 
@@ -586,7 +1490,7 @@ package
 
 
 
-Whether to enable pnpm install during devenv initialisation\.
+Whether to enable pnpm install during snow blower initialisation\.
 
 
 
@@ -659,7 +1563,7 @@ package
 
 
 
-Whether to enable yarn install during devenv initialisation\.
+Whether to enable yarn install during snow blower initialisation\.
 
 
 
@@ -870,6 +1774,110 @@ string
 
 
 
+## perSystem\.snow-blower\.process-compose\.package
+
+
+
+The process-compose package to use\.
+
+
+
+*Type:*
+package
+
+
+
+*Default:*
+` pkgs.process-compose `
+
+*Declared by:*
+ - [processes, via option flake\.flakeModules\.processes](modules/processes)
+
+
+
+## perSystem\.snow-blower\.process-compose\.settings\.after
+
+
+
+Bash code to execute after stopping processes\.
+
+
+
+*Type:*
+strings concatenated with “\\n”
+
+
+
+*Default:*
+` "" `
+
+*Declared by:*
+ - [processes, via option flake\.flakeModules\.processes](modules/processes)
+
+
+
+## perSystem\.snow-blower\.process-compose\.settings\.before
+
+
+
+Bash code to execute before starting processes\.
+
+
+
+*Type:*
+strings concatenated with “\\n”
+
+
+
+*Default:*
+` "" `
+
+*Declared by:*
+ - [processes, via option flake\.flakeModules\.processes](modules/processes)
+
+
+
+## perSystem\.snow-blower\.process-compose\.settings\.server
+
+
+
+Top-level process-compose\.yaml options when that implementation is used\.
+
+
+
+*Type:*
+attribute set
+
+
+
+*Default:*
+
+```
+{
+  version = "0.5";
+  unix-socket = "${config.snow-blower.paths.runtime}/pc.sock";
+  tui = true;
+}
+
+```
+
+
+
+*Example:*
+
+```
+{
+  log_level = "fatal";
+  log_location = "/path/to/combined/output/logfile.log";
+  version = "0.5";
+}
+```
+
+*Declared by:*
+ - [processes, via option flake\.flakeModules\.processes](modules/processes)
+
+
+
 ## perSystem\.snow-blower\.processes
 
 
@@ -1068,7 +2076,7 @@ boolean
 
 
 *Default:*
-` true `
+` false `
 
 *Declared by:*
  - [scripts, via option flake\.flakeModules\.scripts](modules/scripts)
@@ -1079,7 +2087,7 @@ boolean
 
 
 
-Whether to enable Adminer process\.
+Whether to enable Adminer  service\.
 
 
 
@@ -1105,7 +2113,7 @@ boolean
 
 
 
-Which package of Adminer to use\.
+The package Adminer should use\.
 
 
 
@@ -1115,18 +2123,18 @@ package
 
 
 *Default:*
-` pkgs.adminer `
+` <derivation adminer-4.8.1> `
 
 *Declared by:*
  - [services/adminer, via option flake\.flakeModules\.services](modules/services/adminer)
 
 
 
-## perSystem\.snow-blower\.services\.adminer\.listen
+## perSystem\.snow-blower\.services\.adminer\.settings\.host
 
 
 
-Listen address for the Adminer\.
+The host Adminer will listen on
 
 
 
@@ -1136,7 +2144,28 @@ string
 
 
 *Default:*
-` "127.0.0.1:8080" `
+` "127.0.0.1" `
+
+*Declared by:*
+ - [services/adminer, via option flake\.flakeModules\.services](modules/services/adminer)
+
+
+
+## perSystem\.snow-blower\.services\.adminer\.settings\.port
+
+
+
+The port Adminer will listen on
+
+
+
+*Type:*
+signed integer
+
+
+
+*Default:*
+` 8080 `
 
 *Declared by:*
  - [services/adminer, via option flake\.flakeModules\.services](modules/services/adminer)
@@ -1147,10 +2176,7 @@ string
 
 
 
-Whether to enable Blackfire profiler agent
-
-It automatically installs Blackfire PHP extension\.
-\.
+Whether to enable Blackfire  service\.
 
 
 
@@ -1172,7 +2198,28 @@ boolean
 
 
 
-## perSystem\.snow-blower\.services\.blackfire\.enableApm
+## perSystem\.snow-blower\.services\.blackfire\.package
+
+
+
+The package Blackfire should use\.
+
+
+
+*Type:*
+package
+
+
+
+*Default:*
+` <derivation blackfire-2.28.7> `
+
+*Declared by:*
+ - [services/blackfire, via option flake\.flakeModules\.services](modules/services/blackfire)
+
+
+
+## perSystem\.snow-blower\.services\.blackfire\.settings\.enableApm
 
 
 
@@ -1199,28 +2246,7 @@ boolean
 
 
 
-## perSystem\.snow-blower\.services\.blackfire\.package
-
-
-
-Which package of blackfire to use
-
-
-
-*Type:*
-package
-
-
-
-*Default:*
-` pkgs.blackfire `
-
-*Declared by:*
- - [services/blackfire, via option flake\.flakeModules\.services](modules/services/blackfire)
-
-
-
-## perSystem\.snow-blower\.services\.blackfire\.client-id
+## perSystem\.snow-blower\.services\.blackfire\.settings\.client-id
 
 
 
@@ -1242,7 +2268,7 @@ string
 
 
 
-## perSystem\.snow-blower\.services\.blackfire\.client-token
+## perSystem\.snow-blower\.services\.blackfire\.settings\.client-token
 
 
 
@@ -1264,7 +2290,49 @@ string
 
 
 
-## perSystem\.snow-blower\.services\.blackfire\.server-id
+## perSystem\.snow-blower\.services\.blackfire\.settings\.host
+
+
+
+The host Blackfire will listen on
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "127.0.0.1" `
+
+*Declared by:*
+ - [services/blackfire, via option flake\.flakeModules\.services](modules/services/blackfire)
+
+
+
+## perSystem\.snow-blower\.services\.blackfire\.settings\.port
+
+
+
+The port Blackfire will listen on
+
+
+
+*Type:*
+signed integer
+
+
+
+*Default:*
+` 8307 `
+
+*Declared by:*
+ - [services/blackfire, via option flake\.flakeModules\.services](modules/services/blackfire)
+
+
+
+## perSystem\.snow-blower\.services\.blackfire\.settings\.server-id
 
 
 
@@ -1286,7 +2354,7 @@ string
 
 
 
-## perSystem\.snow-blower\.services\.blackfire\.server-token
+## perSystem\.snow-blower\.services\.blackfire\.settings\.server-token
 
 
 
@@ -1308,11 +2376,56 @@ string
 
 
 
-## perSystem\.snow-blower\.services\.blackfire\.socket
+## perSystem\.snow-blower\.services\.elasticsearch\.enable
 
 
 
-Sets the server socket path
+Whether to enable Elasticsearch  service\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [services/elasticsearch, via option flake\.flakeModules\.services](modules/services/elasticsearch)
+
+
+
+## perSystem\.snow-blower\.services\.elasticsearch\.package
+
+
+
+The package Elasticsearch should use\.
+
+
+
+*Type:*
+package
+
+
+
+*Default:*
+` <derivation elasticsearch-7.17.16> `
+
+*Declared by:*
+ - [services/elasticsearch, via option flake\.flakeModules\.services](modules/services/elasticsearch)
+
+
+
+## perSystem\.snow-blower\.services\.elasticsearch\.settings\.cluster_name
+
+Elasticsearch name that identifies your cluster for auto-discovery\.
 
 
 
@@ -1322,10 +2435,358 @@ string
 
 
 *Default:*
-` "tcp://127.0.0.1:8307" `
+` "elasticsearch" `
 
 *Declared by:*
- - [services/blackfire, via option flake\.flakeModules\.services](modules/services/blackfire)
+ - [services/elasticsearch, via option flake\.flakeModules\.services](modules/services/elasticsearch)
+
+
+
+## perSystem\.snow-blower\.services\.elasticsearch\.settings\.extraCmdLineOptions
+
+
+
+Extra command line options for the elasticsearch launcher\.
+
+
+
+*Type:*
+list of string
+
+
+
+*Default:*
+` [ ] `
+
+*Declared by:*
+ - [services/elasticsearch, via option flake\.flakeModules\.services](modules/services/elasticsearch)
+
+
+
+## perSystem\.snow-blower\.services\.elasticsearch\.settings\.extraConf
+
+
+
+Extra configuration for elasticsearch\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "" `
+
+
+
+*Example:*
+
+```
+''
+  node.name: "elasticsearch"
+  node.master: true
+  node.data: false
+''
+```
+
+*Declared by:*
+ - [services/elasticsearch, via option flake\.flakeModules\.services](modules/services/elasticsearch)
+
+
+
+## perSystem\.snow-blower\.services\.elasticsearch\.settings\.extraJavaOptions
+
+
+
+Extra command line options for Java\.
+
+
+
+*Type:*
+list of string
+
+
+
+*Default:*
+` [ ] `
+
+
+
+*Example:*
+
+```
+[
+  "-Djava.net.preferIPv4Stack=true"
+]
+```
+
+*Declared by:*
+ - [services/elasticsearch, via option flake\.flakeModules\.services](modules/services/elasticsearch)
+
+
+
+## perSystem\.snow-blower\.services\.elasticsearch\.settings\.host
+
+
+
+The host Elasticsearch will listen on
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "127.0.0.1" `
+
+*Declared by:*
+ - [services/elasticsearch, via option flake\.flakeModules\.services](modules/services/elasticsearch)
+
+
+
+## perSystem\.snow-blower\.services\.elasticsearch\.settings\.logging
+
+
+
+Elasticsearch logging configuration\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+
+```
+''
+  logger.action.name = org.elasticsearch.action
+  logger.action.level = info
+  appender.console.type = Console
+  appender.console.name = console
+  appender.console.layout.type = PatternLayout
+  appender.console.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] %marker%m%n
+  rootLogger.level = info
+  rootLogger.appenderRef.console.ref = console
+''
+```
+
+*Declared by:*
+ - [services/elasticsearch, via option flake\.flakeModules\.services](modules/services/elasticsearch)
+
+
+
+## perSystem\.snow-blower\.services\.elasticsearch\.settings\.plugins
+
+
+
+Extra elasticsearch plugins
+
+
+
+*Type:*
+list of package
+
+
+
+*Default:*
+` [ ] `
+
+
+
+*Example:*
+` [ pkgs.elasticsearchPlugins.discovery-ec2 ] `
+
+*Declared by:*
+ - [services/elasticsearch, via option flake\.flakeModules\.services](modules/services/elasticsearch)
+
+
+
+## perSystem\.snow-blower\.services\.elasticsearch\.settings\.port
+
+
+
+The port Elasticsearch will listen on
+
+
+
+*Type:*
+signed integer
+
+
+
+*Default:*
+` 9200 `
+
+*Declared by:*
+ - [services/elasticsearch, via option flake\.flakeModules\.services](modules/services/elasticsearch)
+
+
+
+## perSystem\.snow-blower\.services\.elasticsearch\.settings\.single_node
+
+
+
+Start a single-node cluster
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` true `
+
+*Declared by:*
+ - [services/elasticsearch, via option flake\.flakeModules\.services](modules/services/elasticsearch)
+
+
+
+## perSystem\.snow-blower\.services\.elasticsearch\.settings\.tcp_port
+
+
+
+Elasticsearch port for the node to node communication\.
+
+
+
+*Type:*
+signed integer
+
+
+
+*Default:*
+` 9300 `
+
+*Declared by:*
+ - [services/elasticsearch, via option flake\.flakeModules\.services](modules/services/elasticsearch)
+
+
+
+## perSystem\.snow-blower\.services\.memcached\.enable
+
+
+
+Whether to enable Memcached  service\.
+
+
+
+*Type:*
+boolean
+
+
+
+*Default:*
+` false `
+
+
+
+*Example:*
+` true `
+
+*Declared by:*
+ - [services/memcached, via option flake\.flakeModules\.services](modules/services/memcached)
+
+
+
+## perSystem\.snow-blower\.services\.memcached\.package
+
+
+
+The package Memcached should use\.
+
+
+
+*Type:*
+package
+
+
+
+*Default:*
+` <derivation memcached-1.6.27> `
+
+*Declared by:*
+ - [services/memcached, via option flake\.flakeModules\.services](modules/services/memcached)
+
+
+
+## perSystem\.snow-blower\.services\.memcached\.settings\.host
+
+
+
+The host Memcached will listen on
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "127.0.0.1" `
+
+*Declared by:*
+ - [services/memcached, via option flake\.flakeModules\.services](modules/services/memcached)
+
+
+
+## perSystem\.snow-blower\.services\.memcached\.settings\.port
+
+
+
+The port Memcached will listen on
+
+
+
+*Type:*
+signed integer
+
+
+
+*Default:*
+` 11211 `
+
+*Declared by:*
+ - [services/memcached, via option flake\.flakeModules\.services](modules/services/memcached)
+
+
+
+## perSystem\.snow-blower\.services\.memcached\.settings\.startArgs
+
+
+
+Additional arguments passed to ` memcached ` during startup\.
+
+
+
+*Type:*
+list of strings concatenated with “\\n”
+
+
+
+*Default:*
+` [ ] `
+
+
+
+*Example:*
+
+```
+[
+  "--memory-limit=100M"
+]
+```
+
+*Declared by:*
+ - [services/memcached, via option flake\.flakeModules\.services](modules/services/memcached)
 
 
 
@@ -1333,7 +2794,7 @@ string
 
 
 
-Whether to enable MySQL process and expose utilities\.
+Whether to enable MySQL  service\.
 
 
 
@@ -1359,7 +2820,7 @@ boolean
 
 
 
-Which package of MySQL to use
+The package MySQL should use\.
 
 
 
@@ -1369,227 +2830,14 @@ package
 
 
 *Default:*
-` pkgs.mariadb `
+` <derivation mariadb-server-10.11.8> `
 
 *Declared by:*
  - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
 
 
 
-## perSystem\.snow-blower\.services\.mysql\.ensureUsers
-
-
-
-Ensures that the specified users exist and have at least the ensured permissions\.
-The MySQL users will be identified using Unix socket authentication\. This authenticates the Unix user with the
-same name only, and that without the need for a password\.
-This option will never delete existing users or remove permissions, especially not when the value of this
-option is changed\. This means that users created and permissions assigned once through this option or
-otherwise have to be removed manually\.
-
-
-
-*Type:*
-list of (submodule)
-
-
-
-*Default:*
-` [ ] `
-
-
-
-*Example:*
-
-```
-[
-  {
-    name = "devenv";
-    ensurePermissions = {
-      "devenv.*" = "ALL PRIVILEGES";
-    };
-  }
-]
-
-```
-
-*Declared by:*
- - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
-
-
-
-## perSystem\.snow-blower\.services\.mysql\.ensureUsers\.\*\.ensurePermissions
-
-
-
-Permissions to ensure for the user, specified as attribute set\.
-The attribute names specify the database and tables to grant the permissions for,
-separated by a dot\. You may use wildcards here\.
-The attribute values specfiy the permissions to grant\.
-You may specify one or multiple comma-separated SQL privileges here\.
-For more information on how to specify the target
-and on which privileges exist, see the
-[GRANT syntax](https://mariadb\.com/kb/en/library/grant/)\.
-The attributes are used as ` GRANT ${attrName} ON ${attrValue} `\.
-
-
-
-*Type:*
-attribute set of string
-
-
-
-*Default:*
-` { } `
-
-
-
-*Example:*
-
-```
-{
-  "database.*" = "ALL PRIVILEGES";
-  "*.*" = "SELECT, LOCK TABLES";
-}
-
-```
-
-*Declared by:*
- - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
-
-
-
-## perSystem\.snow-blower\.services\.mysql\.ensureUsers\.\*\.name
-
-
-
-Name of the user to ensure\.
-
-
-
-*Type:*
-string
-
-*Declared by:*
- - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
-
-
-
-## perSystem\.snow-blower\.services\.mysql\.ensureUsers\.\*\.password
-
-
-
-Password of the user to ensure\.
-
-
-
-*Type:*
-null or string
-
-
-
-*Default:*
-` null `
-
-*Declared by:*
- - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
-
-
-
-## perSystem\.snow-blower\.services\.mysql\.importTimeZones
-
-
-
-Whether to import tzdata on the first startup of the mysql server
-
-
-
-*Type:*
-null or boolean
-
-
-
-*Default:*
-` null `
-
-*Declared by:*
- - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
-
-
-
-## perSystem\.snow-blower\.services\.mysql\.initialDatabases
-
-
-
-List of database names and their initial schemas that should be used to create databases on the first startup
-of MySQL\. The schema attribute is optional: If not specified, an empty database is created\.
-
-
-
-*Type:*
-list of (submodule)
-
-
-
-*Default:*
-` [ ] `
-
-
-
-*Example:*
-
-```
-[
-  { name = "foodatabase"; schema = ./foodatabase.sql; }
-  { name = "bardatabase"; }
-]
-
-```
-
-*Declared by:*
- - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
-
-
-
-## perSystem\.snow-blower\.services\.mysql\.initialDatabases\.\*\.name
-
-
-
-The name of the database to create\.
-
-
-
-*Type:*
-string
-
-*Declared by:*
- - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
-
-
-
-## perSystem\.snow-blower\.services\.mysql\.initialDatabases\.\*\.schema
-
-
-
-The initial schema of the database; if null (the default),
-an empty database is created\.
-
-
-
-*Type:*
-null or path
-
-
-
-*Default:*
-` null `
-
-*Declared by:*
- - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
-
-
-
-## perSystem\.snow-blower\.services\.mysql\.settings
+## perSystem\.snow-blower\.services\.mysql\.settings\.configuration
 
 
 
@@ -1630,7 +2878,262 @@ lazy attribute set of lazy attribute set of anything
 
 
 
-## perSystem\.snow-blower\.services\.mysql\.useDefaultsExtraFile
+## perSystem\.snow-blower\.services\.mysql\.settings\.ensureUsers
+
+
+
+Ensures that the specified users exist and have at least the ensured permissions\.
+The MySQL users will be identified using Unix socket authentication\. This authenticates the Unix user with the
+same name only, and that without the need for a password\.
+This option will never delete existing users or remove permissions, especially not when the value of this
+option is changed\. This means that users created and permissions assigned once through this option or
+otherwise have to be removed manually\.
+
+
+
+*Type:*
+list of (submodule)
+
+
+
+*Default:*
+` [ ] `
+
+
+
+*Example:*
+
+```
+[
+  {
+    name = "snow";
+    ensurePermissions = {
+      "snow.*" = "ALL PRIVILEGES";
+    };
+  }
+]
+
+```
+
+*Declared by:*
+ - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
+
+
+
+## perSystem\.snow-blower\.services\.mysql\.settings\.ensureUsers\.\*\.ensurePermissions
+
+
+
+Permissions to ensure for the user, specified as attribute set\.
+The attribute names specify the database and tables to grant the permissions for,
+separated by a dot\. You may use wildcards here\.
+The attribute values specfiy the permissions to grant\.
+You may specify one or multiple comma-separated SQL privileges here\.
+For more information on how to specify the target
+and on which privileges exist, see the
+[GRANT syntax](https://mariadb\.com/kb/en/library/grant/)\.
+The attributes are used as ` GRANT ${attrName} ON ${attrValue} `\.
+
+
+
+*Type:*
+attribute set of string
+
+
+
+*Default:*
+` { } `
+
+
+
+*Example:*
+
+```
+{
+  "database.*" = "ALL PRIVILEGES";
+  "*.*" = "SELECT, LOCK TABLES";
+}
+
+```
+
+*Declared by:*
+ - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
+
+
+
+## perSystem\.snow-blower\.services\.mysql\.settings\.ensureUsers\.\*\.name
+
+
+
+Name of the user to ensure\.
+
+
+
+*Type:*
+string
+
+*Declared by:*
+ - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
+
+
+
+## perSystem\.snow-blower\.services\.mysql\.settings\.ensureUsers\.\*\.password
+
+
+
+Password of the user to ensure\.
+
+
+
+*Type:*
+null or string
+
+
+
+*Default:*
+` null `
+
+*Declared by:*
+ - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
+
+
+
+## perSystem\.snow-blower\.services\.mysql\.settings\.host
+
+
+
+The host MySQL will listen on
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+` "127.0.0.1" `
+
+*Declared by:*
+ - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
+
+
+
+## perSystem\.snow-blower\.services\.mysql\.settings\.importTimeZones
+
+
+
+Whether to import tzdata on the first startup of the mysql server
+
+
+
+*Type:*
+null or boolean
+
+
+
+*Default:*
+` null `
+
+*Declared by:*
+ - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
+
+
+
+## perSystem\.snow-blower\.services\.mysql\.settings\.initialDatabases
+
+
+
+List of database names and their initial schemas that should be used to create databases on the first startup
+of MySQL\. The schema attribute is optional: If not specified, an empty database is created\.
+
+
+
+*Type:*
+list of (submodule)
+
+
+
+*Default:*
+` [ ] `
+
+
+
+*Example:*
+
+```
+[
+  { name = "foodatabase"; schema = ./foodatabase.sql; }
+  { name = "bardatabase"; }
+]
+
+```
+
+*Declared by:*
+ - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
+
+
+
+## perSystem\.snow-blower\.services\.mysql\.settings\.initialDatabases\.\*\.name
+
+
+
+The name of the database to create\.
+
+
+
+*Type:*
+string
+
+*Declared by:*
+ - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
+
+
+
+## perSystem\.snow-blower\.services\.mysql\.settings\.initialDatabases\.\*\.schema
+
+
+
+The initial schema of the database; if null (the default),
+an empty database is created\.
+
+
+
+*Type:*
+null or path
+
+
+
+*Default:*
+` null `
+
+*Declared by:*
+ - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
+
+
+
+## perSystem\.snow-blower\.services\.mysql\.settings\.port
+
+
+
+The port MySQL will listen on
+
+
+
+*Type:*
+signed integer
+
+
+
+*Default:*
+` 3306 `
+
+*Declared by:*
+ - [services/mysql, via option flake\.flakeModules\.services](modules/services/mysql)
+
+
+
+## perSystem\.snow-blower\.services\.mysql\.settings\.useDefaultsExtraFile
 
 
 
@@ -1658,7 +3161,7 @@ boolean
 
 
 
-Whether to enable Redis process and expose utilities\.
+Whether to enable Redis  service\.
 
 
 
@@ -1684,7 +3187,7 @@ boolean
 
 
 
-Which package of Redis to use
+The package Redis should use\.
 
 
 
@@ -1694,41 +3197,14 @@ package
 
 
 *Default:*
-` pkgs.redis `
+` <derivation redis-7.2.5> `
 
 *Declared by:*
  - [services/redis, via option flake\.flakeModules\.services](modules/services/redis)
 
 
 
-## perSystem\.snow-blower\.services\.redis\.bind
-
-
-
-The IP interface to bind to\.
-` null ` means “all interfaces”\.
-
-
-
-*Type:*
-null or string
-
-
-
-*Default:*
-` "127.0.0.1" `
-
-
-
-*Example:*
-` "127.0.0.1" `
-
-*Declared by:*
- - [services/redis, via option flake\.flakeModules\.services](modules/services/redis)
-
-
-
-## perSystem\.snow-blower\.services\.redis\.extraConfig
+## perSystem\.snow-blower\.services\.redis\.settings\.extraConfig
 
 
 
@@ -1749,17 +3225,37 @@ strings concatenated with “\\n”
 
 
 
-## perSystem\.snow-blower\.services\.redis\.port
+## perSystem\.snow-blower\.services\.redis\.settings\.host
 
 
 
-The TCP port to accept connections\.
-If port 0 is specified Redis, will not listen on a TCP socket\.
+The host Redis will listen on
 
 
 
 *Type:*
-16 bit unsigned integer; between 0 and 65535 (both inclusive)
+string
+
+
+
+*Default:*
+` "127.0.0.1" `
+
+*Declared by:*
+ - [services/redis, via option flake\.flakeModules\.services](modules/services/redis)
+
+
+
+## perSystem\.snow-blower\.services\.redis\.settings\.port
+
+
+
+The port Redis will listen on
+
+
+
+*Type:*
+signed integer
 
 
 
@@ -1783,20 +3279,20 @@ The development shell with Snow Blower and its underlying programs
 package *(read only)*
 
 *Declared by:*
- - [shell\.nix, via option flake\.flakeModules\.shell](modules/shell.nix)
+ - [shell, via option flake\.flakeModules\.shell](modules/shell)
 
 
 
-## perSystem\.snow-blower\.shell\.startup
+## perSystem\.snow-blower\.shell\.interactive
 
 
 
-Bash code to execute when entering the shell\.
+Bash code to execute on interactive startups
 
 
 
 *Type:*
-strings concatenated with “\\n”
+list of string
 
 
 
@@ -1804,7 +3300,59 @@ strings concatenated with “\\n”
 ` "" `
 
 *Declared by:*
- - [shell\.nix, via option flake\.flakeModules\.shell](modules/shell.nix)
+ - [shell, via option flake\.flakeModules\.shell](modules/shell)
+
+
+
+## perSystem\.snow-blower\.shell\.motd
+
+
+
+Message Of The Day\.
+
+This is the welcome message that is being printed when the user opens
+the shell\.
+
+You may use any valid ansi color from the 8-bit ansi color table\. For example, to use a green color you would use something like {106}\. You may also use {bold}, {italic}, {underline}\. Use {reset} to turn off all attributes\.
+
+
+
+*Type:*
+string
+
+
+
+*Default:*
+
+```
+''
+  ❄️ 💨 Snow Blower: All flake no fluff.
+''
+```
+
+*Declared by:*
+ - [shell, via option flake\.flakeModules\.shell](modules/shell)
+
+
+
+## perSystem\.snow-blower\.shell\.startup
+
+
+
+Bash code to execute on startup\.
+
+
+
+*Type:*
+list of string
+
+
+
+*Default:*
+` "" `
+
+*Declared by:*
+ - [shell, via option flake\.flakeModules\.shell](modules/shell)
 
 
 
@@ -1825,43 +3373,6 @@ package
 ` <derivation stdenv-linux> `
 
 *Declared by:*
- - [shell\.nix, via option flake\.flakeModules\.shell](modules/shell.nix)
-
-
-
-## perSystem\.snow-blower\.treefmt
-
-
-
-Integration of https://github\.com/numtide/treefmt-nix
-
-
-
-*Type:*
-submodule
-
-
-
-*Default:*
-` { } `
-
-*Declared by:*
- - [integrations/treefmt, via option flake\.flakeModules\.integrations](modules/integrations/treefmt)
-
-
-
-## perSystem\.snow-blower\.treefmt\.pkgs
-
-
-
-Nixpkgs to use in ` treefmt `\.
-
-
-
-*Type:*
-lazy attribute set of raw value
-
-*Declared by:*
- - [integrations/treefmt, via option flake\.flakeModules\.integrations](modules/integrations/treefmt)
+ - [shell, via option flake\.flakeModules\.shell](modules/shell)
 
 

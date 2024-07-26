@@ -36,7 +36,7 @@
         description = "Integration of https://github.com/cachix/git-hooks.nix";
       };
 
-      config.snow-blower = {
+      config.snow-blower = lib.mkIf ((lib.filterAttrs (id: value: value.enable) cfg.hooks) != { }) {
         packages = lib.mkAfter ([cfg.package] ++ (cfg.enabledPackages or []));
         shell = {
           startup = [cfg.installationScript];

@@ -1,2 +1,5 @@
 .sb
 .sb-runtime
+
+# we ignore this since snowblower dynmically generates this file.
+secrets.nix
