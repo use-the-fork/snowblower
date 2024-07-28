@@ -14,7 +14,9 @@
         inputs.snow-blower.flakeModules.optionsDocument
       ];
 
-      perSystem = { config, self', inputs', pkgs, system, ... }: {
+      perSystem = {
+        ...
+      }: {
         # Per-system attributes can be defined here. The self' and inputs'
         # module parameters provide easy access to attributes of the same
         # system.
@@ -25,64 +27,61 @@
         ];
 
         snow-blower = {
-            #the root of this flake is actually 2 directories back.
-            paths.src = ./../../.;
+          #the root of this flake is actually 2 directories back.
+          paths.src = ./../../.;
 
-            languages = {
-              php.enable = true;
-            };
-
-            ai.laravel.enable = true;
-            ai.nix.enable = true;
-
-            scripts = {
-              "reload" = {
-                just.enable = true;
-                description = "reloads snow blower.";
-                exec = ''
-                  direnv reload
-                '';
-              };
-            };
-
-            integrations = {
-              agenix = {
-                enable = true;
-                secrets = {
-                  "foo" = {
-                    file = "secrets/foo.age";
-                    publicKeys = [
-                      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL0idNvgGiucWgup/mP78zyC23uFjYq0evcWdjGQUaBH"
-                      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOSE69dmDxQ/UJ8k+8CL3lzc/PyJXXO/2aCcYQOjkTW+ sincore@sushi"
-                    ];
-                  };
-                };
-              };
-
-              git-cliff.enable = true;
-
-              treefmt = {
-                programs = {
-                  alejandra.enable = true;
-                  deadnix.enable = true;
-                  statix = {
-                    enable = true;
-                    disabled-lints = [
-                      "manual_inherit_from"
-                    ];
-                  };
-                };
-              };
-
-              git-hooks.hooks = {
-                treefmt = {
-                  enable = true;
-                };
-              };
-            };
-
+          languages = {
+            php.enable = true;
           };
 
+          ai.laravel.enable = true;
+          ai.nix.enable = true;
+
+          scripts = {
+            "reload" = {
+              just.enable = true;
+              description = "reloads snow blower.";
+              exec = ''
+                direnv reload
+              '';
+            };
+          };
+
+          integrations = {
+            agenix = {
+              enable = true;
+              secrets = {
+                ".env.local" = {
+                  publicKeys = [
+                    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL0idNvgGiucWgup/mP78zyC23uFjYq0evcWdjGQUaBH"
+                    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOSE69dmDxQ/UJ8k+8CL3lzc/PyJXXO/2aCcYQOjkTW+"
+                  ];
+                };
+              };
+            };
+
+            git-cliff.enable = true;
+
+            treefmt = {
+              programs = {
+                alejandra.enable = true;
+                deadnix.enable = true;
+                statix = {
+                  enable = true;
+                  disabled-lints = [
+                    "manual_inherit_from"
+                  ];
+                };
+              };
+            };
+
+            git-hooks.hooks = {
+              treefmt = {
+                enable = true;
+              };
+            };
+          };
+        };
       };
     };
 }

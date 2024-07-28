@@ -1,2 +1,3 @@
 .sb*
 .direnv
+secrets.nix

@@ -3,7 +3,8 @@
   flake-parts-lib,
   ...
 }: {
-  # This is a direct implementation of https://github.com/aciceri/agenix-shell/blob/master/flakeModules/agenix-shell.nix
+  # This is a modified implementation of https://github.com/aciceri/agenix-shell/blob/master/flakeModules/agenix-shell.nix
+  # I prefer to use the agenix package and conform to the secrets and decrption style there. Its just easier to use that way.
 
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
@@ -13,6 +14,7 @@
       lib,
       config,
       pkgs,
+      system,
       ...
     }: let
       inherit (lib) mkOption mkPackageOption types mkEnableOption;
@@ -26,20 +28,16 @@
         options = {
           name = mkOption {
             default = config._module.args.name;
-            description = "Name of the Env variable containing the secret.";
+            description = "Name of the Env file containing the secrets.";
             defaultText = lib.literalExpression "<name>";
-          };
-
-          namePath = mkOption {
-            default = "${config._module.args.name}_PATH";
-            description = "Name of the variable containing the path to the secret.";
-            defaultText = lib.literalExpression "<name>_PATH";
+            example = lib.literalExpression ''.env.local'';
           };
 
           file = mkOption {
             type = types.str;
+            default = "secrets/${config._module.args.name}.age";
             description = ''
-              Age file the secret is loaded from. Relative to your flake root.
+              Age file the secret is loaded from. Relative to flake root.
             '';
           };
 
@@ -54,28 +52,16 @@
             description = "A list of public keys that are used to encrypt the secret.";
             example = lib.literalExpression ''["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDpVA+jisOuuNDeCJ67M11qUP8YY29cipajWzTFAobi"]'';
           };
-
-          ageFilePath = mkOption {
-            type = types.str;
-            internal = true;
-            default = "${cfgPath}/${config.file}";
-          };
-
-          path = mkOption {
-            type = types.str;
-            default = "${cfg.settings.secretsPath}/${config.name}";
-            internal = true;
-            description = "Path where the decrypted secret is installed.";
-            defaultText = lib.literalExpression ''"''${config.snow-blower.integrations.agenix.settings.secretsPath}/<name>"'';
-          };
         };
       });
     in {
       options.snow-blower.integrations.agenix = {
-        enable = mkEnableOption "Agenix Integration";
+        enable = mkEnableOption "Agenix .env Integration";
 
-        package = mkPackageOption pkgs "age" {
-          default = "rage";
+        package = mkOption {
+          type = lib.types.package;
+          description = "The package agenix should use.";
+          default = inputs.agenix.packages.${system}.default;
         };
 
         secrets = mkOption {
@@ -83,8 +69,7 @@
           description = "Attrset of secrets.";
           example = lib.literalExpression ''
             {
-              foo = {
-                file = "secrets/bar.age";
+              ".env.local" = {
                 mode = "0440";
                 publicKeys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDpVA+jisOuuNDeCJ67M11qUP8YY29cipajWzTFAobi"];
               };
@@ -93,19 +78,6 @@
         };
 
         settings = {
-          flakeName = mkOption {
-            type = types.str;
-            default = "git rev-parse --show-toplevel | xargs basename";
-            description = "Command returning the name of the flake, used as part of the secrets path.";
-          };
-
-          secretsPath = mkOption {
-            type = types.str;
-            default = ''/run/user/$(id -u)/snow-blower/$(${cfg.settings.flakeName})/$(uuidgen)'';
-            defaultText = lib.literalExpression ''"/run/user/$(id -u)/agenix-shell/$(''${config.snow-blower.integrations.agenix.settings.flakeName})/$(uuidgen)"'';
-            description = "Where the secrets are stored.";
-          };
-
           identityPaths = mkOption {
             type = types.listOf types.str;
             default = [
@@ -149,7 +121,7 @@
                                   fi
 
                                   # Execute agenix -e with the selected option
-                                  agenix -e "''${options[choice-1]}"
+                                  ${lib.getExe' cfg.package "agenix"} -e "''${options[choice-1]}"
                               }
 
                               # Call the function to execute the selection process
@@ -184,32 +156,22 @@
             };
 
             _installSecret = secret: ''
-               SECRET_PATH=${secret.path}
-
-               # shellcheck disable=SC2193
-               [ "$SECRET_PATH" != "${cfg.settings.secretsPath}/${secret.name}" ] && mkdir -p "$(dirname "$SECRET_PATH")"
-               (
-                 umask u=r,g=,o=
-                 test -f "${secret.ageFilePath}" || echo "''${RED}[agenix] WARNING: encrypted file ${secret.file} does not exist! Is it part of your repo?''${NC}"
-                 test -d "$(dirname "$SECRET_PATH")" || echo "''${RED}[agenix] WARNING: $(dirname "$SECRET_PATH") does not exist!''${NC}"
-                 LANG=${config.i18n.defaultLocale or "C"} ${lib.getExe cfg.package} --decrypt "''${IDENTITIES[@]}" -o "$SECRET_PATH" "${secret.ageFilePath}"
-               )
+              echo "''${GREEN}[agenix] decrypting secret file: ${secret.name}''${NC}"
+              (
+                umask u=r,g=,o=
+                test -f "${secret.file}" || echo "''${RED}[agenix] WARNING: encrypted file ${secret.file} does not exist! Is it part of your repo?''${NC}"
+                ${lib.getExe' cfg.package "agenix"} --decrypt "${secret.file}" > ${secret.name}
+              )
 
                # Capture the exit status of the subshell
                exit_status=$?
 
               if [ "$exit_status" -eq 0 ]; then
-                ["echo '[agenix] decrypting secrets...'"]
-
-                chmod ${secret.mode} "$SECRET_PATH"
-
-                ${secret.name}=$(cat "$SECRET_PATH")
-                ${secret.namePath}="$SECRET_PATH"
-                export ${secret.name}
-                export ${secret.namePath}
+                  chmod ${secret.mode} ${secret.name}
+                  echo "''${GREEN}[agenix] decrypted''${NC}"
               else
-                  echo "''${RED}Failed to prepare ${secret.name}.''${NC}"
-                  echo "''${YELLOW}This usually means the .age file dosen't exsist. Run 'just agenix' or 'edit-secret' to fix this. ''${NC}"
+                  echo "''${RED}[agenix] Failed to prepare ${secret.name}.''${NC}"
+                  echo "''${YELLOW}[agenix] This usually means the .age file dosen't exsist. Run 'just agenix' or 'edit-secret' to fix this. ''${NC}"
                   echo
               fi
             '';
@@ -219,25 +181,11 @@
             installationScript =
               ''
                 ln -sf ${builtins.toString secretsfile} ./secrets.nix
-
-                # shellcheck disable=SC2086
-                rm -rf "${cfg.settings.secretsPath}"
-
-                IDENTITIES=()
-                # shellcheck disable=2043
-                for identity in ${builtins.toString cfg.settings.identityPaths}; do
-                  test -r "$identity" || continue
-                  IDENTITIES+=(-i)
-                  IDENTITIES+=("$identity")
-                done
-
-                test "''${#IDENTITIES[@]}" -eq 0 && echo "[agenix] WARNING: no readable identities found!"
-
-                mkdir -p "${cfg.settings.secretsPath}"
               ''
               + lib.concatStrings (lib.mapAttrsToList (_: _installSecret) cfg.secrets);
           in {
-            startup = [installationScript];
+            # we need to have our install script run ahead of everything since it's decrptying things the env may use.
+            startup = lib.mkBefore [installationScript];
           };
         };
       };

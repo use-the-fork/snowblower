@@ -16,7 +16,7 @@ topLevel @ {
     ./scripts
     ./shell
   ];
-  flake.flakeModules.default = flakeModule: {
+  flake.flakeModules.default = _flakeModule: {
     imports = [
       #The Must Haves
       topLevel.config.flake.flakeModules.nixpkgs
@@ -34,14 +34,11 @@ topLevel @ {
       topLevel.config.flake.flakeModules.services
       topLevel.config.flake.flakeModules.ai
 
-
       topLevel.config.flake.flakeModules.shell
-
     ];
 
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
-      pkgs,
       config,
       ...
     }: let
@@ -119,36 +116,7 @@ topLevel @ {
       };
 
       config = {
-        snow-blower = {
-          shell.startup = lib.mkBefore [
-          ''# Determine if stdout is a terminal...
-          if test -t 1; then
-              # Determine if colors are supported...
-              ncolors=$(tput colors)
-
-              if test -n "$ncolors" && test "$ncolors" -ge 8; then
-                # Text attributes
-                BOLD="$(tput bold)"
-                UNDERLINE="$(tput smul)"
-                BLINK="$(tput blink)"
-                REVERSE="$(tput rev)"
-                NC="$(tput sgr0)"  # No Color
-
-                # Regular colors
-                BLACK="$(tput setaf 0)"
-                RED="$(tput setaf 1)"
-                GREEN="$(tput setaf 2)"
-                YELLOW="$(tput setaf 3)"
-                BLUE="$(tput setaf 4)"
-                MAGENTA="$(tput setaf 5)"
-                CYAN="$(tput setaf 6)"
-                WHITE="$(tput setaf 7)"
-              fi
-          fi
-          ''
-          ];
-
-        };
+        snow-blower = {};
         packages = {
           "process-compose-up" = config.snow-blower.process-compose.internals.procfileScript;
         };

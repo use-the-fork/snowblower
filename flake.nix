@@ -29,13 +29,7 @@
       };
     };
 
-    agenix-shell = {
-      url = "github:aciceri/agenix-shell";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-parts.follows = "flake-parts";
-      };
-    };
+    agenix.url = "github:ryantm/agenix";
   };
 
   outputs = inputs @ {

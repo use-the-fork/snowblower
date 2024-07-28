@@ -53,6 +53,31 @@
         mkdir -p ${lib.escapeShellArg config.snow-blower.paths.runtime}
         ln -snf ${lib.escapeShellArg config.snow-blower.paths.runtime} ${lib.escapeShellArg config.snow-blower.paths.dotfile}/run
 
+      # Determine if stdout is a terminal...
+      if test -t 1; then
+          # Determine if colors are supported...
+          ncolors=$(tput colors)
+
+          if test -n "$ncolors" && test "$ncolors" -ge 8; then
+            # Text attributes
+            BOLD="$(tput bold)"
+            UNDERLINE="$(tput smul)"
+            BLINK="$(tput blink)"
+            REVERSE="$(tput rev)"
+            NC="$(tput sgr0)"  # No Color
+
+            # Regular colors
+            BLACK="$(tput setaf 0)"
+            RED="$(tput setaf 1)"
+            GREEN="$(tput setaf 2)"
+            YELLOW="$(tput setaf 3)"
+            BLUE="$(tput setaf 4)"
+            MAGENTA="$(tput setaf 5)"
+            CYAN="$(tput setaf 6)"
+            WHITE="$(tput setaf 7)"
+          fi
+      fi
+
         #Run our Startup hooks.
         ${builtins.concatStringsSep "\n" cfg.startup}
 
@@ -60,7 +85,6 @@
         if [[ $- == *i* ]]; then
         ${builtins.concatStringsSep "\n" cfg.interactive}
         fi # Interactive session
-
       '';
     in {
       options.snow-blower.shell = {
