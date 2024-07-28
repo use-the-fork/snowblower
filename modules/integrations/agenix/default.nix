@@ -17,12 +17,11 @@
       system,
       ...
     }: let
-      inherit (lib) mkOption mkPackageOption types mkEnableOption;
+      inherit (lib) mkOption types mkEnableOption;
 
       cfg = config.snow-blower.integrations.agenix;
 
       #We use this to figure out where our age file is in relation to the root of the flake.
-      cfgPath = config.snow-blower.paths.src;
 
       secretType = types.submodule ({config, ...}: {
         options = {
@@ -41,16 +40,11 @@
             '';
           };
 
-          mode = mkOption {
-            type = types.str;
-            default = "0400";
-            description = "Permissions mode of the decrypted secret in a format understood by chmod.";
-          };
-
           publicKeys = mkOption {
             type = types.listOf types.str;
             description = "A list of public keys that are used to encrypt the secret.";
             example = lib.literalExpression ''["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDpVA+jisOuuNDeCJ67M11qUP8YY29cipajWzTFAobi"]'';
+            default = cfg.settings.publicKeys;
           };
         };
       });
@@ -70,24 +64,10 @@
           example = lib.literalExpression ''
             {
               ".env.local" = {
-                mode = "0440";
                 publicKeys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDpVA+jisOuuNDeCJ67M11qUP8YY29cipajWzTFAobi"];
               };
             }
           '';
-        };
-
-        settings = {
-          identityPaths = mkOption {
-            type = types.listOf types.str;
-            default = [
-              "$HOME/.ssh/id_ed25519"
-              "$HOME/.ssh/id_rsa"
-            ];
-            description = ''
-              Path to SSH keys to be used as identities in age decryption.
-            '';
-          };
         };
       };
 
@@ -167,7 +147,6 @@
                exit_status=$?
 
               if [ "$exit_status" -eq 0 ]; then
-                  chmod ${secret.mode} ${secret.name}
                   echo "''${GREEN}[agenix] decrypted''${NC}"
               else
                   echo "''${RED}[agenix] Failed to prepare ${secret.name}.''${NC}"
