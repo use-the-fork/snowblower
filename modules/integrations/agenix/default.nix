@@ -40,6 +40,12 @@
             '';
           };
 
+          mode = mkOption {
+            type = types.str;
+            default = "0644";
+            description = "Permissions mode of the decrypted secret in a format understood by chmod.";
+          };
+
           publicKeys = mkOption {
             type = types.listOf types.str;
             description = "A list of public keys that are used to encrypt the secret.";
@@ -147,6 +153,7 @@
                exit_status=$?
 
               if [ "$exit_status" -eq 0 ]; then
+                  chmod ${secret.mode} ${secret.name}
                   echo "''${GREEN}[agenix] decrypted''${NC}"
               else
                   echo "''${RED}[agenix] Failed to prepare ${secret.name}.''${NC}"
