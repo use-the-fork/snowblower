@@ -31,9 +31,10 @@
         };
 
         port = mkOption {
-          type = int;
+          type = types.either int str;
           default = port;
           description = "The port ${name} will listen on";
+          apply = value: lib.toInt value;
         };
       }
       // extraOptions;
