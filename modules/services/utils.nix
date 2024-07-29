@@ -1,6 +1,6 @@
 {lib, ...}: let
   inherit (lib.options) mkOption mkEnableOption;
-  inherit (lib.types) str int;
+  inherit (lib.types) either str int;
 
   # All Credit for this bad boy goes to NotAShelf.
   # https://github.com/NotAShelf/nyx/
@@ -31,9 +31,10 @@
         };
 
         port = mkOption {
-          type = int;
+          type = either int str;
           default = port;
           description = "The port ${name} will listen on";
+          apply = value: lib.toInt value;
         };
       }
       // extraOptions;
