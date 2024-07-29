@@ -34,7 +34,10 @@
           type = either int str;
           default = port;
           description = "The port ${name} will listen on";
-          apply = value: lib.toInt value;
+          apply = value:
+            if lib.isString value
+            then lib.toInt value
+            else value;
         };
       }
       // extraOptions;
