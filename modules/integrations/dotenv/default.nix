@@ -62,7 +62,8 @@
 
       config.snow-blower = lib.mkIf cfg.enable {
         # Maps the resolved .env to the flakes env using a new attribute structure
-        env = lib.mapAttrs (_: attrs: lib.mkDefault attrs) cfg.resolved;
+        # env Varibles should always override flake varibles.
+        env = lib.mapAttrs (_: attrs: lib.mkForce attrs) cfg.resolved;
         dotenv.resolved = mergeEnvFiles dotenvPaths;
       };
     });
