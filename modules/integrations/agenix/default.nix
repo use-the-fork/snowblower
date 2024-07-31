@@ -90,28 +90,35 @@
                 (_name: secret: "\"${toString secret.file}\"")
                 cfg.secrets))
             + ''              )
-                              # Function to display options and prompt the user for choice
-                              select_option() {
-                                  echo "Available options:"
-                                  for i in "''${!options[@]}"; do
-                                      printf "%3d) %s\n" $((i+1)) "''${options[i]}"
-                                  done
 
-                                  # Prompt for a choice
-                                  read -rp "Enter option number: " choice
+              # Function to display options and prompt the user for choice
+              select_option() {
+                  echo "Available options:"
+                  for i in "''${!options[@]}"; do
+                      printf "%3d) %s\n" $((i+1)) "''${options[i]}"
+                  done
 
-                                  # Validate the choice
-                                  if [[ ! $choice =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ''${#options[@]} )); then
-                                      echo "Invalid selection."
-                                      exit 1
-                                  fi
+                  # Prompt for a choice
+                  read -rp "Enter option number: " choice
 
-                                  # Execute agenix -e with the selected option
-                                  ${lib.getExe' cfg.package "agenix"} -e "''${options[choice-1]}"
-                              }
+                  # Validate the choice
+                  if [[ ! $choice =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ''${#options[@]} )); then
+                      echo "Invalid selection."
+                      exit 1
+                  fi
 
-                              # Call the function to execute the selection process
-                              select_option
+                  # Execute agenix -e with the selected option
+                  ${lib.getExe' cfg.package "agenix"} -e "''${options[choice-1]}"
+              }
+
+              # Check for command line argument for rekey
+              if [[ "$1" == "-r" || "$1" == "--rekey" ]]; then
+                  # Execute agenix -r to rekey
+                  ${lib.getExe' cfg.package "agenix"} -r
+              else
+                  # Call the function to execute the selection process
+                  select_option
+              fi
             '');
         in {
           packages = [cfg.package editSecret];
