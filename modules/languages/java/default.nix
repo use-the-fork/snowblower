@@ -51,7 +51,7 @@
         env = {
           M2_HOME = config.snow-blower.env.PROJECT_STATE + "/m2";
           GRADLE_USER_HOME = config.snow-blower.env.PROJECT_STATE + "/gradle";
-          JAVA_HOME = cfg.package.home;
+          JAVA_HOME = config.snow-blower.languages.java.package;
         };
 
         languages.java = {
