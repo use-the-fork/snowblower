@@ -48,6 +48,12 @@
       };
 
       config.snow-blower = lib.mkIf cfg.enable {
+        env = {
+          M2_HOME = config.snow-blower.env.PROJECT_STATE + "/m2";
+          GRADLE_USER_HOME = config.snow-blower.env.PROJECT_STATE + "/gradle";
+          JAVA_HOME = cfg.package.home;
+        };
+
         languages.java = {
           settings.maven.package = mkDefault (pkgs.maven.override {jdk_headless = cfg.package;});
           settings.gradle.package = mkDefault (pkgs.gradle.override {java = cfg.package;});
