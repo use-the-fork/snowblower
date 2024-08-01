@@ -99,24 +99,31 @@
             ${cfg.package}/bin/corepack enable --install-directory $out/bin
           '');
 
+        env = {
+          NODEJS_HOME = cfg.package;
+          NPM_CONFIG_CACHE = config.snow-blower.env.PROJECT_STATE + "/npm";
+          NPM_CONFIG_USERCONFIG = config.snow-blower.env.PROJECT_STATE + "/npm/config";
+          NPM_CONFIG_TMP = config.snow-blower.env.PROJECT_RUNTIME + "/npm";
+        };
+
         shell.startup = [
-        (
-          lib.concatStringsSep
-          "\n"
           (
-            (lib.optional cfg.npm.install.enable ''
-              source ${(./init-npm.nix {inherit pkgs lib config;})}
-            '')
-            ++ (lib.optional cfg.pnpm.install.enable ''
-              source ${(./init-pnpm.nix {inherit pkgs lib config;})}
-            '')
-            ++ (lib.optional cfg.yarn.install.enable ''
-              source ${(./init-yarn.nix {inherit pkgs lib config;})}
-            '')
-            ++ (lib.optional cfg.bun.install.enable ''
-              source ${(./init-bun.nix {inherit pkgs lib config;})}
-            '')
-          )
+            lib.concatStringsSep
+            "\n"
+            (
+              (lib.optional cfg.npm.install.enable ''
+                source ${(./init-npm.nix {inherit pkgs lib config;})}
+              '')
+              ++ (lib.optional cfg.pnpm.install.enable ''
+                source ${(./init-pnpm.nix {inherit pkgs lib config;})}
+              '')
+              ++ (lib.optional cfg.yarn.install.enable ''
+                source ${(./init-yarn.nix {inherit pkgs lib config;})}
+              '')
+              ++ (lib.optional cfg.bun.install.enable ''
+                source ${(./init-bun.nix {inherit pkgs lib config;})}
+              '')
+            )
           )
         ];
       };
