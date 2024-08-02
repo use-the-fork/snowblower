@@ -27,13 +27,6 @@
             else ""
         )
         cfg.programs));
-      #      FIXME: Should this be integrated in
-      #      environment =
-      #              lib.mapAttrsToList
-      #              (name: value: "${name}=\"${toString value}\"")
-      #              config.snow-blower.env;
-      #                      environment = ${environment}
-      #                     environment = KEY1="value1",KEY2="value2"
 
       configFile = pkgs.writeText "supervisor.conf" ''
         [unix_http_server]
@@ -63,10 +56,7 @@
         # Run supervisor
         ${supervisor}/bin/supervisord \
          --configuration=${configFile} \
-         --nodaemon \
-         --pidfile="$SUPERVISORD_DATA/supervisor/run/supervisor.pid" \
-         --childlogdir="$SUPERVISORD_DATA/supervisor/log/" \
-         --logfile="$SUPERVISORD_DATA/supervisor/log/supervisor.log"
+         --nodaemon
       '';
     in {
       options.snow-blower.services.supervisord =
