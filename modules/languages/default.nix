@@ -3,5 +3,6 @@
     ./java
     ./javascript
     ./php
+    ./python
   ];
 }
