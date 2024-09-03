@@ -374,7 +374,7 @@
         shell.startup =
           [
             ''
-              export PYTHONPATH="$PROJECT_PROFILE/${package.sitePackages}''${PYTHONPATH:+:$PYTHONPATH}"
+              export PYTHONPATH="$PROJECT_PROFILE/${package.sitePackages}"
             ''
           ]
           ++ (lib.optional cfg.venv.enable ''
