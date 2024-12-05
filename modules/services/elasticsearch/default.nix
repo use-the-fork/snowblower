@@ -99,8 +99,12 @@
           env.ELASTICSEARCH_DATA = config.snow-blower.env.PROJECT_STATE + "/elasticsearch";
 
           processes.elasticsearch = let
-
             esConfig = ''
+              http.cors.allow-origin: "*"
+              http.cors.enabled: true
+              http.cors.allow-credentials: true
+              http.cors.allow-methods: OPTIONS, HEAD, GET, POST, PUT, DELETE
+              http.cors.allow-headers: X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept, x-elastic-client-meta
               network.host: ${cfg.settings.host}
               cluster.name: ${cfg.settings.cluster_name}
               ${lib.optionalString cfg.settings.single_node "discovery.type: single-node"}
