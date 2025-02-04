@@ -23,20 +23,19 @@
           (name: value: "${name}=${builtins.toJSON value}")
           config.snow-blower.env;
 
+        justCommand = pkgs.writeScriptBin "snow-blower-process-compose-just" ''
+          #!/usr/bin/env bash
 
-          justCommand = pkgs.writeScriptBin "snow-blower-process-compose-just" ''
-            #!/usr/bin/env bash
-
-            # we want subshells to fail the program
-            set -e
-            procfilescript=$(nix build '.#process-compose-up' --no-link --print-out-paths --impure)
-            if [ "$(cat $procfilescript|tail -n +2)" = "" ]; then
-              echo "No 'processes' option defined: TODO"
-              exit 1
-            else
-              exec $procfilescript "$@"
-            fi
-          '';
+          # we want subshells to fail the program
+          set -e
+          procfilescript=$(nix build '.#process-compose-up' --no-link --print-out-paths --impure)
+          if [ "$(cat $procfilescript|tail -n +2)" = "" ]; then
+            echo "No 'processes' option defined: TODO"
+            exit 1
+          else
+            exec $procfilescript "$@"
+          fi
+        '';
 
         processType = types.submodule (_: {
           options = {
@@ -69,15 +68,13 @@
         });
       in {
         options.snow-blower = {
-                  processes = lib.mkOption {
-                    type = types.attrsOf processType;
-                    default = {};
-                    description = "Processes can be started with ``just up`` and run in foreground mode.";
-                  };
+          processes = lib.mkOption {
+            type = types.attrsOf processType;
+            default = {};
+            description = "Processes can be started with ``just up`` and run in foreground mode.";
+          };
 
-
-        process-compose = {
-
+          process-compose = {
             package = lib.mkOption {
               type = lib.types.package;
               default = pkgs.process-compose;

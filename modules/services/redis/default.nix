@@ -1,7 +1,6 @@
 {
   inputs,
   flake-parts-lib,
-  self,
   ...
 }: {
   imports = [

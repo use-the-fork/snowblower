@@ -4,7 +4,6 @@
   ...
 }: let
   #Credits to https://github.com/NotAShelf/nyx/blob/main/parts/pre-commit/utils.nix
-
   inherit (lib.attrsets) recursiveUpdate;
 
   # Files to be ignored by all hooks.

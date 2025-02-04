@@ -31,60 +31,60 @@
       #      unset ${lib.concatStringsSep " " config.unsetEnvVars}
 
       setupShell = ''
-        # Remove all the unnecessary noise that is set by the build env
-        unset NIX_BUILD_TOP NIX_BUILD_CORES NIX_STORE
-        unset TEMP TEMPDIR TMP TMPDIR
-        # $name variable is preserved to keep it compatible with pure shell https://github.com/sindresorhus/pure/blob/47c0c881f0e7cfdb5eaccd335f52ad17b897c060/pure.zsh#L235
-        unset builder out shellHook stdenv system
-        # Flakes stuff
-        unset dontAddDisableDepTrack outputs
+          # Remove all the unnecessary noise that is set by the build env
+          unset NIX_BUILD_TOP NIX_BUILD_CORES NIX_STORE
+          unset TEMP TEMPDIR TMP TMPDIR
+          # $name variable is preserved to keep it compatible with pure shell https://github.com/sindresorhus/pure/blob/47c0c881f0e7cfdb5eaccd335f52ad17b897c060/pure.zsh#L235
+          unset builder out shellHook stdenv system
+          # Flakes stuff
+          unset dontAddDisableDepTrack outputs
 
-        # Setup our directories and linkages as needed.
-        mkdir -p "$PROJECT_DOTFILE"
+          # Setup our directories and linkages as needed.
+          mkdir -p "$PROJECT_DOTFILE"
 
-        #setup state (data) directory
-        mkdir -p "$PROJECT_STATE"
-        if [ ! -L "$PROJECT_DOTFILE/profile" ] || [ "$(${pkgs.coreutils}/bin/readlink $PROJECT_DOTFILE/profile)" != "${profile}" ]
-        then
-          ln -snf ${profile} "$PROJECT_DOTFILE/profile"
+          #setup state (data) directory
+          mkdir -p "$PROJECT_STATE"
+          if [ ! -L "$PROJECT_DOTFILE/profile" ] || [ "$(${pkgs.coreutils}/bin/readlink $PROJECT_DOTFILE/profile)" != "${profile}" ]
+          then
+            ln -snf ${profile} "$PROJECT_DOTFILE/profile"
+          fi
+
+          # setup the runtime directory
+          mkdir -p ${lib.escapeShellArg config.snow-blower.paths.runtime}
+          ln -snf ${lib.escapeShellArg config.snow-blower.paths.runtime} ${lib.escapeShellArg config.snow-blower.paths.dotfile}/run
+
+        # Determine if stdout is a terminal...
+        if test -t 1; then
+            # Determine if colors are supported...
+            ncolors=$(tput colors)
+
+            if test -n "$ncolors" && test "$ncolors" -ge 8; then
+              # Text attributes
+              BOLD="$(tput bold)"
+              UNDERLINE="$(tput smul)"
+              BLINK="$(tput blink)"
+              REVERSE="$(tput rev)"
+              NC="$(tput sgr0)"  # No Color
+
+              # Regular colors
+              BLACK="$(tput setaf 0)"
+              RED="$(tput setaf 1)"
+              GREEN="$(tput setaf 2)"
+              YELLOW="$(tput setaf 3)"
+              BLUE="$(tput setaf 4)"
+              MAGENTA="$(tput setaf 5)"
+              CYAN="$(tput setaf 6)"
+              WHITE="$(tput setaf 7)"
+            fi
         fi
 
-        # setup the runtime directory
-        mkdir -p ${lib.escapeShellArg config.snow-blower.paths.runtime}
-        ln -snf ${lib.escapeShellArg config.snow-blower.paths.runtime} ${lib.escapeShellArg config.snow-blower.paths.dotfile}/run
+          #Run our Startup hooks.
+          ${builtins.concatStringsSep "\n" cfg.startup}
 
-      # Determine if stdout is a terminal...
-      if test -t 1; then
-          # Determine if colors are supported...
-          ncolors=$(tput colors)
-
-          if test -n "$ncolors" && test "$ncolors" -ge 8; then
-            # Text attributes
-            BOLD="$(tput bold)"
-            UNDERLINE="$(tput smul)"
-            BLINK="$(tput blink)"
-            REVERSE="$(tput rev)"
-            NC="$(tput sgr0)"  # No Color
-
-            # Regular colors
-            BLACK="$(tput setaf 0)"
-            RED="$(tput setaf 1)"
-            GREEN="$(tput setaf 2)"
-            YELLOW="$(tput setaf 3)"
-            BLUE="$(tput setaf 4)"
-            MAGENTA="$(tput setaf 5)"
-            CYAN="$(tput setaf 6)"
-            WHITE="$(tput setaf 7)"
-          fi
-      fi
-
-        #Run our Startup hooks.
-        ${builtins.concatStringsSep "\n" cfg.startup}
-
-        # Interactive sessions
-        if [[ $- == *i* ]]; then
-        ${builtins.concatStringsSep "\n" cfg.interactive}
-        fi # Interactive session
+          # Interactive sessions
+          if [[ $- == *i* ]]; then
+          ${builtins.concatStringsSep "\n" cfg.interactive}
+          fi # Interactive session
       '';
     in {
       options.snow-blower.shell = {

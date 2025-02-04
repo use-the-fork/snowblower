@@ -1,7 +1,6 @@
 {
   inputs,
   flake-parts-lib,
-  self,
   ...
 }: {
   imports = [
@@ -14,7 +13,7 @@
       config,
       ...
     }: let
-      inherit (lib) types mkOption optionalString;
+      inherit (lib) types mkOption;
       inherit (import ../utils.nix {inherit lib;}) mkService;
 
       cfg = config.snow-blower.services.memcached;
@@ -24,14 +23,14 @@
         package = pkgs.memcached;
         port = 11211;
         extraOptions = {
-              startArgs = lib.mkOption {
-                type = types.listOf types.lines;
-                default = [ ];
-                example = [ "--memory-limit=100M" ];
-                description = ''
-                  Additional arguments passed to `memcached` during startup.
-                '';
-              };
+          startArgs = lib.mkOption {
+            type = types.listOf types.lines;
+            default = [];
+            example = ["--memory-limit=100M"];
+            description = ''
+              Additional arguments passed to `memcached` during startup.
+            '';
+          };
         };
       };
 

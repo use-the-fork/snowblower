@@ -9,13 +9,12 @@
   ];
   flake.flakeModules.integrations = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
-      self',
       lib,
       pkgs,
       config,
       ...
     }: let
-      inherit (lib) types mkDefault;
+      inherit (lib) mkDefault;
       inherit (import ../utils.nix {inherit pkgs lib;}) mkHook;
 
       commitlint-config = pkgs.writeTextFile {
@@ -53,9 +52,7 @@
           --config ${commitlint-config.outPath}
         fi
       '';
-
     in {
-
       config.snow-blower.integrations.git-hooks = {
         hooks.commitlint = mkHook "commitlint" {
           enable = mkDefault false;

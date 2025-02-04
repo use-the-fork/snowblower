@@ -16,7 +16,7 @@
 
       src = ./.;
 
-      perSystem = { config, self', inputs', pkgs, system, ... }: {
+      perSystem = {pkgs, ...}: {
         # Per-system attributes can be defined here. The self' and inputs'
         # module parameters provide easy access to attributes of the same
         # system.
@@ -27,23 +27,21 @@
         ];
 
         snow-blower = {
-
-           integrations = {
-              #the options here mirror the offical repo: https://github.com/numtide/treefmt-nix/tree/main
-              treefmt = {
-                programs = {
-                  #formater for nix
-                  alejandra.enable = true;
-                };
+          integrations = {
+            #the options here mirror the offical repo: https://github.com/numtide/treefmt-nix/tree/main
+            treefmt = {
+              programs = {
+                #formater for nix
+                alejandra.enable = true;
               };
+            };
 
-              # pre-commit hooks
-              #the options here mirror the offical repo: https://github.com/cachix/git-hooks.nix
-              git-hooks.hooks = {
-                treefmt.enable = true;
-              };
-
-           };
+            # pre-commit hooks
+            #the options here mirror the offical repo: https://github.com/cachix/git-hooks.nix
+            git-hooks.hooks = {
+              treefmt.enable = true;
+            };
+          };
 
           scripts = {
             "hi" = {
@@ -55,21 +53,21 @@
             };
           };
 
-          packages = [ pkgs.hello ];
+          packages = [pkgs.hello];
 
-          shell.startup = [''
-            hello
-          ''];
+          shell.startup = [
+            ''
+              hello
+            ''
+          ];
 
           processes.hello.exec = "hello";
         };
-
       };
       flake = {
         # The usual flake attributes can be defined here, including system-
         # agnostic ones like nixosModule and system-enumerating ones, although
         # those are more easily expressed in perSystem.
-
       };
     };
 }

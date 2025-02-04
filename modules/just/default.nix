@@ -15,7 +15,6 @@
     }: let
       inherit (lib) types mkOption;
       inherit (import ./utils.nix {inherit lib pkgs;}) recipeType;
-
     in {
       imports = [
         {
