@@ -14,10 +14,10 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@main
       - name: Update Nix Flake
         run: |
-          nix flake update
+          nix flake --accept-flake-config update
       - name: Build Snow Blower Shell
         run: |
-          nix build .#devShells.x86_64-linux.default
+          nix build --accept-flake-config .#devShells.x86_64-linux.default
       - name: Commit and push
         run: |
           git config user.name "GitHub Actions"
