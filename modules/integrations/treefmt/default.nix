@@ -20,22 +20,26 @@
       cfg = config.snow-blower.integrations.treefmt;
     in {
       options.snow-blower.integrations.treefmt = mkOption {
-        type = types.submoduleWith {
-          modules =
-            inputs.treefmt-nix.lib.submodule-modules
-            ++ [
-              {
-                projectRootFile = "flake.nix";
-                package = pkgs.treefmt;
-              }
-              {
-                options.just = {
-                  enable = mkEnableOption' "enable just command";
-                };
-              }
-            ];
-          specialArgs = {inherit pkgs;};
-          shorthandOnlyDefinesConfig = true;
+        type = inputs.treefmt-nix.lib.submoduleWith lib {
+          modules = [
+            {
+              options.pkgs = lib.mkOption {
+                default = pkgs;
+                defaultText = "`pkgs` (module argument of `perSystem`)";
+              };
+
+              options.projectRoot = lib.mkOption {
+                type = types.path;
+                default = self;
+                defaultText = lib.literalExpression "self";
+                description = ''
+                  Path to the root of the project on which treefmt operates
+                '';
+              };
+
+              options.just.enable = mkEnableOption' "enable just command";
+            }
+          ];
         };
         default = {};
         description = "Integration of https://github.com/numtide/treefmt-nix";
