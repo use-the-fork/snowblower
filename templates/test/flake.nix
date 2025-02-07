@@ -11,10 +11,10 @@
       inherit inputs;
 
       imports = [
-        inputs.snow-blower.flakeModules.optionsDocument
+        #        inputs.snow-blower.flakeModules.optionsDocument
       ];
 
-      perSystem = {...}: {
+      perSystem = {pkgs, ...}: {
         # Per-system attributes can be defined here. The self' and inputs'
         # module parameters provide easy access to attributes of the same
         # system.
@@ -29,7 +29,14 @@
           paths.src = ./../../.;
 
           languages = {
-            php.enable = true;
+            php = {
+              enable = true;
+              package = pkgs.php83;
+              extensions = [
+                "redis"
+                "xdebug"
+              ];
+            };
           };
 
           ai.laravel.enable = true;
@@ -43,6 +50,13 @@
                 direnv reload
               '';
             };
+          };
+
+          services = {
+            elasticsearch = {
+              #                enable = true;
+            };
+            #              kibana.enable = true;
           };
 
           integrations = {

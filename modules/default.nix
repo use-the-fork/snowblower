@@ -5,6 +5,8 @@ topLevel @ {
 }: {
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
+    ./pkgs # misc packages that are not available in nixpkgs
+
     ./core
     ./ai
     ./env

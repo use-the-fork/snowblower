@@ -39,6 +39,7 @@
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "nixpkgs-unfree.cachix.org-1:hqvoInulhbV4nJ9yJOEr+4wxhDV4xq2d1DK7S6Nj6rs="
       "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
+      "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
     ];
 
     extra-substituters = [
@@ -46,6 +47,7 @@
       "https://nix-community.cachix.org"
       "https://nixpkgs-unfree.cachix.org"
       "https://cache.garnix.io"
+      "https://devenv.cachix.org"
     ];
   };
 
@@ -74,7 +76,7 @@
             };
           }
           ./modules
-          ./modules/options-document.nix
+          #          ./modules/options-document.nix
         ];
         debug = true;
         systems = import inputs.systems;
@@ -84,7 +86,7 @@
     inputs.flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
       imports = [
         bootstrap.flakeModules.default
-        bootstrap.flakeModules.optionsDocument
+        #        bootstrap.flakeModules.optionsDocument
       ];
 
       flake =
