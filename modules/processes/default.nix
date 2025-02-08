@@ -28,7 +28,7 @@
 
           # we want subshells to fail the program
           set -e
-          procfilescript=$(nix build '.#process-compose-up' --no-link --print-out-paths --impure)
+          procfilescript=$(nix build '.#process-compose-up' --no-link --print-out-paths --impure --accept-flake-config)
           if [ "$(cat $procfilescript|tail -n +2)" = "" ]; then
             echo "No 'processes' option defined: TODO"
             exit 1

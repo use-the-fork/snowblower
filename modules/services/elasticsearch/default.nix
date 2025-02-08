@@ -5,6 +5,7 @@
 }: {
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
+    ./kibana.nix
   ];
   flake.flakeModules.services = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
@@ -20,7 +21,7 @@
     in {
       options.snow-blower.services.elasticsearch = mkService {
         name = "Elasticsearch";
-        package = pkgs.elasticsearch7;
+        package = pkgs.elasticsearch;
         port = 9200;
         extraOptions = {
           tcp_port = mkOption {
@@ -97,6 +98,8 @@
           ];
 
           env.ELASTICSEARCH_DATA = config.snow-blower.env.PROJECT_STATE + "/elasticsearch";
+
+          env.KIBANA_DATA = config.snow-blower.env.PROJECT_STATE + "/kibana";
 
           processes.elasticsearch = let
             esConfig = ''

@@ -54,9 +54,9 @@
 
           services = {
             elasticsearch = {
-              #                enable = true;
+              enable = true;
+              kibana.enable = true;
             };
-            #              kibana.enable = true;
           };
 
           integrations = {
