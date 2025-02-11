@@ -1,3 +1,4 @@
 .sb*
 .direnv
 secrets.nix
+.aider*

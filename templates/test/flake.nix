@@ -53,6 +53,9 @@
           };
 
           services = {
+            aider = {
+              enable = true;
+            };
             elasticsearch = {
               enable = true;
               kibana.enable = true;

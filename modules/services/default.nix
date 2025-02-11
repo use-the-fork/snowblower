@@ -1,6 +1,7 @@
 {
   imports = [
     ./adminer
+    ./aider
     ./blackfire
     ./elasticsearch
     ./mysql
