@@ -55,6 +55,9 @@
           services = {
             aider = {
               enable = true;
+              settings.extraConf = {
+                read = [".aider.CONVENTIONS.md"];
+              };
             };
             elasticsearch = {
               enable = true;

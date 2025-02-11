@@ -13,10 +13,12 @@
       lib,
       ...
     }: let
-      inherit (lib) types mkOption optionalString;
+      inherit (lib) types mkOption;
       inherit (import ../utils.nix {inherit lib;}) mkService;
 
       cfg = config.snow-blower.services.aider;
+
+      yamlFormat = pkgs.formats.yaml {};
 
       playwright = let
         pred = drv: drv.pname == "playwright";
@@ -43,53 +45,61 @@
             type = types.str;
           };
 
-          git = {
-            autoCommits = mkOption {
-              description = "Enable/disable auto commit of LLM changes.";
-              default = true;
-              type = types.bool;
-            };
-
-            dirtyCommits = mkOption {
-              description = "Enable/disable commits when repo is found dirty";
-              default = true;
-              type = types.bool;
-            };
+          auto-commits = mkOption {
+            description = "Enable/disable auto commit of LLM changes.";
+            default = false;
+            type = types.bool;
           };
 
-          darkMode = mkOption {
+          dirty-commits = mkOption {
+            description = "Enable/disable commits when repo is found dirty";
+            default = true;
+            type = types.bool;
+          };
+
+          auto-lint = mkOption {
+            description = "Enable/disable automatic linting after changes";
+            default = true;
+            type = types.bool;
+          };
+
+          dark-mode = mkOption {
             description = "Use colors suitable for a dark terminal background.";
             default = true;
             type = types.bool;
           };
 
-          codeTheme = mkOption {
+          light-mode = mkOption {
+            description = "Use colors suitable for a light terminal background";
+            default = false;
+            type = types.bool;
+          };
+
+          cache-prompts = mkOption {
+            description = "Enable caching of prompts.";
+            default = false;
+            type = types.bool;
+          };
+
+          code-theme = mkOption {
             description = "Set the markdown code theme";
             default = "default";
             type = types.enum ["default" "monokai" "solarized-dark" "solarized-light"];
           };
 
-          editFormat = mkOption {
+          edit-format = mkOption {
             description = "Set the markdown code theme";
-            default = "whole";
+            default = "diff";
             type = types.enum ["whole" "diff" "diff-fenced" "udiff"];
           };
 
-          extraConventions = mkOption {
-            description = "Extra conventions for aider.";
-            default = "";
-            type = types.str;
-            example = ''
-              See settings here: https://aider.chat/docs/usage/conventions.html#specifying-coding-conventions
-            '';
-          };
-
           extraConf = mkOption {
-            description = "Extra configuration for aider.";
-            default = "";
-            type = types.str;
-            example = ''
-              See settings here: https://aider.chat/docs/config/aider_conf.html
+            type = types.submodule {freeformType = yamlFormat.type;};
+            default = {};
+            description = ''
+              Extra configuration for aider, see
+              <link xlink:href="See settings here: https://aider.chat/docs/config/aider_conf.html"/>
+              for supported values.
             '';
           };
         };
@@ -103,65 +113,16 @@
 
           shell = {
             startup = let
-              aiderConventionsCommand = pkgs.writeScriptBin "snow-blower-create-aider-conventions" ''
-                #!/bin/bash
+              cfgWithoutExcludedKeys = lib.attrsets.filterAttrs (name: _value: name != "conventions" && name != "extraConf" && name != "port" && name != "host") cfg.settings;
+              cfgWithExtraConf = lib.attrsets.recursiveUpdate cfgWithoutExcludedKeys (cfg.settings.extraConf
+                // {
+                  lint-cmd = "${lib.getExe config.snow-blower.integrations.treefmt.build.wrapper}";
+                  check-update = false;
+                });
 
-                {
-                  echo "## System Information"
-
-                  ${lib.optionalString config.snow-blower.languages.php.enable ''
-                  echo "* PHP Version: $(php -v | head -n 1 | awk '{print $2}')"
-                ''}
-
-                  # Add Composer direct dependencies formatted as sub-bullets under "Composer:"
-                  ${lib.optionalString (config.snow-blower.languages.php.packages.composer != null) ''
-                  echo "* Installed Composer Packages:"
-                  composer show --direct --format=json | ${lib.getExe pkgs.jq} -r '.installed[] | "  - \(.name)@\(.version)"' | while read -r line; do
-                    echo "  $line"
-                  done
-                ''}
-
-                  ${lib.optionalString (config.snow-blower.languages.javascript.npm != null) ''
-                  echo "* NPM Version: $(npm --version)"
-                  echo "* Installed NPM Packages:"
-                  npm list --depth=0 --json | ${lib.getExe pkgs.jq} -r '.dependencies | to_entries[] | "  - \(.key)@\(.value.version)"' | while read -r line; do
-                    echo "  $line"
-                  done
-                ''}
-
-                  # Append additional configuration
-                  echo "${cfg.settings.extraConventions}"
-                } > .aider.CONVENTIONS.md
-              '';
-
-              aiderConfig = ''
-                model: ${cfg.settings.model}
-                ${lib.optionalString cfg.settings.darkMode "dark-mode: true"}
-                dirty-commits: ${
-                  if cfg.settings.git.dirtyCommits
-                  then "true"
-                  else "false"
-                }
-                auto-commits: ${
-                  if cfg.settings.git.autoCommits
-                  then "true"
-                  else "false"
-                }
-                code-theme: ${cfg.settings.codeTheme}
-                edit-format: ${cfg.settings.editFormat}
-                read: [.aider.CONVENTIONS.md]
-                lint-cmd: treefmt
-                check-update: false
-                ${cfg.settings.extraConf}
-              '';
-
-              aiderYml = pkgs.writeTextFile {
-                name = ".aider.conf.yml";
-                text = aiderConfig;
-              };
+              aiderYml = yamlFormat.generate "aider-conf" cfgWithExtraConf;
             in [
               ''
-                source ${lib.getExe aiderConventionsCommand}
                 ln -sf ${builtins.toString aiderYml} ./.aider.conf.yml
               ''
             ];
