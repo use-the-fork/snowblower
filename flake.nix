@@ -94,12 +94,27 @@
         // {
           templates = let
             base = {
-              path = ./templates/flake-parts;
+              path = ./templates/base;
               description = "The base snow blower flake.";
             };
           in {
             inherit base;
             default = base;
+
+            ruby = {
+              path = ./templates/ruby;
+              description = "A simple Ruby project";
+              welcomeText = ''
+                # Simple Rust/Cargo Template
+                ## Intended usage
+                The intended usage of this flake is...
+
+                ## More info
+                - [Rust language](https://www.rust-lang.org/)
+                - [Rust on the NixOS Wiki](https://wiki.nixos.org/wiki/Rust)
+                - ...
+              '';
+            };
           };
         }
         // {

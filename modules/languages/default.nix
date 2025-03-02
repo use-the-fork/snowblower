@@ -4,5 +4,6 @@
     ./javascript
     ./php
     ./python
+    ./ruby
   ];
 }
