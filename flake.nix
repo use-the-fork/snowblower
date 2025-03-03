@@ -105,13 +105,27 @@
               path = ./templates/ruby;
               description = "A simple Ruby project";
               welcomeText = ''
-                # Simple Rust/Cargo Template
+                # Simple Ruby Project Template
                 ## Intended usage
-                The intended usage of this flake is...
+                The intended usage of this flake is to provide a starting point for Ruby projects using Nix flakes.
 
                 ## More info
-                - [Rust language](https://www.rust-lang.org/)
-                - [Rust on the NixOS Wiki](https://wiki.nixos.org/wiki/Rust)
+                - [Ruby language](https://www.ruby-lang.org/)
+                - [Ruby on the NixOS Wiki](https://wiki.nixos.org/wiki/Ruby)
+                - ...
+              '';
+            };
+            laravel = {
+              path = ./templates/laravel;
+              description = "A simple Laravel project";
+              welcomeText = ''
+                # Simple Laravel Project Template
+                ## Intended usage
+                The intended usage of this flake is to provide a starting point for Laravel projects using Nix flakes.
+
+                ## More info
+                - [Laravel framework](https://laravel.com/)
+                - [Laravel on the NixOS Wiki](https://wiki.nixos.org/wiki/Laravel)
                 - ...
               '';
             };

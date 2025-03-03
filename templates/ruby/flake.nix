@@ -41,7 +41,7 @@
         env = config.snow-blower.env;
       in {
         snow-blower = {
-          paths.src = ./../../.;
+          paths.src = ./.;
 
           services = {
             aider = {
