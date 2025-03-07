@@ -23,10 +23,17 @@
         imports = [
           # ./foo.nix
         ];
-
         snow-blower = {
           #the root of this flake is actually 2 directories back.
           paths.src = ./../../.;
+#          env.PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
+#          env.PLAYWRIGHT_LAUNCH_OPTIONS_EXECUTABLE_PATH = "${pkgs.playwright-driver.browsers}/chromium-1155/chrome-linux/chrome";
+
+        packages = [
+#          pkgs.playwright
+#          pkgs.playwright-driver.browsers
+        ];
+
 
           languages = {
             php = {
@@ -38,9 +45,6 @@
               ];
             };
           };
-
-          ai.laravel.enable = true;
-          ai.nix.enable = true;
 
           scripts = {
             "reload" = {

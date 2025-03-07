@@ -20,24 +20,10 @@
 
       yamlFormat = pkgs.formats.yaml {};
 
-      playwright = let
-        pred = drv: drv.pname == "playwright";
-        drv = lib.findSingle pred "none" "multiple" pkgs.aider-chat.optional-dependencies.playwright;
-      in
-        assert drv != "none" && drv != "multiple"; drv;
     in {
       options.snow-blower.services.aider = mkService {
         name = "Aider";
-        package = pkgs.aider-chat.withPlaywright.overrideAttrs (oldAttrs: {
-          makeWrapperArgs =
-            (oldAttrs.makeWrapperArgs or [])
-            ++ [
-              # Ref: https://nixos.wiki/wiki/Playwright
-              # Related: https://github.com/Aider-AI/aider/issues/2192
-              ''--set PLAYWRIGHT_BROWSERS_PATH "${playwright.driver.browsers}"''
-              "--set PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS true"
-            ];
-        });
+        package = pkgs.aider-chat;
         extraOptions = {
           model = mkOption {
             description = "Specify the model to use for the main chat.";
@@ -109,6 +95,7 @@
         snow-blower = {
           packages = [
             cfg.package
+            pkgs.playwright
           ];
 
           shell = {

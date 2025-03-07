@@ -8,7 +8,6 @@ topLevel @ {
     ./pkgs # misc packages that are not available in nixpkgs
 
     ./core
-    ./ai
     ./env
     ./integrations
     ./just
@@ -34,7 +33,6 @@ topLevel @ {
       topLevel.config.flake.flakeModules.processes
       topLevel.config.flake.flakeModules.languages
       topLevel.config.flake.flakeModules.services
-      topLevel.config.flake.flakeModules.ai
 
       topLevel.config.flake.flakeModules.shell
     ];
