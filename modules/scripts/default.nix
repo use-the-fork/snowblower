@@ -30,11 +30,7 @@
               type = types.package;
               description = "The package to use to run the script.";
               default = pkgs.bash;
-            };
-            binary = lib.mkOption {
-              type = types.str;
-              description = "Override the binary name if it doesn't match package name";
-              default = config.package.pname;
+              defaultText = lib.literalExpression "pkgs.bash";
             };
             description = lib.mkOption {
               type = types.str;
@@ -56,7 +52,7 @@
 
           config.scriptPackage = lib.hiPrioSet (
             pkgs.writeScriptBin name ''
-              #!${pkgs.lib.getBin config.package}/bin/${config.binary}
+              #!${pkgs.lib.getExe config.package}
               ${config.exec}
             ''
           );
