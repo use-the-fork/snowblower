@@ -15,6 +15,9 @@
     }: let
       inherit (lib) types mkOption literalExpression attrValues getAttrs;
 
+      cfg = config.snow-blower.languages.php;
+      srv = config.snow-blower.services;
+
       filterDefaultExtensions = ext: builtins.length (builtins.filter (inner: inner == ext.extensionName) cfg.disableExtensions) == 0;
 
       configurePackage = package:
@@ -27,21 +30,14 @@
           extraConfig = cfg.ini;
         };
 
-      cfg = config.snow-blower.languages.php;
-      srv = config.snow-blower.services;
+
     in {
       options.snow-blower.languages.php = {
         enable = lib.mkEnableOption "tools for PHP development";
 
-        version = lib.mkOption {
-          type = lib.types.str;
-          default = "";
-          description = "The PHP version to use.";
-        };
-
         package = lib.mkOption {
           type = lib.types.package;
-          default = configurePackage pkgs.php;
+          default = pkgs.php;
           defaultText = literalExpression "pkgs.php";
           description = ''
             Allows you to [override the default used package](https://nixos.org/manual/nixpkgs/stable/#ssec-php-user-guide)
@@ -112,9 +108,11 @@
           '';
         };
 
-        packages = with pkgs;
+        packages = let
+          finalPackage = configurePackage cfg.package;
+        in
           [
-            cfg.package
+            finalPackage
           ]
           ++ lib.optional (cfg.packages.composer != null) cfg.packages.composer;
       };
