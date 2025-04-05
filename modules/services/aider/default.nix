@@ -19,15 +19,14 @@
       cfg = config.snow-blower.services.aider;
 
       yamlFormat = pkgs.formats.yaml {};
-
     in {
       options.snow-blower.services.aider = mkService {
         name = "Aider";
-        package = pkgs.aider-chat.withPlaywright;
+        package = pkgs.aider-chat-full;
         extraOptions = {
           model = mkOption {
             description = "Specify the model to use for the main chat.";
-            default = "gpt-4o";
+            default = "sonnet";
             type = types.str;
           };
 
@@ -102,7 +101,6 @@
               cfgWithoutExcludedKeys = lib.attrsets.filterAttrs (name: _value: name != "conventions" && name != "extraConf" && name != "port" && name != "host") cfg.settings;
               cfgWithExtraConf = lib.attrsets.recursiveUpdate cfgWithoutExcludedKeys (cfg.settings.extraConf
                 // {
-                  lint-cmd = "${lib.getExe config.snow-blower.integrations.treefmt.build.wrapper}";
                   check-update = false;
                 });
 
