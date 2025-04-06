@@ -1,6 +1,7 @@
 .sb
 .sb-runtime
 .env*
+result
 
 # we ignore this since snowblower dynmically generates this file.
 secrets.nix
