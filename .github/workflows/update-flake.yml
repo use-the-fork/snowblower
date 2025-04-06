@@ -3,7 +3,8 @@ on:
   workflow_dispatch: # allows manual triggering
   schedule:
     - cron: "0 0 * * 0" # runs weekly on Sunday at 00:00
-
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   lockfile:
     runs-on: ubuntu-latest
@@ -12,6 +13,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
+      - uses: cachix/cachix-action@v14
+        with:
+          name: snow-blower
+          signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Update Nix Flake
         run: |
           nix flake --accept-flake-config update
