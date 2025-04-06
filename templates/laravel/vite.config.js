@@ -15,7 +15,6 @@ export default defineConfig({
     tailwindcss(),
     laravel({
       input: "resources/js/app.tsx",
-      ssr: "resources/js/ssr.tsx",
       refresh: true,
     }),
     react(),
@@ -26,7 +25,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      ui: resolve("resources/js/components/ui/index.ts"),
+      "@/ui": resolve("resources/js/components/ui/index.ts"),
       "ziggy-js": resolve("vendor/tightenco/ziggy"),
     },
   },

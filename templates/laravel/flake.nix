@@ -1,5 +1,5 @@
 {
-  description = "A simple flake using the make-shell flake module";
+  description = "Laravel PHP application development environment with Nix";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -18,6 +18,11 @@
         serv = config.snow-blower.services;
         lang = config.snow-blower.languages;
         env = config.snow-blower.env;
+
+#        If Needed add your public keys here.
+#        publicKeys = [
+#          ""
+#        ];
 
         envKeys = builtins.attrNames config.snow-blower.env;
         unsetEnv = builtins.concatStringsSep "\n" (
@@ -75,7 +80,7 @@
           languages = {
             php = {
               enable = true;
-              version = "8.2";
+              package = pkgs.php82;
               extensions = ["grpc" "redis" "imagick" "memcached" "xdebug"];
               ini = ''
                 memory_limit = 5G
@@ -92,7 +97,7 @@
               enable = true;
               settings = {
                 extraConf = {
-                  read = ["CONVENTIONS-FRONTEND.MD"];
+                  read = ["CONVENTIONS-BACKEND.MD"];
                   lint-cmd = ["composer lint"];
                   test-cmd = "./vendor/bin/pest";
                 };
@@ -127,12 +132,13 @@
 
           integrations = {
             agenix = {
-              enable = true;
-              secrets = {
-                ".env" = {
-                  inherit publicKeys;
-                };
-              };
+              enable = false;
+#              Uncomment this after adding your publicKeys
+#              secrets = {
+#                ".env" = {
+#                  inherit publicKeys;
+#                };
+#              };
             };
 
             git-cliff.enable = true;

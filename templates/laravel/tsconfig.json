@@ -15,7 +15,7 @@
     "paths": {
       "@/*": ["./resources/js/*"],
       "ziggy-js": ["./vendor/tightenco/ziggy"],
-      "ui": ["./resources/js/components/ui/index.ts"]
+      "@/ui": ["./resources/js/components/ui/index.ts"]
     }
   },
   "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/js/**/*.d.ts"],
