@@ -19,10 +19,6 @@
         lang = config.snow-blower.languages;
         env = config.snow-blower.env;
 
-        composer = "${lang.php.packages.composer}/bin/composer";
-        php = "${lang.php.package}/bin/php";
-        npm = "${lang.javascript.npm.package}/bin/npm";
-
         envKeys = builtins.attrNames config.snow-blower.env;
         unsetEnv = builtins.concatStringsSep "\n" (
           map (key: "unset ${key}") envKeys
@@ -48,11 +44,11 @@
             artisan.exec = ''
               ${unsetEnv}
                 # Unset .env variables, so laravel reads the .env files by itself
-                exec ${php} artisan $@
+                php artisan $@
             '';
             a.exec = ''
               ${unsetEnv}
-                exec ${php} artisan $@
+                php artisan $@
             '';
             pf.exec = ''
               ${unsetEnv}
@@ -67,7 +63,7 @@
           processes = {
             artisan-serve.exec = ''
               ${unsetEnv}
-                exec ${php} artisan serve
+                php artisan serve
             '';
 
             npm-dev.exec = ''
@@ -94,6 +90,13 @@
           services = {
             aider = {
               enable = true;
+              settings = {
+                extraConf = {
+                  read = ["CONVENTIONS-FRONTEND.MD"];
+                  lint-cmd = ["composer lint"];
+                  test-cmd = "./vendor/bin/pest";
+                };
+              };
             };
             mysql = {
               enable = true;
@@ -137,14 +140,14 @@
             treefmt = {
               settings.formatter = {
                 "pint" = {
-                  command = "${composer}";
+                  command = "composer";
                   options = [
                     "lint"
                   ];
                   includes = ["*.php"];
                 };
                 "refactor-file" = {
-                  command = "${composer}";
+                  command = "composer";
                   options = [
                     "refactor-file"
                     "--"
@@ -171,18 +174,14 @@
     };
 
   nixConfig = {
-    extra-experimental-features = "nix-command flakes";
-
     extra-trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      "nixpkgs-unfree.cachix.org-1:hqvoInulhbV4nJ9yJOEr+4wxhDV4xq2d1DK7S6Nj6rs="
+      "snow-blower.cachix.org-1:f14pyJhxRZJHAymrilTUpC5m+Qy6hX437tmkR22rYOk="
     ];
 
     extra-substituters = [
       "https://cache.nixos.org"
-      "https://nix-community.cachix.org"
-      "https://nixpkgs-unfree.cachix.org"
+      "https://snow-blower.cachix.org"
     ];
   };
 }
