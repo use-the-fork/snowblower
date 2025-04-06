@@ -115,9 +115,9 @@
           just.recipes.ai = {
             enable = true;
             justfile = lib.mkDefault ''
-              #Starts aider
+              #Starts aider with watch-files enabled.
               @ai:
-                ${lib.getExe cfg.package}
+                ${lib.getExe cfg.package} --watch-files
             '';
           };
         };
