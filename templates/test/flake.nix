@@ -24,26 +24,15 @@
           # ./foo.nix
         ];
         snow-blower = {
-          #the root of this flake is actually 2 directories back.
           paths.src = ./../../.;
-#          env.PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
-#          env.PLAYWRIGHT_LAUNCH_OPTIONS_EXECUTABLE_PATH = "${pkgs.playwright-driver.browsers}/chromium-1155/chrome-linux/chrome";
-
         packages = [
-#          pkgs.playwright
-#          pkgs.playwright-driver.browsers
+
         ];
 
 
           languages = {
-            php = {
-              enable = true;
-              package = pkgs.php83;
-              extensions = [
-                "redis"
-                "xdebug"
-              ];
-            };
+            javascript.enable = true;
+            javascript.npm.enable = true;
           };
 
           scripts = {
@@ -59,13 +48,12 @@
           services = {
             aider = {
               enable = true;
-              settings.extraConf = {
-                read = [".aider.CONVENTIONS.md"];
+              settings = {
+                extraConf = {
+#                  read = ["CONVENTIONS-BACKEND.MD"];
+                  lint-cmd = ["treefmt"];
+                };
               };
-            };
-            elasticsearch = {
-              enable = true;
-              kibana.enable = true;
             };
           };
 
