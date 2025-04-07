@@ -26,6 +26,7 @@ in {
     outputs.justfile = mkOption {
       type = types.str;
       readOnly = true;
+      internal = true;
       description = ''
         The justfile code for importing this recipe's justfile.
 

@@ -22,6 +22,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    flake-parts-website.url = "github:hercules-ci/flake.parts-website";
+
     git-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs = {
@@ -70,7 +72,6 @@
             };
           }
           ./modules
-          #          ./modules/options-document.nix
         ];
         debug = true;
         systems = import inputs.systems;
@@ -80,7 +81,7 @@
     inputs.flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
       imports = [
         bootstrap.flakeModules.default
-        #        bootstrap.flakeModules.optionsDocument
+       ./options-document.nix
       ];
 
       flake =

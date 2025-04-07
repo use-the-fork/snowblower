@@ -24,7 +24,7 @@
         settings = {
           file-name = mkOption {
             type = types.str;
-            description = lib.mdDoc "The name of the file to output the chaneglog to.";
+            description = "The name of the file to output the chaneglog to.";
             default = "CHANGELOG.md";
           };
         };

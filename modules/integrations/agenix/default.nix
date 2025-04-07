@@ -50,7 +50,7 @@
             type = types.listOf types.str;
             description = "A list of public keys that are used to encrypt the secret.";
             example = lib.literalExpression ''["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDpVA+jisOuuNDeCJ67M11qUP8YY29cipajWzTFAobi"]'';
-            default = cfg.settings.publicKeys;
+            default = [];
           };
         };
       });
