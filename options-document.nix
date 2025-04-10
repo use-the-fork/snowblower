@@ -1,3 +1,4 @@
+#AI: Use this for refrence
 topLevel @ {
   inputs,
   lib,
@@ -5,83 +6,71 @@ topLevel @ {
   self,
   ...
 }: {
-    perSystem  = {
-        pkgs,
-        system,
-        inputs',
-        self',
-        ...
-      }: let
-
-          docModules = (inputs.flake-parts.lib.evalFlakeModule { inherit inputs; }
-            {
-              imports = [topLevel.config.flake.flakeModules.default];
-              options.perSystem = flake-parts-lib.mkPerSystemOption {
-                config._module.args = {
-                  system = lib.mkDefault "x86_64-linux";
-                  pkgs = lib.mkDefault pkgs;
-                  inputs' = lib.mkDefault inputs';
-                  self' = lib.mkDefault self';
-                };
-              };
-            });
-
-            # Create a function that takes a filter string and returns a transformOptions function
-            mkTransformOptions = filterString: option:
-              option
-              // rec {
-                declarations =
-                  lib.concatMap
-                  (declaration:
-                    if lib.hasPrefix "${self}/modules/" declaration && lib.strings.hasInfix filterString declaration
-                    then [
-                      rec {
-                        name = lib.removePrefix "${self}/modules/" declaration;
-                        url = "modules/${builtins.head (builtins.split "," name)}";
-                      }
-                    ]
-                    else [])
-                  option.declarations;
-                visible = declarations != [];
-              };
-
-            # Create a function to generate documentation with a specific filter
-            mkOptionsDoc = filterString: pkgs.nixosOptionsDoc {
-              inherit (docModules) options;
-              transformOptions = mkTransformOptions filterString;
-              documentType = "none";
-              warningsAreErrors = false;
-            };
-
-            # Define the documentation filters we want to generate
-            docFilters = [
-              "integrations"
-              "languages"
-              "just"
-              "processes"
-              "services"
-              "scripts"
-            ];
-
-      in {
-        packages = {
-          # Main options-doc package that generates all documentation files
-          options-doc = pkgs.runCommand "optionsdoc"
-                                  {
-                                    nativeBuildInputs = [ pkgs.pandoc pkgs.gnused ];
-                                  } ''
-                                  mkdir -p $out
-
-                                  # Generate a separate markdown file for each filter
-                                  ${lib.concatMapStringsSep "\n" (filter: ''
-                                    echo "Generating documentation for ${filter}..."
-                                    # First generate the markdown file
-                                    pandoc --from=commonmark --to=gfm --output=$out/${filter}.md \
-                                      < ${(mkOptionsDoc filter).optionsCommonMark}
-                                  '') docFilters}
-
-                                  echo "Documentation generated successfully!"
-                                '';
+  perSystem = {
+    pkgs,
+    system,
+    inputs',
+    self',
+    ...
+  }: let
+    docModules =
+      inputs.flake-parts.lib.evalFlakeModule {inherit inputs;}
+      {
+        imports = [topLevel.config.flake.flakeModules.default];
+        options.perSystem = flake-parts-lib.mkPerSystemOption {
+          config._module.args = {
+            system = lib.mkDefault "x86_64-linux";
+            pkgs = lib.mkDefault pkgs;
+            inputs' = lib.mkDefault inputs';
+            self' = lib.mkDefault self';
+          };
         };
       };
+
+    # Create a function that takes a filter string and returns a transformOptions function
+    mkTransformOptions = option:
+      option
+      // rec {
+        declarations =
+          lib.concatMap
+          (declaration:
+            if lib.hasPrefix "${self}/modules/" declaration
+            then [
+              rec {
+                name = lib.removePrefix "${self}/modules/" declaration;
+                url = "modules/${builtins.head (builtins.split "," name)}";
+              }
+            ]
+            else [])
+          option.declarations;
+        visible = declarations != [];
+      };
+
+    # Create a function to generate documentation with a specific filter
+    mkOptionsDoc =
+      pkgs.nixosOptionsDoc {
+        options = docModules.options;
+        transformOptions = mkTransformOptions;
+        documentType = "none";
+        warningsAreErrors = false;
+      };
+
+    # Define the documentation filters we want to generate
+
+  in {
+    packages = {
+      # Main options-doc package that generates all documentation files
+      options-doc =
+        pkgs.runCommand "optionsdoc"
+        {
+          nativeBuildInputs = [pkgs.jq];
+        } ''
+          mkdir -p $out
+
+          # Generate a separate JSON file for each filter
+          cp -r ${(mkOptionsDoc).optionsJSON} $out/options.json
+          echo "Documentation generated successfully!"
+        '';
+    };
+  };
 }

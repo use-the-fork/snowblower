@@ -23,7 +23,7 @@
           default = config.snow-blower.paths.root;
           defaultText = lib.literalExpression "config.snow-blower.paths.root";
           description = ''
-            The JavaScript project's root directory. Defaults to the root of the devenv project.
+            The JavaScript project's root directory. Defaults to the root of the snow blower project.
             Can be an absolute path or one relative to the root of the snow blower project.
           '';
           example = "./directory";
