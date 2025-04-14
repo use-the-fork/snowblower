@@ -1,66 +1,75 @@
-# Convco (integrations)
+# Convco
 
-Options for configuring convco in the integrations category.
+Snow Blower provides built-in support for [Convco](https://github.com/convco/convco), a tool for working with Conventional Commits.
 
-## enable
-**Location:** perSystem.snow-blower.integrations.convco.enable
+## Overview
 
-Whether to enable Convco just command.
+The Convco integration allows you to:
 
-**Type:**
+- Generate changelogs from your git history
+- Validate commit messages against Conventional Commits specification
+- Automatically determine the next semantic version
+- Simplify release management
 
-`boolean`
+## Adding Convco Support to Your Project
 
-**Default:**
-```nix
-false
+To add Convco support to your project, you can enable the Convco module in your `flake.nix` file:
+
+```nix{21-23}
+{
+  inputs = {
+    systems.url = "github:nix-systems/default-linux";
+    snow-blower.url = "github:use-the-fork/snow-blower";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  };
+
+  outputs = inputs:
+    inputs.snow-blower.mkSnowBlower {
+      inherit inputs;
+
+      imports = [
+        inputs.snow-blower.flakeModule
+      ];
+
+      src = ./.;
+
+      perSystem = {pkgs, ...}: {
+        snow-blower = {
+          # Convco configuration
+          integrations.convco.enable = true;
+        };
+      };
+    };
+}
 ```
 
-**Example:**
+## Configuration
+
+You can customize the Convco configuration by modifying the settings in your `flake.nix`:
 
 ```nix
-true
+snow-blower = {
+  integrations.convco = {
+    enable = true;
+    settings = {
+      file-name = "CHANGELOG.md"; # Default output filename
+    };
+  };
+};
 ```
 
-**Declared by:**
+## Usage
 
-- [integrations/convco, via option flake.flakeModules.integrations](modules/integrations/convco)
+Once enabled, you can generate a changelog using the `just` command:
 
-
-## package
-**Location:** perSystem.snow-blower.integrations.convco.package
-
-The package Convco should use.
-
-**Type:**
-
-`package`
-
-**Default:**
-```nix
-<derivation convco-0.6.1>
+```bash
+just changelog
 ```
 
-**Declared by:**
+This will:
+- Analyze your git history
+- Generate a formatted changelog based on conventional commits
+- Save it to the configured file (default: CHANGELOG.md)
 
-- [integrations/convco, via option flake.flakeModules.integrations](modules/integrations/convco)
-
-
-## settings.file-name
-**Location:** perSystem.snow-blower.integrations.convco.settings.file-name
-
-The name of the file to output the chaneglog to.
-
-**Type:**
-
-`string`
-
-**Default:**
-```nix
-"CHANGELOG.md"
-```
-
-**Declared by:**
-
-- [integrations/convco, via option flake.flakeModules.integrations](modules/integrations/convco)
-
+<!--@include: ./convco-options.md-->

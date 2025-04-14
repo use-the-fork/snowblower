@@ -1,9 +1,7 @@
-# Dotenv
+## Options
 
-Options for configuring dotenv.
-
-## enable
-**Location:** perSystem.snow-blower.dotenv.enable
+### enable
+**Location:** *perSystem.snow-blower.dotenv.enable*
 
 Whether to enable .env integration, doesn't support comments or multiline values..
 
@@ -27,8 +25,8 @@ true
 - [integrations/dotenv, via option flake.flakeModules.integrations](modules/integrations/dotenv)
 
 
-## filename
-**Location:** perSystem.snow-blower.dotenv.filename
+### filename
+**Location:** *perSystem.snow-blower.dotenv.filename*
 
 The name of the dotenv file to load, or a list of dotenv files to load in order of precedence.
 

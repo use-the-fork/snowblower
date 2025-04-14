@@ -135,9 +135,7 @@ def generate_markdown(group: str, subgroup: str, options: List[Dict[str, Any]]) 
         description = f"Options for configuring {subgroup} in the {group} category."
 
     md = [
-        f"# {title}",
-        "",
-        description,
+        f"## Options",
         "",
     ]
 
@@ -170,8 +168,8 @@ def generate_markdown(group: str, subgroup: str, options: List[Dict[str, Any]]) 
         display_short_key = short_key.replace("<", "\\<").replace(">", "\\>")
         display_option_key = option_key.replace("<", "\\<").replace(">", "\\>")
         
-        md.append(f"## {display_short_key}")
-        md.append(f"**Location:** {display_option_key}")
+        md.append(f"### {display_short_key}")
+        md.append(f"**Location:** *{display_option_key}*")
         md.append("")
 
         # Description
@@ -223,9 +221,9 @@ def write_markdown_file(group: str, subgroup: str, content: str) -> None:
 
     # Always put files in their group directory
     if subgroup == "_all":
-        output_file = os.path.join(output_dir, f"{group}.md")
+        output_file = os.path.join(output_dir, f"{group}-options.md")
     else:
-        output_file = os.path.join(output_dir, f"{subgroup}.md")
+        output_file = os.path.join(output_dir, f"{subgroup}-options.md")
 
     with open(output_file, 'w') as f:
         f.write(content)

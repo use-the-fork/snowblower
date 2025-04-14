@@ -7,6 +7,10 @@ export default defineConfig({
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    outline: {
+      level: [2, 3],
+      label: 'On this page'
+    },
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/integrations' }

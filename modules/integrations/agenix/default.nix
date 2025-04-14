@@ -79,35 +79,34 @@
 
       config = lib.mkIf cfg.enable {
         snow-blower = let
+          _installSecret = secret: ''
+            echo "''${GREEN}[agenix] decrypting secret file: ${secret.name}''${NC}"
+            (
+              umask u=r,g=,o=
+              test -f "${secret.file}" || echo "''${RED}[agenix] WARNING: encrypted file ${secret.file} does not exist! Is it part of your repo?''${NC}"
+              ${lib.getExe' cfg.package "agenix"} --decrypt "${secret.file}" > ${secret.name}
+            )
 
-         _installSecret = secret: ''
-                                 echo "''${GREEN}[agenix] decrypting secret file: ${secret.name}''${NC}"
-                                 (
-                                   umask u=r,g=,o=
-                                   test -f "${secret.file}" || echo "''${RED}[agenix] WARNING: encrypted file ${secret.file} does not exist! Is it part of your repo?''${NC}"
-                                   ${lib.getExe' cfg.package "agenix"} --decrypt "${secret.file}" > ${secret.name}
-                                 )
+             # Capture the exit status of the subshell
+             exit_status=$?
 
-                                  # Capture the exit status of the subshell
-                                  exit_status=$?
+            if [ "$exit_status" -eq 0 ]; then
+                chmod ${secret.mode} ${secret.name}
+                echo "''${GREEN}[agenix] decrypted''${NC}"
+            else
+                echo "''${RED}[agenix] Failed to prepare ${secret.name}.''${NC}"
+                echo "''${YELLOW}[agenix] This usually means the .age file dosen't exsist. Run 'just agenix' or 'edit-secret' to fix this. ''${NC}"
+                echo
+            fi
+          '';
 
-                                 if [ "$exit_status" -eq 0 ]; then
-                                     chmod ${secret.mode} ${secret.name}
-                                     echo "''${GREEN}[agenix] decrypted''${NC}"
-                                 else
-                                     echo "''${RED}[agenix] Failed to prepare ${secret.name}.''${NC}"
-                                     echo "''${YELLOW}[agenix] This usually means the .age file dosen't exsist. Run 'just agenix' or 'edit-secret' to fix this. ''${NC}"
-                                     echo
-                                 fi
-                               '';
+          listOfSecret = lib.concatStrings (lib.mapAttrsToList (_: _installSecret) cfg.secrets);
 
-                   listOfSecret =  lib.concatStrings (lib.mapAttrsToList (_: _installSecret) cfg.secrets);
-
-                  # A utility script to quickly be able to edit secrets.
-                  decryptSecret = pkgs.writeShellScriptBin "decrypt-secrets" (''
-                      #!/usr/bin/env bash
-                      ${listOfSecret}
-                      '');
+          # A utility script to quickly be able to edit secrets.
+          decryptSecret = pkgs.writeShellScriptBin "decrypt-secrets" ''
+            #!/usr/bin/env bash
+            ${listOfSecret}
+          '';
 
           # A utility script to quickly be able to edit secrets.
           editSecret = pkgs.writeShellScriptBin "edit-secret" (''
@@ -153,7 +152,6 @@
                   select_option
               fi
             '');
-
         in {
           packages = [cfg.package editSecret];
 
@@ -184,11 +182,10 @@
 
             # this is an option in the agenix-shell package but since we want to make it condintally we move it here.
             # In addition we want to link up our own secrets file.
-            installationScript =
-              ''
-                ln -sf ${builtins.toString secretsfile} ./secrets.nix
-                source ${lib.getExe decryptSecret}
-              '';
+            installationScript = ''
+              ln -sf ${builtins.toString secretsfile} ./secrets.nix
+              source ${lib.getExe decryptSecret}
+            '';
           in {
             # we need to have our install script run ahead of everything since it's decrptying things the env may use.
             startup = lib.mkBefore [installationScript];

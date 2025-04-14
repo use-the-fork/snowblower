@@ -1,161 +1,104 @@
-# Agenix (integrations)
+# Agenix
 
-Options for configuring agenix in the integrations category.
+Snow Blower provides built-in support for [Agenix](https://github.com/ryantm/agenix), a secrets management tool for Nix that uses age encryption.
 
-## enable
-**Location:** perSystem.snow-blower.integrations.agenix.enable
+## Overview
 
-Whether to enable Agenix .env Integration.
+The Agenix integration allows you to:
 
-**Type:**
+- Securely store encrypted environment variables
+- Automatically decrypt secrets in your development environment
+- Manage secrets with a simple interface
+- Keep sensitive data out of your git repository in plain text
 
-`boolean`
+## Adding Agenix Support to Your Project
 
-**Default:**
-```nix
-false
-```
+To add Agenix support to your project, you can enable the Agenix module in your `flake.nix` file:
 
-**Example:**
-
-```nix
-true
-```
-
-**Declared by:**
-
-- [integrations/agenix, via option flake.flakeModules.integrations](modules/integrations/agenix)
-
-
-## package
-**Location:** perSystem.snow-blower.integrations.agenix.package
-
-The package agenix should use.
-
-**Type:**
-
-`package`
-
-**Default:**
-```nix
-<derivation agenix-0.15.0>
-```
-
-**Declared by:**
-
-- [integrations/agenix, via option flake.flakeModules.integrations](modules/integrations/agenix)
-
-
-## secrets
-**Location:** perSystem.snow-blower.integrations.agenix.secrets
-
-Attrset of secrets.
-
-**Type:**
-
-`attribute set of (submodule)`
-
-**Example:**
-
-```nix
+```nix{21-28}
 {
-  ".env.local" = {
-    publicKeys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDpVA+jisOuuNDeCJ67M11qUP8YY29cipajWzTFAobi"];
+  inputs = {
+    systems.url = "github:nix-systems/default-linux";
+    snow-blower.url = "github:use-the-fork/snow-blower";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    agenix.url = "github:ryantm/agenix";
   };
+
+  outputs = inputs:
+    inputs.snow-blower.mkSnowBlower {
+      inherit inputs;
+
+      imports = [
+        inputs.snow-blower.flakeModule
+      ];
+
+      src = ./.;
+
+      perSystem = {pkgs, ...}: {
+        snow-blower = {
+          # Agenix configuration
+          integrations.agenix = {
+            enable = true;
+            secrets.".env.local" = {
+              publicKeys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA..."];
+            };
+          };
+        };
+      };
+    };
 }
-
 ```
 
-**Declared by:**
+## Configuration
 
-- [integrations/agenix, via option flake.flakeModules.integrations](modules/integrations/agenix)
+Agenix secrets are configured in your `flake.nix` file. Each secret is defined with:
 
+- A name (which becomes the output file name)
+- A list of public keys that can decrypt the secret
+- Optional settings for file path and permissions
 
-## secrets.\<name\>.file
-**Location:** perSystem.snow-blower.integrations.agenix.secrets.\<name\>.file
-
-Age file the secret is loaded from. Relative to flake root.
-
-
-**Type:**
-
-`string`
-
-**Default:**
-```nix
-"secrets/‹name›.age"
-```
-
-**Declared by:**
-
-- [integrations/agenix, via option flake.flakeModules.integrations](modules/integrations/agenix)
-
-
-## secrets.\<name\>.mode
-**Location:** perSystem.snow-blower.integrations.agenix.secrets.\<name\>.mode
-
-Permissions mode of the decrypted secret in a format understood by chmod.
-
-**Type:**
-
-`string`
-
-**Default:**
-```nix
-"0644"
-```
-
-**Declared by:**
-
-- [integrations/agenix, via option flake.flakeModules.integrations](modules/integrations/agenix)
-
-
-## secrets.\<name\>.name
-**Location:** perSystem.snow-blower.integrations.agenix.secrets.\<name\>.name
-
-Name of the Env file containing the secrets.
-
-**Type:**
-
-`unspecified value`
-
-**Default:**
-```nix
-<name>
-```
-
-**Example:**
+Example configuration:
 
 ```nix
-.env.local
+snow-blower = {
+  integrations.agenix = {
+    enable = true;
+    secrets = {
+      ".env.local" = {
+        publicKeys = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA..."];
+        file = "secrets/.env.local.age"; # Optional, defaults to secrets/<name>.age
+        mode = "0600"; # Optional, defaults to 0644
+      };
+    };
+  };
+};
 ```
 
-**Declared by:**
+## Usage
 
-- [integrations/agenix, via option flake.flakeModules.integrations](modules/integrations/agenix)
+### Editing Secrets
 
+Snow Blower provides a convenient command to edit your secrets:
 
-## secrets.\<name\>.publicKeys
-**Location:** perSystem.snow-blower.integrations.agenix.secrets.\<name\>.publicKeys
-
-A list of public keys that are used to encrypt the secret.
-
-**Type:**
-
-`list of string`
-
-**Default:**
-```nix
-[ ]
+```bash
+just agenix
 ```
 
-**Example:**
+This will:
+1. Present a menu of available secrets to edit
+2. Open the selected secret in your editor
+3. Automatically encrypt the file when you save and exit
+4. Decrypt the updated secret for immediate use in your environment
 
-```nix
-["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDpVA+jisOuuNDeCJ67M11qUP8YY29cipajWzTFAobi"]
-```
 
-**Declared by:**
+### Automatic Decryption
 
-- [integrations/agenix, via option flake.flakeModules.integrations](modules/integrations/agenix)
+When you enter the development shell, Snow Blower automatically:
+1. Creates a `secrets.nix` file with your public keys configuration
+2. Attempts to decrypt all configured secrets
+3. Makes the decrypted files available in your project directory
 
+If a secret file doesn't exist or can't be decrypted, you'll see a warning message with instructions on how to fix it.
+
+<!--@include: ./agenix-options.md-->

@@ -6,15 +6,16 @@ Snow Blower provides built-in support for dotenv files, making it easy to manage
 
 The dotenv integration allows you to:
 
-- Load environment variables from `.env` files
-- Configure which dotenv files to load
-- Automatically make environment variables available to your development shell
+- Load environment variables from `.env` files (or custom named files)
+- Support multiple dotenv files with precedence order
+- Parse and merge environment variables automatically
+- Make environment variables immediately available in your development shell
 
 ## Adding Dotenv Support to Your Project
 
 To add dotenv support to your project, you can enable the dotenv module in your `flake.nix` file:
 
-```nix
+```nix{21-25}
 {
   inputs = {
     systems.url = "github:nix-systems/default-linux";
@@ -45,4 +46,4 @@ To add dotenv support to your project, you can enable the dotenv module in your 
     };
 }
 ```
-<!--@include: ./dotenv.md-->
+<!--@include: ./dotenv-options.md-->
