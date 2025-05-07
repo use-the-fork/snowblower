@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- services/supervisord, via option flake.flakeModules.services
+- [services/supervisord, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/supervisord/default.nix)
 
 
 ### package
@@ -41,7 +41,7 @@ The package Supervisor should use.
 
 **Declared by:**
 
-- services/supervisord, via option flake.flakeModules.services
+- [services/supervisord, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/supervisord/default.nix)
 
 
 ### programs
@@ -60,7 +60,7 @@ Configuration for each program.
 
 **Declared by:**
 
-- services/supervisord, via option flake.flakeModules.services
+- [services/supervisord, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/supervisord/default.nix)
 
 
 ### programs.\<name\>.enable
@@ -85,7 +85,7 @@ true
 
 **Declared by:**
 
-- services/supervisord, via option flake.flakeModules.services
+- [services/supervisord, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/supervisord/default.nix)
 
 
 ### programs.\<name\>.program
@@ -99,7 +99,7 @@ The program configuration. See http://supervisord.org/configuration.html#program
 
 **Declared by:**
 
-- services/supervisord, via option flake.flakeModules.services
+- [services/supervisord, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/supervisord/default.nix)
 
 
 ### settings.host
@@ -118,7 +118,7 @@ The host Supervisor will listen on
 
 **Declared by:**
 
-- services/supervisord, via option flake.flakeModules.services
+- [services/supervisord, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/supervisord/default.nix)
 
 
 ### settings.port
@@ -137,5 +137,5 @@ The port Supervisor will listen on
 
 **Declared by:**
 
-- services/supervisord, via option flake.flakeModules.services
+- [services/supervisord, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/supervisord/default.nix)
 

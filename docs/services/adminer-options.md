@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- services/adminer, via option flake.flakeModules.services
+- [services/adminer, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/adminer/default.nix)
 
 
 ### package
@@ -41,7 +41,7 @@ The package Adminer should use.
 
 **Declared by:**
 
-- services/adminer, via option flake.flakeModules.services
+- [services/adminer, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/adminer/default.nix)
 
 
 ### settings.host
@@ -60,7 +60,7 @@ The host Adminer will listen on
 
 **Declared by:**
 
-- services/adminer, via option flake.flakeModules.services
+- [services/adminer, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/adminer/default.nix)
 
 
 ### settings.port
@@ -79,5 +79,5 @@ The port Adminer will listen on
 
 **Declared by:**
 
-- services/adminer, via option flake.flakeModules.services
+- [services/adminer, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/adminer/default.nix)
 

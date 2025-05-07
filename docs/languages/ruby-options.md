@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- languages/ruby, via option flake.flakeModules.languages
+- [languages/ruby, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/ruby/default.nix)
 
 
 ### bundler.package
@@ -41,7 +41,7 @@ pkgs.bundler.override { ruby = cfg.package; }
 
 **Declared by:**
 
-- languages/ruby, via option flake.flakeModules.languages
+- [languages/ruby, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/ruby/default.nix)
 
 
 ### enable
@@ -66,7 +66,7 @@ true
 
 **Declared by:**
 
-- languages/ruby, via option flake.flakeModules.languages
+- [languages/ruby, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/ruby/default.nix)
 
 
 ### package
@@ -85,5 +85,5 @@ pkgs.ruby
 
 **Declared by:**
 
-- languages/ruby, via option flake.flakeModules.languages
+- [languages/ruby, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/ruby/default.nix)
 

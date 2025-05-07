@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- services/aider, via option flake.flakeModules.services
+- [services/aider, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/aider/default.nix)
 
 
 ### package
@@ -41,7 +41,7 @@ The package Aider should use.
 
 **Declared by:**
 
-- services/aider, via option flake.flakeModules.services
+- [services/aider, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/aider/default.nix)
 
 
 ### settings.auto-commits
@@ -60,7 +60,7 @@ false
 
 **Declared by:**
 
-- services/aider, via option flake.flakeModules.services
+- [services/aider, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/aider/default.nix)
 
 
 ### settings.auto-lint
@@ -79,7 +79,7 @@ true
 
 **Declared by:**
 
-- services/aider, via option flake.flakeModules.services
+- [services/aider, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/aider/default.nix)
 
 
 ### settings.cache-prompts
@@ -98,7 +98,7 @@ false
 
 **Declared by:**
 
-- services/aider, via option flake.flakeModules.services
+- [services/aider, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/aider/default.nix)
 
 
 ### settings.code-theme
@@ -117,7 +117,7 @@ Set the markdown code theme
 
 **Declared by:**
 
-- services/aider, via option flake.flakeModules.services
+- [services/aider, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/aider/default.nix)
 
 
 ### settings.dark-mode
@@ -136,7 +136,7 @@ true
 
 **Declared by:**
 
-- services/aider, via option flake.flakeModules.services
+- [services/aider, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/aider/default.nix)
 
 
 ### settings.dirty-commits
@@ -155,7 +155,7 @@ true
 
 **Declared by:**
 
-- services/aider, via option flake.flakeModules.services
+- [services/aider, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/aider/default.nix)
 
 
 ### settings.edit-format
@@ -174,7 +174,7 @@ Set the markdown code theme
 
 **Declared by:**
 
-- services/aider, via option flake.flakeModules.services
+- [services/aider, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/aider/default.nix)
 
 
 ### settings.extraConf
@@ -196,7 +196,7 @@ for supported values.
 
 **Declared by:**
 
-- services/aider, via option flake.flakeModules.services
+- [services/aider, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/aider/default.nix)
 
 
 ### settings.host
@@ -215,7 +215,7 @@ The host Aider will listen on
 
 **Declared by:**
 
-- services/aider, via option flake.flakeModules.services
+- [services/aider, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/aider/default.nix)
 
 
 ### settings.light-mode
@@ -234,7 +234,7 @@ false
 
 **Declared by:**
 
-- services/aider, via option flake.flakeModules.services
+- [services/aider, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/aider/default.nix)
 
 
 ### settings.model
@@ -253,7 +253,7 @@ Specify the model to use for the main chat.
 
 **Declared by:**
 
-- services/aider, via option flake.flakeModules.services
+- [services/aider, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/aider/default.nix)
 
 
 ### settings.port
@@ -272,5 +272,5 @@ The port Aider will listen on
 
 **Declared by:**
 
-- services/aider, via option flake.flakeModules.services
+- [services/aider, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/aider/default.nix)
 

@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### bun.install.enable
@@ -47,7 +47,7 @@ true
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### bun.package
@@ -66,7 +66,7 @@ pkgs.bun
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### corepack.enable
@@ -91,7 +91,7 @@ true
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### directory
@@ -118,7 +118,7 @@ config.snow-blower.paths.root
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### enable
@@ -143,7 +143,7 @@ true
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### npm.enable
@@ -168,7 +168,7 @@ true
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### npm.install.enable
@@ -193,7 +193,7 @@ true
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### npm.package
@@ -212,7 +212,7 @@ pkgs.nodejs
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### package
@@ -231,7 +231,7 @@ pkgs.nodejs-slim
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### pnpm.enable
@@ -256,7 +256,7 @@ true
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### pnpm.install.enable
@@ -281,7 +281,7 @@ true
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### pnpm.package
@@ -300,7 +300,7 @@ pkgs.nodePackages.pnpm
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### yarn.enable
@@ -325,7 +325,7 @@ true
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### yarn.install.enable
@@ -350,7 +350,7 @@ true
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 
 
 ### yarn.package
@@ -369,5 +369,5 @@ pkgs.yarn
 
 **Declared by:**
 
-- languages/javascript, via option flake.flakeModules.languages
+- [languages/javascript, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/javascript/default.nix)
 

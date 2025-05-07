@@ -24,7 +24,7 @@ config.snow-blower.paths.root
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### enable
@@ -49,7 +49,7 @@ true
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### libraries
@@ -72,7 +72,7 @@ This is useful when you want to use Python wheels that depend on native librarie
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### manylinux.enable
@@ -96,7 +96,7 @@ true
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### package
@@ -116,7 +116,7 @@ pkgs.python3
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### poetry.activate.enable
@@ -135,7 +135,7 @@ false
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### poetry.enable
@@ -160,7 +160,7 @@ true
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### poetry.install.allExtras
@@ -179,7 +179,7 @@ false
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### poetry.install.compile
@@ -198,7 +198,7 @@ false
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### poetry.install.enable
@@ -223,7 +223,7 @@ true
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### poetry.install.extras
@@ -242,7 +242,7 @@ Which extras to install. See `--extras`.
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### poetry.install.groups
@@ -261,7 +261,7 @@ Which dependency groups to install. See `--with`.
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### poetry.install.ignoredGroups
@@ -280,7 +280,7 @@ Which dependency groups to ignore. See `--without`.
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### poetry.install.installRootPackage
@@ -299,7 +299,7 @@ false
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### poetry.install.onlyGroups
@@ -318,7 +318,7 @@ Which dependency groups to exclusively install. See `--only`.
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### poetry.install.onlyInstallRootPackage
@@ -337,7 +337,7 @@ false
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### poetry.install.quiet
@@ -356,7 +356,7 @@ false
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### poetry.install.verbosity
@@ -375,7 +375,7 @@ What level of verbosity the output of `poetry install` should have.
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### poetry.package
@@ -394,7 +394,7 @@ pkgs.poetry
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### uv.enable
@@ -419,7 +419,7 @@ true
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### uv.package
@@ -438,7 +438,7 @@ pkgs.uv
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### venv.enable
@@ -463,7 +463,7 @@ true
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### venv.quiet
@@ -482,7 +482,7 @@ false
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### venv.requirements
@@ -503,7 +503,7 @@ null
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 
 
 ### version
@@ -530,5 +530,5 @@ null
 
 **Declared by:**
 
-- languages/python, via option flake.flakeModules.languages
+- [languages/python, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/python/default.nix)
 

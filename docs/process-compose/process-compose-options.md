@@ -16,7 +16,7 @@ pkgs.process-compose
 
 **Declared by:**
 
-- processes, via option flake.flakeModules.processes
+- [processes, via option flake.flakeModules.processes](https://github.com/use-the-fork/snow-blower/tree/main/modules/processes/default.nix)
 
 
 ### after
@@ -35,7 +35,7 @@ Bash code to execute after stopping processes.
 
 **Declared by:**
 
-- processes, via option flake.flakeModules.processes
+- [processes, via option flake.flakeModules.processes](https://github.com/use-the-fork/snow-blower/tree/main/modules/processes/default.nix)
 
 
 ### before
@@ -54,7 +54,7 @@ Bash code to execute before starting processes.
 
 **Declared by:**
 
-- processes, via option flake.flakeModules.processes
+- [processes, via option flake.flakeModules.processes](https://github.com/use-the-fork/snow-blower/tree/main/modules/processes/default.nix)
 
 
 ### server
@@ -89,5 +89,5 @@ Top-level process-compose.yaml options when that implementation is used.
 
 **Declared by:**
 
-- processes, via option flake.flakeModules.processes
+- [processes, via option flake.flakeModules.processes](https://github.com/use-the-fork/snow-blower/tree/main/modules/processes/default.nix)
 

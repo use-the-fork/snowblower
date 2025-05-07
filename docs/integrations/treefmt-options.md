@@ -16,7 +16,7 @@ Integration of https://github.com/numtide/treefmt-nix
 
 **Declared by:**
 
-- integrations/treefmt, via option flake.flakeModules.integrations
+- [integrations/treefmt, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/treefmt/default.nix)
 
 
 ### just.enable
@@ -41,7 +41,7 @@ true
 
 **Declared by:**
 
-- integrations/treefmt, via option flake.flakeModules.integrations
+- [integrations/treefmt, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/treefmt/default.nix)
 
 
 ### pkgs
@@ -61,8 +61,8 @@ Nixpkgs to use in `treefmt`.
 
 **Declared by:**
 
-- integrations/treefmt, via option flake.flakeModules.integrations
-- integrations/treefmt, via option flake.flakeModules.integrations
+- [integrations/treefmt, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/treefmt/default.nix)
+- [integrations/treefmt, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/treefmt/default.nix)
 
 
 ### projectRoot
@@ -82,5 +82,5 @@ self
 
 **Declared by:**
 
-- integrations/treefmt, via option flake.flakeModules.integrations
+- [integrations/treefmt, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/treefmt/default.nix)
 

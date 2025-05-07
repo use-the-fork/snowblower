@@ -16,7 +16,7 @@ A set of scripts available when the environment is active.
 
 **Declared by:**
 
-- scripts, via option flake.flakeModules.scripts
+- [scripts, via option flake.flakeModules.scripts](https://github.com/use-the-fork/snow-blower/tree/main/modules/scripts/default.nix)
 
 
 ### description
@@ -35,7 +35,7 @@ Description of the script.
 
 **Declared by:**
 
-- scripts, via option flake.flakeModules.scripts
+- [scripts, via option flake.flakeModules.scripts](https://github.com/use-the-fork/snow-blower/tree/main/modules/scripts/default.nix)
 
 
 ### exec
@@ -49,7 +49,7 @@ Shell code to execute when the script is run.
 
 **Declared by:**
 
-- scripts, via option flake.flakeModules.scripts
+- [scripts, via option flake.flakeModules.scripts](https://github.com/use-the-fork/snow-blower/tree/main/modules/scripts/default.nix)
 
 
 ### enable
@@ -68,7 +68,7 @@ false
 
 **Declared by:**
 
-- scripts, via option flake.flakeModules.scripts
+- [scripts, via option flake.flakeModules.scripts](https://github.com/use-the-fork/snow-blower/tree/main/modules/scripts/default.nix)
 
 
 ### package
@@ -87,5 +87,5 @@ pkgs.bash
 
 **Declared by:**
 
-- scripts, via option flake.flakeModules.scripts
+- [scripts, via option flake.flakeModules.scripts](https://github.com/use-the-fork/snow-blower/tree/main/modules/scripts/default.nix)
 

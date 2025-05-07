@@ -201,8 +201,10 @@ def generate_markdown(group: str, subgroup: str, options: List[Dict[str, Any]]) 
             md.append("")
             for decl in option["declarations"]:
                 if isinstance(decl, dict) and "url" in decl and "name" in decl:
-                    md.append(f"- {decl['name']}")
-#                     md.append(f"- [{decl['name']}]({decl['url']})")
+                    url = decl['url']
+                    if not url.endswith('.nix'):
+                        url = f"{url}/default.nix"
+                    md.append(f"- [{decl['name']}](https://github.com/use-the-fork/snow-blower/tree/main/{url})")
                 elif isinstance(decl, str):
                     md.append(f"- {decl}")
             md.append("")

@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- services/redis, via option flake.flakeModules.services
+- [services/redis, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/redis/default.nix)
 
 
 ### package
@@ -41,7 +41,7 @@ The package Redis should use.
 
 **Declared by:**
 
-- services/redis, via option flake.flakeModules.services
+- [services/redis, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/redis/default.nix)
 
 
 ### settings.extraConfig
@@ -60,7 +60,7 @@ Additional text to be appended to `redis.conf`.
 
 **Declared by:**
 
-- services/redis, via option flake.flakeModules.services
+- [services/redis, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/redis/default.nix)
 
 
 ### settings.host
@@ -79,7 +79,7 @@ The host Redis will listen on
 
 **Declared by:**
 
-- services/redis, via option flake.flakeModules.services
+- [services/redis, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/redis/default.nix)
 
 
 ### settings.port
@@ -98,5 +98,5 @@ The port Redis will listen on
 
 **Declared by:**
 
-- services/redis, via option flake.flakeModules.services
+- [services/redis, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/redis/default.nix)
 

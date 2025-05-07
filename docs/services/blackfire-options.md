@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- services/blackfire, via option flake.flakeModules.services
+- [services/blackfire, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/blackfire/default.nix)
 
 
 ### package
@@ -41,7 +41,7 @@ The package Blackfire should use.
 
 **Declared by:**
 
-- services/blackfire, via option flake.flakeModules.services
+- [services/blackfire, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/blackfire/default.nix)
 
 
 ### settings.client-id
@@ -62,7 +62,7 @@ You can find your personal client-id at <https://blackfire.io/my/settings/creden
 
 **Declared by:**
 
-- services/blackfire, via option flake.flakeModules.services
+- [services/blackfire, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/blackfire/default.nix)
 
 
 ### settings.client-token
@@ -83,7 +83,7 @@ You can find your personal client-token at <https://blackfire.io/my/settings/cre
 
 **Declared by:**
 
-- services/blackfire, via option flake.flakeModules.services
+- [services/blackfire, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/blackfire/default.nix)
 
 
 ### settings.enableApm
@@ -109,7 +109,7 @@ true
 
 **Declared by:**
 
-- services/blackfire, via option flake.flakeModules.services
+- [services/blackfire, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/blackfire/default.nix)
 
 
 ### settings.host
@@ -128,7 +128,7 @@ The host Blackfire will listen on
 
 **Declared by:**
 
-- services/blackfire, via option flake.flakeModules.services
+- [services/blackfire, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/blackfire/default.nix)
 
 
 ### settings.port
@@ -147,7 +147,7 @@ The port Blackfire will listen on
 
 **Declared by:**
 
-- services/blackfire, via option flake.flakeModules.services
+- [services/blackfire, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/blackfire/default.nix)
 
 
 ### settings.server-id
@@ -168,7 +168,7 @@ You can find your personal server-id at <https://blackfire.io/my/settings/creden
 
 **Declared by:**
 
-- services/blackfire, via option flake.flakeModules.services
+- [services/blackfire, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/blackfire/default.nix)
 
 
 ### settings.server-token
@@ -189,5 +189,5 @@ You can find your personal server-token at <https://blackfire.io/my/settings/cre
 
 **Declared by:**
 
-- services/blackfire, via option flake.flakeModules.services
+- [services/blackfire, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/blackfire/default.nix)
 

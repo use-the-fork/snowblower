@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- services/mysql, via option flake.flakeModules.services
+- [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
 
 ### package
@@ -41,7 +41,7 @@ The package MySQL should use.
 
 **Declared by:**
 
-- services/mysql, via option flake.flakeModules.services
+- [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
 
 ### settings.configuration
@@ -79,7 +79,7 @@ MySQL configuration.
 
 **Declared by:**
 
-- services/mysql, via option flake.flakeModules.services
+- [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
 
 ### settings.ensureUsers
@@ -118,7 +118,7 @@ otherwise have to be removed manually.
 
 **Declared by:**
 
-- services/mysql, via option flake.flakeModules.services
+- [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
 
 ### settings.ensureUsers.*.ensurePermissions
@@ -156,7 +156,7 @@ The attributes are used as `GRANT ${attrName} ON ${attrValue}`.
 
 **Declared by:**
 
-- services/mysql, via option flake.flakeModules.services
+- [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
 
 ### settings.ensureUsers.*.name
@@ -171,7 +171,7 @@ Name of the user to ensure.
 
 **Declared by:**
 
-- services/mysql, via option flake.flakeModules.services
+- [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
 
 ### settings.ensureUsers.*.password
@@ -191,7 +191,7 @@ null
 
 **Declared by:**
 
-- services/mysql, via option flake.flakeModules.services
+- [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
 
 ### settings.host
@@ -210,7 +210,7 @@ The host MySQL will listen on
 
 **Declared by:**
 
-- services/mysql, via option flake.flakeModules.services
+- [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
 
 ### settings.importTimeZones
@@ -230,7 +230,7 @@ null
 
 **Declared by:**
 
-- services/mysql, via option flake.flakeModules.services
+- [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
 
 ### settings.initialDatabases
@@ -261,7 +261,7 @@ of MySQL. The schema attribute is optional: If not specified, an empty database 
 
 **Declared by:**
 
-- services/mysql, via option flake.flakeModules.services
+- [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
 
 ### settings.initialDatabases.*.name
@@ -276,7 +276,7 @@ The name of the database to create.
 
 **Declared by:**
 
-- services/mysql, via option flake.flakeModules.services
+- [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
 
 ### settings.initialDatabases.*.schema
@@ -297,7 +297,7 @@ null
 
 **Declared by:**
 
-- services/mysql, via option flake.flakeModules.services
+- [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
 
 ### settings.port
@@ -316,7 +316,7 @@ The port MySQL will listen on
 
 **Declared by:**
 
-- services/mysql, via option flake.flakeModules.services
+- [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
 
 ### settings.useDefaultsExtraFile
@@ -339,5 +339,5 @@ false
 
 **Declared by:**
 
-- services/mysql, via option flake.flakeModules.services
+- [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 

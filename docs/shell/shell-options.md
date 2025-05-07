@@ -11,7 +11,7 @@ The development shell with Snow Blower and its underlying programs
 
 **Declared by:**
 
-- shell, via option flake.flakeModules.shell
+- [shell, via option flake.flakeModules.shell](https://github.com/use-the-fork/snow-blower/tree/main/modules/shell/default.nix)
 
 
 ### interactive
@@ -30,7 +30,7 @@ Bash code to execute on interactive startups
 
 **Declared by:**
 
-- shell, via option flake.flakeModules.shell
+- [shell, via option flake.flakeModules.shell](https://github.com/use-the-fork/snow-blower/tree/main/modules/shell/default.nix)
 
 
 ### motd
@@ -57,7 +57,7 @@ You may use any valid ansi color from the 8-bit ansi color table. For example, t
 
 **Declared by:**
 
-- shell, via option flake.flakeModules.shell
+- [shell, via option flake.flakeModules.shell](https://github.com/use-the-fork/snow-blower/tree/main/modules/shell/default.nix)
 
 
 ### startup
@@ -76,7 +76,7 @@ Bash code to execute on startup.
 
 **Declared by:**
 
-- shell, via option flake.flakeModules.shell
+- [shell, via option flake.flakeModules.shell](https://github.com/use-the-fork/snow-blower/tree/main/modules/shell/default.nix)
 
 
 ### stdenv
@@ -95,5 +95,5 @@ The stdenv to use for the developer environment.
 
 **Declared by:**
 
-- shell, via option flake.flakeModules.shell
+- [shell, via option flake.flakeModules.shell](https://github.com/use-the-fork/snow-blower/tree/main/modules/shell/default.nix)
 

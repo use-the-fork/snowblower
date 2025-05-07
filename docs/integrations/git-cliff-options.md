@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- integrations/git-cliff, via option flake.flakeModules.integrations
+- [integrations/git-cliff, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/git-cliff/default.nix)
 
 
 ### package
@@ -41,7 +41,7 @@ The package Git-Cliff should use.
 
 **Declared by:**
 
-- integrations/git-cliff, via option flake.flakeModules.integrations
+- [integrations/git-cliff, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/git-cliff/default.nix)
 
 
 ### settings.config-file
@@ -115,7 +115,7 @@ See https://git-cliff.org/docs/configuration/
 
 **Declared by:**
 
-- integrations/git-cliff, via option flake.flakeModules.integrations
+- [integrations/git-cliff, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/git-cliff/default.nix)
 
 
 ### settings.file-name
@@ -134,7 +134,7 @@ The name of the file to output the chaneglog to.
 
 **Declared by:**
 
-- integrations/git-cliff, via option flake.flakeModules.integrations
+- [integrations/git-cliff, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/git-cliff/default.nix)
 
 
 ### settings.integrations.github.enable
@@ -159,5 +159,5 @@ true
 
 **Declared by:**
 
-- integrations/git-cliff, via option flake.flakeModules.integrations
+- [integrations/git-cliff, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/git-cliff/default.nix)
 

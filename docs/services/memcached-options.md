@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- services/memcached, via option flake.flakeModules.services
+- [services/memcached, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/memcached/default.nix)
 
 
 ### package
@@ -41,7 +41,7 @@ The package Memcached should use.
 
 **Declared by:**
 
-- services/memcached, via option flake.flakeModules.services
+- [services/memcached, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/memcached/default.nix)
 
 
 ### settings.host
@@ -60,7 +60,7 @@ The host Memcached will listen on
 
 **Declared by:**
 
-- services/memcached, via option flake.flakeModules.services
+- [services/memcached, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/memcached/default.nix)
 
 
 ### settings.port
@@ -79,7 +79,7 @@ The port Memcached will listen on
 
 **Declared by:**
 
-- services/memcached, via option flake.flakeModules.services
+- [services/memcached, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/memcached/default.nix)
 
 
 ### settings.startArgs
@@ -107,5 +107,5 @@ Additional arguments passed to `memcached` during startup.
 
 **Declared by:**
 
-- services/memcached, via option flake.flakeModules.services
+- [services/memcached, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/memcached/default.nix)
 

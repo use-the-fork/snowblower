@@ -17,7 +17,7 @@ PHP extensions to disable.
 
 **Declared by:**
 
-- languages/php, via option flake.flakeModules.languages
+- [languages/php, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/php/default.nix)
 
 
 ### enable
@@ -42,7 +42,7 @@ true
 
 **Declared by:**
 
-- languages/php, via option flake.flakeModules.languages
+- [languages/php, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/php/default.nix)
 
 
 ### extensions
@@ -62,7 +62,7 @@ PHP extensions to enable.
 
 **Declared by:**
 
-- languages/php, via option flake.flakeModules.languages
+- [languages/php, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/php/default.nix)
 
 
 ### ini
@@ -82,7 +82,7 @@ PHP.ini directives. Refer to the "List of php.ini directives" of PHP's
 
 **Declared by:**
 
-- languages/php, via option flake.flakeModules.languages
+- [languages/php, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/php/default.nix)
 
 
 ### package
@@ -116,7 +116,7 @@ pkgs.php.buildEnv {
 
 **Declared by:**
 
-- languages/php, via option flake.flakeModules.languages
+- [languages/php, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/php/default.nix)
 
 
 ### packages
@@ -135,7 +135,7 @@ pkgs
 
 **Declared by:**
 
-- languages/php, via option flake.flakeModules.languages
+- [languages/php, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/php/default.nix)
 
 
 ### packages.composer
@@ -154,5 +154,5 @@ pkgs.phpPackages.composer
 
 **Declared by:**
 
-- languages/php, via option flake.flakeModules.languages
+- [languages/php, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/php/default.nix)
 
