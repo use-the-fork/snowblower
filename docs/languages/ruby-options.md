@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- [languages/ruby, via option flake.flakeModules.languages](modules/languages/ruby)
+- languages/ruby, via option flake.flakeModules.languages
 
 
 ### bundler.package
@@ -41,7 +41,7 @@ pkgs.bundler.override { ruby = cfg.package; }
 
 **Declared by:**
 
-- [languages/ruby, via option flake.flakeModules.languages](modules/languages/ruby)
+- languages/ruby, via option flake.flakeModules.languages
 
 
 ### enable
@@ -66,7 +66,7 @@ true
 
 **Declared by:**
 
-- [languages/ruby, via option flake.flakeModules.languages](modules/languages/ruby)
+- languages/ruby, via option flake.flakeModules.languages
 
 
 ### package
@@ -85,5 +85,5 @@ pkgs.ruby
 
 **Declared by:**
 
-- [languages/ruby, via option flake.flakeModules.languages](modules/languages/ruby)
+- languages/ruby, via option flake.flakeModules.languages
 

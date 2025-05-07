@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- [services/elasticsearch, via option flake.flakeModules.services](modules/services/elasticsearch)
+- services/elasticsearch, via option flake.flakeModules.services
 
 
 ### kibana.enable
@@ -47,7 +47,7 @@ true
 
 **Declared by:**
 
-- [services/elasticsearch/kibana.nix, via option flake.flakeModules.services](modules/services/elasticsearch/kibana.nix)
+- services/elasticsearch/kibana.nix, via option flake.flakeModules.services
 
 
 ### kibana.package
@@ -66,7 +66,7 @@ The package Kibana should use.
 
 **Declared by:**
 
-- [services/elasticsearch/kibana.nix, via option flake.flakeModules.services](modules/services/elasticsearch/kibana.nix)
+- services/elasticsearch/kibana.nix, via option flake.flakeModules.services
 
 
 ### kibana.settings.extraCmdLineOptions
@@ -85,7 +85,7 @@ Extra command line options for the elasticsearch launcher.
 
 **Declared by:**
 
-- [services/elasticsearch/kibana.nix, via option flake.flakeModules.services](modules/services/elasticsearch/kibana.nix)
+- services/elasticsearch/kibana.nix, via option flake.flakeModules.services
 
 
 ### kibana.settings.extraConf
@@ -114,7 +114,7 @@ Extra configuration for elasticsearch.
 
 **Declared by:**
 
-- [services/elasticsearch/kibana.nix, via option flake.flakeModules.services](modules/services/elasticsearch/kibana.nix)
+- services/elasticsearch/kibana.nix, via option flake.flakeModules.services
 
 
 ### kibana.settings.host
@@ -133,7 +133,7 @@ The host Kibana will listen on
 
 **Declared by:**
 
-- [services/elasticsearch/kibana.nix, via option flake.flakeModules.services](modules/services/elasticsearch/kibana.nix)
+- services/elasticsearch/kibana.nix, via option flake.flakeModules.services
 
 
 ### kibana.settings.hosts
@@ -142,7 +142,7 @@ The host Kibana will listen on
 The URLs of the Elasticsearch instances to use for all your queries.
 All nodes listed here must be on the same cluster.
 
-Defaults to <literal>[ "http://localhost:9200" ]</literal>.
+Defaults to <literal>[ "localhost:9200" ]</literal>.
 
 This option is only valid when using kibana >= 6.6.
 
@@ -160,7 +160,7 @@ This option is only valid when using kibana >= 6.6.
 
 **Declared by:**
 
-- [services/elasticsearch/kibana.nix, via option flake.flakeModules.services](modules/services/elasticsearch/kibana.nix)
+- services/elasticsearch/kibana.nix, via option flake.flakeModules.services
 
 
 ### kibana.settings.port
@@ -179,7 +179,7 @@ The port Kibana will listen on
 
 **Declared by:**
 
-- [services/elasticsearch/kibana.nix, via option flake.flakeModules.services](modules/services/elasticsearch/kibana.nix)
+- services/elasticsearch/kibana.nix, via option flake.flakeModules.services
 
 
 ### package
@@ -198,7 +198,7 @@ The package Elasticsearch should use.
 
 **Declared by:**
 
-- [services/elasticsearch, via option flake.flakeModules.services](modules/services/elasticsearch)
+- services/elasticsearch, via option flake.flakeModules.services
 
 
 ### settings.cluster_name
@@ -217,7 +217,7 @@ Elasticsearch name that identifies your cluster for auto-discovery.
 
 **Declared by:**
 
-- [services/elasticsearch, via option flake.flakeModules.services](modules/services/elasticsearch)
+- services/elasticsearch, via option flake.flakeModules.services
 
 
 ### settings.extraCmdLineOptions
@@ -236,7 +236,7 @@ Extra command line options for the elasticsearch launcher.
 
 **Declared by:**
 
-- [services/elasticsearch, via option flake.flakeModules.services](modules/services/elasticsearch)
+- services/elasticsearch, via option flake.flakeModules.services
 
 
 ### settings.extraConf
@@ -265,7 +265,7 @@ Extra configuration for elasticsearch.
 
 **Declared by:**
 
-- [services/elasticsearch, via option flake.flakeModules.services](modules/services/elasticsearch)
+- services/elasticsearch, via option flake.flakeModules.services
 
 
 ### settings.extraJavaOptions
@@ -292,7 +292,7 @@ Extra command line options for Java.
 
 **Declared by:**
 
-- [services/elasticsearch, via option flake.flakeModules.services](modules/services/elasticsearch)
+- services/elasticsearch, via option flake.flakeModules.services
 
 
 ### settings.host
@@ -311,7 +311,7 @@ The host Elasticsearch will listen on
 
 **Declared by:**
 
-- [services/elasticsearch, via option flake.flakeModules.services](modules/services/elasticsearch)
+- services/elasticsearch, via option flake.flakeModules.services
 
 
 ### settings.logging
@@ -339,7 +339,7 @@ Elasticsearch logging configuration.
 
 **Declared by:**
 
-- [services/elasticsearch, via option flake.flakeModules.services](modules/services/elasticsearch)
+- services/elasticsearch, via option flake.flakeModules.services
 
 
 ### settings.plugins
@@ -364,7 +364,7 @@ Extra elasticsearch plugins
 
 **Declared by:**
 
-- [services/elasticsearch, via option flake.flakeModules.services](modules/services/elasticsearch)
+- services/elasticsearch, via option flake.flakeModules.services
 
 
 ### settings.port
@@ -383,7 +383,7 @@ The port Elasticsearch will listen on
 
 **Declared by:**
 
-- [services/elasticsearch, via option flake.flakeModules.services](modules/services/elasticsearch)
+- services/elasticsearch, via option flake.flakeModules.services
 
 
 ### settings.single_node
@@ -402,7 +402,7 @@ true
 
 **Declared by:**
 
-- [services/elasticsearch, via option flake.flakeModules.services](modules/services/elasticsearch)
+- services/elasticsearch, via option flake.flakeModules.services
 
 
 ### settings.tcp_port
@@ -421,5 +421,5 @@ Elasticsearch port for the node to node communication.
 
 **Declared by:**
 
-- [services/elasticsearch, via option flake.flakeModules.services](modules/services/elasticsearch)
+- services/elasticsearch, via option flake.flakeModules.services
 

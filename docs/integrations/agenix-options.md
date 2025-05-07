@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- [integrations/agenix, via option flake.flakeModules.integrations](modules/integrations/agenix)
+- integrations/agenix, via option flake.flakeModules.integrations
 
 
 ### package
@@ -41,7 +41,7 @@ The package agenix should use.
 
 **Declared by:**
 
-- [integrations/agenix, via option flake.flakeModules.integrations](modules/integrations/agenix)
+- integrations/agenix, via option flake.flakeModules.integrations
 
 
 ### secrets
@@ -66,7 +66,7 @@ Attrset of secrets.
 
 **Declared by:**
 
-- [integrations/agenix, via option flake.flakeModules.integrations](modules/integrations/agenix)
+- integrations/agenix, via option flake.flakeModules.integrations
 
 
 ### secrets.\<name\>.file
@@ -86,7 +86,7 @@ Age file the secret is loaded from. Relative to flake root.
 
 **Declared by:**
 
-- [integrations/agenix, via option flake.flakeModules.integrations](modules/integrations/agenix)
+- integrations/agenix, via option flake.flakeModules.integrations
 
 
 ### secrets.\<name\>.mode
@@ -105,7 +105,7 @@ Permissions mode of the decrypted secret in a format understood by chmod.
 
 **Declared by:**
 
-- [integrations/agenix, via option flake.flakeModules.integrations](modules/integrations/agenix)
+- integrations/agenix, via option flake.flakeModules.integrations
 
 
 ### secrets.\<name\>.name
@@ -130,7 +130,7 @@ Name of the Env file containing the secrets.
 
 **Declared by:**
 
-- [integrations/agenix, via option flake.flakeModules.integrations](modules/integrations/agenix)
+- integrations/agenix, via option flake.flakeModules.integrations
 
 
 ### secrets.\<name\>.publicKeys
@@ -155,5 +155,5 @@ A list of public keys that are used to encrypt the secret.
 
 **Declared by:**
 
-- [integrations/agenix, via option flake.flakeModules.integrations](modules/integrations/agenix)
+- integrations/agenix, via option flake.flakeModules.integrations
 

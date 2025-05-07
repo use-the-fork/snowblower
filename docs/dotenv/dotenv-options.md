@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- [integrations/dotenv, via option flake.flakeModules.integrations](modules/integrations/dotenv)
+- integrations/dotenv, via option flake.flakeModules.integrations
 
 
 ### filename
@@ -41,5 +41,5 @@ The name of the dotenv file to load, or a list of dotenv files to load in order 
 
 **Declared by:**
 
-- [integrations/dotenv, via option flake.flakeModules.integrations](modules/integrations/dotenv)
+- integrations/dotenv, via option flake.flakeModules.integrations
 

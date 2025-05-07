@@ -16,7 +16,7 @@ A set of scripts available when the environment is active.
 
 **Declared by:**
 
-- [scripts, via option flake.flakeModules.scripts](modules/scripts)
+- scripts, via option flake.flakeModules.scripts
 
 
 ### description
@@ -35,7 +35,7 @@ Description of the script.
 
 **Declared by:**
 
-- [scripts, via option flake.flakeModules.scripts](modules/scripts)
+- scripts, via option flake.flakeModules.scripts
 
 
 ### exec
@@ -49,7 +49,7 @@ Shell code to execute when the script is run.
 
 **Declared by:**
 
-- [scripts, via option flake.flakeModules.scripts](modules/scripts)
+- scripts, via option flake.flakeModules.scripts
 
 
 ### enable
@@ -68,7 +68,7 @@ false
 
 **Declared by:**
 
-- [scripts, via option flake.flakeModules.scripts](modules/scripts)
+- scripts, via option flake.flakeModules.scripts
 
 
 ### package
@@ -87,5 +87,5 @@ pkgs.bash
 
 **Declared by:**
 
-- [scripts, via option flake.flakeModules.scripts](modules/scripts)
+- scripts, via option flake.flakeModules.scripts
 

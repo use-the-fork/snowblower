@@ -32,7 +32,7 @@ To initialize a new project with one of the templates:
    ```bash
    nix develop --impure
    ```
-   
+
    Or if you have direnv installed:
    ```bash
    direnv allow
@@ -138,8 +138,8 @@ Here's an example of a customized `flake.nix` configuration:
 
 After setting up your project with a template:
 
-1. Review the [Integrations](/integrations) documentation to add more tools
-2. Explore [Just Commands](/just) to understand the available automation
-3. Check out [Services](/services) to add databases and other infrastructure
+1. Review the [Integrations](/integrations/index.md) documentation to add more tools
+2. Explore [Just Commands](/just/index.md) to understand the available automation
+3. Check out [Services](/services/index.md) to add databases and other infrastructure
 
 For more detailed information on specific features, browse the sidebar for relevant documentation pages.

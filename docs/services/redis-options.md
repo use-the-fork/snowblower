@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- [services/redis, via option flake.flakeModules.services](modules/services/redis)
+- services/redis, via option flake.flakeModules.services
 
 
 ### package
@@ -41,7 +41,7 @@ The package Redis should use.
 
 **Declared by:**
 
-- [services/redis, via option flake.flakeModules.services](modules/services/redis)
+- services/redis, via option flake.flakeModules.services
 
 
 ### settings.extraConfig
@@ -60,7 +60,7 @@ Additional text to be appended to `redis.conf`.
 
 **Declared by:**
 
-- [services/redis, via option flake.flakeModules.services](modules/services/redis)
+- services/redis, via option flake.flakeModules.services
 
 
 ### settings.host
@@ -79,7 +79,7 @@ The host Redis will listen on
 
 **Declared by:**
 
-- [services/redis, via option flake.flakeModules.services](modules/services/redis)
+- services/redis, via option flake.flakeModules.services
 
 
 ### settings.port
@@ -98,5 +98,5 @@ The port Redis will listen on
 
 **Declared by:**
 
-- [services/redis, via option flake.flakeModules.services](modules/services/redis)
+- services/redis, via option flake.flakeModules.services
 

@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- [services/adminer, via option flake.flakeModules.services](modules/services/adminer)
+- services/adminer, via option flake.flakeModules.services
 
 
 ### package
@@ -41,7 +41,7 @@ The package Adminer should use.
 
 **Declared by:**
 
-- [services/adminer, via option flake.flakeModules.services](modules/services/adminer)
+- services/adminer, via option flake.flakeModules.services
 
 
 ### settings.host
@@ -60,7 +60,7 @@ The host Adminer will listen on
 
 **Declared by:**
 
-- [services/adminer, via option flake.flakeModules.services](modules/services/adminer)
+- services/adminer, via option flake.flakeModules.services
 
 
 ### settings.port
@@ -79,5 +79,5 @@ The port Adminer will listen on
 
 **Declared by:**
 
-- [services/adminer, via option flake.flakeModules.services](modules/services/adminer)
+- services/adminer, via option flake.flakeModules.services
 

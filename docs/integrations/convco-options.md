@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- [integrations/convco, via option flake.flakeModules.integrations](modules/integrations/convco)
+- integrations/convco, via option flake.flakeModules.integrations
 
 
 ### package
@@ -41,7 +41,7 @@ The package Convco should use.
 
 **Declared by:**
 
-- [integrations/convco, via option flake.flakeModules.integrations](modules/integrations/convco)
+- integrations/convco, via option flake.flakeModules.integrations
 
 
 ### settings.file-name
@@ -60,5 +60,5 @@ The name of the file to output the chaneglog to.
 
 **Declared by:**
 
-- [integrations/convco, via option flake.flakeModules.integrations](modules/integrations/convco)
+- integrations/convco, via option flake.flakeModules.integrations
 

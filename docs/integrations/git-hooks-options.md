@@ -16,5 +16,5 @@ Integration of https://github.com/cachix/git-hooks.nix
 
 **Declared by:**
 
-- [integrations/git-hooks, via option flake.flakeModules.integrations](modules/integrations/git-hooks)
+- integrations/git-hooks, via option flake.flakeModules.integrations
 

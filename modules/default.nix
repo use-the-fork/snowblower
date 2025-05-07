@@ -12,6 +12,7 @@ topLevel @ {
     ./integrations
     ./just
     ./languages
+#    ./docker-compose
     ./services
     ./processes
     ./scripts
@@ -33,6 +34,8 @@ topLevel @ {
       topLevel.config.flake.flakeModules.processes
       topLevel.config.flake.flakeModules.languages
       topLevel.config.flake.flakeModules.services
+
+#      topLevel.config.flake.flakeModules.docker-compose
 
       topLevel.config.flake.flakeModules.shell
     ];

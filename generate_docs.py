@@ -167,7 +167,7 @@ def generate_markdown(group: str, subgroup: str, options: List[Dict[str, Any]]) 
         # Escape angle brackets for VitePress rendering
         display_short_key = short_key.replace("<", "\\<").replace(">", "\\>")
         display_option_key = option_key.replace("<", "\\<").replace(">", "\\>")
-        
+
         md.append(f"### {display_short_key}")
         md.append(f"**Location:** *{display_option_key}*")
         md.append("")
@@ -201,7 +201,8 @@ def generate_markdown(group: str, subgroup: str, options: List[Dict[str, Any]]) 
             md.append("")
             for decl in option["declarations"]:
                 if isinstance(decl, dict) and "url" in decl and "name" in decl:
-                    md.append(f"- [{decl['name']}]({decl['url']})")
+                    md.append(f"- {decl['name']}")
+#                     md.append(f"- [{decl['name']}]({decl['url']})")
                 elif isinstance(decl, str):
                     md.append(f"- {decl}")
             md.append("")

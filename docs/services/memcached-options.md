@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- [services/memcached, via option flake.flakeModules.services](modules/services/memcached)
+- services/memcached, via option flake.flakeModules.services
 
 
 ### package
@@ -41,7 +41,7 @@ The package Memcached should use.
 
 **Declared by:**
 
-- [services/memcached, via option flake.flakeModules.services](modules/services/memcached)
+- services/memcached, via option flake.flakeModules.services
 
 
 ### settings.host
@@ -60,7 +60,7 @@ The host Memcached will listen on
 
 **Declared by:**
 
-- [services/memcached, via option flake.flakeModules.services](modules/services/memcached)
+- services/memcached, via option flake.flakeModules.services
 
 
 ### settings.port
@@ -79,7 +79,7 @@ The port Memcached will listen on
 
 **Declared by:**
 
-- [services/memcached, via option flake.flakeModules.services](modules/services/memcached)
+- services/memcached, via option flake.flakeModules.services
 
 
 ### settings.startArgs
@@ -107,5 +107,5 @@ Additional arguments passed to `memcached` during startup.
 
 **Declared by:**
 
-- [services/memcached, via option flake.flakeModules.services](modules/services/memcached)
+- services/memcached, via option flake.flakeModules.services
 

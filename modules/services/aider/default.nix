@@ -22,7 +22,7 @@
     in {
       options.snow-blower.services.aider = mkService {
         name = "Aider";
-        package = pkgs.aider-chat-full;
+        package = pkgs.aider-chat;
         extraOptions = {
           model = mkOption {
             description = "Specify the model to use for the main chat.";

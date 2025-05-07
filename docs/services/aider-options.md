@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- [services/aider, via option flake.flakeModules.services](modules/services/aider)
+- services/aider, via option flake.flakeModules.services
 
 
 ### package
@@ -41,7 +41,7 @@ The package Aider should use.
 
 **Declared by:**
 
-- [services/aider, via option flake.flakeModules.services](modules/services/aider)
+- services/aider, via option flake.flakeModules.services
 
 
 ### settings.auto-commits
@@ -60,7 +60,7 @@ false
 
 **Declared by:**
 
-- [services/aider, via option flake.flakeModules.services](modules/services/aider)
+- services/aider, via option flake.flakeModules.services
 
 
 ### settings.auto-lint
@@ -79,7 +79,7 @@ true
 
 **Declared by:**
 
-- [services/aider, via option flake.flakeModules.services](modules/services/aider)
+- services/aider, via option flake.flakeModules.services
 
 
 ### settings.cache-prompts
@@ -98,7 +98,7 @@ false
 
 **Declared by:**
 
-- [services/aider, via option flake.flakeModules.services](modules/services/aider)
+- services/aider, via option flake.flakeModules.services
 
 
 ### settings.code-theme
@@ -117,7 +117,7 @@ Set the markdown code theme
 
 **Declared by:**
 
-- [services/aider, via option flake.flakeModules.services](modules/services/aider)
+- services/aider, via option flake.flakeModules.services
 
 
 ### settings.dark-mode
@@ -136,7 +136,7 @@ true
 
 **Declared by:**
 
-- [services/aider, via option flake.flakeModules.services](modules/services/aider)
+- services/aider, via option flake.flakeModules.services
 
 
 ### settings.dirty-commits
@@ -155,7 +155,7 @@ true
 
 **Declared by:**
 
-- [services/aider, via option flake.flakeModules.services](modules/services/aider)
+- services/aider, via option flake.flakeModules.services
 
 
 ### settings.edit-format
@@ -174,7 +174,7 @@ Set the markdown code theme
 
 **Declared by:**
 
-- [services/aider, via option flake.flakeModules.services](modules/services/aider)
+- services/aider, via option flake.flakeModules.services
 
 
 ### settings.extraConf
@@ -196,7 +196,7 @@ for supported values.
 
 **Declared by:**
 
-- [services/aider, via option flake.flakeModules.services](modules/services/aider)
+- services/aider, via option flake.flakeModules.services
 
 
 ### settings.host
@@ -215,7 +215,7 @@ The host Aider will listen on
 
 **Declared by:**
 
-- [services/aider, via option flake.flakeModules.services](modules/services/aider)
+- services/aider, via option flake.flakeModules.services
 
 
 ### settings.light-mode
@@ -234,7 +234,7 @@ false
 
 **Declared by:**
 
-- [services/aider, via option flake.flakeModules.services](modules/services/aider)
+- services/aider, via option flake.flakeModules.services
 
 
 ### settings.model
@@ -253,7 +253,7 @@ Specify the model to use for the main chat.
 
 **Declared by:**
 
-- [services/aider, via option flake.flakeModules.services](modules/services/aider)
+- services/aider, via option flake.flakeModules.services
 
 
 ### settings.port
@@ -272,5 +272,5 @@ The port Aider will listen on
 
 **Declared by:**
 
-- [services/aider, via option flake.flakeModules.services](modules/services/aider)
+- services/aider, via option flake.flakeModules.services
 

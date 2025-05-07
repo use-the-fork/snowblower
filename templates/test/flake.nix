@@ -14,7 +14,7 @@
         #        inputs.snow-blower.flakeModules.optionsDocument
       ];
 
-      perSystem = {pkgs, ...}: {
+      perSystem = {config,...}: {
         # Per-system attributes can be defined here. The self' and inputs'
         # module parameters provide easy access to attributes of the same
         # system.
@@ -23,12 +23,15 @@
         imports = [
           # ./foo.nix
         ];
-        snow-blower = {
+        snow-blower = let
+
+        env = config.snow-blower.env;
+
+        in {
           paths.src = ./../../.;
-        packages = [
-
-        ];
-
+          dotenv.enable = true;
+          packages = [
+          ];
 
           languages = {
             javascript.enable = true;
@@ -50,7 +53,7 @@
               enable = true;
               settings = {
                 extraConf = {
-#                  read = ["CONVENTIONS-BACKEND.MD"];
+                  #                  read = ["CONVENTIONS-BACKEND.MD"];
                   lint-cmd = ["treefmt"];
                 };
               };
@@ -95,15 +98,15 @@
       };
     };
 
-    nixConfig = {
-      extra-trusted-public-keys = [
-        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-        "snow-blower.cachix.org-1:f14pyJhxRZJHAymrilTUpC5m+Qy6hX437tmkR22rYOk="
-      ];
+  nixConfig = {
+    extra-trusted-public-keys = [
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+      "snow-blower.cachix.org-1:f14pyJhxRZJHAymrilTUpC5m+Qy6hX437tmkR22rYOk="
+    ];
 
-      extra-substituters = [
-        "https://cache.nixos.org"
-        "https://snow-blower.cachix.org"
-      ];
-    };
+    extra-substituters = [
+      "https://cache.nixos.org"
+      "https://snow-blower.cachix.org"
+    ];
+  };
 }

@@ -22,7 +22,7 @@ true
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### bun.install.enable
@@ -47,7 +47,7 @@ true
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### bun.package
@@ -66,7 +66,7 @@ pkgs.bun
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### corepack.enable
@@ -91,7 +91,7 @@ true
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### directory
@@ -118,7 +118,7 @@ config.snow-blower.paths.root
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### enable
@@ -143,7 +143,7 @@ true
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### npm.enable
@@ -168,7 +168,7 @@ true
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### npm.install.enable
@@ -193,7 +193,7 @@ true
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### npm.package
@@ -212,7 +212,7 @@ pkgs.nodejs
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### package
@@ -231,7 +231,7 @@ pkgs.nodejs-slim
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### pnpm.enable
@@ -256,7 +256,7 @@ true
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### pnpm.install.enable
@@ -281,7 +281,7 @@ true
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### pnpm.package
@@ -300,7 +300,7 @@ pkgs.nodePackages.pnpm
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### yarn.enable
@@ -325,7 +325,7 @@ true
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### yarn.install.enable
@@ -350,7 +350,7 @@ true
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 
 
 ### yarn.package
@@ -369,5 +369,5 @@ pkgs.yarn
 
 **Declared by:**
 
-- [languages/javascript, via option flake.flakeModules.languages](modules/languages/javascript)
+- languages/javascript, via option flake.flakeModules.languages
 

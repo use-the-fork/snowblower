@@ -16,7 +16,7 @@ Processes can be started with ``just up`` and run in foreground mode.
 
 **Declared by:**
 
-- [processes, via option flake.flakeModules.processes](modules/processes)
+- processes, via option flake.flakeModules.processes
 
 
 ### exec
@@ -30,7 +30,7 @@ Bash code to run the process.
 
 **Declared by:**
 
-- [processes, via option flake.flakeModules.processes](modules/processes)
+- processes, via option flake.flakeModules.processes
 
 
 ### process-compose
@@ -74,5 +74,5 @@ Only used when using ``process.implementation = "process-compose";``
 
 **Declared by:**
 
-- [processes, via option flake.flakeModules.processes](modules/processes)
+- processes, via option flake.flakeModules.processes
 
