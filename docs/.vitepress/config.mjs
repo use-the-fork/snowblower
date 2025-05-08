@@ -5,6 +5,10 @@ export default defineConfig({
   title: "Snow Blower",
   description: "A Nix-based development environment manager",
   base: '/snow-blower/',
+  
+  ignoreDeadLinks: [
+    /^https?:\/\/localhost/
+  ],
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
