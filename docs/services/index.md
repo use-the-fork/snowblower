@@ -7,7 +7,6 @@ Snow Blower provides built-in support for various services, making it easy to se
 Snow Blower currently supports the following services:
 
 - [Adminer](./adminer.md) - Database management tool
-- [Aider](./aider.md) - AI pair programming assistant
 - [Blackfire](./blackfire.md) - Performance testing and profiling
 - [Elasticsearch](./elasticsearch.md) - Search and analytics engine
 - [Memcached](./memcached.md) - Distributed memory caching system

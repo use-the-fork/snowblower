@@ -7,7 +7,7 @@ default:
 # Build the Nix options documentation and prepare files for VitePress
 build-docs:
     @echo "Building Nix options documentation..."
-    @nix build .#options-doc -L --show-trace --accept-flake-config
+    @python3 ./generate_docs.py
 
 # Run the VitePress development server
 docs-dev: build-docs

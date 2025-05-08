@@ -32,6 +32,7 @@ export default defineConfig({
           { text: 'Integrations', link: '/integrations/', items: [
               { text: 'Overview', link: '/integrations/' },
               { text: 'Agenix', link: '/integrations/agenix' },
+              { text: 'Aider', link: '/integrations/aider' },
               { text: 'Convco', link: '/integrations/convco' },
               { text: 'Dotenv', link: '/dotenv/' },
               { text: 'Git Cliff', link: '/integrations/git-cliff' },
@@ -49,7 +50,6 @@ export default defineConfig({
           { text: 'Services', link: '/services/', items: [
             { text: 'Overview', link: '/services/' },
             { text: 'Adminer', link: '/services/adminer' },
-            { text: 'Aider', link: '/services/aider' },
             { text: 'Blackfire', link: '/services/blackfire' },
             { text: 'Elasticsearch', link: '/services/elasticsearch' },
             { text: 'Memcached', link: '/services/memcached' },

@@ -7,6 +7,7 @@ Snow Blower provides built-in support for various integrations, making it easy t
 Snow Blower currently supports the following integrations:
 
 - [Agenix](./agenix.md) - Secret management with age encryption
+- [Aider](./aider.md) - AI pair programming assistant
 - [Convco](./convco.md) - Conventional commits tooling
 - [Dotenv](../dotenv/index.md) - Environment variable management
 - [Git Cliff](./git-cliff.md) - Changelog generator from git history

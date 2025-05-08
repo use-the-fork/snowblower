@@ -45,7 +45,7 @@ To add scripts to your project, you can define them in your `flake.nix` file:
               '';
               just.enable = true;
             };
-            
+
             backup-db = {
               description = "Backup the database";
               exec = ''
@@ -105,10 +105,10 @@ snow-blower.scripts.plot-data = {
   exec = ''
     import matplotlib.pyplot as plt
     import numpy as np
-    
+
     x = np.linspace(0, 10, 100)
     y = np.sin(x)
-    
+
     plt.plot(x, y)
     plt.savefig('plot.png')
     print("Plot saved to plot.png")
