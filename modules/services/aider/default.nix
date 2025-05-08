@@ -149,6 +149,7 @@
                         (lib.optionalString cmdCfg.watchFiles "--watch-files")
                         (lib.optionalString cmdCfg.suggestShellCommands "--suggest-shell-commands")
                         (lib.optionalString cmdCfg.detectUrls "--detect-urls")
+                        (lib.optionalString cmdCfg.gitCommitVerify "--git-commit-verify")
                         (lib.concatMapStringsSep " " (cmd: "--read \"${cmd}\"") cmdCfg.readFiles)
                         (lib.concatMapStringsSep " " (cmd: "--lint-cmd \"${cmd}\"") cmdCfg.lintCommands)
                         (lib.concatMapStringsSep " " (cmd: "--test-cmd \"${cmd}\"") cmdCfg.testCommands)
