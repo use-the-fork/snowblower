@@ -13,10 +13,9 @@
       config,
       ...
     }: let
-      inherit (lib) types mkOption literalExpression attrValues getAttrs;
+      inherit (lib) types mkOption literalExpression;
 
       cfg = config.snow-blower.languages.ruby;
-      srv = config.snow-blower.services;
     in {
       options.snow-blower.languages.ruby = {
         enable = lib.mkEnableOption "tools for Ruby development";

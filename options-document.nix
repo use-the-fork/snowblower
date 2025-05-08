@@ -47,16 +47,13 @@ topLevel @ {
       };
 
     # Create a function to generate documentation with a specific filter
-    mkOptionsDoc =
-      pkgs.nixosOptionsDoc {
-        options = docModules.options;
-        transformOptions = mkTransformOptions;
-        documentType = "none";
-        warningsAreErrors = false;
-      };
-
+    mkOptionsDoc = pkgs.nixosOptionsDoc {
+      options = docModules.options;
+      transformOptions = mkTransformOptions;
+      documentType = "none";
+      warningsAreErrors = false;
+    };
     # Define the documentation filters we want to generate
-
   in {
     packages = {
       # Main options-doc package that generates all documentation files
@@ -68,7 +65,7 @@ topLevel @ {
           mkdir -p $out
 
           # Generate a separate JSON file for each filter
-          cp -r ${(mkOptionsDoc).optionsJSON} $out/options.json
+          cp -r ${mkOptionsDoc.optionsJSON} $out/options.json
           echo "Documentation generated successfully!"
         '';
     };

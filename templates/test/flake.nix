@@ -14,7 +14,7 @@
         #        inputs.snow-blower.flakeModules.optionsDocument
       ];
 
-      perSystem = {config,...}: {
+      perSystem = {...}: {
         # Per-system attributes can be defined here. The self' and inputs'
         # module parameters provide easy access to attributes of the same
         # system.
@@ -23,11 +23,7 @@
         imports = [
           # ./foo.nix
         ];
-        snow-blower = let
-
-        env = config.snow-blower.env;
-
-        in {
+        snow-blower = {
           paths.src = ./../../.;
           dotenv.enable = true;
           packages = [
@@ -49,23 +45,21 @@
           };
 
           services = {
+          };
+
+          integrations = {
             aider = {
               enable = true;
               commands = {
                 start = {
+                  watchFiles = true;
+                  suggestShellCommands = false;
+                  readFiles = ["CONVENTIONS.MD"];
                   lintCommands = ["treefmt"];
                 };
               };
-              settings = {
-                extraConf = {
-                  #                  read = ["CONVENTIONS-BACKEND.MD"];
-
-                };
-              };
             };
-          };
 
-          integrations = {
             agenix = {
               enable = true;
               secrets = {

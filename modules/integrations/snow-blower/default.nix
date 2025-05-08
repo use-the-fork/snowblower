@@ -1,7 +1,6 @@
 {
   inputs,
   flake-parts-lib,
-  self,
   ...
 }: {
   imports = [
@@ -10,14 +9,9 @@
   flake.flakeModules.integrations = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
-      pkgs,
       config,
       ...
-    }: let
-      inherit (lib) types mkOption mkIf;
-
-    in {
-
+    }: {
       config.snow-blower = {
         # snow-blower utility just commands
         just.recipes.bump-snow-blower = {

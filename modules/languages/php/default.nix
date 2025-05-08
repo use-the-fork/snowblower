@@ -29,8 +29,6 @@
             with all; (builtins.filter filterDefaultExtensions (enabled ++ attrValues (getAttrs cfg.extensions package.extensions)));
           extraConfig = cfg.ini;
         };
-
-
     in {
       options.snow-blower.languages.php = {
         enable = lib.mkEnableOption "tools for PHP development";

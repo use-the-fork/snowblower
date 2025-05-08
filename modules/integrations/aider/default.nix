@@ -6,7 +6,7 @@
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
   ];
-  flake.flakeModules.services = {
+  flake.flakeModules.integrations = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       pkgs,
       config,
@@ -14,16 +14,16 @@
       ...
     }: let
       inherit (lib) types mkOption;
-      inherit (import ../utils.nix {inherit lib;}) mkService;
+      inherit (import ../utils.nix {inherit lib;}) mkIntegration;
       inherit (import ./utils.nix {inherit lib pkgs;}) commandType;
 
-      cfg = config.snow-blower.services.aider;
+      cfg = config.snow-blower.integrations.aider;
 
       yamlFormat = pkgs.formats.yaml {};
     in {
       imports = [
         {
-          options.snow-blower.services.aider.commands = mkOption {
+          options.snow-blower.integrations.aider.commands = mkOption {
             type = types.submoduleWith {
               modules = [{freeformType = types.attrsOf commandType;}];
               specialArgs = {inherit pkgs;};
@@ -36,11 +36,11 @@
         }
       ];
 
-      options.snow-blower.services.aider = mkService {
+      options.snow-blower.integrations.aider = mkIntegration {
         name = "Aider";
         package = pkgs.aider-chat;
 
-        extraOptions = {
+        settings = {
           auto-commits = mkOption {
             description = "Enable/disable auto commit of LLM changes.";
             default = false;
@@ -123,44 +123,45 @@
             ];
           };
 
-          just.recipes = lib.mkMerge (
-            # Default recipe if no commands are specified
-            (lib.optional (cfg.commands == {}) {
-              ai = {
-                enable = true;
-                justfile = ''
-                  # Run Aider AI assistant
-                  @ai:
-                    ${lib.getExe cfg.package} --watch-files
-                '';
-              };
-            })
-            ++
-            # Generate recipes for each command
-            (lib.mapAttrsToList (
-                name: cmdCfg: {
-                  "ai-${name}" = {
-                    enable = true;
-                    justfile = ''
-                      # ${cmdCfg.description}
-                      @ai-${name}:
-                        ${lib.getExe cfg.package} ${lib.concatStringsSep " " (lib.filter (s: s != "") [
-                        "--model ${cmdCfg.model}"
-                        (lib.optionalString cmdCfg.watchFiles "--watch-files")
-                        (lib.optionalString cmdCfg.suggestShellCommands "--suggest-shell-commands")
-                        (lib.optionalString cmdCfg.detectUrls "--detect-urls")
-                        (lib.optionalString cmdCfg.gitCommitVerify "--git-commit-verify")
-                        (lib.concatMapStringsSep " " (cmd: "--read \"${cmd}\"") cmdCfg.readFiles)
-                        (lib.concatMapStringsSep " " (cmd: "--lint-cmd \"${cmd}\"") cmdCfg.lintCommands)
-                        (lib.concatMapStringsSep " " (cmd: "--test-cmd \"${cmd}\"") cmdCfg.testCommands)
-                        cmdCfg.extraArgs
-                      ])}
-                    '';
-                  };
-                }
-              )
-              cfg.commands)
-          );
+          just.recipes = lib.mkMerge (lib.mapAttrsToList (
+              name: cmdCfg: {
+                "ai-${name}" = {
+                  enable = true;
+                  justfile = ''
+                    # ${cmdCfg.description}
+                    @ai-${name}:
+                      ${lib.getExe cfg.package} ${lib.concatStringsSep " " (lib.filter (s: s != "") [
+                      "--model ${cmdCfg.model}"
+                      (
+                        if cmdCfg.watchFiles
+                        then "--watch-files"
+                        else "--no-watch-files"
+                      )
+                      (
+                        if cmdCfg.suggestShellCommands
+                        then "--suggest-shell-commands"
+                        else "--no-suggest-shell-commands"
+                      )
+                      (
+                        if cmdCfg.detectUrls
+                        then "--detect-urls"
+                        else "--no-detect-urls"
+                      )
+                      (
+                        if cmdCfg.gitCommitVerify
+                        then "--git-commit-verify"
+                        else "--no-git-commit-verify"
+                      )
+                      (lib.concatMapStringsSep " " (cmd: "--read \"${cmd}\"") cmdCfg.readFiles)
+                      (lib.concatMapStringsSep " " (cmd: "--lint-cmd \"${cmd}\"") cmdCfg.lintCommands)
+                      (lib.concatMapStringsSep " " (cmd: "--test-cmd \"${cmd}\"") cmdCfg.testCommands)
+                      cmdCfg.extraArgs
+                    ])}
+                  '';
+                };
+              }
+            )
+            cfg.commands);
         };
       };
     });

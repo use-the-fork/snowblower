@@ -10,15 +10,7 @@
   outputs = inputs:
     inputs.snow-blower.mkSnowBlower {
       inherit inputs;
-      perSystem = {
-        config,
-        pkgs,
-        ...
-      }: let
-        serv = config.snow-blower.services;
-        lang = config.snow-blower.languages;
-        env = config.snow-blower.env;
-      in {
+      perSystem = _: {
         snow-blower = {
           paths.src = ./.;
 
@@ -54,16 +46,15 @@
       };
     };
 
-    nixConfig = {
-      extra-trusted-public-keys = [
-        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-        "snow-blower.cachix.org-1:f14pyJhxRZJHAymrilTUpC5m+Qy6hX437tmkR22rYOk="
-      ];
+  nixConfig = {
+    extra-trusted-public-keys = [
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+      "snow-blower.cachix.org-1:f14pyJhxRZJHAymrilTUpC5m+Qy6hX437tmkR22rYOk="
+    ];
 
-      extra-substituters = [
-        "https://cache.nixos.org"
-        "https://snow-blower.cachix.org"
-      ];
-    };
-
+    extra-substituters = [
+      "https://cache.nixos.org"
+      "https://snow-blower.cachix.org"
+    ];
+  };
 }

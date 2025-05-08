@@ -11,13 +11,13 @@ in {
     };
 
     gitCommitVerify = mkOption {
-      description = "Enable/disable git pre-commit hooks with --no-verify";
+      description = "Enable git pre-commit hooks with --git-commit-verify";
       default = true;
       type = types.bool;
     };
 
     watchFiles = mkOption {
-      description = "Enable/disable watching files for changes";
+      description = "Enable watching files for changes";
       default = false;
       type = types.bool;
     };

@@ -81,7 +81,7 @@
     inputs.flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
       imports = [
         bootstrap.flakeModules.default
-       ./options-document.nix
+        ./options-document.nix
       ];
 
       flake =

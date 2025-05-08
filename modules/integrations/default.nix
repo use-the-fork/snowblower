@@ -1,6 +1,7 @@
 {
   imports = [
     ./agenix
+    ./aider
     ./convco
     ./dotenv
     ./snow-blower

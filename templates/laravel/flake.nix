@@ -16,19 +16,17 @@
         ...
       }: let
         serv = config.snow-blower.services;
-        lang = config.snow-blower.languages;
         env = config.snow-blower.env;
 
-#        If Needed add your public keys here.
-#        publicKeys = [
-#          ""
-#        ];
+        #        If Needed add your public keys here.
+        #        publicKeys = [
+        #          ""
+        #        ];
 
         envKeys = builtins.attrNames config.snow-blower.env;
         unsetEnv = builtins.concatStringsSep "\n" (
           map (key: "unset ${key}") envKeys
         );
-
       in {
         snow-blower = {
           paths.src = ./.;
@@ -133,12 +131,12 @@
           integrations = {
             agenix = {
               enable = false;
-#              Uncomment this after adding your publicKeys
-#              secrets = {
-#                ".env" = {
-#                  inherit publicKeys;
-#                };
-#              };
+              #              Uncomment this after adding your publicKeys
+              #              secrets = {
+              #                ".env" = {
+              #                  inherit publicKeys;
+              #                };
+              #              };
             };
 
             git-cliff.enable = true;
