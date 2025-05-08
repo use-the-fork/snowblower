@@ -15,21 +15,32 @@
     }: let
       inherit (lib) types mkOption;
       inherit (import ../utils.nix {inherit lib;}) mkService;
+      inherit (import ./utils.nix {inherit lib pkgs;}) commandType;
 
       cfg = config.snow-blower.services.aider;
 
       yamlFormat = pkgs.formats.yaml {};
     in {
+      imports = [
+        {
+          options.snow-blower.services.aider.commands = mkOption {
+            type = types.submoduleWith {
+              modules = [{freeformType = types.attrsOf commandType;}];
+              specialArgs = {inherit pkgs;};
+            };
+            default = {};
+            description = ''
+              The aider start commands that we can run with just.
+            '';
+          };
+        }
+      ];
+
       options.snow-blower.services.aider = mkService {
         name = "Aider";
         package = pkgs.aider-chat;
-        extraOptions = {
-          model = mkOption {
-            description = "Specify the model to use for the main chat.";
-            default = "sonnet";
-            type = types.str;
-          };
 
+        extraOptions = {
           auto-commits = mkOption {
             description = "Enable/disable auto commit of LLM changes.";
             default = false;
@@ -112,14 +123,43 @@
             ];
           };
 
-          just.recipes.ai = {
-            enable = true;
-            justfile = lib.mkDefault ''
-              #Starts aider with watch-files enabled.
-              @ai:
-                ${lib.getExe cfg.package} --watch-files
-            '';
-          };
+          just.recipes = lib.mkMerge (
+            # Default recipe if no commands are specified
+            (lib.optional (cfg.commands == {}) {
+              ai = {
+                enable = true;
+                justfile = ''
+                  # Run Aider AI assistant
+                  @ai:
+                    ${lib.getExe cfg.package} --watch-files
+                '';
+              };
+            })
+            ++
+            # Generate recipes for each command
+            (lib.mapAttrsToList (
+                name: cmdCfg: {
+                  "ai-${name}" = {
+                    enable = true;
+                    justfile = ''
+                      # ${cmdCfg.description}
+                      @ai-${name}:
+                        ${lib.getExe cfg.package} ${lib.concatStringsSep " " (lib.filter (s: s != "") [
+                        "--model ${cmdCfg.model}"
+                        (lib.optionalString cmdCfg.watchFiles "--watch-files")
+                        (lib.optionalString cmdCfg.suggestShellCommands "--suggest-shell-commands")
+                        (lib.optionalString cmdCfg.detectUrls "--detect-urls")
+                        (lib.concatMapStringsSep " " (cmd: "--read \"${cmd}\"") cmdCfg.readFiles)
+                        (lib.concatMapStringsSep " " (cmd: "--lint-cmd \"${cmd}\"") cmdCfg.lintCommands)
+                        (lib.concatMapStringsSep " " (cmd: "--test-cmd \"${cmd}\"") cmdCfg.testCommands)
+                        cmdCfg.extraArgs
+                      ])}
+                    '';
+                  };
+                }
+              )
+              cfg.commands)
+          );
         };
       };
     });

@@ -51,10 +51,15 @@
           services = {
             aider = {
               enable = true;
+              commands = {
+                start = {
+                  lintCommands = ["treefmt"];
+                };
+              };
               settings = {
                 extraConf = {
                   #                  read = ["CONVENTIONS-BACKEND.MD"];
-                  lint-cmd = ["treefmt"];
+
                 };
               };
             };
