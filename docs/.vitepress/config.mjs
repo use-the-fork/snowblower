@@ -5,7 +5,7 @@ export default defineConfig({
   title: "Snow Blower",
   description: "A Nix-based development environment manager",
   base: '/snow-blower/',
-  
+
   ignoreDeadLinks: [
     /^https?:\/\/localhost/
   ],
@@ -74,7 +74,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/snowblower/snow-blower' }
+      { icon: 'github', link: 'https://github.com/use-the-fork/snow-blower' }
     ],
 
     footer: {
