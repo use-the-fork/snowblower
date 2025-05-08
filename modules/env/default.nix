@@ -18,7 +18,6 @@
           concatStringsSep "\n" (
             mapAttrsToList (name: value: "export ${name}=${value}") envAttrs
           );
-        #        TODO: make this create a .env.local that combines .env and ones set thru this package.
       in {
         options.snow-blower = {
           env = lib.mkOption {

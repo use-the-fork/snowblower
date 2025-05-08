@@ -36,7 +36,7 @@ The package Memcached should use.
 
 **Default:**
 ```nix
-<derivation memcached-1.6.35>
+<derivation memcached-1.6.37>
 ```
 
 **Declared by:**

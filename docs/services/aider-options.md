@@ -36,7 +36,7 @@ The package Aider should use.
 
 **Default:**
 ```nix
-<derivation aider-chat-0.81.0>
+<derivation aider-chat-0.82.1>
 ```
 
 **Declared by:**

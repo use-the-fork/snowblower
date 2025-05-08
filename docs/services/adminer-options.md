@@ -36,7 +36,7 @@ The package Adminer should use.
 
 **Default:**
 ```nix
-<derivation adminer-5.1.0>
+<derivation adminer-5.1.1>
 ```
 
 **Declared by:**

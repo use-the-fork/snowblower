@@ -235,6 +235,11 @@ def write_markdown_file(group: str, subgroup: str, content: str) -> None:
 
 def main() -> None:
     """Main function to generate all documentation."""
+    # Generate the options JSON file
+    import subprocess
+    print("Generating options JSON...")
+    subprocess.run(["nix", "build", ".#options-doc", "-L", "--accept-flake-config"], check=True)
+    
     print("Loading options from JSON...")
     options = load_options()
 
