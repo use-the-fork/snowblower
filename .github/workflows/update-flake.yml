@@ -1,4 +1,4 @@
-name: update-flake
+name: Update Inputs Build Packages
 on:
   workflow_dispatch: # allows manual triggering
   schedule:
