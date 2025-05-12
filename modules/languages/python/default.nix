@@ -57,14 +57,14 @@
 
         scripts = lib.mkIf (!cfg.venv.enable) {
           # remap PIP command to point at UV
-          pip.exec = ''${lib.getExe cfg.uv.package} $@'';
+          # pip.exec = ''${lib.getExe cfg.uv.package} $@'';
 
           # remap python commands to point at uv run
-          python3.exec = ''${lib.getExe cfg.uv.package} run $@'';
-          python.exec = ''${lib.getExe cfg.uv.package} run $@'';
+          # python3.exec = ''${lib.getExe cfg.uv.package} run $@'';
+          # python.exec = ''${lib.getExe cfg.uv.package} run $@'';
 
           # convince wrapper for the UV tool function
-          tool.exec = ''${lib.getExe cfg.uv.package} tool $@'';
+          # tool.exec = ''${lib.getExe cfg.uv.package} tool $@'';
         };
 
         shell.startup =
