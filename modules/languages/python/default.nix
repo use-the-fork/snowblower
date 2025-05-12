@@ -47,7 +47,7 @@
 
         env = {
           UV_CACHE_DIR = config.snow-blower.env.PROJECT_STATE + "/uv/cache";
-          UV_PROJECT_ENVIRONMENT = config.snow-blower.env.PROJECT_STATE + "/uv/environment";
+          # UV_PROJECT_ENVIRONMENT = config.snow-blower.env.PROJECT_STATE + "/uv/environment";
           UV_PYTHON_BIN_DIR = config.snow-blower.env.PROJECT_STATE + "/uv/python/bin";
           UV_PYTHON_CACHE_DIR = config.snow-blower.env.PROJECT_STATE + "/uv/python/cache";
           UV_PYTHON_INSTALL_DIR = config.snow-blower.env.PROJECT_STATE + "/uv/python/install";
