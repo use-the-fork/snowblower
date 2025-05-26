@@ -1,0 +1,16 @@
+services:
+  dev:
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+        SNOW_BLOWER_CONFIG_PATH: ${SNOW_BLOWER_CONFIG_PATH:-.devcontainer/snow-blower-config.nix}
+    volumes:
+      - ..:/workspace:cached
+      - ${HOME}/.ssh:/home/code/.ssh:ro
+      - snow_blower:/nix
+      - snow_blower:/config
+
+volumes: snow_blower

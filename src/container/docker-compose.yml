@@ -1,0 +1,12 @@
+services:
+  devcontainer:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    volumes:
+      - ..:/workspace:cached
+      - /var/run/docker.sock:/var/run/docker.sock
+    security_opt:
+      - label:disable
+
+volumes:

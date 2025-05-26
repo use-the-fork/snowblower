@@ -11,5 +11,3 @@ secrets.nix
 # VitePress build output and cache
 docs/.vitepress/dist
 docs/.vitepress/cache
-
-docker-compose.yml
