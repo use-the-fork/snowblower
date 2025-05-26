@@ -16,7 +16,7 @@
                 "ms-python.python",
                 "ms-python.vscode-pylance",
                 "tamasfe.even-better-toml",
-                "ms-python.black-formatter",
+                "charliermarsh.ruff",
                 "redhat.vscode-yaml",
                 "jnoortheen.nix-ide",
                 "ms-azuretools.vscode-docker",

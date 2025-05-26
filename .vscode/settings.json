@@ -1,13 +1,10 @@
 {
-    "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
-    "nix.enableLanguageServer": true,
-    "runItOn": {
-        "commands": [
-            {
-                "match": "flake\\.nix",
-                "isShellCommand": false,
-                "cmd": "nixEnvSelector.hitEnv"
-            }
-        ]
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        },
+        "editor.defaultFormatter": "charliermarsh.ruff"
     }
 }

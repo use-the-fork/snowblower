@@ -1,5 +1,5 @@
 {
-  description = "Snow Blower";
+  description = "SnowBlower";
 
   inputs = {
     # global, so they can be `.follow`ed

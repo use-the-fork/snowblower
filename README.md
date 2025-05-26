@@ -1,66 +1,143 @@
-# ❄️ 💨 Snow Blower: All flake no fluff.
+# ❄️ 💨 SnowBlower: All flake no fluff.
 [![Built with Nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
 
-Have you ever wished you could pull down a repo, enter the shell, and have everything set up for you? Snow Blower makes that possible!
+Have you ever wished you could pull down a repo, enter the shell, and have everything set up for you? SnowBlower makes that possible!
 
-Snow Blower is an opinionated development environment primarily for web-based tools and frameworks. It provides a consistent, reproducible environment for your entire team with minimal configuration.
+SnowBlower is an opinionated development environment. It provides a consistent, reproducible environment for your entire team with minimal configuration.
 
-Setting up a project shouldn't be hard. Getting your team working in the same environment across different machines shouldn't be hard either. Snow Blower makes it easy - just add it to your `flake.nix`, pick the options you want to use, and enter the shell. All the other work is done for you!
+Setting up a project shouldn't be hard. Getting your team working in the same environment across different machines shouldn't be hard either.
 
-## Getting Started
+## Principles
+SnowBlower believes:
 
-Set up a new project with Nix flakes using our base template:
+* Configurations should come from one centralized source of truth.
+* Configurations should be easy to understand and be standardized.
+* Configurations should all be written in one language.
+* Containers should be easy to set up and execute regardless of what environment you are on.
+* Developers should be able to have a pleasant, easy-to-setup environment regardless of what IDE they use.
+* Environments should be easy to maintain and upgrade. That includes tooling, languages, and services.
 
-```sh
-nix flake init --template github:use-the-fork/snow-blower
+
+## SnowBlower to the rescue.
+To solve for this we have SnowBlower. SnowBlower uses one centralized `snowblower.yml` configuration.
+This file allows us to set up the entire environment as we see fit and then SnowBlower takes care of the rest. 
+
+This happens through the use of `Devcontainers`, `Nix`, `Flakes`, and `Home Manager`.
+
+### Devcontainers
+Devcontainers are widely supported and built into popular editors like VSCode and JetBrains. Since there is no use in 'reinventing' the wheel, we leverage Devcontainers and Docker.
+
+To do this we have created a custom image `docker.io/usethefork/snow-blower` the foundation of which is `debian:stable-slim` but uses Nix.
+
+### `Nix`, `Flakes` and `Home Manager` Oh My!
+The reason we use `debian:stable-slim` as our foundation instead of `NixOS` is to avoid some of the minor pitfalls of NixOS. Things that Nix-LD (https://github.com/nix-community/nix-ld) aims to solve.
+
+But by using `debian:stable-slim` as the base and then adding `Nix` as the package manager allows us to have the best of both worlds. We can declaratively create our own environment but not have problems when packages like `NPM` try to install things globally.
+
+The real secret sauce however is `Home Manager` (https://github.com/nix-community/home-manager). `Home Manager` provides a basic system for managing a user environment using the Nix package manager together with the Nix libraries found in Nixpkgs. It allows declarative configuration of user specific (non-global) packages and dotfiles.
+
+This ends up being perfect in our use case as it creates one unified dev environment that is identical across all developers. Neat right!
+
+## Example
+Let's say we are working on a Laravel (PHP framework) project. We know we need:
+  * PHP (8.3)
+  * Composer
+  * JavaScript (Node 22)
+  * Yarn (Berry)
+  * Pint (PHP Linting)
+  * Prettier (JavaScript Linting)
+  * MySQL (The Database)
+
+Normally this would require:
+
+```ini php.ini
+[PHP]
+engine = On
+short_open_tag = Off
+error_reporting = E_ALL | E_STRICT
 ```
 
-This template will create:
-
-* A `flake.nix` file containing a basic development environment configuration
-* A `.envrc` file to optionally set up automatic shell activation
-* A `justfile` to import our dynamically created just files
-
-Open the Snow Blower shell with:
-
-```sh
-nix develop --impure
+```json pint.json
+{
+  "preset": "laravel",
+  "rules": {
+    "simplified_null_return": true
+  }
+}
 ```
 
-Or, if you have direnv installed:
-
-```sh
-direnv allow
+```json .prettierrc.json
+{
+  "trailingComma": "es5",
+  "tabWidth": 4,
+  "semi": false,
+  "singleQuote": true
+}
 ```
 
-This will create a `flake.lock` file and open a new shell based on the configuration specified in `flake.nix`.
+And this doesn't even include installing all of these dependencies, getting the right version of PHP, Node, etc. And that's just for you! What about the rest of your team?
 
-Now, modify your `flake.nix` file to suit your needs! We've included comments in the flake file to help you get started.
+With SnowBlower, this can all be done in one clean file.
+```yml snowblower.yml
+languages:
+    php:
+        enabled: true
+        package: "php83"
+        settings:
+            php:
+                engine: "on"
+                error_reporting: "E_ALL"
+                memory_limit: "512M"
+        tools:
+            composer:
+                enabled: true
+                package: "php83Packages.composer"
+            pint:
+                enabled: true
+                settings:
+                    preset: "laravel"
+                    rules:
+                        simplified_null_return: true
 
-> **NOTE**: Why do I need `--impure`?
->
-> When working with flakes, pure mode prevents Snow Blower from accessing and modifying its state data as well as accessing any files that may be ignored by git, such as `.env` files.
+    javascript:
+        enabled: true
+        package: "nodejs_22"
+        tools:
+            yarn:
+                enabled: true
+                package: "yarn-berry"
+            prettier:
+                enabled: true
+                package: "prettierd"
+                settings:
+                    trailingComma: "es5"
+                    tabWidth: 4
+                    semi: false
+                    singleQuote: true
+services:
+    mysql:
+        image: 'mysql/mysql-server:8.0'
+        ports:
+            - '${FORWARD_DB_PORT:-3306}:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_HOST: "%"
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        volumes:
+            - 'sailmysql:/var/lib/mysql'
+        networks:
+            - sail
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
+            retries: 3
+            timeout: 5s
+```
 
-## Features
+The above sets up everything in one unified file. including what packages and settings to use. Everything else is done for you!
 
-Snow Blower provides a comprehensive development environment with:
-
-- **Language Support**: Python, JavaScript/TypeScript, PHP, Ruby, Java, and more
-- **Service Integration**: MySQL, Redis, Elasticsearch, Memcached, and others
-- **Development Tools**: Git hooks, formatting tools, linters, and more
-- **Process Management**: Run and monitor multiple processes with dependencies
-- **Environment Variables**: Manage with dotenv files and secrets with Agenix
-- **Task Running**: Just-based task runner for common development tasks
-
-All features are modular - enable only what you need for your project.
-
-## Documentation
-
-Visit our [documentation site](https://use-the-fork.github.io/snow-blower/) for detailed information on all available modules and configuration options.
-
-## Motivation
-
-Snow Blower was created to build a pure NixOS environment for developing web-based projects. While Devenv is great, it focuses on too many operating systems. Snow Blower provides a pure flake implementation focused on developer productivity.
 
 ## Contributing
 
