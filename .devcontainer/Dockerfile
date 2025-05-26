@@ -1,4 +1,4 @@
-FROM docker.io/usethefork/snow-blower-devcontainer:latest 
+FROM docker.io/usethefork/snow-blower:latest 
 # FROM ghcr.io/use-the-fork/snow-blower-devcontainer:latest
 
 

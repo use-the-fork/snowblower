@@ -3,6 +3,8 @@
     # ./bin
     ./git
 
+    ./aider.nix
+    
     ./atuin.nix
     ./bat.nix
     ./dircolors.nix

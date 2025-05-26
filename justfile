@@ -4,6 +4,10 @@ import 'just-flake.just'
 default:
     @just --list
 
+# Start AIder AI assitant
+ai:
+    @aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "README.MD"
+
 # Build the Nix options documentation and prepare files for VitePress
 build-docs:
     @echo "Building Nix options documentation..."

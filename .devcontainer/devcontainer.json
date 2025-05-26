@@ -12,15 +12,16 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "arrterian.nix-env-selector",
+                "ms-python.debugpy",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "tamasfe.even-better-toml",
+                "ms-python.black-formatter",
+                "redhat.vscode-yaml",
                 "jnoortheen.nix-ide",
-                "fsevenm.run-it-on",
                 "ms-azuretools.vscode-docker",
                 "yzhang.markdown-all-in-one"
-            ],
-            "settings": {
-                "terminal.integrated.defaultProfile.linux": "bash"
-            }
+            ]
         }
     }
     // "onCreateCommand": "nix-shell --command 'echo done building nix dev environment'"
