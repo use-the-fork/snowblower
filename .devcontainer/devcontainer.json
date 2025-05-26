@@ -18,7 +18,7 @@
                 "tamasfe.even-better-toml",
                 "charliermarsh.ruff",
                 "redhat.vscode-yaml",
-                "jnoortheen.nix-ide",
+                "bbenoist.nix",
                 "ms-azuretools.vscode-docker",
                 "yzhang.markdown-all-in-one"
             ]

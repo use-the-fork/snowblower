@@ -5,13 +5,21 @@
   self,
   ...
 }: {
+
+  imports = [
+    ./host-options.nix
+  ];
+
+
   perSystem = {
     inputs',
     self',
     pkgs,
     ...
   }: let
-    user = config.modules.user;
+    inherit (lib) mkOption mkEnableOption types;
+
+    user = config.snowblower.user;
   in {
     legacyPackages = {
       homeConfigurations = {

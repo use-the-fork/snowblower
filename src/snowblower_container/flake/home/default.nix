@@ -2,7 +2,7 @@
   imports = [
     ./languages
     ./shell
-    ./tools
+    ./shell-tools
     ./packages.nix
     ../snow-blower-config.nix
   ];

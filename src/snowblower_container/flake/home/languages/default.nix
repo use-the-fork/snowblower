@@ -1,8 +1,8 @@
 {
   imports = [
-    ./javascript.nix
-    ./php.nix
-    ./python.nix
-    ./ruby.nix
+    ./javascript
+    ./php
+    ./python
+    ./ruby
   ];
 }

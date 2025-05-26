@@ -60,11 +60,7 @@ src/snowblower_container/flake/
 │   │   │       ├── default.nix                                                                      
 │   │   │       ├── yarn.nix                                                                         
 │   │   │       └── prettier.nix                                                                     
-│   │   └── ...                                                                                      
-│   ├── services/                                                                                    
-│   │   ├── default.nix                                                                              
-│   │   ├── mysql.nix                                                                                
-│   │   └── ...                                                                                      
+│   │   └── ...                                                                                                                                                                          
 │   └── shell/                                                                                       
 │       ├── default.nix                                                                              
 │       ├── zsh/                                                                                     

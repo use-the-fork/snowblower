@@ -29,7 +29,7 @@
       systems = import inputs.systems;
 
       imports = [
-        ./modules
+        ./lib
         ./host.nix
       ];
     };

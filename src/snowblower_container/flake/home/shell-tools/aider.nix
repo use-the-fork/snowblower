@@ -2,9 +2,10 @@
   config,
   lib,
   pkgs,
+  self,
   ...
 }: let
-  inherit (import ./../../lib/utils.nix {inherit lib;}) mkTool;
+  inherit (self.utils) mkShellTool;
   inherit (lib) mkOption mkEnableOption types;
   inherit (lib) mkIf;
 
@@ -13,9 +14,9 @@
   yamlFormat = pkgs.formats.yaml {};
 
 in {
-  options.modules.tools.aider = mkTool {
+  options.modules.tools.aider = mkShellTool {
     name = "Aider";
-    package = pkgs.aider-chat-full;
+    package = pkgs.aider-chat;
     settings = {
 
       auto-commits = mkOption {

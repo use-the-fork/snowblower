@@ -2,9 +2,10 @@
   config,
   lib,
   pkgs,
+  self,
   ...
 }: let
-  inherit (import ./utils.nix {inherit lib;}) mkLanguage;
+  inherit (self.utils) mkLanguage;
   inherit (lib) mkOption mkEnableOption mkIf types attrValues getAttrs;
 
   cfg = config.modules.languages.php;
