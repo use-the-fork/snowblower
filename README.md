@@ -80,60 +80,61 @@ And this doesn't even include installing all of these dependencies, getting the 
 With SnowBlower, this can all be done in one clean file.
 ```yml snowblower.yml
 languages:
-    php:
+  php:
+    enabled: true
+    package: "php83"
+    settings:
+      php:
+        engine: "on"
+        error_reporting: "E_ALL"
+        memory_limit: "512M"
+    tools:
+      composer:
         enabled: true
-        package: "php83"
+        package: "php83Packages.composer"
+      pint:
+        enabled: true
         settings:
-            php:
-                engine: "on"
-                error_reporting: "E_ALL"
-                memory_limit: "512M"
-        tools:
-            composer:
-                enabled: true
-                package: "php83Packages.composer"
-            pint:
-                enabled: true
-                settings:
-                    preset: "laravel"
-                    rules:
-                        simplified_null_return: true
+          preset: "laravel"
+          rules:
+            simplified_null_return: true
 
-    javascript:
+  javascript:
+    enabled: true
+    package: "nodejs_22"
+    tools:
+      yarn:
         enabled: true
-        package: "nodejs_22"
-        tools:
-            yarn:
-                enabled: true
-                package: "yarn-berry"
-            prettier:
-                enabled: true
-                package: "prettierd"
-                settings:
-                    trailingComma: "es5"
-                    tabWidth: 4
-                    semi: false
-                    singleQuote: true
+        package: "yarn-berry"
+      prettier:
+        enabled: true
+        package: "prettierd"
+        settings:
+          trailingComma: "es5"
+          tabWidth: 4
+          semi: false
+          singleQuote: true
 services:
-    mysql:
-        image: 'mysql/mysql-server:8.0'
-        ports:
-            - '${FORWARD_DB_PORT:-3306}:3306'
-        environment:
-            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
-            MYSQL_ROOT_HOST: "%"
-            MYSQL_DATABASE: '${DB_DATABASE}'
-            MYSQL_USER: '${DB_USERNAME}'
-            MYSQL_PASSWORD: '${DB_PASSWORD}'
-            MYSQL_ALLOW_EMPTY_PASSWORD: 1
-        volumes:
-            - 'sailmysql:/var/lib/mysql'
-        networks:
-            - sail
-        healthcheck:
-            test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
-            retries: 3
-            timeout: 5s
+  mysql:
+    image: "mysql/mysql-server:8.0"
+    ports:
+      - "${FORWARD_DB_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: "${DB_DATABASE}"
+      MYSQL_USER: "${DB_USERNAME}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - "sailmysql:/var/lib/mysql"
+    networks:
+      - sail
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
+      retries: 3
+      timeout: 5s
+
 ```
 
 The above sets up everything in one unified file. including what packages and settings to use. Everything else is done for you!

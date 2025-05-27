@@ -6,7 +6,7 @@ default:
 
 # Start AIder AI assitant
 ai:
-    @aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "README.MD"
+    @aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "README.MD" --read "pyproject.toml"
 
 # Build the Nix options documentation and prepare files for VitePress
 build-docs:

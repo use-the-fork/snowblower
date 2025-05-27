@@ -1,0 +1,73 @@
+languages:
+  python:
+    enabled: true
+    package: "python311"
+    tools:
+      ruff:
+        enabled: true
+        settings:
+          exclude: [
+          # AI: fix the below to make it propper yaml
+    ".bzr"
+    ".direnv"
+    ".eggs"
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+          ]
+
+  javascript:
+    enabled: true
+    package: "nodejs_22"
+    tools:
+      yarn:
+        enabled: true
+        package: "yarn-berry"
+      prettier:
+        enabled: true
+        package: "prettierd"
+        settings:
+          trailingComma: "es5"
+          tabWidth: 4
+          semi: false
+          singleQuote: true
+services:
+  mysql:
+    image: "mysql/mysql-server:8.0"
+    ports:
+      - "${FORWARD_DB_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: "${DB_DATABASE}"
+      MYSQL_USER: "${DB_USERNAME}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - "sailmysql:/var/lib/mysql"
+    networks:
+      - sail
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
+      retries: 3
+      timeout: 5s
