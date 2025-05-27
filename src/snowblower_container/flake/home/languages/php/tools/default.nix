@@ -6,7 +6,6 @@
   ...
 }: {
   imports = [
-    ./core.nix
-    ./tools
+    ./composer.nix
   ];
 }

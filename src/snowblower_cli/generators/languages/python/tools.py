@@ -43,7 +43,7 @@ class RuffTool(ToolGenerator):
             pending_generator.add("nix.config.snowblower.languages.python.tools.ruff.package", self.config.get("languages.python.tools.ruff.package", "ruff"))
 
         if self.config.get("languages.python.tools.ruff.settings", False):
-            pending_generator.add("nix.config.snowblower.languages.python.tools.ruff.settings", self.config.get("languages.python.tools.ruff.settings"))
+            pending_generator.add("nix.config.snowblower.languages.python.tools.ruff.settings.config", self.config.get("languages.python.tools.ruff.settings.config"))
 
 
         return pending_generator

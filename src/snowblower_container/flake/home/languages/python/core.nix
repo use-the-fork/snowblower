@@ -22,7 +22,7 @@ in {
       [
         # Always include the configured Python version
         cfg.package
-      ]
+      ];
 
     # Python environment setup
     home.sessionVariables = {

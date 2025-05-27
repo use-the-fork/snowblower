@@ -27,3 +27,6 @@ docs-build: build-docs
 docs-preview:
     @echo "Previewing VitePress site..."
     @npm run docs:preview
+
+
+# nix build .#homeConfigurations."your.name".activationPackage

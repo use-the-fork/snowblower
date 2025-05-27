@@ -4,7 +4,7 @@
     ./shell
     ./shell-tools
     ./packages.nix
-    ../snow-blower-config.nix
+    ../configuration.nix
   ];
 
   config = {

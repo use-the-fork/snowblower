@@ -1,0 +1,6 @@
+{config, ...}: {
+  config = {
+    snowblower.languages = {
+    };
+  };
+}

@@ -9,12 +9,12 @@
   inherit (lib) mkOption mkEnableOption types;
   inherit (lib) mkIf;
 
-  cfg = config.modules.tools.aider;
+  cfg = config.snowblower.tools.aider;
   
   yamlFormat = pkgs.formats.yaml {};
 
 in {
-  options.modules.tools.aider = mkShellTool {
+  options.snowblower.tools.aider = mkShellTool {
     name = "Aider";
     package = pkgs.aider-chat;
     settings = {

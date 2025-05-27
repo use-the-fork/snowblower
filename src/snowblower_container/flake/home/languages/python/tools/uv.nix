@@ -17,7 +17,13 @@ in {
   options.snowblower.languages.python.tools.uv = mkLanguageTool {
     name = "UV";
     package = pkgs.uv;
-    settingType = toml.type;
+    settings = {
+          config = mkOption {
+            type = toml.type;
+            default = { };
+            description = "Specify the configuration for UV";
+          };
+    };
   };
 
   config = mkIf cfg.enable {
@@ -26,8 +32,7 @@ in {
     # Configure uv
     home.file.".config/uv/config.toml" = {
       enable = true;
-      source = toml.generate "uv-config" cfg.settings;
+      source = toml.generate "uv-config" cfg.settings.config;
     };
-
   };
 }

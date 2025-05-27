@@ -9,11 +9,11 @@
   inherit (lib) mkOption mkEnableOption types;
   inherit (lib) mkIf;
 
-  cfg = config.modules.languages.javascript;
+  cfg = config.snowblower.languages.javascript;
   
   npmrc = pkgs.formats.ini {};
 in {
-  options.modules.languages.javascript = mkLanguage {
+  options.snowblower.languages.javascript = mkLanguage {
     name = "Javascript";
     package = pkgs.nodejs_24;
     settings = {

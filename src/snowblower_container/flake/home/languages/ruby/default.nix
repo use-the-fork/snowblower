@@ -9,12 +9,12 @@
   inherit (lib) mkOption mkEnableOption types;
   inherit (lib) mkIf;
 
-  cfg = config.modules.languages.ruby;
+  cfg = config.snowblower.languages.ruby;
   
   gemrc = pkgs.formats.yaml {};
 
 in {
-  options.modules.languages.ruby = mkLanguage {
+  options.snowblower.languages.ruby = mkLanguage {
     name = "Ruby";
     package = pkgs.ruby_3_2;
     settings = {

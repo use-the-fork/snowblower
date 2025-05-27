@@ -111,8 +111,8 @@ ONBUILD RUN \
 
 ONBUILD USER ${USERNAME}
 
-ONBUILD ARG SNOW_BLOWER_CONFIG_PATH=flake/snow-blower-config.nix
-ONBUILD COPY ${SNOW_BLOWER_CONFIG_PATH} /home/${USERNAME}/.config/flake/snow-blower-config.nix
+ONBUILD ARG SNOW_BLOWER_CONFIG_PATH=flake/configuration.nix
+ONBUILD COPY ${SNOW_BLOWER_CONFIG_PATH} /home/${USERNAME}/.config/flake/configuration.nix
 ONBUILD RUN sudo chown -R ${USERNAME}: /home/${USERNAME}/.config
 
 # switch to the flake package
