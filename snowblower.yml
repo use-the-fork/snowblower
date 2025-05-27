@@ -51,6 +51,15 @@ languages:
             tabWidth: 4
             semi: false
             singleQuote: true
+
+tools:
+  aider:
+    enabled: true
+    package: "aider-chat"
+    settings:
+      config:
+        
+
 services:
   mysql:
     image: "mysql/mysql-server:8.0"
