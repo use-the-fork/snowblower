@@ -7,6 +7,10 @@
     "workspaceFolder": "/workspace",
     // "userEnvProbe": "loginShell",
     "updateRemoteUserUID": false,
+    "remoteEnv": {
+        "PODMAN_USERNS": "keep-id"
+    },
+    "containerUser": "code",
     "remoteUser": "code",
     "shutdownAction": "stopCompose",
     "customizations": {

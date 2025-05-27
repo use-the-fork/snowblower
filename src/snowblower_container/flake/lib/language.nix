@@ -20,7 +20,7 @@
   mkLanguageTool = {
     name,
     package,
-    settings ? {}, # used to define additional modules
+    settingType
   }: {
     enable = mkEnableOption "tools for ${name} development";
     package = mkOption {
@@ -28,7 +28,11 @@
       description = "The package ${name} should use.";
       default = package;
     };
-    inherit settings;
+    settings = mkOption {
+            type = settingType;
+            default = { };
+            description = "Specify the configuration for ${name}";
+          };
   };
 
 in {

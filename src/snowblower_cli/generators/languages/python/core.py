@@ -1,6 +1,7 @@
-from snowblower_cli.generators import LanguageGenerator
+from snowblower_cli.config.parser import Language
+from snowblower_cli.generators.base import LanguageGenerator
 from snowblower_cli.generators.manager import GeneratorOutput
-
+from rich import print
 
 class PythonLanguage(LanguageGenerator):
     """Python language generator for SnowBlower.
@@ -8,9 +9,9 @@ class PythonLanguage(LanguageGenerator):
     Handles Python language configuration and tools.
     """
 
-    def validate(self) -> None:
+    def validate(self) -> bool:
         """Validate the Python language configuration."""
-        return self.config.get("languages", {}).get("python", {}).get("enabled", False)
+        return self.config.get("languages.python.enabled", False)
 
     def handle(self, pending_generator: GeneratorOutput) -> GeneratorOutput:
         """Generate Python language configuration.
@@ -21,28 +22,30 @@ class PythonLanguage(LanguageGenerator):
         Returns:
             Updated generator output with Python language configuration
         """
-        # Import Python tools
-        from snowblower_cli.generators.languages.python.tools import (
-            get_python_tools,
-        )
 
-        # Add Python package if specified
-        python_package = (
-            self.config.get("languages", {}).get("python", {}).get("package")
-        )
-        if python_package:
-            pending_generator.add_nix_package(python_package)
+        # Set the defaults for nix.
+        pending_generator.add("nix.config.snowblower.languages.python.enabled", True)
+        pending_generator.add("nix.config.snowblower.languages.python.package", self.config.get("languages.python.package", "python311"))
 
-        # Process Python settings
-        python_settings = (
-            self.config.get("languages", {}).get("python", {}).get("settings", {})
-        )
-        for key, value in python_settings.items():
-            pending_generator.add_nix_option(f"python.{key}", value)
+        for tool_key, tool_config in self.config.get("languages.python.tools", {}).items():
+            try:
 
-        # Process Python tools
-        tools = get_python_tools(self.config)
-        for tool in tools:
-            pending_generator = tool.handle(pending_generator)
+                # Import the language module dynamically
+                module_path = f"snowblower_cli.generators.languages.python.tools"
+                class_name = f"{tool_key.capitalize()}Tool"
+
+                # Import the module
+                module = __import__(module_path, fromlist=[class_name])
+                
+                # Get the language class
+                tool_class = getattr(module, class_name)
+                
+                # Instantiate and call the language generator
+                tool_generator = tool_class(self.config)
+                pending_generator = tool_generator(pending_generator)
+                
+            except (ImportError, AttributeError) as e:
+                # Handle case where language module doesn't exist
+                print(f"Failed to import tool module for {tool_key}: {e}")
 
         return pending_generator

@@ -82,7 +82,7 @@ RUN sudo chown -R ${USERNAME}: /nix
 USER ${USERNAME}
 
 # Copy over our dot files and switch.
-COPY snow-blower /home/${USERNAME}/.config/snow-blower
+COPY flake /home/${USERNAME}/.config/flake
 
 # Setup vscode
 RUN mkdir -p /home/${USERNAME}/.vscode-server/extensions && \
@@ -111,10 +111,9 @@ ONBUILD RUN \
 
 ONBUILD USER ${USERNAME}
 
-ONBUILD ARG SNOW_BLOWER_CONFIG_PATH=snow-blower/snow-blower-config.nix
-ONBUILD COPY ${SNOW_BLOWER_CONFIG_PATH} /home/${USERNAME}/.config/snow-blower/snow-blower-config.nix
+ONBUILD ARG SNOW_BLOWER_CONFIG_PATH=flake/snow-blower-config.nix
+ONBUILD COPY ${SNOW_BLOWER_CONFIG_PATH} /home/${USERNAME}/.config/flake/snow-blower-config.nix
 ONBUILD RUN sudo chown -R ${USERNAME}: /home/${USERNAME}/.config
 
 # switch to the flake package
-ONBUILD WORKDIR /home/${USERNAME}/.config/snow-blower
-ONBUILD RUN nix run home-manager/release-24.05 -- switch --flake .#${USERNAME}
+ONBUILD RUN nix run home-manager/release-24.05 -- switch --flake ./home/${USERNAME}/.config/flake#${USERNAME}

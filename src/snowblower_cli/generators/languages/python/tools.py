@@ -5,14 +5,8 @@ from snowblower_cli.generators.manager import GeneratorOutput
 class RuffTool(ToolGenerator):
     """Ruff linter and formatter tool for Python."""
 
-    def __init__(self, config: dict[str, Any]) -> None:
-        """Initialize the Ruff tool generator.
-
-        Args:
-            config: Configuration dictionary for the generator
-        """
-        super().__init__(config)
-        self.documentation_url = "https://docs.astral.sh/ruff/"
+    documentation_url = "https://docs.astral.sh/ruff/"
+        
 
     def validate(self) -> bool:
         """Validate the Ruff tool configuration.
@@ -21,17 +15,15 @@ class RuffTool(ToolGenerator):
             True if the configuration is valid, False otherwise
         """
         # Check if Python language is enabled
-        if not self.config.get("languages", {}).get("python", {}).get("enabled", False):
+        if not self.config.get("languages.python.enabled", False):
             return False
-
+        
         # Check if Ruff tool is enabled
-        return (
-            self.config.get("languages", {})
-            .get("python", {})
-            .get("tools", {})
-            .get("ruff", {})
-            .get("enabled", False)
-        )
+        if not self.config.get("languages.python.tools.ruff.enabled", False):
+            return False
+        
+        return True
+
 
     def handle(self, pending_generator: GeneratorOutput) -> GeneratorOutput:
         """Generate Ruff tool configuration.
@@ -42,26 +34,16 @@ class RuffTool(ToolGenerator):
         Returns:
             Updated generator output with Ruff tool configuration
         """
-        # Add Ruff package if specified
-        ruff_package = (
-            self.config.get("languages", {})
-            .get("python", {})
-            .get("tools", {})
-            .get("ruff", {})
-            .get("package")
-        )
-        if ruff_package:
-            pending_generator.add_nix_package(ruff_package)
 
-        # Add Ruff settings to Nix options
-        ruff_settings = (
-            self.config.get("languages", {})
-            .get("python", {})
-            .get("tools", {})
-            .get("ruff", {})
-            .get("settings", {})
-        )
-        for key, value in ruff_settings.items():
-            pending_generator.add_nix_option(f"python.tools.ruff.{key}", value)
+        # Set the defaults for nix.
+        pending_generator.add("nix.config.snowblower.languages.python.tools.ruff.enabled", True)
+
+        # Add Ruff package if specified
+        if self.config.get("languages.python.tools.ruff.package", False):
+            pending_generator.add("nix.config.snowblower.languages.python.tools.ruff.package", self.config.get("languages.python.tools.ruff.package", "ruff"))
+
+        if self.config.get("languages.python.tools.ruff.settings", False):
+            pending_generator.add("nix.config.snowblower.languages.python.tools.ruff.settings", self.config.get("languages.python.tools.ruff.settings"))
+
 
         return pending_generator

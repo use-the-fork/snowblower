@@ -2,9 +2,9 @@ services:
   dev:
     env_file:
     - path: ./../.env
+    image: localhost/usethefork/snow-blower
     build:
       context: ../
-      dockerfile: .devcontainer/Dockerfile
       args:
         USER_UID: ${USER_UID:-1000}
         USER_GID: ${USER_GID:-1000}
@@ -12,7 +12,6 @@ services:
     volumes:
       - ..:/workspace:cached
       - ${HOME}/.ssh:/home/${REMOTE_USER_NAME:-code}/.ssh:ro
-      - ../.snow-blower:/home/${REMOTE_USER_NAME:-code}/.snowblower:rw
 
 volumes: 
   snow_blower:

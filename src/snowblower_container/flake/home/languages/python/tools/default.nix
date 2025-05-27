@@ -6,7 +6,7 @@
   ...
 }: {
   imports = [
-    ./core.nix
-    ./tools
+    ./ruff.nix
+    ./uv.nix
   ];
 }

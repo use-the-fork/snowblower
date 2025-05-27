@@ -119,9 +119,6 @@ services:
 
         # Create and run the generator manager
         manager = GeneratorManager(self.config_parser.config, self.working_dir)
-        if not manager.discover_generators():
-            logger.warning("No generators were discovered")
-            return False
 
         if not manager.run_generators():
             logger.error("One or more generators failed")
