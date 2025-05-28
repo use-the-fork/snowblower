@@ -1,7 +1,31 @@
-{pkgs, ...}: {
+{config, pkgs, lib, ...}: let 
+
+  inherit (lib) mkOption mkEnableOption types;
+  inherit (lib) mkIf;
+
+  cfg = config.snowblower.tools.git;
+
+
+in {
   imports = [
     ./ignore.nix
   ];
+
+  options.snowblower.tools.git = {
+
+    userName = mkOption {
+      type = types.str;
+      default = "No Name";
+      description = "The Git Username";
+    };
+
+    userEmail = mkOption {
+      type = types.str;
+      default = "do-not-reply@not-set.xyz";
+      description = "Yarn package to use";
+    };
+
+  };
 
   config = {
     home.packages = with pkgs; [
@@ -15,8 +39,8 @@
       enable = true;
       package = pkgs.gitFull;
 
-      # userName = git.userName;
-      # userEmail = git.userEmail;
+      userName = cfg.userName;
+      userEmail = cfg.userEmail;
 
       lfs = {
         enable = true;

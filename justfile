@@ -38,3 +38,4 @@ build-no-cache:
 
 
 # nix build .#homeConfigurations."your.name".activationPackage
+# podman build --format=docker -t docker.io/use-the-fork/snow-blower-devcontainer:latest -f src/snowblower_container/Dockerfile src/snowblower_container

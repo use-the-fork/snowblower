@@ -16,7 +16,6 @@ RUN apt -y install --no-install-recommends \
     ca-certificates \
     psmisc \
     procps \
-    less \
     xz-utils \
     curl \
     git \

@@ -1,6 +1,12 @@
 {config, pkgs, ...}: {
   config = {
     snowblower = {
+
+      tools.git = {
+        userName = "use-the-fork";
+        userEmail = "23747916+use-the-fork@users.noreply.github.com";
+      };
+
       languages = {
         python = {
           enable = true;

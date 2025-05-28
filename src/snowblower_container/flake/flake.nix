@@ -30,7 +30,7 @@
 
       imports = [
         ./lib
-        ./host.nix
+        ./home-module.nix
       ];
     };
 

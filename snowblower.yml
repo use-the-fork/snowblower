@@ -58,7 +58,13 @@ tools:
     package: "aider-chat"
     settings:
       config:
-        
+        auto-commits: false
+        dirty-commits: true
+        auto-lint: true
+        dark-mode: true
+        light-mode: false
+        cache-prompts: false
+        code-theme: "solarized-dark"
 
 services:
   mysql:
