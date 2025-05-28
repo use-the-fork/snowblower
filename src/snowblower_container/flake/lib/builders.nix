@@ -19,13 +19,6 @@
 
       # Modules
       modules = concatLists [
-        (singleton {
-
-
-          # set baseModules in the place of nixos/lib/eval-config.nix's default argument
-          # _module.args.baseModules = import "${modulesPath}/module-list.nix";
-        })
-
         # if host needs additional modules, append them
         (args.modules or [])
       ];
