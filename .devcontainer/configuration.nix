@@ -1,17 +1,21 @@
 {config, pkgs, ...}: {
   config = {
     snowblower = {
-
-      tools.git = {
-        userName = "use-the-fork";
-        userEmail = "23747916+use-the-fork@users.noreply.github.com";
+      tools = {
+        aider.enable = true;
+        git = {
+          userName = "use-the-fork";
+          userEmail = "23747916+use-the-fork@users.noreply.github.com";
+        };
       };
-
       languages = {
         python = {
           enable = true;
           package = pkgs.python311;
           tools = {
+            uv = {
+              enable = true;
+             };
             ruff = {
               enable = true;
               settings = {

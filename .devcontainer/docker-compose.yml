@@ -8,7 +8,7 @@ services:
       args:
         - USER_UID=${USER_UID:-1000}
         - USER_GID=${USER_GID:-1000}
-        - SNOW_BLOWER_CONFIG_PATH=./.devcontainer/configuration.nix
+        - SNOWBLOWER_CONFIG_PATH=.devcontainer/configuration.nix
     volumes:
       - ..:/workspace:cached
       - ${USER_HOME_PATH:-~}/.ssh:/home/${REMOTE_USER_NAME:-code}/.ssh:ro
