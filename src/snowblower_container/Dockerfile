@@ -18,7 +18,6 @@ RUN apt -y install --no-install-recommends \
     procps \
     less \
     xz-utils \
-    vim-tiny \
     curl \
     git \
     ssh \
@@ -30,8 +29,6 @@ RUN apt -y install --no-install-recommends \
     lsb-release \
     dialog \
     locales \
-    man-db \
-    bash-completion \
     acl && \
     rm -rf /var/lib/apt/lists/*
 

@@ -109,12 +109,6 @@ services:
             if not self.load_config():
                 return False
 
-        # Each config below should be a dict that each package can modify and write to as needed.
-        # the final output that each generator can contrbute to will be one of :
-        # - `configuration.nix` (Will have settings that are used to set our options when running our flake)
-        # - `ide` (will have vscode or jetbrains settings that will be written too either in .vscode or in devcontainer (customizations))
-        # - `docker-compose` these will be the services we write.
-
         from snowblower_cli.generators.manager import GeneratorManager
 
         # Create and run the generator manager

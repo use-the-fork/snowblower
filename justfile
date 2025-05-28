@@ -28,5 +28,13 @@ docs-preview:
     @echo "Previewing VitePress site..."
     @npm run docs:preview
 
+# Build the Devcontainer.
+build:
+    @docker build -t use-the-fork/snow-blower-devcontainer:latest -f src/snowblower_container/Dockerfile src/snowblower_container
+
+# Build the Devcontainer.
+build-no-cache:
+    @docker build --no-cache -t use-the-fork/snow-blower-devcontainer:latest -f src/Dockerfile src
+
 
 # nix build .#homeConfigurations."your.name".activationPackage
