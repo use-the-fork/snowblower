@@ -35,10 +35,8 @@ class AllShellTools(BaseGenerator):
         for tool_key, tool_config in self.config.shell_tools.items():
             try:
                 # Import the shell_tool module dynamically
-                module_path = f"snowblower_cli.generators.shell_tools.{tool_key}"
+                module_path = f"snowblower_cli.generators.shell_tools.tools.{tool_key}"
                 class_name = f"{tool_key.capitalize()}ShellTool"
-
-                rich.print(module_path)
 
                 # Import the module
                 module = __import__(module_path, fromlist=[class_name])

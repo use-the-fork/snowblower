@@ -14,6 +14,7 @@ class FileType(Enum):
     JSON = auto()
     YAML = auto()
     TOML = auto()
+    TEXT = auto()
 
 
 @dataclass
@@ -144,6 +145,36 @@ class YamlHandler(FileHandler):
     def generate(self, data: dict[str, Any]) -> str:
         """Generate YAML string from dictionary."""
         return yaml.dump(data, default_flow_style=False)
+
+
+class TextHandler(FileHandler):
+    """Handler for plain text files."""
+
+    def parse(self, content: str) -> dict[str, Any]:
+        """Parse text content into a dictionary.
+
+        For text files, we store the content as a single string under the 'content' key.
+        """
+        return {"content": content}
+
+    def generate(self, data: dict[str, Any]) -> str:
+        """Generate text string from dictionary.
+
+        For text files, we expect either a 'content' key with a string value,
+        or a dictionary where each key-value pair represents a line in the file.
+        """
+        if "content" in data:
+            return data["content"]
+
+        # If no content key, treat each key-value pair as a line
+        lines = []
+        for key, value in data.items():
+            if value is True:
+                lines.append(key)
+            elif value:
+                lines.append(f"{key} {value}")
+
+        return "\n".join(lines)
 
 
 class TomlHandler(FileHandler):

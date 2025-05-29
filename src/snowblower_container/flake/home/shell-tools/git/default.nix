@@ -3,7 +3,7 @@
   inherit (lib) mkOption mkEnableOption types;
   inherit (lib) mkIf;
 
-  cfg = config.snowblower.shell-tools.git;
+  cfg = config.snowblower.shell_tools.git;
 
 
 in {
@@ -11,15 +11,15 @@ in {
     ./ignore.nix
   ];
 
-  options.snowblower.shell-tools.git = {
+  options.snowblower.shell_tools.git = {
 
-    userName = mkOption {
+    user_name = mkOption {
       type = types.str;
       default = "No Name";
       description = "The Git Username";
     };
 
-    userEmail = mkOption {
+    user_email = mkOption {
       type = types.str;
       default = "do-not-reply@not-set.xyz";
       description = "Yarn package to use";
@@ -39,8 +39,8 @@ in {
       enable = true;
       package = pkgs.gitFull;
 
-      userName = cfg.userName;
-      userEmail = cfg.userEmail;
+      userName = cfg.user_name;
+      userEmail = cfg.user_email;
 
       lfs = {
         enable = true;

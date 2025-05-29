@@ -12,6 +12,18 @@
           };
         };
       };
+      shell_tools = {
+        aider = {
+          enable = true;
+          package = pkgs.aider-chat;
+        };
+        git = {
+          enable = true;
+          user_name = "use-the-fork";
+          user_email = "23747916+use-the-fork@users.noreply.github.com";
+          package = pkgs.gitFull;
+        };
+      };
     };
   };
 }

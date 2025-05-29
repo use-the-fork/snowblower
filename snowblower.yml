@@ -83,7 +83,7 @@ languages:
             semi: false
             singleQuote: true
 
-shell-tools:
+shell_tools:
   aider:
     enabled: true
     package: "aider-chat"
@@ -96,6 +96,20 @@ shell-tools:
         light-mode: false
         cache-prompts: false
         code-theme: "solarized-dark"
+
+  git:
+    enabled: true
+    package: "gitFull"
+    settings:
+      user_name: "use-the-fork"
+      user_email: "23747916+use-the-fork@users.noreply.github.com"
+      gitignore:
+        - __pycache__
+        - .snow-blower
+        - .sb
+        - .env*
+        - "!.env.example"
+        - "result"
 
 services:
   mysql:
