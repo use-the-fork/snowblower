@@ -3,29 +3,28 @@ from snowblower_cli.generators.manager import GeneratorOutput
 from snowblower_cli.utils.file_handlers import FileHandlerInput, FileType
 
 
-# AI: fix the commants and docblocks
 class AiderTool(ShellToolGenerator):
-    """Ruff linter and formatter tool for Python."""
+    """Aider AI assistant tool for development."""
 
     documentation_url = "https://aider.chat/docs/config.html"
 
     def validate(self) -> bool:
-        """Validate the Ruff tool configuration.
+        """Validate the Aider tool configuration.
 
         Returns:
             True if the configuration is valid, False otherwise
         """
-        # Check if Python language is enabled
+        # Check if Aider tool is enabled
         return self.config.get("shell-tools.aider.enabled", False)
 
     def handle(self, pending_generator: GeneratorOutput) -> GeneratorOutput:
-        """Generate Ruff tool configuration.
+        """Generate Aider tool configuration.
 
         Args:
             pending_generator: The current state of the generator output
 
         Returns:
-            Updated generator output with Ruff tool configuration
+            Updated generator output with Aider tool configuration
         """
 
         # Set the defaults for nix.

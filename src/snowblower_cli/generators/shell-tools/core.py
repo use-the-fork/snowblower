@@ -44,7 +44,7 @@ class AllTools(BaseGenerator):
                 # Get the language class
                 language_class = getattr(module, class_name)
 
-                # Instantiate and call the language generator AI!
+                # Instantiate and call the language generator
                 language_generator = language_class(self.config)
                 pending_generator = language_generator(pending_generator)
 
