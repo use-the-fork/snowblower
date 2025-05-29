@@ -19,7 +19,7 @@ in {
     package = pkgs.uv;
     settings = {
           config = mkOption {
-            type = toml.type;
+            type = types.submodule {freeformType = toml.type;};
             default = { };
             description = "Specify the configuration for UV";
           };

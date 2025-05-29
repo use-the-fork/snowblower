@@ -10,11 +10,12 @@ dependencies = [
     "python-dotenv>=1.1.0",
     "pyyaml>=6.0.2",
     "rich>=14.0.0",
+    "tomli-w>=1.2.0",
 ]
 
 [tool.ruff]
 select = ['ALL']
-ignore = ['ANN401', 'D']
+ignore = ['ANN401', 'D', 'INP001']
 
 [tool.ruff.lint]
 extend-select = [

@@ -3,7 +3,7 @@
   inherit (lib) mkOption mkEnableOption types;
   inherit (lib) mkIf;
 
-  cfg = config.snowblower.tools.git;
+  cfg = config.snowblower.shell-tools.git;
 
 
 in {
@@ -11,7 +11,7 @@ in {
     ./ignore.nix
   ];
 
-  options.snowblower.tools.git = {
+  options.snowblower.shell-tools.git = {
 
     userName = mkOption {
       type = types.str;

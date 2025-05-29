@@ -15,6 +15,10 @@ class LanguageTool(BaseModel):
     settings: dict[str, Any] = Field(default_factory=dict)
 
 
+class ShellTool(LanguageTool):
+    """Model for a shell tool configuration."""
+
+
 class Language(BaseModel):
     """Model for a language configuration."""
 
@@ -38,7 +42,7 @@ class SnowBlowerConfig(BaseModel):
     """Model for the main SnowBlower configuration."""
 
     languages: dict[str, Language] = Field(default_factory=dict)
-    shell_tools: dict[str, LanguageTool] = Field(default_factory=dict)
+    shell_tools: dict[str, ShellTool] = Field(default_factory=dict)
     services: dict[str, ServiceConfig] = Field(default_factory=dict)
 
     def get(self, key: str, default: Any = None) -> Any:

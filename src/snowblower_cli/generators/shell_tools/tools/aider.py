@@ -3,7 +3,7 @@ from snowblower_cli.generators.manager import GeneratorOutput
 from snowblower_cli.utils.file_handlers import FileHandlerInput, FileType
 
 
-class AiderTool(ShellToolGenerator):
+class AiderShellTool(ShellToolGenerator):
     """Aider AI assistant tool for development."""
 
     documentation_url = "https://aider.chat/docs/config.html"
@@ -38,7 +38,7 @@ class AiderTool(ShellToolGenerator):
             )
 
         if self.config.get("shell-tools.aider.settings", False):
-            ruff_config = FileHandlerInput(
+            aider_config = FileHandlerInput(
                 file_name=".aider.conf.yml",
                 file_type=FileType.YAML,
                 data=self.config.get("shell-tools.aider.settings.config", {}),
@@ -46,7 +46,7 @@ class AiderTool(ShellToolGenerator):
 
             pending_generator.add(
                 "workspace.files.aider",
-                ruff_config,
+                aider_config,
             )
 
         return pending_generator
