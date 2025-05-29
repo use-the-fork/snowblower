@@ -1,6 +1,6 @@
 from snowblower_cli.generators.base import ToolGenerator
 from snowblower_cli.generators.manager import GeneratorOutput
-from snowblower_cli.utils.file_handlers import FileHandlerInput
+from snowblower_cli.utils.file_handlers import FileHandlerInput, FileType
 
 
 class RuffTool(ToolGenerator):
@@ -50,8 +50,7 @@ class RuffTool(ToolGenerator):
         if self.config.get("languages.python.tools.ruff.settings", False):
             ruff_config = FileHandlerInput(
                 file_name="ruff.toml",
-                # ai: apply the toml FileType here ai!
-                file_type=FileType,
+                file_type=FileType.TOML,
                 data=self.config.get("languages.python.tools.ruff.settings.config", {}),
             )
 
