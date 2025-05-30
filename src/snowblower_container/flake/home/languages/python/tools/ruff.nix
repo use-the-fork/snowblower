@@ -12,7 +12,6 @@
   cfg = config.snowblower.languages.python.tools.ruff;
 
   toml = pkgs.formats.toml {};
-
 in {
   options.snowblower.languages.python.tools.ruff = mkLanguageTool {
     name = "Ruff";
@@ -24,15 +23,5 @@ in {
             description = "Specify the configuration for Ruff";
           };
     };
-  };
-
-  config = mkIf cfg.enable {
-    home.packages = with pkgs; [cfg.package];
-
-    home.file.".config/ruff/ruff.toml" = {
-      enable = true;
-      source = toml.generate "ruff-config" cfg.settings.config;
-    };
-
   };
 }

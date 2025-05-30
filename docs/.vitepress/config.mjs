@@ -37,6 +37,15 @@ export default defineConfig({
                             { text: 'Prettier', link: '/tools/javascript/prettier' },
                             { text: 'Yarn', link: '/tools/javascript/yarn' }
                         ]
+                    },
+                    {
+                        text: 'Python',
+                        collapsed: false,
+                        items: [
+                            { text: 'Overview', link: '/tools/python/index' },
+                            { text: 'Ruff', link: '/tools/python/ruff' },
+                            { text: 'UV', link: '/tools/python/uv' }
+                        ]
                     }
                 ]
             }

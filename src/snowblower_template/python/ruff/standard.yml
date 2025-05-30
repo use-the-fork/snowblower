@@ -1,0 +1,18 @@
+# Standard Ruff configuration with a balanced set of rules
+line-length: 100
+select:
+  - "E"    # pycodestyle errors
+  - "F"    # pyflakes
+  - "W"    # pycodestyle warnings
+  - "I"    # isort
+  - "N"    # pep8-naming
+  - "UP"   # pyupgrade
+  - "B"    # flake8-bugbear
+  - "C4"   # flake8-comprehensions
+  - "SIM"  # flake8-simplify
+  - "RET"  # flake8-return
+  - "PTH"  # flake8-use-pathlib
+ignore:
+  - "E501"  # line too long
+  - "B008"  # do not perform function call in argument defaults
+target-version: "py311"

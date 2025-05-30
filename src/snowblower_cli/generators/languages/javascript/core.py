@@ -2,6 +2,7 @@ from snowblower_cli.generators.base import LanguageGenerator
 from snowblower_cli.generators.manager import GeneratorOutput
 
 
+# AI: Fix the documentation for the module here.
 class JavascriptLanguage(LanguageGenerator):
     """Python language generator for SnowBlower.
 

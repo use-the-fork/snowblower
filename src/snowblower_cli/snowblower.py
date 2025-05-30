@@ -2,8 +2,11 @@ import os
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 from snowblower_cli.config.parser import ConfigParser
 from snowblower_cli.logger import logger
+from snowblower_template import load_template
 
 
 class SnowBlower:
@@ -127,6 +130,66 @@ services:
         # TODO: Implement generation logic using the appropriate generators
 
         return True
+
+    def apply_template(self, category: str, template_name: str, config_path: Path) -> bool:
+        """Apply a template to the configuration.
+
+        Args:
+            category: The category of the template (e.g., 'python/ruff')
+            template_name: The name of the template (e.g., 'standard')
+            config_path: Path to the configuration file
+
+        Returns:
+            True if the template was applied successfully, False otherwise
+        """
+        try:
+            # Load the template
+            template_data = load_template(category, template_name)
+            logger.info(f"Loaded template {template_name} for {category}")
+
+            # Load the current configuration
+            with open(config_path) as f:
+                config_data = yaml.safe_load(f) or {}
+
+            # Determine where to apply the template based on category
+            parts = category.split("/")
+            if len(parts) == 2:  # e.g., python/ruff
+                language, tool = parts
+
+                # Ensure the language section exists
+                if "languages" not in config_data:
+                    config_data["languages"] = {}
+                if language not in config_data["languages"]:
+                    config_data["languages"][language] = {"enable": True}
+
+                # Ensure the tools section exists
+                if "tools" not in config_data["languages"][language]:
+                    config_data["languages"][language]["tools"] = {}
+                if tool not in config_data["languages"][language]["tools"]:
+                    config_data["languages"][language]["tools"][tool] = {"enable": True}
+
+                # Ensure settings section exists
+                if "settings" not in config_data["languages"][language]["tools"][tool]:
+                    config_data["languages"][language]["tools"][tool]["settings"] = {}
+
+                # Apply the template to the config section
+                config_data["languages"][language]["tools"][tool]["settings"]["config"] = (
+                    template_data
+                )
+            else:
+                logger.error(f"Unsupported template category format: {category}")
+                return False
+
+            # Write the updated configuration back to the file
+            with open(config_path, "w") as f:
+                yaml.dump(config_data, f, default_flow_style=False, sort_keys=False)
+
+            logger.info(f"Applied template {template_name} to {category} in {config_path}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to apply template: {e}")
+            return False
 
     def run(self, command: str) -> bool:
         """Run a specific command.

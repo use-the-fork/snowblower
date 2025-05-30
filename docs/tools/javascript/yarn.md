@@ -23,11 +23,11 @@ languages:
 
 ## Options
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `enable` | Enable or disable Yarn | `false` |
-| `package` | The Nix package to use for Yarn | `"yarn-berry"` |
-| `settings.config` | Yarn configuration options | `{}` |
+| Option            | Description                     | Default        |
+| ----------------- | ------------------------------- | -------------- |
+| `enable`          | Enable or disable Yarn          | `false`        |
+| `package`         | The Nix package to use for Yarn | `"yarn-berry"` |
+| `settings.config` | Yarn configuration options      | `{}`           |
 
 ## Common Configuration Options
 

@@ -1,0 +1,8 @@
+# Minimal Ruff configuration with essential rules
+line-length: 100
+select:
+  - "E"  # pycodestyle errors
+  - "F"  # pyflakes
+  - "I"  # isort
+ignore:
+  - "E501"  # line too long

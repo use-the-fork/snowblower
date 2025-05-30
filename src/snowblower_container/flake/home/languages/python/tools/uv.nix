@@ -12,7 +12,6 @@
   cfg = config.snowblower.languages.python.tools.uv;
 
   toml = pkgs.formats.toml {};
-
 in {
   options.snowblower.languages.python.tools.uv = mkLanguageTool {
     name = "UV";

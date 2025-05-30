@@ -10,9 +10,7 @@
   inherit (lib) mkIf;
 
   cfg = config.snowblower.languages.python;
-
 in {
-
   imports = [
     ./tools
   ];

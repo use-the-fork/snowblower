@@ -25,11 +25,11 @@ languages:
 
 ## Options
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `enable` | Enable or disable Prettier | `false` |
-| `package` | The Nix package to use for Prettier | `"prettierd"` |
-| `settings.config` | Prettier configuration options | `{}` |
+| Option            | Description                         | Default       |
+| ----------------- | ----------------------------------- | ------------- |
+| `enable`          | Enable or disable Prettier          | `false`       |
+| `package`         | The Nix package to use for Prettier | `"prettierd"` |
+| `settings.config` | Prettier configuration options      | `{}`          |
 
 ## Common Configuration Options
 

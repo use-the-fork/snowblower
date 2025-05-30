@@ -1,0 +1,41 @@
+# Strict Ruff configuration with comprehensive rules
+line-length: 100
+select:
+  - "E"    # pycodestyle errors
+  - "F"    # pyflakes
+  - "W"    # pycodestyle warnings
+  - "I"    # isort
+  - "N"    # pep8-naming
+  - "UP"   # pyupgrade
+  - "B"    # flake8-bugbear
+  - "C4"   # flake8-comprehensions
+  - "DTZ"  # flake8-datetimez
+  - "T10"  # flake8-debugger
+  - "ISC"  # flake8-implicit-str-concat
+  - "G"    # flake8-logging-format
+  - "PIE"  # flake8-pie
+  - "T20"  # flake8-print
+  - "PT"   # flake8-pytest-style
+  - "Q"    # flake8-quotes
+  - "RET"  # flake8-return
+  - "SIM"  # flake8-simplify
+  - "TID"  # flake8-tidy-imports
+  - "ARG"  # flake8-unused-arguments
+  - "PTH"  # flake8-use-pathlib
+  - "ERA"  # eradicate
+  - "PL"   # pylint
+  - "TRY"  # tryceratops
+  - "RUF"  # ruff-specific rules
+  - "FA"   # from __future__ import annotations
+  - "ICN"  # import conventions
+  - "TC"   # type checking imports
+  - "TD"   # TODO comments
+  - "A"    # shadowed builtins
+  - "BLE"  # catch-all exceptions
+  - "S"    # security issues
+  - "FBT"  # boolean traps
+ignore:
+  - "E501"  # line too long
+  - "B008"  # do not perform function call in argument defaults
+  - "C901"  # function too complex
+target-version: "py311"
