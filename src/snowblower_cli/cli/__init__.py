@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 from snowblower_cli.config.parser import ConfigParser
 from snowblower_cli.snowblower import SnowBlower
-from snowblower_cli.templates import list_templates, load_template
+from snowblower_templates import list_templates, load_template
 
 
 class CliConfig(BaseModel):
@@ -105,7 +105,6 @@ def snowblower_generate(config, verbose) -> None:
 @cli.group("template")
 def template_group():
     """Apply templates to your configuration."""
-    pass
 
 
 @template_group.command("list")
@@ -113,14 +112,14 @@ def template_group():
 def list_template_command(category):
     """List available templates."""
     templates = list_templates(category)
-    
+
     if not templates:
         if category:
             click.echo(f"No templates found for category: {category}")
         else:
             click.echo("No templates found")
         return
-    
+
     click.echo("Available templates:")
     for cat, template_list in templates.items():
         click.echo(f"\n{cat}:")
@@ -142,23 +141,23 @@ def apply_template_command(category, template_name, config):
     try:
         # Load the template
         template_data = load_template(category, template_name)
-        
+
         # Load the current configuration
         config_path = Path(config) if config else Path(ConfigParser.DEFAULT_CONFIG_FILE)
         if not config_path.exists():
             click.echo(f"Configuration file not found: {config_path}")
             sys.exit(1)
-            
+
         # Apply the template to the configuration
         snow_blower = SnowBlower({}, Path.cwd())
         success = snow_blower.apply_template(category, template_name, config_path)
-        
+
         if not success:
             click.echo(f"Failed to apply template {template_name} to {category}")
             sys.exit(1)
-            
+
         click.echo(f"Successfully applied template {template_name} to {category}")
-        
+
     except FileNotFoundError as e:
         click.echo(str(e))
         sys.exit(1)

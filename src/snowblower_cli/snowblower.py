@@ -6,7 +6,7 @@ import yaml
 
 from snowblower_cli.config.parser import ConfigParser
 from snowblower_cli.logger import logger
-from snowblower_template import load_template
+from snowblower_templates import load_template
 
 
 class SnowBlower:
