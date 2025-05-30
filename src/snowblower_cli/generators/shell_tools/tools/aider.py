@@ -14,8 +14,8 @@ class AiderShellTool(ShellToolGenerator):
         Returns:
             True if the configuration is valid, False otherwise
         """
-        # Check if Aider tool is enabled
-        return self.config.get("shell_tools.aider.enabled", False)
+        # Check if Aider tool is enable
+        return self.config.get("shell_tools.aider.enable", False)
 
     def handle(self, pending_generator: GeneratorOutput) -> GeneratorOutput:
         """Generate Aider tool configuration.
@@ -28,7 +28,7 @@ class AiderShellTool(ShellToolGenerator):
         """
 
         # Set the defaults for nix.
-        pending_generator.add("nix.config.snowblower.shell_tools.aider.enabled", True)
+        pending_generator.add("nix.config.snowblower.shell_tools.aider.enable", True)
 
         # Add Ruff package if specified
         if self.config.get("shell_tools.aider.package", False):

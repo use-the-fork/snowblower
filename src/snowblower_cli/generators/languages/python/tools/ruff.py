@@ -14,12 +14,12 @@ class RuffTool(ToolGenerator):
         Returns:
             True if the configuration is valid, False otherwise
         """
-        # Check if Python language is enabled
-        if not self.config.get("languages.python.enabled", False):
+        # Check if Python language is enable
+        if not self.config.get("languages.python.enable", False):
             return False
 
-        # Check if Ruff tool is enabled
-        if not self.config.get("languages.python.tools.ruff.enabled", False):
+        # Check if Ruff tool is enable
+        if not self.config.get("languages.python.tools.ruff.enable", False):
             return False
 
         return True
@@ -36,7 +36,7 @@ class RuffTool(ToolGenerator):
 
         # Set the defaults for nix.
         pending_generator.add(
-            "nix.config.snowblower.languages.python.tools.ruff.enabled",
+            "nix.config.snowblower.languages.python.tools.ruff.enable",
             True,
         )
 

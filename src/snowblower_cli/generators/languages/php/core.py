@@ -1,6 +1,6 @@
 from snowblower_cli.generators.base import LanguageGenerator
 from snowblower_cli.generators.manager import GeneratorOutput
-from rich import print
+
 
 class PhpLanguage(LanguageGenerator):
     """Python language generator for SnowBlower.
@@ -10,7 +10,6 @@ class PhpLanguage(LanguageGenerator):
 
     def validate(self) -> bool:
         """Validate the Python language configuration."""
-        print(self.config.get("languages.php.enabled", False))
         return self.config.get("languages.php.enabled", False)
 
     def handle(self, pending_generator: GeneratorOutput) -> GeneratorOutput:

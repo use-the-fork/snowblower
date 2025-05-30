@@ -1,12 +1,13 @@
 languages:
   python:
-    enabled: true
+    enable: true
     package: "python311"
     tools:
       ruff:
-        enabled: true
+        enable: true
         settings:
           config:
+            line-length: 100
             exclude:
               - ".bzr"
               - ".direnv"
@@ -34,50 +35,63 @@ languages:
               - "node_modules"
               - "site-packages"
               - "venv"
-            select:
-              - "ALL"
-            ignore:
-              - "ANN401"
-              - "D"
-              - "INP001"
             lint:
-              extend-select:
-                - "F" # Pyflakes rules
-                - "W" # PyCodeStyle warnings
-                - "E" # PyCodeStyle errors
-                - "I" # Sort imports properly
-                - "UP" # Warn if certain things can changed due to newer Python versions
-                - "C4" # Catch incorrect use of comprehensions dict list etc
-                - "FA" # Enforce from __future__ import annotations
-                - "ISC" # Good use of string concatenation
-                - "ICN" # Use common import conventions
-                - "RET" # Good return practices
-                - "SIM" # Common simplification rules
-                - "TID" # Some good import practices
-                - "TC" # Enforce importing certain types in a TYPE_CHECKING block
-                - "PTH" # Use pathlib instead of os.path
-                - "TD" # Be diligent with TODO comments
-                - "NPY" # Some numpy-specific things
-                - "A" # detect shadowed builtins
-                - "BLE" # disallow catch-all exceptions
-                - "S" # disallow things like "exec"; also restricts "assert" but I just NOQA it when I really need it
-                - "COM" # enforce trailing comma rules
-                - "DTZ" # require strict timezone manipulation with datetime
-                - "FBT" # detect boolean traps
-                - "N" # enforce naming conventions e.g. ClassName vs function_name
+              select:
+                - "E" # pycodestyle errors
+                - "F" # pyflakes
+                - "W" # pycodestyle warnings
+                - "I" # isort
+                - "N" # pep8-naming
+                - "UP" # pyupgrade
+                - "B" # flake8-bugbear
+                - "C4" # flake8-comprehensions
+                - "DTZ" # flake8-datetimez
+                - "T10" # flake8-debugger
+                - "ISC" # flake8-implicit-str-concat
+                - "G" # flake8-logging-format
+                - "PIE" # flake8-pie
+                - "T20" # flake8-print
+                - "PT" # flake8-pytest-style
+                - "Q" # flake8-quotes
+                - "RET" # flake8-return
+                - "SIM" # flake8-simplify
+                - "TID" # flake8-tidy-imports
+                - "ARG" # flake8-unused-arguments
+                - "PTH" # flake8-use-pathlib
+                - "ERA" # eradicate
+                - "PL" # pylint
+                - "TRY" # tryceratops
+                - "RUF" # ruff-specific rules
+                - "FA" # from __future__ import annotations
+                - "ICN" # import conventions
+                - "TC" # type checking imports
+                - "TD" # TODO comments
+                - "NPY" # numpy-specific rules
+                - "A" # shadowed builtins
+                - "BLE" # catch-all exceptions
+                - "S" # security issues
+                - "FBT" # boolean traps
+              ignore:
+                - "ANN401"
+                - "D"
+                - "INP001"
+                - "COM812"
 
   javascript:
-    enabled: true
+    enable: true
     package: "nodejs_22"
     tools:
       yarn:
-        enabled: true
+        enable: true
         package: "yarn-berry"
+        settings:
+          config:
+            enableConstraintsChecks: false
       prettier:
-        enabled: true
+        enable: true
         package: "prettierd"
-        config:
-          settings:
+        settings:
+          config:
             trailingComma: "es5"
             tabWidth: 4
             semi: false
@@ -85,7 +99,7 @@ languages:
 
 shell_tools:
   aider:
-    enabled: true
+    enable: true
     package: "aider-chat"
     settings:
       config:
@@ -98,11 +112,11 @@ shell_tools:
         code-theme: "solarized-dark"
 
   git:
-    enabled: true
+    enable: true
     package: "gitFull"
     settings:
-      user_name: "use-the-fork"
-      user_email: "23747916+use-the-fork@users.noreply.github.com"
+      user_name: "${GIT_USERNAME}"
+      user_email: "${GIT_EMAIL}"
       gitignore:
         - __pycache__
         - .snow-blower
@@ -110,6 +124,7 @@ shell_tools:
         - .env*
         - "!.env.example"
         - "result"
+        - ".aider*"
 
 services:
   mysql:

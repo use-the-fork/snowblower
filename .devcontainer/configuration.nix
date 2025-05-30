@@ -11,6 +11,20 @@
             };
           };
         };
+        javascript = {
+          enable = true;
+          package = pkgs.nodejs_22;
+          tools = {
+            yarn = {
+              enable = true;
+              package = pkgs.yarn-berry;
+            };
+            prettier = {
+              enable = true;
+              package = pkgs.prettierd;
+            };
+          };
+        };
       };
       shell_tools = {
         aider = {

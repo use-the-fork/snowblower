@@ -1,10 +1,8 @@
-from rich import print
-
 from snowblower_cli.generators.base import LanguageGenerator
 from snowblower_cli.generators.manager import GeneratorOutput
 
 
-class PythonLanguage(LanguageGenerator):
+class JavascriptLanguage(LanguageGenerator):
     """Python language generator for SnowBlower.
 
     Handles Python language configuration and tools.
@@ -12,7 +10,7 @@ class PythonLanguage(LanguageGenerator):
 
     def validate(self) -> bool:
         """Validate the Python language configuration."""
-        return self.config.get("languages.python.enable", False)
+        return self.config.get("languages.javascript.enable", False)
 
     def handle(self, pending_generator: GeneratorOutput) -> GeneratorOutput:
         """Generate Python language configuration.
@@ -25,19 +23,19 @@ class PythonLanguage(LanguageGenerator):
         """
 
         # Set the defaults for nix.
-        pending_generator.add("nix.config.snowblower.languages.python.enable", True)
+        pending_generator.add("nix.config.snowblower.languages.javascript.enable", True)
         pending_generator.add(
-            "nix.config.snowblower.languages.python.package",
-            self.config.get("languages.python.package", "python311"),
+            "nix.config.snowblower.languages.javascript.package",
+            self.config.get("languages.javascript.package", "nodejs_22"),
         )
 
         for tool_key, tool_config in self.config.get(
-            "languages.python.tools",
+            "languages.javascript.tools",
             {},
         ).items():
             try:
                 # Import the language module dynamically
-                module_path = f"snowblower_cli.generators.languages.python.tools.{tool_key}"
+                module_path = f"snowblower_cli.generators.languages.javascript.tools.{tool_key}"
                 class_name = f"{tool_key.capitalize()}Tool"
 
                 # Import the module

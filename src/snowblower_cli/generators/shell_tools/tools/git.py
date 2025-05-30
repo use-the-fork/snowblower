@@ -14,8 +14,8 @@ class GitShellTool(ShellToolGenerator):
         Returns:
             True if the configuration is valid, False otherwise
         """
-        # Check if Git tool is enabled
-        return self.config.get("shell_tools.git.enabled", False)
+        # Check if Git tool is enable
+        return self.config.get("shell_tools.git.enable", False)
 
     def handle(self, pending_generator: GeneratorOutput) -> GeneratorOutput:
         """Generate Git tool configuration.
@@ -28,7 +28,7 @@ class GitShellTool(ShellToolGenerator):
         """
 
         # Set the defaults for nix.
-        pending_generator.add("nix.config.snowblower.shell_tools.git.enabled", True)
+        pending_generator.add("nix.config.snowblower.shell_tools.git.enable", True)
 
         pending_generator.add(
             "nix.config.snowblower.shell_tools.git.user_name",

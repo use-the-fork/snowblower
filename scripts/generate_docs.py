@@ -9,19 +9,20 @@ import json
 import os
 import re
 from collections import defaultdict
-from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any
 
 # Configuration
 OPTIONS_JSON_PATH = "result/options.json/share/doc/nixos/options.json"
 DOCS_OUTPUT_DIR = "docs"
 
-def load_options() -> Dict[str, Any]:
+
+def load_options() -> dict[str, Any]:
     """Load the options from the JSON file."""
-    with open(OPTIONS_JSON_PATH, 'r') as f:
+    with open(OPTIONS_JSON_PATH) as f:
         return json.load(f)
 
-def categorize_options(options: Dict[str, Any]) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
+
+def categorize_options(options: dict[str, Any]) -> dict[str, dict[str, list[dict[str, Any]]]]:
     """
     Categorize options by their group and subgroup.
     For example, 'perSystem.snow-blower.integrations.agenix.package' would be
@@ -33,14 +34,7 @@ def categorize_options(options: Dict[str, Any]) -> Dict[str, Dict[str, List[Dict
     categorized = defaultdict(lambda: defaultdict(list))
 
     # Define special cases that should only go one level deep
-    one_level_deep = [
-        "dotenv",
-        "just",
-        "process-compose",
-        "processes",
-        "scripts",
-        "shell"
-    ]
+    one_level_deep = ["dotenv", "just", "process-compose", "processes", "scripts", "shell"]
 
     for option_key, option_data in options.items():
         # Skip options that don't match our expected pattern
@@ -57,7 +51,10 @@ def categorize_options(options: Dict[str, Any]) -> Dict[str, Dict[str, List[Dict
         is_special_case = False
         for special_case in one_level_deep:
             special_parts = special_case.split(".")
-            if len(parts) >= len(special_parts) and ".".join(parts[:len(special_parts)]) == special_case:
+            if (
+                len(parts) >= len(special_parts)
+                and ".".join(parts[: len(special_parts)]) == special_case
+            ):
                 group = parts[0]  # e.g., 'dotenv', 'shell', etc.
                 categorized[group]["_all"].append(option_data)
                 is_special_case = True
@@ -71,17 +68,19 @@ def categorize_options(options: Dict[str, Any]) -> Dict[str, Dict[str, List[Dict
 
     return categorized
 
+
 def format_type(type_str: str) -> str:
     """Format the type string for better readability in Markdown."""
     # Clean up common type patterns
-    type_str = re.sub(r'<(?:function|lambda).*?>', '`function`', type_str)
-    type_str = re.sub(r'<.*?>', '', type_str)
+    type_str = re.sub(r"<(?:function|lambda).*?>", "`function`", type_str)
+    type_str = re.sub(r"<.*?>", "", type_str)
 
     # Wrap in code blocks
-    if not type_str.startswith('`'):
-        type_str = f'`{type_str}`'
+    if not type_str.startswith("`"):
+        type_str = f"`{type_str}`"
 
     return type_str
+
 
 def format_default(default_value: Any) -> str:
     """Format the default value for Markdown."""
@@ -93,16 +92,17 @@ def format_default(default_value: Any) -> str:
         text = default_value["text"]
         if text.strip() == "":
             return "_Empty string_"
-        return f'```nix\n{text}\n```'
+        return f"```nix\n{text}\n```"
 
     # Handle string values
     if isinstance(default_value, str):
         if default_value.strip() == "":
             return "_Empty string_"
-        return f'```nix\n{default_value}\n```'
+        return f"```nix\n{default_value}\n```"
 
     # Handle other types
-    return f'```nix\n{default_value}\n```'
+    return f"```nix\n{default_value}\n```"
+
 
 def format_example(example: Any) -> str:
     """Format an example value for Markdown."""
@@ -114,18 +114,19 @@ def format_example(example: Any) -> str:
         text = example["text"]
         if text.strip() == "":
             return "_Empty string_"
-        return f'```nix\n{text}\n```'
+        return f"```nix\n{text}\n```"
 
     # Handle string values
     if isinstance(example, str):
         if example.strip() == "":
             return "_Empty string_"
-        return f'```nix\n{example}\n```'
+        return f"```nix\n{example}\n```"
 
     # Handle other types
-    return f'```nix\n{example}\n```'
+    return f"```nix\n{example}\n```"
 
-def generate_markdown(group: str, subgroup: str, options: List[Dict[str, Any]]) -> str:
+
+def generate_markdown(group: str, subgroup: str, options: list[dict[str, Any]]) -> str:
     """Generate a Markdown document for a specific group and subgroup."""
     if subgroup == "_all":
         title = f"{group.capitalize()}"
@@ -135,7 +136,7 @@ def generate_markdown(group: str, subgroup: str, options: List[Dict[str, Any]]) 
         description = f"Options for configuring {subgroup} in the {group} category."
 
     md = [
-        f"## Options",
+        "## Options",
         "",
     ]
 
@@ -154,7 +155,7 @@ def generate_markdown(group: str, subgroup: str, options: List[Dict[str, Any]]) 
                 # Find the subgroup in the parts and get everything after it
                 try:
                     subgroup_index = parts.index(subgroup)
-                    short_key = ".".join(parts[subgroup_index+1:])
+                    short_key = ".".join(parts[subgroup_index + 1 :])
                 except ValueError:
                     short_key = parts[-1]
             else:
@@ -173,13 +174,13 @@ def generate_markdown(group: str, subgroup: str, options: List[Dict[str, Any]]) 
         md.append("")
 
         # Description
-        if "description" in option and option["description"]:
+        if option.get("description"):
             md.append(option["description"])
             md.append("")
 
         # Type
         if "type" in option:
-            md.append(f"**Type:**\n")
+            md.append("**Type:**\n")
             md.append(f"{format_type(option['type'])}")
             md.append("")
 
@@ -189,22 +190,24 @@ def generate_markdown(group: str, subgroup: str, options: List[Dict[str, Any]]) 
             md.append("")
 
         # Example
-        if "example" in option and option["example"]:
+        if option.get("example"):
             md.append("**Example:**")
             md.append("")
             md.append(format_example(option["example"]))
             md.append("")
 
         # Declarations (source files)
-        if "declarations" in option and option["declarations"]:
+        if option.get("declarations"):
             md.append("**Declared by:**")
             md.append("")
             for decl in option["declarations"]:
                 if isinstance(decl, dict) and "url" in decl and "name" in decl:
-                    url = decl['url']
-                    if not url.endswith('.nix'):
+                    url = decl["url"]
+                    if not url.endswith(".nix"):
                         url = f"{url}/default.nix"
-                    md.append(f"- [{decl['name']}](https://github.com/use-the-fork/snow-blower/tree/main/{url})")
+                    md.append(
+                        f"- [{decl['name']}](https://github.com/use-the-fork/snow-blower/tree/main/{url})"
+                    )
                 elif isinstance(decl, str):
                     md.append(f"- {decl}")
             md.append("")
@@ -213,9 +216,11 @@ def generate_markdown(group: str, subgroup: str, options: List[Dict[str, Any]]) 
 
     return "\n".join(md)
 
+
 def ensure_directory(path: str) -> None:
     """Ensure that a directory exists."""
     os.makedirs(path, exist_ok=True)
+
 
 def write_markdown_file(group: str, subgroup: str, content: str) -> None:
     """Write the Markdown content to a file."""
@@ -228,18 +233,20 @@ def write_markdown_file(group: str, subgroup: str, content: str) -> None:
     else:
         output_file = os.path.join(output_dir, f"{subgroup}-options.md")
 
-    with open(output_file, 'w') as f:
+    with open(output_file, "w") as f:
         f.write(content)
 
     print(f"Generated: {output_file}")
+
 
 def main() -> None:
     """Main function to generate all documentation."""
     # Generate the options JSON file
     import subprocess
+
     print("Generating options JSON...")
     subprocess.run(["nix", "build", ".#options-doc", "-L", "--accept-flake-config"], check=True)
-    
+
     print("Loading options from JSON...")
     options = load_options()
 
@@ -254,6 +261,7 @@ def main() -> None:
                 write_markdown_file(group, subgroup, content)
 
     print("Documentation generation complete!")
+
 
 if __name__ == "__main__":
     main()

@@ -10,6 +10,7 @@ from snowblower_cli.utils.file_handlers import (
     FileHandlerInput,
     FileType,
     JsonHandler,
+    NixHandler,
     TextHandler,
     TomlHandler,
     YamlHandler,
@@ -88,11 +89,7 @@ class GeneratorOutput:
 
         def _deep_merge(target: dict, source: dict) -> dict:
             for key, value in source.items():
-                if (
-                    key in target
-                    and isinstance(target[key], dict)
-                    and isinstance(value, dict)
-                ):
+                if key in target and isinstance(target[key], dict) and isinstance(value, dict):
                     _deep_merge(target[key], value)
                 else:
                     target[key] = value
@@ -161,115 +158,6 @@ class GeneratorManager:
 
         return True
 
-    def _dict_to_nix(self, data: dict, indent: int = 2) -> str:
-        """Convert a dictionary to Nix format.
-
-        Args:
-            data: The dictionary to convert
-            indent: The indentation level
-
-        Returns:
-            A string in Nix format
-        """
-        result = []
-        spaces = " " * indent
-
-        for key, value in data.items():
-            if isinstance(value, dict):
-                result.append(
-                    f"{spaces}{key} = {{\n{self._dict_to_nix(value, indent + 2)}\n{spaces}}};",
-                )
-            elif isinstance(value, list):
-                if all(isinstance(item, str) for item in value):
-                    # Format as a list of strings
-                    items = " ".join([f'"{item}"' for item in value])
-                    result.append(f"{spaces}{key} = [{items}];")
-                else:
-                    # Format as a general list
-                    items = "\n".join(
-                        [f"{spaces}  {self._value_to_nix(item)}" for item in value],
-                    )
-                    result.append(f"{spaces}{key} = [\n{items}\n{spaces}];")
-            elif isinstance(value, bool):
-                result.append(f"{spaces}{key} = {str(value).lower()};")
-            elif isinstance(value, (int, float)):
-                result.append(f"{spaces}{key} = {value};")
-            elif value is None:
-                result.append(f"{spaces}{key} = null;")
-            elif key == "package" and isinstance(value, str):
-                # Special handling for package values
-                result.append(f"{spaces}{key} = pkgs.{value};")
-            else:
-                result.append(f'{spaces}{key} = "{value}";')
-
-        return "\n".join(result)
-
-    def _value_to_nix(self, value: Any) -> str:
-        """Convert a single value to Nix format.
-
-        Args:
-            value: The value to convert
-
-        Returns:
-            A string representation in Nix format
-        """
-        if isinstance(value, dict):
-            return f"{{\n{self._dict_to_nix(value, 4)}\n  }}"
-        if isinstance(value, list):
-            if all(isinstance(item, str) for item in value):
-                items = " ".join([f'"{item}"' for item in value])
-                return f"[{items}]"
-            items = "\n".join([f"    {self._value_to_nix(item)}" for item in value])
-            return f"[\n{items}\n  ]"
-        if isinstance(value, bool):
-            return str(value).lower()
-        if isinstance(value, (int, float)):
-            return str(value)
-        if value is None:
-            return "null"
-        if isinstance(value, dict) and "key" in value and value["key"] == "package":
-            return f"pkgs.{value['value']}"
-        return f'"{value}"'
-
-    def _generate_nix_config(self, data: dict) -> str:
-        """Generate a complete Nix configuration file.
-
-        Args:
-            data: The configuration data
-
-        Returns:
-            A complete Nix configuration file as a string
-        """
-
-        # Convert boolean 'enabled' to 'enable' as per Nix convention
-        def transform_enabled(d):
-            if isinstance(d, dict):
-                result = {}
-                for k, v in d.items():
-                    if k == "enabled":
-                        result["enable"] = v
-                    elif isinstance(v, (dict, list)):
-                        result[k] = transform_enabled(v)
-                    else:
-                        result[k] = v
-                return result
-            if isinstance(d, list):
-                return [
-                    transform_enabled(item) if isinstance(item, (dict, list)) else item
-                    for item in d
-                ]
-            return d
-
-        transformed_data = transform_enabled(data)
-
-        # Create the Nix file content
-        nix_content = f"""{{config, pkgs, ...}}: {{
-{self._dict_to_nix(transformed_data, 2)}
-}}
-"""
-
-        return nix_content
-
     def write_outputs(self) -> bool:
         """Write all generated outputs to their respective files.
 
@@ -279,9 +167,7 @@ class GeneratorManager:
 
         # Write workspace files
         if self.output.get("workspace") and self.output.get("workspace").get("files"):
-            for file_type, file_input in (
-                self.output.get("workspace").get("files").items()
-            ):
+            for file_type, file_input in self.output.get("workspace").get("files").items():
                 if isinstance(file_input, FileHandlerInput):
                     try:
                         file_path = self.working_dir / file_input.file_name
@@ -295,6 +181,8 @@ class GeneratorManager:
                             handler = TomlHandler()
                         elif file_input.file_type == FileType.TEXT:
                             handler = TextHandler()
+                        elif file_input.file_type == FileType.NIX:
+                            handler = NixHandler()
                         else:
                             logger.error(
                                 f"Unsupported file type: {file_input.file_type}",
@@ -303,7 +191,9 @@ class GeneratorManager:
 
                         # Generate content with auto-generated comment
                         content = handler.generate(file_input.data)
-                        auto_comment = "# This file is auto-generated by SnowBlower. Do not edit manually.\n\n"
+                        auto_comment = (
+                            "# This file is auto-generated by SnowBlower. Do not edit manually.\n\n"
+                        )
 
                         # Write to file
                         with open(file_path, "w") as f:
@@ -319,14 +209,13 @@ class GeneratorManager:
         # Write Nix configuration
         if self.output.get("nix"):
             try:
-                nix_config_path = (
-                    self.working_dir / ".devcontainer" / "configuration.nix"
-                )
+                nix_config_path = self.working_dir / ".devcontainer" / "configuration.nix"
                 # Ensure the directory exists
                 nix_config_path.parent.mkdir(parents=True, exist_ok=True)
 
-                # Generate Nix configuration
-                nix_content = self._generate_nix_config(self.output.get("nix"))
+                # Create a NixHandler to generate the configuration
+                nix_handler = NixHandler()
+                nix_content = nix_handler.generate(self.output.get("nix"))
 
                 # Write to file
                 with open(nix_config_path, "w") as f:
