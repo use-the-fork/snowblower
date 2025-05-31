@@ -17,13 +17,10 @@ if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
-# set a fancy prompt (non-color, overwrite the one in /etc/profile)
-# but only if not SUDOing and have SUDO_PS1 set; then assume smart user.
-if ! [ -n "${SUDO_USER}" -a -n "${SUDO_PS1}" ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
+# # set a fancy prompt (non-color, overwrite the one in /etc/profile)
+# # but only if not SUDOing and have SUDO_PS1 set; then assume smart user.
+# if ! [ -n "${SUDO_USER}" -a -n "${SUDO_PS1}" ]; then
+#     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+# fi
 
-# load direnv hook if not running as root
-if ! [ $(id -u) = 0 ]; then
-    eval "$(direnv hook bash)"
-fi
+exec zsh

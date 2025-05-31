@@ -1,16 +1,14 @@
 # System-wide .zshrc file for interactive zsh shells.                                                            
-                                                                                                                 
-[[ $ENVRC_RUN != yes ]] && source /etc/envrc                                                                     
-                                                                                                                 
-# If not running interactively, don't do anything                                                                
-[[ -o interactive ]] || return                                                                                   
-                                                                                                                 
+                                                                                                                                                                                                                   
 # Set prompt                                                                                                     
-if ! [ -n "${SUDO_USER}" -a -n "${SUDO_PS1}" ]; then                                                             
-    PS1='%n@%m:%~$ '                                                                                             
-fi                                                                                                               
+# if ! [ -n "${SUDO_USER}" -a -n "${SUDO_PS1}" ]; then                                                             
+#     PS1='%n@%m:%~$ '                                                                                             
+# fi                                                                                                               
                                                                                                                  
 # load direnv hook if not running as root                                                                        
-if ! [ $(id -u) = 0 ]; then                                                                                      
-    eval "$(direnv hook zsh)"                                                                                    
+if ! [ $(id -u) = 0 ]; then    
+    source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+    eval "$(starship init zsh)"
+    eval "$(atuin init zsh)"                                                                
+    eval "$(direnv hook zsh)"                                              
 fi      

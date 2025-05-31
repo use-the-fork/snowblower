@@ -3,7 +3,7 @@ FROM debian:stable-slim
 
 LABEL maintainer="use-the-fork <23747916+use-the-fork@users.noreply.github.com>"
 
-# SHELL ["/bin/bash", "-c"]
+SHELL ["/bin/bash", "-c"]
 
 RUN echo "dash dash/sh boolean false" | debconf-set-selections && \
     DEBIAN_FRONTEND=noninteractive dpkg-reconfigure dash
@@ -16,7 +16,7 @@ RUN apt update -y && \
     git \                                                                                                        
     locales \                                                                                                    
     acl \                                                                                                        
-    direnv \                                                                                                        
+    direnv \                                                                                                      
     zsh && \                                                                                                     
     rm -rf /var/lib/apt/lists/* 
 
@@ -38,12 +38,18 @@ RUN curl --proto '=https' --tlsv1.2 -sSf -L ${NIX_INSTALL_SCRIPT} | sh -s -- ins
     --init none \
     --no-confirm
 
+# Install starship
+RUN curl -sS https://starship.rs/install.sh | sh  -s -- --yes
+
+#Install Atuin
+RUN curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+
 ENV PATH="${PATH}:/nix/var/nix/profiles/default/bin"
 
-COPY etc/devcontainer.sh /etc/profile.d/devcontainer.sh                                                          
-COPY etc/zshrc /etc/zsh/zshrc                                                                                    
-COPY etc/envrc /etc/envrc                                                                                        
-ENV ENV="/etc/envrc" ZDOTDIR="/etc/zsh" 
+COPY etc/devcontainer.sh /etc/profile.d/devcontainer.sh
+COPY etc/bash.bashrc /etc/bash.bashrc
+COPY etc/envrc /etc/envrc
+ENV ENV="/etc/envrc" BASH_ENV="/etc/envrc"
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
@@ -55,6 +61,13 @@ COPY etc/direnv.toml /etc
 ENV DIRENV_CONFIG=/etc
 
 USER ${USERNAME}
+
+COPY etc/zshrc /home/${USERNAME}/.zshrc
+COPY etc/starship.toml /home/${USERNAME}/starship.toml
+
+RUN mkdir -p /home/${USERNAME}/.zsh
+RUN git clone https://github.com/zsh-users/zsh-autosuggestions /home/${USERNAME}/.zsh/zsh-autosuggestions
+
 
 RUN mkdir -p /home/${USERNAME}/.vscode-server/extensions && \
     mkdir -p /home/${USERNAME}/.vscode-server-insiders/extensions

@@ -15,7 +15,7 @@
     "shutdownAction": "stopCompose",
     "customizations": {
         "vscode": {
-            "terminal.integrated.defaultProfile.linux": "zsh",
+            // "terminal.integrated.defaultProfile.linux": "zsh",
             "extensions": [
                 "ms-python.debugpy",
                 "ms-python.python",

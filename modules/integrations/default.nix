@@ -8,5 +8,6 @@
     ./treefmt
     ./git-hooks
     ./git-cliff
+    ./starship
   ];
 }
