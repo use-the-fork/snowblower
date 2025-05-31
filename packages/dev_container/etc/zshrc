@@ -1,8 +1,12 @@
 # .zshrc file for interactive zsh shells.                                                            
-                                                                                                                                                                                                                
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+
 eval "$(starship init zsh)"
 eval "$(atuin init zsh)"  
+
+autoload -U compinit; compinit
+source ~/.zsh/fzf-tab/fzf-tab.plugin.zsh
+source ~/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # load direnv hook if not running as root                                                                        
 if ! [ $(id -u) = 0 ]; then                                                                  

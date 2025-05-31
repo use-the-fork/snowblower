@@ -67,6 +67,9 @@ COPY etc/starship.toml /home/${USERNAME}/.config/starship.toml
 
 RUN mkdir -p /home/${USERNAME}/.zsh
 RUN git clone https://github.com/zsh-users/zsh-autosuggestions /home/${USERNAME}/.zsh/zsh-autosuggestions
+RUN git clone https://github.com/Aloxaf/fzf-tab /home/${USERNAME}/.zsh/fzf-tab
+RUN git clone https://github.com/zdharma-continuum/fast-syntax-highlighting /home/${USERNAME}/.zsh/fast-syntax-highlighting
+
 
 RUN mkdir -p /home/${USERNAME}/.vscode-server/extensions && \
     mkdir -p /home/${USERNAME}/.vscode-server-insiders/extensions
