@@ -1,0 +1,20 @@
+services:
+  dev:
+    env_file:
+    - path: ./../.env
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        - USER_UID=${USER_UID:-1000}
+        - USER_GID=${USER_GID:-1000}
+    volumes:
+      - ..:/workspace:cached
+      - nix:/nix
+      - ${USER_HOME_PATH:-~}/.ssh:/home/${REMOTE_USER_NAME:-code}/.ssh:ro
+    security_opt:
+      - label:disable
+      
+volumes: 
+  snow_blower:
+  nix:

@@ -48,6 +48,7 @@
           };
 
           integrations = {
+            
             aider = {
               enable = true;
               commands = {

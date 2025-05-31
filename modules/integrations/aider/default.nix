@@ -132,8 +132,6 @@
                     @ai-${name}:
                       ${lib.getExe cfg.package} ${lib.concatStringsSep " " (lib.filter (s: s != "") [
                       "--model ${cmdCfg.model}"
-                      "--input-history-file ${config.snow-blower.env.PROJECT_STATE}/aider/.aider.${name}.chat.history.md"
-                      "--chat-history-file ${config.snow-blower.env.PROJECT_STATE}/aider/.aider.${name}.input.history"
                       (
                         if cmdCfg.watchFiles
                         then "--watch-files"

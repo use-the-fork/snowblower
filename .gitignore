@@ -11,5 +11,9 @@ secrets.nix
 # VitePress build output and cache
 docs/.vitepress/dist
 docs/.vitepress/cache
+.idea
 
-docker-compose.yml
+.pre-commit-config.yaml
+just-flake.just
+
+.direnv
