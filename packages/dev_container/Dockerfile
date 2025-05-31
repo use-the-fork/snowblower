@@ -63,7 +63,7 @@ RUN curl -sS https://starship.rs/install.sh | sh  -s -- --yes
 RUN curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
 
 COPY etc/zshrc /home/${USERNAME}/.zshrc
-COPY etc/starship.toml /home/${USERNAME}/starship.toml
+COPY etc/starship.toml /home/${USERNAME}/.config/starship.toml
 
 RUN mkdir -p /home/${USERNAME}/.zsh
 RUN git clone https://github.com/zsh-users/zsh-autosuggestions /home/${USERNAME}/.zsh/zsh-autosuggestions
