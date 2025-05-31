@@ -1,0 +1,35 @@
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json or the definition README at
+// https://devcontainers.github.io/implementors/json_reference/
+{
+    "name": "snowblower-devcontainer",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "dev",
+    "workspaceFolder": "/workspace",
+    "userEnvProbe": "loginShell",
+    "updateRemoteUserUID": false,
+    "remoteEnv": {
+        "PODMAN_USERNS": "keep-id"
+    },
+    "containerUser": "code",
+    "remoteUser": "code",
+    "shutdownAction": "stopCompose",
+    "customizations": {
+        "vscode": {
+            "terminal.integrated.defaultProfile.linux": "zsh",
+            "extensions": [
+                "ms-python.debugpy",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "tamasfe.even-better-toml",
+                "charliermarsh.ruff",
+                "redhat.vscode-yaml",
+                "bbenoist.nix",
+                "ms-azuretools.vscode-docker",
+                "yzhang.markdown-all-in-one"
+            ]
+        }
+    }
+    // "onCreateCommand": "nix develop --ignore-environment",
+    // "onCreateCommand": "nix-shell --command 'echo done building nix dev environment'"
+    // "postStartCommand": "cd /workspaces/dev-container && nix develop -c /bin/bash -c \"echo 'Pre-loading complete!'\"",
+}
