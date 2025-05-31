@@ -1,14 +1,10 @@
-# System-wide .zshrc file for interactive zsh shells.                                                            
-                                                                                                                                                                                                                   
-# Set prompt                                                                                                     
-# if ! [ -n "${SUDO_USER}" -a -n "${SUDO_PS1}" ]; then                                                             
-#     PS1='%n@%m:%~$ '                                                                                             
-# fi                                                                                                               
-                                                                                                                 
+# .zshrc file for interactive zsh shells.                                                            
+                                                                                                                                                                                                                
+source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+eval "$(starship init zsh)"
+eval "$(atuin init zsh)"  
+
 # load direnv hook if not running as root                                                                        
-if ! [ $(id -u) = 0 ]; then    
-    source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-    eval "$(starship init zsh)"
-    eval "$(atuin init zsh)"                                                                
+if ! [ $(id -u) = 0 ]; then                                                                  
     eval "$(direnv hook zsh)"                                              
 fi      

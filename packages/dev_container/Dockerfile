@@ -38,12 +38,6 @@ RUN curl --proto '=https' --tlsv1.2 -sSf -L ${NIX_INSTALL_SCRIPT} | sh -s -- ins
     --init none \
     --no-confirm
 
-# Install starship
-RUN curl -sS https://starship.rs/install.sh | sh  -s -- --yes
-
-#Install Atuin
-RUN curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
-
 ENV PATH="${PATH}:/nix/var/nix/profiles/default/bin"
 
 COPY etc/devcontainer.sh /etc/profile.d/devcontainer.sh
@@ -62,12 +56,17 @@ ENV DIRENV_CONFIG=/etc
 
 USER ${USERNAME}
 
+# Install starship
+RUN curl -sS https://starship.rs/install.sh | sh  -s -- --yes
+
+#Install Atuin
+RUN curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+
 COPY etc/zshrc /home/${USERNAME}/.zshrc
 COPY etc/starship.toml /home/${USERNAME}/starship.toml
 
 RUN mkdir -p /home/${USERNAME}/.zsh
 RUN git clone https://github.com/zsh-users/zsh-autosuggestions /home/${USERNAME}/.zsh/zsh-autosuggestions
-
 
 RUN mkdir -p /home/${USERNAME}/.vscode-server/extensions && \
     mkdir -p /home/${USERNAME}/.vscode-server-insiders/extensions
