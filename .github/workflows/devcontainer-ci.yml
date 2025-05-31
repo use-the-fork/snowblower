@@ -5,12 +5,12 @@ on:
     - cron: "0 10 * * *" # everyday at 10am
   push:
     branches:
-      - "2.x-dev"
+      - "main"
     tags:
       - "v*"
   pull_request:
     branches:
-      - "2.x-dev"
+      - "main"
 
 jobs:
   docker:
