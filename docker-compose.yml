@@ -1,0 +1,16 @@
+services:
+  redis:
+    healthcheck:
+      interval: 10s
+      retries: 3
+      test:
+      - CMD
+      - redis-cli
+      - ping
+      timeout: 5s
+    image: redis:alpine
+    ports:
+    - 6379:6379
+    restart: unless-stopped
+    volumes:
+    - /home/sincore/source/snow-blower/.sb/state/redis:/data

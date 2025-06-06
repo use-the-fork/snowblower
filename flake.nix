@@ -17,13 +17,6 @@
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
     flake-root.url = "github:srid/flake-root";
 
-    nixago = {
-      url = "github:nix-community/nixago";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    flake-parts-website.url = "github:hercules-ci/flake.parts-website";
-
     git-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs = {
@@ -34,32 +27,13 @@
     agenix.url = "github:ryantm/agenix";
   };
 
-  nixConfig = {
-    accept-flake-config = true;
-    extra-trusted-public-keys = [
-      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      "snow-blower.cachix.org-1:f14pyJhxRZJHAymrilTUpC5m+Qy6hX437tmkR22rYOk="
-    ];
-
-    extra-substituters = [
-      "https://cache.nixos.org"
-      "https://snow-blower.cachix.org"
-    ];
-  };
-
   outputs = inputs @ {
     self,
     flake-parts,
     ...
   }: let
-    coreInputs =
-      inputs
-      // {
-        src = ./.;
-      };
-
     src = ./.;
-
+    #
     bootstrap =
       inputs.flake-parts.lib.mkFlake {
         inherit inputs self;
@@ -72,11 +46,13 @@
             };
           }
           ./modules
+          ./lib
         ];
         debug = true;
         systems = import inputs.systems;
       });
-    mkSnowBlower = import ./mkSnowBlower.nix {inherit coreInputs;};
+
+    mkSnowBlower = import ./mkSnowBlower.nix {inherit inputs self;};
   in
     inputs.flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
       imports = [

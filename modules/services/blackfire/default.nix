@@ -1,6 +1,7 @@
 {
   inputs,
   flake-parts-lib,
+  self,
   ...
 }: {
   imports = [
@@ -9,34 +10,25 @@
   flake.flakeModules.services = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
-      pkgs,
       config,
       ...
     }: let
       inherit (lib) types mkOption;
-      inherit (import ../utils.nix {inherit lib;}) mkService;
+      inherit (self.utils) mkDockerService;
 
       cfg = config.snow-blower.services.blackfire;
-      settings = config.snow-blower.services.blackfire.settings;
-
-      configFile = pkgs.writeText "blackfire.conf" ''
-        [blackfire]
-        server-id=${settings.server-id}
-        server-token=${settings.server-token}
-        socket=tcp://${cfg.host}:${toString cfg.port}
-      '';
     in {
-      options.snow-blower.services.blackfire = mkService {
+      options.snow-blower.services.blackfire = mkDockerService {
         name = "Blackfire";
-        package = pkgs.blackfire;
+        image = "blackfire/blackfire:2";
         port = 8307;
         extraOptions = {
           enableApm = lib.mkEnableOption ''
             Enables application performance monitoring, requires special subscription.
           '';
 
-          client-id = lib.mkOption {
-            type = lib.types.str;
+          clientId = lib.mkOption {
+            type = types.str;
             description = ''
               Sets the client id used to authenticate with Blackfire.
               You can find your personal client-id at <https://blackfire.io/my/settings/credentials>.
@@ -44,8 +36,8 @@
             default = "";
           };
 
-          client-token = lib.mkOption {
-            type = lib.types.str;
+          clientToken = lib.mkOption {
+            type = types.str;
             description = ''
               Sets the client token used to authenticate with Blackfire.
               You can find your personal client-token at <https://blackfire.io/my/settings/credentials>.
@@ -53,8 +45,8 @@
             default = "";
           };
 
-          server-id = lib.mkOption {
-            type = lib.types.str;
+          serverId = lib.mkOption {
+            type = types.str;
             description = ''
               Sets the server id used to authenticate with Blackfire.
               You can find your personal server-id at <https://blackfire.io/my/settings/credentials>.
@@ -62,8 +54,8 @@
             default = "";
           };
 
-          server-token = lib.mkOption {
-            type = lib.types.str;
+          serverToken = lib.mkOption {
+            type = types.str;
             description = ''
               Sets the server token used to authenticate with Blackfire.
               You can find your personal server-token at <https://blackfire.io/my/settings/credentials>.
@@ -75,19 +67,35 @@
 
       config = lib.mkIf cfg.enable {
         snow-blower = {
-          packages = [
-            cfg.package
-          ];
+          docker-compose.services.blackfire = {
+            enable = true;
+            service = {
+              image = cfg.image;
+              ports = ["${toString cfg.settings.port}:8307"];
+              restart = "unless-stopped";
+              environment = {
+                BLACKFIRE_CLIENT_ID = cfg.settings.clientId;
+                BLACKFIRE_CLIENT_TOKEN = cfg.settings.clientToken;
+                BLACKFIRE_SERVER_ID = cfg.settings.serverId;
+                BLACKFIRE_SERVER_TOKEN = cfg.settings.serverToken;
+                BLACKFIRE_LOG_LEVEL = "4";
+                BLACKFIRE_APM_ENABLED =
+                  if cfg.settings.enableApm
+                  then "1"
+                  else "0";
+              };
+            };
+          };
 
-          env.BLACKFIRE_AGENT_SOCKET = settings.socket;
-          env.BLACKFIRE_CLIENT_ID = settings.client-id;
-          env.BLACKFIRE_CLIENT_TOKEN = settings.client-token;
-          env.BLACKFIRE_APM_ENABLED =
-            if settings.enableApm
-            then "1"
-            else "0";
-
-          processes.blackfire-agent.exec = "${lib.getExe' cfg.package "blackfire"} agent:start --config=${configFile}";
+          env = {
+            BLACKFIRE_AGENT_SOCKET = "tcp://localhost:${toString cfg.settings.port}";
+            BLACKFIRE_CLIENT_ID = cfg.settings.clientId;
+            BLACKFIRE_CLIENT_TOKEN = cfg.settings.clientToken;
+            BLACKFIRE_APM_ENABLED =
+              if cfg.settings.enableApm
+              then "1"
+              else "0";
+          };
         };
       };
     });

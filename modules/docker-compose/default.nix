@@ -17,9 +17,6 @@
       inherit (import ./utils.nix {inherit lib pkgs;}) serviceType;
 
       yamlFormat = pkgs.formats.yaml {};
-
-      # Project state directory for volume mounts
-      PROJECT_STATE = toString config.snow-blower.paths.state;
     in {
       imports = [
         {
@@ -53,62 +50,42 @@
 
         shell = {
           startup = let
+            # Extract service configurations
             composeServices =
               lib.mapAttrs (_name: service: service.outputs.service)
               config.snow-blower.docker-compose.services;
 
-            # Extract volume names from service definitions
-            volumeNames = lib.unique (lib.flatten (
+            # Extract networks from services
+            serviceNetworks = lib.unique (lib.flatten (
               lib.mapAttrsToList (
                 _name: service:
-                  if service.enable && service.volumes != []
-                  then
-                    map (
-                      v: let
-                        parts = lib.splitString ":" v;
-                      in
-                        if builtins.length parts > 1
-                        then lib.head parts
-                        else null
-                    )
-                    (lib.filter (v: !(lib.hasPrefix "./" v) && !(lib.hasPrefix "/" v)) service.volumes)
+                  if service.enable && service.networks != []
+                  then service.networks
                   else []
               )
               config.snow-blower.docker-compose.services
             ));
 
-            # Create volume configuration
-            volumes = lib.listToAttrs (map (name: {
+            # Create networks configuration
+            networksConfig = lib.listToAttrs (map (name: {
                 inherit name;
-                value = {
-                  driver_opts = {
-                    type = "none";
-                    o = "bind";
-                    device = "${PROJECT_STATE}/${name}";
-                  };
-                };
+                value = {};
               })
-              (lib.filter (v: v != null) volumeNames));
+              serviceNetworks);
 
-            composeConfig = {
-              services = composeServices;
-              volumes =
-                volumes
-                // {
-                  tailscale_state = {
-                    driver_opts = {
-                      type = "none";
-                      o = "bind";
-                      device = "${PROJECT_STATE}/tailscale_state";
-                    };
-                  };
-                };
-            };
+            # Create the compose configuration
+            composeConfig =
+              {
+                services = composeServices;
+              }
+              // lib.optionalAttrs (serviceNetworks != []) {
+                networks = networksConfig;
+              };
 
             composeFile = yamlFormat.generate config.snow-blower.docker-compose.fileName composeConfig;
           in [
             ''
-              ln -sf ${builtins.toString composeFile} ./${config.snow-blower.docker-compose.fileName}
+              cp -f ${builtins.toString composeFile} ./${config.snow-blower.docker-compose.fileName}
             ''
           ];
         };

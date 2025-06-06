@@ -1,6 +1,7 @@
 {
   inputs,
   flake-parts-lib,
+  self,
   ...
 }: {
   imports = [
@@ -8,23 +9,45 @@
   ];
   flake.flakeModules.services = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
-      pkgs,
-      config,
       lib,
+      config,
       ...
     }: let
-      inherit (import ../utils.nix {inherit lib;}) mkService;
+      inherit (lib) types mkOption;
+      inherit (self.utils) mkDockerService;
 
       cfg = config.snow-blower.services.adminer;
     in {
-      options.snow-blower.services.adminer = mkService {
+      options.snow-blower.services.adminer = mkDockerService {
         name = "Adminer";
-        package = pkgs.adminer;
+        image = "adminer:latest";
         port = 8080;
+        extraOptions = {
+          defaultServer = lib.mkOption {
+            type = types.str;
+            default = "mysql";
+            description = ''
+              Default database server type (mysql, pgsql, etc).
+            '';
+          };
+        };
       };
 
-      config.snow-blower.processes = lib.mkIf cfg.enable {
-        adminer.exec = "${config.snow-blower.languages.php.package}/bin/php ${lib.optionalString config.snow-blower.services.mysql.enable "-dmysqli.default_socket=${config.snow-blower.env.MYSQL_UNIX_PORT}"} -S ${cfg.settings.host}:${toString cfg.settings.port} -t ${cfg.package} ${cfg.package}/adminer.php";
+      config = lib.mkIf cfg.enable {
+        snow-blower = {
+          docker-compose.services.adminer = {
+            enable = true;
+            service = {
+              image = cfg.image;
+              ports = ["${toString cfg.settings.port}:8080"];
+              restart = "unless-stopped";
+              environment = {
+                ADMINER_DEFAULT_SERVER = cfg.settings.defaultServer;
+              };
+              depends_on = lib.optional config.snow-blower.services.mysql.enable "mysql";
+            };
+          };
+        };
       };
     });
   };

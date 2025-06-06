@@ -5,7 +5,6 @@
     ./elasticsearch
     ./mysql
     ./redis
-    ./supervisord
     ./memcached
   ];
 }
