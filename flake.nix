@@ -45,19 +45,19 @@
               inherit src;
             };
           }
-          ./modules
-          ./lib
+          ./packages/flake/modules
+          ./packages/flake/lib
         ];
         debug = true;
         systems = import inputs.systems;
       });
 
-    mkSnowBlower = import ./mkSnowBlower.nix {inherit inputs self;};
+    mkSnowBlower = import ./packages/flake/mkSnowBlower.nix {inherit inputs self;};
   in
     inputs.flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
       imports = [
         bootstrap.flakeModules.default
-        ./options-document.nix
+        # ./options-document.nix
       ];
 
       flake =
@@ -65,7 +65,7 @@
         // {
           templates = let
             base = {
-              path = ./templates/base;
+              path = ./packages/flake/templates/base;
               description = "The base snow blower flake.";
             };
           in {
@@ -73,7 +73,7 @@
             default = base;
 
             ruby = {
-              path = ./templates/ruby;
+              path = ./packages/flake/templates/ruby;
               description = "A simple Ruby project";
               welcomeText = ''
                 # Simple Ruby Project Template
@@ -87,7 +87,7 @@
               '';
             };
             laravel = {
-              path = ./templates/laravel;
+              path = ./packages/flake/templates/laravel;
               description = "A simple Laravel project";
               welcomeText = ''
                 # Simple Laravel Project Template
