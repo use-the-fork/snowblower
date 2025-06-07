@@ -13,6 +13,8 @@ topLevel @ {
     ./just
     ./languages
     ./docker-compose
+    ./code-quality
+    ./wrapper
     ./services
     ./processes
     ./scripts
@@ -36,6 +38,8 @@ topLevel @ {
       topLevel.config.flake.flakeModules.services
 
       topLevel.config.flake.flakeModules.docker-compose
+      topLevel.config.flake.flakeModules.codeQuality
+      topLevel.config.flake.flakeModules.wrapper
 
       topLevel.config.flake.flakeModules.shell
     ];
@@ -121,6 +125,7 @@ topLevel @ {
       config = {
         snow-blower = {};
         packages = {
+          "snowblower" = config.snow-blower.wrapper.build;
           "process-compose-up" = config.snow-blower.process-compose.internals.procfileScript;
         };
       };

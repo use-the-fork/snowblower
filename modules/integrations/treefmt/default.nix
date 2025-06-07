@@ -19,30 +19,31 @@
 
       cfg = config.snow-blower.integrations.treefmt;
     in {
-      options.snow-blower.integrations.treefmt = mkOption {
-        type = inputs.treefmt-nix.lib.submoduleWith lib {
-          modules = [
-            {
-              options.pkgs = lib.mkOption {
-                default = pkgs;
-                defaultText = "`pkgs` (module argument of `perSystem`)";
-              };
-
-              options.projectRoot = lib.mkOption {
-                type = types.path;
-                default = self;
-                defaultText = lib.literalExpression "self";
-                description = ''
-                  Path to the root of the project on which treefmt operates
-                '';
-              };
-
-              options.just.enable = mkEnableOption' "enable just command";
-            }
-          ];
+      options.snow-blower.integrations.treefmt = {
+        fileName = mkOption {
+          type = types.str;
+          default = "treefmt.toml";
+          description = ''
+            The name of the treefmt configuration file to generate.
+          '';
         };
-        default = {};
-        description = "Integration of https://github.com/numtide/treefmt-nix";
+
+        programs = mkOption {
+          type = types.attrsOf types.attrs;
+          default = {};
+          description = "Formatter programs to enable";
+        };
+
+        projectRoot = mkOption {
+          type = types.path;
+          default = self;
+          defaultText = lib.literalExpression "self";
+          description = ''
+            Path to the root of the project on which treefmt operates
+          '';
+        };
+
+        just.enable = mkEnableOption' "enable just command";
       };
 
       config.snow-blower = {
@@ -52,16 +53,32 @@
           justfile = lib.mkDefault ''
             # Auto-format the source tree using treefmt
             fmt:
-              ${lib.getExe cfg.build.wrapper}
+              treefmt
           '';
         };
 
         #automatically add treefmt-nix to pre-commit if the user enables it.
-        integrations.git-hooks.hooks.treefmt.package = cfg.build.wrapper;
+        integrations.git-hooks.hooks.treefmt.package = pkgs.treefmt;
 
         packages = [
-          cfg.build.wrapper
+          pkgs.treefmt
         ];
+
+        shell = {
+          startup = let
+            # Generate the treefmt configuration file
+            treefmtConfig = {
+              # projectRootFile = "flake.nix";
+              # projectRoot = cfg.projectRoot;
+              programs = cfg.programs;
+            };
+            treefmtConfigFile = inputs.treefmt-nix.lib.mkConfigFile pkgs treefmtConfig;
+          in [
+            ''
+              cp -f ${builtins.toString treefmtConfigFile} ./${cfg.fileName}
+            ''
+          ];
+        };
       };
     });
   };
