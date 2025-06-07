@@ -6,21 +6,25 @@
   inherit (lib.options) mkOption mkEnableOption;
   inherit (lib.types) str;
 
-  # modifed version of https://github.com/numtide/treefmt-nix/blob/main/default.nix
+  # heavily modifed version of https://github.com/numtide/treefmt-nix/blob/main/default.nix
   # Thanks treefmt team!
   mkCodeQualityTool = {
     name,
     package,
     includes ? [],
     excludes ? [],
-    argsLint ? [],
-    argsFormat ? [],
+    lintEnable ? false,
+    lintArgs ? [],
+    lintPriority ? 0,
+    formatEnable ? false,
+    formatArgs ? [],
+    formatPriority ? 100,
     programName ? name,
     configuration ? {},
     format ? pkgs.formats.yaml {},
     extraOptions ? {},
   }: {
-    enable = mkEnableOption "${name} Linter";
+    enable = mkEnableOption "${name} Code Quality Tool";
 
     package = mkOption {
       type = lib.types.package;
@@ -51,20 +55,42 @@
         program = mkOption {
           type = lib.types.str;
           description = "The main executable name for ${name}";
-          default = programName;
+          default = lib.toLower programName;
         };
 
-        args = {
-          lint = mkOption {
+        lint = {
+          enable = mkOption {
+            type = lib.types.bool;
+            description = "Enable linting with ${name}";
+            default = lintEnable;
+          };
+          args = mkOption {
             type = lib.types.listOf lib.types.str;
             description = "Arguments to pass to ${name} when linting";
-            default = argsLint;
+            default = lintArgs;
           };
+          priority = lib.mkOption {
+            description = "Priority";
+            type = lib.types.nullOr lib.types.int;
+            default = lintPriority;
+          };
+        };
 
-          format = mkOption {
+        format = {
+          enable = mkOption {
+            type = lib.types.bool;
+            description = "Enable formatting with ${name}";
+            default = formatEnable;
+          };
+          args = mkOption {
             type = lib.types.listOf lib.types.str;
             description = "Arguments to pass to ${name} when formatting";
-            default = argsFormat;
+            default = formatArgs;
+          };
+          priority = lib.mkOption {
+            description = "Priority (used to order commands when running treefmt)";
+            type = lib.types.nullOr lib.types.int;
+            default = formatPriority;
           };
         };
       }

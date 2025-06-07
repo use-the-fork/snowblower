@@ -14,35 +14,14 @@
       config,
       ...
     }: let
-      inherit (lib) types mkOption mkIf;
-      inherit (import ../utils.nix {inherit lib;}) mkEnableOption';
+      inherit (lib) mkIf;
+      inherit (self.utils) mkConfigFile mkEnableOption';
+
+      tomlFormat = pkgs.formats.toml {};
 
       cfg = config.snow-blower.integrations.treefmt;
     in {
       options.snow-blower.integrations.treefmt = {
-        fileName = mkOption {
-          type = types.str;
-          default = "treefmt.toml";
-          description = ''
-            The name of the treefmt configuration file to generate.
-          '';
-        };
-
-        programs = mkOption {
-          type = types.attrsOf types.attrs;
-          default = {};
-          description = "Formatter programs to enable";
-        };
-
-        projectRoot = mkOption {
-          type = types.path;
-          default = self;
-          defaultText = lib.literalExpression "self";
-          description = ''
-            Path to the root of the project on which treefmt operates
-          '';
-        };
-
         just.enable = mkEnableOption' "enable just command";
       };
 
@@ -57,28 +36,72 @@
           '';
         };
 
-        #automatically add treefmt-nix to pre-commit if the user enables it.
-        integrations.git-hooks.hooks.treefmt.package = pkgs.treefmt;
-
         packages = [
           pkgs.treefmt
         ];
 
-        shell = {
-          startup = let
-            # Generate the treefmt configuration file
-            treefmtConfig = {
-              # projectRootFile = "flake.nix";
-              # projectRoot = cfg.projectRoot;
-              programs = cfg.programs;
-            };
-            treefmtConfigFile = inputs.treefmt-nix.lib.mkConfigFile pkgs treefmtConfig;
-          in [
-            ''
-              cp -f ${builtins.toString treefmtConfigFile} ./${cfg.fileName}
-            ''
-          ];
-        };
+        wrapper = let
+          formatters =
+            lib.mapAttrs
+            (
+              name: tool:
+                lib.optionalAttrs (tool.enable && tool.settings.format.enable) {
+                  "formatter.${lib.toLower name}-format" =
+                    lib.filterAttrs (
+                      _n: v:
+                        v
+                        != null
+                        && (
+                          if builtins.isList v
+                          then v != []
+                          else true
+                        )
+                    ) {
+                      command = tool.settings.program;
+                      options = tool.settings.format.args or [];
+                      includes = tool.settings.includes;
+                      excludes = tool.settings.excludes;
+                      priority = tool.settings.format.priority;
+                    };
+                }
+            )
+            config.snow-blower.codeQuality;
+
+          linters =
+            lib.mapAttrs
+            (
+              name: tool:
+                lib.optionalAttrs (tool.enable && tool.settings.lint.enable) {
+                  "formatter.${lib.toLower name}-lint" =
+                    lib.filterAttrs (
+                      _n: v:
+                        v
+                        != null
+                        && (
+                          if builtins.isList v
+                          then v != []
+                          else true
+                        )
+                    ) {
+                      command = tool.settings.program;
+                      options = tool.settings.lint.args or [];
+                      includes = tool.settings.includes;
+                      excludes = tool.settings.excludes;
+                      priority = tool.settings.lint.priority;
+                    };
+                }
+            )
+            config.snow-blower.codeQuality;
+
+          finalConfiguration =
+            lib.foldl' lib.recursiveUpdate {}
+            (lib.attrValues formatters ++ lib.attrValues linters);
+        in
+          mkConfigFile {
+            name = "treefmt.toml";
+            format = tomlFormat;
+            settings = finalConfiguration;
+          };
       };
     });
   };

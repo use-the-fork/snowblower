@@ -14,7 +14,7 @@
     ;
 
   inherit
-    (import ./code-quality-builder.nix {
+    (import ./mkCodeQualityTool.nix {
       inherit lib;
       pkgs = inputs.nixpkgs.legacyPackages.${self.system};
     })

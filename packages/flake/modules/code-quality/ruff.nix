@@ -27,8 +27,11 @@
           "*.py"
           "*.pyi"
         ];
-        argsLint = ["check" "--fix"];
-        argsFormat = ["format"];
+        formatEnable = true;
+        formatArgs = ["format"];
+
+        lintEnable = true;
+        lintArgs = ["check" "--fix"];
       };
 
       config = lib.mkIf cfg.enable {

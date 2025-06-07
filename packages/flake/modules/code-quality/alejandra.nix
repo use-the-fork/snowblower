@@ -22,6 +22,7 @@
       options.snow-blower.codeQuality.alejandra = mkCodeQualityTool {
         name = "Alejandra";
         package = pkgs.alejandra;
+        formatEnable = true;
         format = tomlFormat;
         includes = [
           "*.nix"
