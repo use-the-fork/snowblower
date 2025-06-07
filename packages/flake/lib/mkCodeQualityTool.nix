@@ -13,15 +13,10 @@
     package,
     includes ? [],
     excludes ? [],
-    lintEnable ? false,
-    lintArgs ? [],
-    lintPriority ? 0,
-    formatEnable ? false,
-    formatArgs ? [],
-    formatPriority ? 100,
-    programName ? name,
-    configuration ? {},
-    format ? pkgs.formats.yaml {},
+    lint ? {},
+    format ? {},
+    config ? {},
+    configFormat ? pkgs.formats.yaml {},
     extraOptions ? {},
   }: {
     enable = mkEnableOption "${name} Code Quality Tool";
@@ -34,10 +29,10 @@
 
     settings =
       {
-        configuration = mkOption {
-          type = format.type;
+        config = mkOption {
+          type = configFormat.type;
           description = "Configuration settings for ${name}.";
-          default = configuration;
+          default = config;
         };
 
         includes = lib.mkOption {
@@ -52,50 +47,40 @@
           default = excludes;
         };
 
-        program = mkOption {
-          type = lib.types.str;
-          description = "The main executable name for ${name}";
-          default = lib.toLower programName;
-        };
-
-        lint = {
-          enable = mkOption {
-            type = lib.types.bool;
-            description = "Enable linting with ${name}";
-            default = lintEnable;
-          };
-          args = mkOption {
-            type = lib.types.listOf lib.types.str;
-            description = "Arguments to pass to ${name} when linting";
-            default = lintArgs;
-          };
-          priority = lib.mkOption {
-            description = "Priority";
-            type = lib.types.nullOr lib.types.int;
-            default = lintPriority;
-          };
-        };
-
-        format = {
-          enable = mkOption {
-            type = lib.types.bool;
-            description = "Enable formatting with ${name}";
-            default = formatEnable;
-          };
-          args = mkOption {
-            type = lib.types.listOf lib.types.str;
-            description = "Arguments to pass to ${name} when formatting";
-            default = formatArgs;
-          };
-          priority = lib.mkOption {
-            description = "Priority (used to order commands when running treefmt)";
-            type = lib.types.nullOr lib.types.int;
-            default = formatPriority;
-          };
-        };
+        inherit lint;
+        inherit format;
       }
       // extraOptions;
   };
+
+  mkCodeQualityCommand = {
+    command,
+    enable ? false,
+    args ? [],
+    priority ? 0,
+  }: {
+    enable = mkOption {
+      type = lib.types.bool;
+      description = "Enable ${command}";
+      default = enable;
+    };
+    args = mkOption {
+      type = lib.types.listOf lib.types.str;
+      description = "Arguments to pass to the command";
+      default = args;
+    };
+    priority = lib.mkOption {
+      description = "Priority (used to order commands when running treefmt)";
+      type = lib.types.nullOr lib.types.int;
+      default = priority;
+    };
+
+    command = mkOption {
+      type = lib.types.str;
+      description = "The executable name";
+      default = command;
+    };
+  };
 in {
-  inherit mkCodeQualityTool;
+  inherit mkCodeQualityTool mkCodeQualityCommand;
 }

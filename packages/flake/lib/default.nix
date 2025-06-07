@@ -19,6 +19,7 @@
       pkgs = inputs.nixpkgs.legacyPackages.${self.system};
     })
     mkCodeQualityTool
+    mkCodeQualityCommand
     ;
 
   inherit (import ./utils.nix {inherit lib;}) mkEnableOption';
@@ -29,7 +30,7 @@ in {
     inherit mkEnableOption';
     inherit mkCmdArgs;
     inherit mkDockerService mkIntegration;
-    inherit mkCodeQualityTool;
+    inherit mkCodeQualityTool mkCodeQualityCommand;
     inherit mkConfigFile;
   };
 }

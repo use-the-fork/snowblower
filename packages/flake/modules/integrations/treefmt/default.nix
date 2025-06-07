@@ -45,7 +45,7 @@
             lib.mapAttrs
             (
               name: tool:
-                lib.optionalAttrs (tool.enable && tool.settings.format.enable) {
+                lib.optionalAttrs (tool.enable && (tool.settings.format.enable or false)) {
                   "formatter.${lib.toLower name}-format" =
                     lib.filterAttrs (
                       _n: v:
@@ -57,7 +57,7 @@
                           else true
                         )
                     ) {
-                      command = tool.settings.program;
+                      command = tool.settings.format.command;
                       options = tool.settings.format.args or [];
                       includes = tool.settings.includes;
                       excludes = tool.settings.excludes;
@@ -71,7 +71,7 @@
             lib.mapAttrs
             (
               name: tool:
-                lib.optionalAttrs (tool.enable && tool.settings.lint.enable) {
+                lib.optionalAttrs (tool.enable && (tool.settings.lint.enable or false)) {
                   "formatter.${lib.toLower name}-lint" =
                     lib.filterAttrs (
                       _n: v:
@@ -83,7 +83,7 @@
                           else true
                         )
                     ) {
-                      command = tool.settings.program;
+                      command = tool.settings.lint.command;
                       options = tool.settings.lint.args or [];
                       includes = tool.settings.includes;
                       excludes = tool.settings.excludes;

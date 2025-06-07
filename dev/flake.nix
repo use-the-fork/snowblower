@@ -14,13 +14,21 @@
         };
 
         services = {
-          redis.enable = true;
+          redis.enable = false;
         };
 
         codeQuality = {
-          ruff.enable = true;
+          ruff.enable = false;
           alejandra.enable = true;
           nixfmt.enable = false;
+          statix = {
+            enable = true;
+            settings.config = {
+              disabled-lints = [
+                "manual_inherit_from"
+              ];
+            };
+          };
         };
 
         integrations = {

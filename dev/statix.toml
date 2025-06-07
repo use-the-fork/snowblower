@@ -1,0 +1,1 @@
+disabled-lints = ["manual_inherit_from"]

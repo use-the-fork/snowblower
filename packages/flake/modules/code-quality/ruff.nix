@@ -14,7 +14,7 @@
       pkgs,
       ...
     }: let
-      inherit (self.utils) mkCodeQualityTool mkConfigFile;
+      inherit (self.utils) mkCodeQualityTool mkConfigFile mkCodeQualityCommand;
       tomlFormat = pkgs.formats.toml {};
 
       cfg = config.snow-blower.codeQuality.ruff;
@@ -22,22 +22,30 @@
       options.snow-blower.codeQuality.ruff = mkCodeQualityTool {
         name = "Ruff";
         package = pkgs.ruff;
-        format = tomlFormat;
+        configFormat = tomlFormat;
         includes = [
           "*.py"
           "*.pyi"
         ];
-        formatEnable = true;
-        formatArgs = ["format"];
 
-        lintEnable = true;
-        lintArgs = ["check" "--fix"];
+        lint = mkCodeQualityCommand {
+          enable = true;
+          command = "ruff";
+          args = ["check" "--fix"];
+        };
+
+        format = mkCodeQualityCommand {
+          enable = true;
+          command = "ruff";
+          args = ["format"];
+          priority = 100;
+        };
       };
 
       config = lib.mkIf cfg.enable {
         snow-blower = let
           finalSettings =
-            cfg.settings.configuration
+            cfg.settings.config
             // (
               lib.optionalAttrs (cfg.settings.includes != []) {
                 include = cfg.settings.includes;
