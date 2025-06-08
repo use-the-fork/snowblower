@@ -1,6 +1,7 @@
 ## Options
 
 ### package
+
 **Location:** *perSystem.snow-blower.process-compose.package*
 
 The process-compose package to use.
@@ -10,6 +11,7 @@ The process-compose package to use.
 `package`
 
 **Default:**
+
 ```nix
 pkgs.process-compose
 ```
@@ -18,8 +20,8 @@ pkgs.process-compose
 
 - [processes, via option flake.flakeModules.processes](https://github.com/use-the-fork/snow-blower/tree/main/modules/processes/default.nix)
 
-
 ### after
+
 **Location:** *perSystem.snow-blower.process-compose.settings.after*
 
 Bash code to execute after stopping processes.
@@ -29,6 +31,7 @@ Bash code to execute after stopping processes.
 `strings concatenated with "\n"`
 
 **Default:**
+
 ```nix
 ""
 ```
@@ -37,8 +40,8 @@ Bash code to execute after stopping processes.
 
 - [processes, via option flake.flakeModules.processes](https://github.com/use-the-fork/snow-blower/tree/main/modules/processes/default.nix)
 
-
 ### before
+
 **Location:** *perSystem.snow-blower.process-compose.settings.before*
 
 Bash code to execute before starting processes.
@@ -48,6 +51,7 @@ Bash code to execute before starting processes.
 `strings concatenated with "\n"`
 
 **Default:**
+
 ```nix
 ""
 ```
@@ -56,18 +60,18 @@ Bash code to execute before starting processes.
 
 - [processes, via option flake.flakeModules.processes](https://github.com/use-the-fork/snow-blower/tree/main/modules/processes/default.nix)
 
-
 ### server
+
 **Location:** *perSystem.snow-blower.process-compose.settings.server*
 
 Top-level process-compose.yaml options when that implementation is used.
-
 
 **Type:**
 
 `attribute set`
 
 **Default:**
+
 ```nix
 {
   version = "0.5";
@@ -90,4 +94,3 @@ Top-level process-compose.yaml options when that implementation is used.
 **Declared by:**
 
 - [processes, via option flake.flakeModules.processes](https://github.com/use-the-fork/snow-blower/tree/main/modules/processes/default.nix)
-

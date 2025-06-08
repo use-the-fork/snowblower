@@ -99,6 +99,8 @@
             ${cfg.package}/bin/corepack enable --install-directory $out/bin
           '');
 
+        docker-compose.packages = [cfg.package];
+
         env = {
           NODEJS_HOME = cfg.package;
           NPM_CONFIG_CACHE = config.snowblower.env.PROJECT_STATE + "/npm";

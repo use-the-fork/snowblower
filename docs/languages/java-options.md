@@ -1,6 +1,7 @@
 ## Options
 
 ### enable
+
 **Location:** *perSystem.snow-blower.languages.java.enable*
 
 Whether to enable tools for Java development.
@@ -10,6 +11,7 @@ Whether to enable tools for Java development.
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -24,8 +26,8 @@ true
 
 - [languages/java, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/java/default.nix)
 
-
 ### package
+
 **Location:** *perSystem.snow-blower.languages.java.package*
 
 The package Java should use.
@@ -35,6 +37,7 @@ The package Java should use.
 `package`
 
 **Default:**
+
 ```nix
 <derivation openjdk-21.0.5+11>
 ```
@@ -43,8 +46,8 @@ The package Java should use.
 
 - [languages/java, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/java/default.nix)
 
-
 ### settings.gradle.enable
+
 **Location:** *perSystem.snow-blower.languages.java.settings.gradle.enable*
 
 Whether to enable gradle.
@@ -54,6 +57,7 @@ Whether to enable gradle.
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -68,19 +72,19 @@ true
 
 - [languages/java, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/java/default.nix)
 
-
 ### settings.gradle.package
+
 **Location:** *perSystem.snow-blower.languages.java.settings.gradle.package*
 
 The Gradle package to use.
 The Gradle package by default inherits the JDK from `languages.java.package`.
-
 
 **Type:**
 
 `package`
 
 **Default:**
+
 ```nix
 pkgs.gradle.override { java = cfg.package; }
 ```
@@ -89,8 +93,8 @@ pkgs.gradle.override { java = cfg.package; }
 
 - [languages/java, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/java/default.nix)
 
-
 ### settings.maven.enable
+
 **Location:** *perSystem.snow-blower.languages.java.settings.maven.enable*
 
 Whether to enable maven.
@@ -100,6 +104,7 @@ Whether to enable maven.
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -114,19 +119,19 @@ true
 
 - [languages/java, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/java/default.nix)
 
-
 ### settings.maven.package
+
 **Location:** *perSystem.snow-blower.languages.java.settings.maven.package*
 
 The Maven package to use.
 The Maven package by default inherits the JDK from `languages.java.package`.
-
 
 **Type:**
 
 `package`
 
 **Default:**
+
 ```nix
 "pkgs.maven.override { jdk = cfg.package; }"
 ```
@@ -134,4 +139,3 @@ The Maven package by default inherits the JDK from `languages.java.package`.
 **Declared by:**
 
 - [languages/java, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/java/default.nix)
-

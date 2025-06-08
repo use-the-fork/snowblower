@@ -1,15 +1,17 @@
 ## Options
 
 ### enable
+
 **Location:** *perSystem.snow-blower.services.memcached.enable*
 
-Whether to enable Memcached  service.
+Whether to enable Memcached service.
 
 **Type:**
 
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -24,8 +26,8 @@ true
 
 - [services/memcached, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/memcached/default.nix)
 
-
 ### package
+
 **Location:** *perSystem.snow-blower.services.memcached.package*
 
 The package Memcached should use.
@@ -35,6 +37,7 @@ The package Memcached should use.
 `package`
 
 **Default:**
+
 ```nix
 <derivation memcached-1.6.37>
 ```
@@ -43,8 +46,8 @@ The package Memcached should use.
 
 - [services/memcached, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/memcached/default.nix)
 
-
 ### settings.host
+
 **Location:** *perSystem.snow-blower.services.memcached.settings.host*
 
 The host Memcached will listen on
@@ -54,6 +57,7 @@ The host Memcached will listen on
 `string`
 
 **Default:**
+
 ```nix
 "127.0.0.1"
 ```
@@ -62,8 +66,8 @@ The host Memcached will listen on
 
 - [services/memcached, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/memcached/default.nix)
 
-
 ### settings.port
+
 **Location:** *perSystem.snow-blower.services.memcached.settings.port*
 
 The port Memcached will listen on
@@ -73,6 +77,7 @@ The port Memcached will listen on
 `signed integer or string`
 
 **Default:**
+
 ```nix
 11211
 ```
@@ -81,18 +86,18 @@ The port Memcached will listen on
 
 - [services/memcached, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/memcached/default.nix)
 
-
 ### settings.startArgs
+
 **Location:** *perSystem.snow-blower.services.memcached.settings.startArgs*
 
 Additional arguments passed to `memcached` during startup.
-
 
 **Type:**
 
 `list of strings concatenated with "\n"`
 
 **Default:**
+
 ```nix
 [ ]
 ```
@@ -108,4 +113,3 @@ Additional arguments passed to `memcached` during startup.
 **Declared by:**
 
 - [services/memcached, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/memcached/default.nix)
-

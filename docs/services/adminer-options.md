@@ -1,15 +1,17 @@
 ## Options
 
 ### enable
+
 **Location:** *perSystem.snow-blower.services.adminer.enable*
 
-Whether to enable Adminer  service.
+Whether to enable Adminer service.
 
 **Type:**
 
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -24,8 +26,8 @@ true
 
 - [services/adminer, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/adminer/default.nix)
 
-
 ### package
+
 **Location:** *perSystem.snow-blower.services.adminer.package*
 
 The package Adminer should use.
@@ -35,6 +37,7 @@ The package Adminer should use.
 `package`
 
 **Default:**
+
 ```nix
 <derivation adminer-5.1.1>
 ```
@@ -43,8 +46,8 @@ The package Adminer should use.
 
 - [services/adminer, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/adminer/default.nix)
 
-
 ### settings.host
+
 **Location:** *perSystem.snow-blower.services.adminer.settings.host*
 
 The host Adminer will listen on
@@ -54,6 +57,7 @@ The host Adminer will listen on
 `string`
 
 **Default:**
+
 ```nix
 "127.0.0.1"
 ```
@@ -62,8 +66,8 @@ The host Adminer will listen on
 
 - [services/adminer, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/adminer/default.nix)
 
-
 ### settings.port
+
 **Location:** *perSystem.snow-blower.services.adminer.settings.port*
 
 The port Adminer will listen on
@@ -73,6 +77,7 @@ The port Adminer will listen on
 `signed integer or string`
 
 **Default:**
+
 ```nix
 8080
 ```
@@ -80,4 +85,3 @@ The port Adminer will listen on
 **Declared by:**
 
 - [services/adminer, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/adminer/default.nix)
-

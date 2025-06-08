@@ -1,15 +1,17 @@
 ## Options
 
 ### processes
+
 **Location:** *perSystem.snow-blower.processes*
 
-Processes can be started with ``just up`` and run in foreground mode.
+Processes can be started with `just up` and run in foreground mode.
 
 **Type:**
 
 `attribute set of (submodule)`
 
 **Default:**
+
 ```nix
 { }
 ```
@@ -18,9 +20,9 @@ Processes can be started with ``just up`` and run in foreground mode.
 
 - [processes, via option flake.flakeModules.processes](https://github.com/use-the-fork/snow-blower/tree/main/modules/processes/default.nix)
 
-
 ### exec
-**Location:** *perSystem.snow-blower.processes.\<name\>.exec*
+
+**Location:** *perSystem.snow-blower.processes.\<name>.exec*
 
 Bash code to run the process.
 
@@ -32,22 +34,22 @@ Bash code to run the process.
 
 - [processes, via option flake.flakeModules.processes](https://github.com/use-the-fork/snow-blower/tree/main/modules/processes/default.nix)
 
-
 ### process-compose
-**Location:** *perSystem.snow-blower.processes.\<name\>.process-compose*
+
+**Location:** *perSystem.snow-blower.processes.\<name>.process-compose*
 
 process-compose.yaml specific process attributes.
 
-Example: https://github.com/F1bonacc1/process-compose/blob/main/process-compose.yaml`
+Example: https://github.com/F1bonacc1/process-compose/blob/main/process-compose.yaml\`
 
-Only used when using ``process.implementation = "process-compose";``
-
+Only used when using `process.implementation = "process-compose";`
 
 **Type:**
 
 `attribute set`
 
 **Default:**
+
 ```nix
 { }
 ```
@@ -75,4 +77,3 @@ Only used when using ``process.implementation = "process-compose";``
 **Declared by:**
 
 - [processes, via option flake.flakeModules.processes](https://github.com/use-the-fork/snow-blower/tree/main/modules/processes/default.nix)
-

@@ -43,6 +43,7 @@ To add git-cliff support to your project, you can enable the git-cliff module in
     };
 }
 ```
+
 ## Configuration
 
 Snow Blower provides a default configuration for Git Cliff that follows conventional commits. The integration:
@@ -75,6 +76,7 @@ just changelog
 ```
 
 This will:
+
 - Analyze your git history
 - Group commits by type according to conventional commits
 - Generate a formatted changelog

@@ -14,7 +14,7 @@
       pkgs,
       ...
     }: let
-      inherit (self.utils) mkCodeQualityTool mkConfigFile mkCodeQualityCommand;
+      inherit (self.utils) mkCodeQualityTool mkCodeQualityCommand;
       tomlFormat = pkgs.formats.toml {};
 
       cfg = config.snowblower.codeQuality.programs.ruff;
@@ -58,8 +58,7 @@
             cfg.package
           ];
 
-          core = mkConfigFile {
-            name = "ruff.toml";
+          core.files."ruff.toml" = {
             format = tomlFormat;
             settings = finalSettings;
           };

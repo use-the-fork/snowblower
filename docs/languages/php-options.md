@@ -1,16 +1,17 @@
 ## Options
 
 ### disableExtensions
+
 **Location:** *perSystem.snow-blower.languages.php.disableExtensions*
 
 PHP extensions to disable.
-
 
 **Type:**
 
 `list of string`
 
 **Default:**
+
 ```nix
 [ ]
 ```
@@ -19,8 +20,8 @@ PHP extensions to disable.
 
 - [languages/php, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/php/default.nix)
 
-
 ### enable
+
 **Location:** *perSystem.snow-blower.languages.php.enable*
 
 Whether to enable tools for PHP development.
@@ -30,6 +31,7 @@ Whether to enable tools for PHP development.
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -44,18 +46,18 @@ true
 
 - [languages/php, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/php/default.nix)
 
-
 ### extensions
+
 **Location:** *perSystem.snow-blower.languages.php.extensions*
 
 PHP extensions to enable.
-
 
 **Type:**
 
 `list of string`
 
 **Default:**
+
 ```nix
 [ ]
 ```
@@ -64,18 +66,18 @@ PHP extensions to enable.
 
 - [languages/php, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/php/default.nix)
 
-
 ### ini
+
 **Location:** *perSystem.snow-blower.languages.php.ini*
 
 PHP.ini directives. Refer to the "List of php.ini directives" of PHP's
-
 
 **Type:**
 
 `null or strings concatenated with "\n"`
 
 **Default:**
+
 ```nix
 ""
 ```
@@ -84,20 +86,20 @@ PHP.ini directives. Refer to the "List of php.ini directives" of PHP's
 
 - [languages/php, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/php/default.nix)
 
-
 ### package
+
 **Location:** *perSystem.snow-blower.languages.php.package*
 
 Allows you to [override the default used package](https://nixos.org/manual/nixpkgs/stable/#ssec-php-user-guide)
 to adjust the settings or add more extensions. You can find the
 extensions using `devenv search 'php extensions'`
 
-
 **Type:**
 
 `package`
 
 **Default:**
+
 ```nix
 pkgs.php
 ```
@@ -118,8 +120,8 @@ pkgs.php.buildEnv {
 
 - [languages/php, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/php/default.nix)
 
-
 ### packages
+
 **Location:** *perSystem.snow-blower.languages.php.packages*
 
 Attribute set of packages including composer
@@ -129,6 +131,7 @@ Attribute set of packages including composer
 `submodule`
 
 **Default:**
+
 ```nix
 pkgs
 ```
@@ -137,8 +140,8 @@ pkgs
 
 - [languages/php, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/php/default.nix)
 
-
 ### packages.composer
+
 **Location:** *perSystem.snow-blower.languages.php.packages.composer*
 
 composer package
@@ -148,6 +151,7 @@ composer package
 `null or package`
 
 **Default:**
+
 ```nix
 pkgs.phpPackages.composer
 ```
@@ -155,4 +159,3 @@ pkgs.phpPackages.composer
 **Declared by:**
 
 - [languages/php, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/php/default.nix)
-

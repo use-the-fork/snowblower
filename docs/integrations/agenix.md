@@ -86,18 +86,19 @@ just agenix
 ```
 
 This will:
-1. Present a menu of available secrets to edit
-2. Open the selected secret in your editor
-3. Automatically encrypt the file when you save and exit
-4. Decrypt the updated secret for immediate use in your environment
 
+1. Present a menu of available secrets to edit
+1. Open the selected secret in your editor
+1. Automatically encrypt the file when you save and exit
+1. Decrypt the updated secret for immediate use in your environment
 
 ### Automatic Decryption
 
 When you enter the development shell, Snow Blower automatically:
+
 1. Creates a `secrets.nix` file with your public keys configuration
-2. Attempts to decrypt all configured secrets
-3. Makes the decrypted files available in your project directory
+1. Attempts to decrypt all configured secrets
+1. Makes the decrypted files available in your project directory
 
 If a secret file doesn't exist or can't be decrypted, you'll see a warning message with instructions on how to fix it.
 

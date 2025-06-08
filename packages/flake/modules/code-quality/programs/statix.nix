@@ -14,7 +14,7 @@
       pkgs,
       ...
     }: let
-      inherit (self.utils) mkCodeQualityTool mkConfigFile mkCodeQualityCommand;
+      inherit (self.utils) mkCodeQualityTool mkCodeQualityCommand;
       tomlFormat = pkgs.formats.toml {};
 
       cfg = config.snowblower.codeQuality.programs.statix;
@@ -48,8 +48,7 @@
             multipleTargetsCommand
           ];
 
-          core = mkConfigFile {
-            name = "statix.toml";
+          core.files."statix.toml" = {
             format = tomlFormat;
             settings = cfg.settings.config;
           };

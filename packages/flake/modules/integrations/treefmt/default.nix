@@ -15,7 +15,7 @@
       ...
     }: let
       inherit (lib) mkIf;
-      inherit (self.utils) mkConfigFile mkEnableOption';
+      inherit (self.utils) mkEnableOption';
 
       tomlFormat = pkgs.formats.toml {};
 
@@ -40,7 +40,7 @@
           pkgs.treefmt
         ];
 
-        core = let
+        core.files."treefmt.toml" = let
           formatters =
             lib.mapAttrs
             (
@@ -96,12 +96,10 @@
           finalConfiguration =
             lib.foldl' lib.recursiveUpdate {}
             (lib.attrValues formatters ++ lib.attrValues linters);
-        in
-          mkConfigFile {
-            name = "treefmt.toml";
-            format = tomlFormat;
-            settings = finalConfiguration;
-          };
+        in {
+          format = tomlFormat;
+          settings = finalConfiguration;
+        };
       };
     });
   };

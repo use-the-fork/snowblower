@@ -57,12 +57,6 @@ topLevel @ {
           default = [];
         };
 
-        dockerPackages = mkOption {
-          type = types.listOf types.package;
-          description = "A list of packages to expose inside the docker developer environment. See https://search.nixos.org/packages for packages.";
-          default = [];
-        };
-
         paths = {
           src = lib.mkOption {
             type = types.path;

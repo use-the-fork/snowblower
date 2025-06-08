@@ -1,16 +1,17 @@
 ## Options
 
 ### commands
+
 **Location:** *perSystem.snow-blower.integrations.aider.commands*
 
 The aider start commands that we can run with just.
-
 
 **Type:**
 
 `attribute set of (submodule)`
 
 **Default:**
+
 ```nix
 { }
 ```
@@ -19,9 +20,9 @@ The aider start commands that we can run with just.
 
 - [integrations/aider, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/default.nix)
 
+### commands.\<name>.description
 
-### commands.\<name\>.description
-**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name\>.description*
+**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name>.description*
 
 Description of this Aider command
 
@@ -30,6 +31,7 @@ Description of this Aider command
 `string`
 
 **Default:**
+
 ```nix
 "Run Aider AI assistant"
 ```
@@ -38,9 +40,9 @@ Description of this Aider command
 
 - [integrations/aider/command-module.nix](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/command-module.nix)
 
+### commands.\<name>.detectUrls
 
-### commands.\<name\>.detectUrls
-**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name\>.detectUrls*
+**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name>.detectUrls*
 
 Enable/disable detection and offering to add URLs to chat
 
@@ -49,6 +51,7 @@ Enable/disable detection and offering to add URLs to chat
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -57,9 +60,9 @@ false
 
 - [integrations/aider/command-module.nix](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/command-module.nix)
 
+### commands.\<name>.enable
 
-### commands.\<name\>.enable
-**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name\>.enable*
+**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name>.enable*
 
 Whether to enable this command.
 
@@ -68,6 +71,7 @@ Whether to enable this command.
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -82,9 +86,9 @@ true
 
 - [integrations/aider/command-module.nix](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/command-module.nix)
 
+### commands.\<name>.extraArgs
 
-### commands.\<name\>.extraArgs
-**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name\>.extraArgs*
+**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name>.extraArgs*
 
 Extra command line arguments to pass to Aider
 
@@ -93,6 +97,7 @@ Extra command line arguments to pass to Aider
 `string`
 
 **Default:**
+
 ```nix
 ""
 ```
@@ -101,9 +106,9 @@ Extra command line arguments to pass to Aider
 
 - [integrations/aider/command-module.nix](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/command-module.nix)
 
+### commands.\<name>.gitCommitVerify
 
-### commands.\<name\>.gitCommitVerify
-**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name\>.gitCommitVerify*
+**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name>.gitCommitVerify*
 
 Enable git pre-commit hooks with --git-commit-verify
 
@@ -112,6 +117,7 @@ Enable git pre-commit hooks with --git-commit-verify
 `boolean`
 
 **Default:**
+
 ```nix
 true
 ```
@@ -120,9 +126,9 @@ true
 
 - [integrations/aider/command-module.nix](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/command-module.nix)
 
+### commands.\<name>.lintCommands
 
-### commands.\<name\>.lintCommands
-**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name\>.lintCommands*
+**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name>.lintCommands*
 
 Specify lint commands to run for different languages, eg: 'python: flake8 --select=...'
 
@@ -131,6 +137,7 @@ Specify lint commands to run for different languages, eg: 'python: flake8 --sele
 `list of string`
 
 **Default:**
+
 ```nix
 [ ]
 ```
@@ -139,9 +146,9 @@ Specify lint commands to run for different languages, eg: 'python: flake8 --sele
 
 - [integrations/aider/command-module.nix](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/command-module.nix)
 
+### commands.\<name>.model
 
-### commands.\<name\>.model
-**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name\>.model*
+**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name>.model*
 
 Specify the model to use for the main chat.
 
@@ -150,6 +157,7 @@ Specify the model to use for the main chat.
 `string`
 
 **Default:**
+
 ```nix
 "sonnet"
 ```
@@ -158,9 +166,9 @@ Specify the model to use for the main chat.
 
 - [integrations/aider/command-module.nix](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/command-module.nix)
 
+### commands.\<name>.readFiles
 
-### commands.\<name\>.readFiles
-**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name\>.readFiles*
+**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name>.readFiles*
 
 Specify read-only files (can be used multiple times)
 
@@ -169,6 +177,7 @@ Specify read-only files (can be used multiple times)
 `list of string`
 
 **Default:**
+
 ```nix
 [ ]
 ```
@@ -177,9 +186,9 @@ Specify read-only files (can be used multiple times)
 
 - [integrations/aider/command-module.nix](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/command-module.nix)
 
+### commands.\<name>.suggestShellCommands
 
-### commands.\<name\>.suggestShellCommands
-**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name\>.suggestShellCommands*
+**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name>.suggestShellCommands*
 
 Enable/disable suggesting shell commands
 
@@ -188,6 +197,7 @@ Enable/disable suggesting shell commands
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -196,9 +206,9 @@ false
 
 - [integrations/aider/command-module.nix](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/command-module.nix)
 
+### commands.\<name>.testCommands
 
-### commands.\<name\>.testCommands
-**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name\>.testCommands*
+**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name>.testCommands*
 
 Specify commands to run tests
 
@@ -207,6 +217,7 @@ Specify commands to run tests
 `list of string`
 
 **Default:**
+
 ```nix
 [ ]
 ```
@@ -215,9 +226,9 @@ Specify commands to run tests
 
 - [integrations/aider/command-module.nix](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/command-module.nix)
 
+### commands.\<name>.watchFiles
 
-### commands.\<name\>.watchFiles
-**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name\>.watchFiles*
+**Location:** *perSystem.snow-blower.integrations.aider.commands.\<name>.watchFiles*
 
 Enable watching files for changes
 
@@ -226,6 +237,7 @@ Enable watching files for changes
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -234,8 +246,8 @@ false
 
 - [integrations/aider/command-module.nix](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/command-module.nix)
 
-
 ### enable
+
 **Location:** *perSystem.snow-blower.integrations.aider.enable*
 
 Whether to enable Aider just command.
@@ -245,6 +257,7 @@ Whether to enable Aider just command.
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -259,8 +272,8 @@ true
 
 - [integrations/aider, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/default.nix)
 
-
 ### package
+
 **Location:** *perSystem.snow-blower.integrations.aider.package*
 
 The package Aider should use.
@@ -270,6 +283,7 @@ The package Aider should use.
 `package`
 
 **Default:**
+
 ```nix
 <derivation aider-chat-0.82.1>
 ```
@@ -278,8 +292,8 @@ The package Aider should use.
 
 - [integrations/aider, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/default.nix)
 
-
 ### settings.auto-commits
+
 **Location:** *perSystem.snow-blower.integrations.aider.settings.auto-commits*
 
 Enable/disable auto commit of LLM changes.
@@ -289,6 +303,7 @@ Enable/disable auto commit of LLM changes.
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -297,8 +312,8 @@ false
 
 - [integrations/aider, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/default.nix)
 
-
 ### settings.auto-lint
+
 **Location:** *perSystem.snow-blower.integrations.aider.settings.auto-lint*
 
 Enable/disable automatic linting after changes
@@ -308,6 +323,7 @@ Enable/disable automatic linting after changes
 `boolean`
 
 **Default:**
+
 ```nix
 true
 ```
@@ -316,8 +332,8 @@ true
 
 - [integrations/aider, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/default.nix)
 
-
 ### settings.cache-prompts
+
 **Location:** *perSystem.snow-blower.integrations.aider.settings.cache-prompts*
 
 Enable caching of prompts.
@@ -327,6 +343,7 @@ Enable caching of prompts.
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -335,8 +352,8 @@ false
 
 - [integrations/aider, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/default.nix)
 
-
 ### settings.code-theme
+
 **Location:** *perSystem.snow-blower.integrations.aider.settings.code-theme*
 
 Set the markdown code theme
@@ -346,6 +363,7 @@ Set the markdown code theme
 `one of "default", "monokai", "solarized-dark", "solarized-light"`
 
 **Default:**
+
 ```nix
 "default"
 ```
@@ -354,8 +372,8 @@ Set the markdown code theme
 
 - [integrations/aider, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/default.nix)
 
-
 ### settings.dark-mode
+
 **Location:** *perSystem.snow-blower.integrations.aider.settings.dark-mode*
 
 Use colors suitable for a dark terminal background.
@@ -365,6 +383,7 @@ Use colors suitable for a dark terminal background.
 `boolean`
 
 **Default:**
+
 ```nix
 true
 ```
@@ -373,8 +392,8 @@ true
 
 - [integrations/aider, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/default.nix)
 
-
 ### settings.dirty-commits
+
 **Location:** *perSystem.snow-blower.integrations.aider.settings.dirty-commits*
 
 Enable/disable commits when repo is found dirty
@@ -384,6 +403,7 @@ Enable/disable commits when repo is found dirty
 `boolean`
 
 **Default:**
+
 ```nix
 true
 ```
@@ -392,8 +412,8 @@ true
 
 - [integrations/aider, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/default.nix)
 
-
 ### settings.edit-format
+
 **Location:** *perSystem.snow-blower.integrations.aider.settings.edit-format*
 
 Set the markdown code theme
@@ -403,6 +423,7 @@ Set the markdown code theme
 `one of "whole", "diff", "diff-fenced", "udiff"`
 
 **Default:**
+
 ```nix
 "diff"
 ```
@@ -411,20 +432,21 @@ Set the markdown code theme
 
 - [integrations/aider, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/default.nix)
 
-
 ### settings.extraConf
+
 **Location:** *perSystem.snow-blower.integrations.aider.settings.extraConf*
 
 Extra configuration for aider, see
+
 <link xlink:href="See settings here: https://aider.chat/docs/config/aider_conf.html"/>
 for supported values.
-
 
 **Type:**
 
 `YAML value`
 
 **Default:**
+
 ```nix
 { }
 ```
@@ -433,8 +455,8 @@ for supported values.
 
 - [integrations/aider, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/default.nix)
 
-
 ### settings.light-mode
+
 **Location:** *perSystem.snow-blower.integrations.aider.settings.light-mode*
 
 Use colors suitable for a light terminal background
@@ -444,6 +466,7 @@ Use colors suitable for a light terminal background
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -451,4 +474,3 @@ false
 **Declared by:**
 
 - [integrations/aider, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/aider/default.nix)
-

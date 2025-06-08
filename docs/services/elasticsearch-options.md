@@ -1,15 +1,17 @@
 ## Options
 
 ### enable
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.enable*
 
-Whether to enable Elasticsearch  service.
+Whether to enable Elasticsearch service.
 
 **Type:**
 
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -24,17 +26,18 @@ true
 
 - [services/elasticsearch, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/default.nix)
 
-
 ### kibana.enable
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.kibana.enable*
 
-Whether to enable Kibana  service.
+Whether to enable Kibana service.
 
 **Type:**
 
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -49,8 +52,8 @@ true
 
 - [services/elasticsearch/kibana.nix, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/kibana.nix)
 
-
 ### kibana.package
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.kibana.package*
 
 The package Kibana should use.
@@ -60,6 +63,7 @@ The package Kibana should use.
 `package`
 
 **Default:**
+
 ```nix
 <derivation kibana-7.17.27>
 ```
@@ -68,8 +72,8 @@ The package Kibana should use.
 
 - [services/elasticsearch/kibana.nix, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/kibana.nix)
 
-
 ### kibana.settings.extraCmdLineOptions
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.kibana.settings.extraCmdLineOptions*
 
 Extra command line options for the elasticsearch launcher.
@@ -79,6 +83,7 @@ Extra command line options for the elasticsearch launcher.
 `list of string`
 
 **Default:**
+
 ```nix
 [ ]
 ```
@@ -87,8 +92,8 @@ Extra command line options for the elasticsearch launcher.
 
 - [services/elasticsearch/kibana.nix, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/kibana.nix)
 
-
 ### kibana.settings.extraConf
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.kibana.settings.extraConf*
 
 Extra configuration for elasticsearch.
@@ -98,6 +103,7 @@ Extra configuration for elasticsearch.
 `string`
 
 **Default:**
+
 ```nix
 ""
 ```
@@ -116,8 +122,8 @@ Extra configuration for elasticsearch.
 
 - [services/elasticsearch/kibana.nix, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/kibana.nix)
 
-
 ### kibana.settings.host
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.kibana.settings.host*
 
 The host Kibana will listen on
@@ -127,6 +133,7 @@ The host Kibana will listen on
 `string`
 
 **Default:**
+
 ```nix
 "127.0.0.1"
 ```
@@ -135,8 +142,8 @@ The host Kibana will listen on
 
 - [services/elasticsearch/kibana.nix, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/kibana.nix)
 
-
 ### kibana.settings.hosts
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.kibana.settings.hosts*
 
 The URLs of the Elasticsearch instances to use for all your queries.
@@ -146,12 +153,12 @@ Defaults to <literal>[ "http://localhost:9200" ]</literal>.
 
 This option is only valid when using kibana >= 6.6.
 
-
 **Type:**
 
 `null or (list of string)`
 
 **Default:**
+
 ```nix
 [
   "http://127.0.0.1:9200"
@@ -162,8 +169,8 @@ This option is only valid when using kibana >= 6.6.
 
 - [services/elasticsearch/kibana.nix, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/kibana.nix)
 
-
 ### kibana.settings.port
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.kibana.settings.port*
 
 The port Kibana will listen on
@@ -173,6 +180,7 @@ The port Kibana will listen on
 `signed integer or string`
 
 **Default:**
+
 ```nix
 5601
 ```
@@ -181,8 +189,8 @@ The port Kibana will listen on
 
 - [services/elasticsearch/kibana.nix, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/kibana.nix)
 
-
 ### package
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.package*
 
 The package Elasticsearch should use.
@@ -192,6 +200,7 @@ The package Elasticsearch should use.
 `package`
 
 **Default:**
+
 ```nix
 <derivation elasticsearch-7.17.27>
 ```
@@ -200,8 +209,8 @@ The package Elasticsearch should use.
 
 - [services/elasticsearch, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/default.nix)
 
-
 ### settings.cluster_name
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.settings.cluster_name*
 
 Elasticsearch name that identifies your cluster for auto-discovery.
@@ -211,6 +220,7 @@ Elasticsearch name that identifies your cluster for auto-discovery.
 `string`
 
 **Default:**
+
 ```nix
 "elasticsearch"
 ```
@@ -219,8 +229,8 @@ Elasticsearch name that identifies your cluster for auto-discovery.
 
 - [services/elasticsearch, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/default.nix)
 
-
 ### settings.extraCmdLineOptions
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.settings.extraCmdLineOptions*
 
 Extra command line options for the elasticsearch launcher.
@@ -230,6 +240,7 @@ Extra command line options for the elasticsearch launcher.
 `list of string`
 
 **Default:**
+
 ```nix
 [ ]
 ```
@@ -238,8 +249,8 @@ Extra command line options for the elasticsearch launcher.
 
 - [services/elasticsearch, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/default.nix)
 
-
 ### settings.extraConf
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.settings.extraConf*
 
 Extra configuration for elasticsearch.
@@ -249,6 +260,7 @@ Extra configuration for elasticsearch.
 `string`
 
 **Default:**
+
 ```nix
 ""
 ```
@@ -267,8 +279,8 @@ Extra configuration for elasticsearch.
 
 - [services/elasticsearch, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/default.nix)
 
-
 ### settings.extraJavaOptions
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.settings.extraJavaOptions*
 
 Extra command line options for Java.
@@ -278,6 +290,7 @@ Extra command line options for Java.
 `list of string`
 
 **Default:**
+
 ```nix
 [ ]
 ```
@@ -294,8 +307,8 @@ Extra command line options for Java.
 
 - [services/elasticsearch, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/default.nix)
 
-
 ### settings.host
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.settings.host*
 
 The host Elasticsearch will listen on
@@ -305,6 +318,7 @@ The host Elasticsearch will listen on
 `string`
 
 **Default:**
+
 ```nix
 "127.0.0.1"
 ```
@@ -313,8 +327,8 @@ The host Elasticsearch will listen on
 
 - [services/elasticsearch, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/default.nix)
 
-
 ### settings.logging
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.settings.logging*
 
 Elasticsearch logging configuration.
@@ -324,6 +338,7 @@ Elasticsearch logging configuration.
 `string`
 
 **Default:**
+
 ```nix
 ''
   logger.action.name = org.elasticsearch.action
@@ -341,8 +356,8 @@ Elasticsearch logging configuration.
 
 - [services/elasticsearch, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/default.nix)
 
-
 ### settings.plugins
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.settings.plugins*
 
 Extra elasticsearch plugins
@@ -352,6 +367,7 @@ Extra elasticsearch plugins
 `list of package`
 
 **Default:**
+
 ```nix
 [ ]
 ```
@@ -366,8 +382,8 @@ Extra elasticsearch plugins
 
 - [services/elasticsearch, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/default.nix)
 
-
 ### settings.port
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.settings.port*
 
 The port Elasticsearch will listen on
@@ -377,6 +393,7 @@ The port Elasticsearch will listen on
 `signed integer or string`
 
 **Default:**
+
 ```nix
 9200
 ```
@@ -385,8 +402,8 @@ The port Elasticsearch will listen on
 
 - [services/elasticsearch, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/default.nix)
 
-
 ### settings.single_node
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.settings.single_node*
 
 Start a single-node cluster
@@ -396,6 +413,7 @@ Start a single-node cluster
 `boolean`
 
 **Default:**
+
 ```nix
 true
 ```
@@ -404,8 +422,8 @@ true
 
 - [services/elasticsearch, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/default.nix)
 
-
 ### settings.tcp_port
+
 **Location:** *perSystem.snow-blower.services.elasticsearch.settings.tcp_port*
 
 Elasticsearch port for the node to node communication.
@@ -415,6 +433,7 @@ Elasticsearch port for the node to node communication.
 `signed integer`
 
 **Default:**
+
 ```nix
 9300
 ```
@@ -422,4 +441,3 @@ Elasticsearch port for the node to node communication.
 **Declared by:**
 
 - [services/elasticsearch, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/elasticsearch/default.nix)
-

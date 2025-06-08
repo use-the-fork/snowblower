@@ -58,6 +58,7 @@ snow-blower.languages.php.package = pkgs.php83;
 ```
 
 Available PHP versions in nixpkgs include:
+
 - `pkgs.php` (default, currently PHP 8.2)
 - `pkgs.php83` (PHP 8.3)
 - `pkgs.php81` (PHP 8.1)

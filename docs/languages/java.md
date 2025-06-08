@@ -59,6 +59,7 @@ snow-blower.languages.java.package = pkgs.jdk17;
 ```
 
 Available JDK versions in nixpkgs include:
+
 - `pkgs.jdk` (default, currently JDK 21)
 - `pkgs.jdk21` (JDK 21)
 - `pkgs.jdk17` (JDK 17 LTS)
@@ -111,6 +112,5 @@ Once configured, you can use Java in your development environment with:
 - `javac` - Compile Java source code
 - `mvn` - Run Maven commands (when Maven is enabled)
 - `gradle` - Run Gradle commands (when Gradle is enabled)
-
 
 <!--@include: ./java-options.md-->

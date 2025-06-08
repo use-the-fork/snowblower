@@ -17,10 +17,26 @@
     in {
       options.snowblower.core = {
         files = mkOption {
-          type = types.listOf types.attrs;
+          type = types.attrsOf (types.submodule {
+            options = {
+              enable = mkOption {
+                type = types.bool;
+                default = true;
+                description = "Whether to enable this file";
+              };
+              format = mkOption {
+                type = types.attrs;
+                description = "Format generator to use for this file";
+              };
+              settings = mkOption {
+                type = types.anything;
+                description = "Settings to pass to the format generator";
+                default = {};
+              };
+            };
+          });
           description = "Files to be created by SnowBlower";
-          default = [];
-          internal = true;
+          default = {};
         };
 
         packages.files = mkOption {
@@ -35,8 +51,11 @@
           name = "snowblower-files";
           runtimeInputs = [];
           text = ''
-            ${lib.concatStringsSep "\n" (map (file: ''
-                cp -f ${builtins.toString (file.format.generate file.name file.settings)} ./${file.name}
+            ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: file: ''
+                ${lib.optionalString file.enable ''
+                  mkdir -p "$(dirname ./${name})"
+                  cp -f ${builtins.toString (file.format.generate name file.settings)} ./${name}
+                ''}
               '')
               config.snowblower.core.files)}
           '';

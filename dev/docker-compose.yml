@@ -1,1 +1,9 @@
-services: {}
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    tty: true
+    volumes:
+    - .:/workspace
+    working_dir: /workspace

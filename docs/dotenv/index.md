@@ -106,4 +106,5 @@ DEBUG=true
 ```
 
 These variables will be available as `$DATABASE_URL`, `$API_KEY`, and `$DEBUG` in your shell and to any processes you run.
+
 <!--@include: ./dotenv-options.md-->

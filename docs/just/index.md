@@ -106,4 +106,3 @@ just <recipe1> <recipe2>
 ```
 
 <!--@include: ./just-options.md-->
-

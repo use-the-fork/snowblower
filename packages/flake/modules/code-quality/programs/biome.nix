@@ -14,7 +14,7 @@
       pkgs,
       ...
     }: let
-      inherit (self.utils) mkCodeQualityTool mkConfigFile mkCodeQualityCommand;
+      inherit (self.utils) mkCodeQualityTool mkCodeQualityCommand;
       jsonFormat = pkgs.formats.json {};
 
       cfg = config.snowblower.codeQuality.programs.biome;
@@ -80,8 +80,7 @@
             cfg.package
           ];
 
-          core = mkConfigFile {
-            name = "biome.json";
+          core.files."biome.json" = {
             format = jsonFormat;
             settings = finalSettings;
           };

@@ -75,14 +75,6 @@
           packages = [
             finalPackage
           ];
-
-          # shell = {
-          #   configFiles = [{
-          #       name = "nixfmt.toml";
-          #       format = tomlFormat;
-          #       settings = cfg.settings.configuration;
-          #     }];
-          # };
         };
       };
     });
