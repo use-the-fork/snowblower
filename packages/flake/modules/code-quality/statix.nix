@@ -28,7 +28,6 @@
           command = "statix-fix";
         };
 
-        configFormat = tomlFormat;
         includes = [
           "*.nix"
         ];

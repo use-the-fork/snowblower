@@ -14,7 +14,7 @@
       ...
     }:
       with lib; let
-        processes = config.snow-blower.processes;
+        inherit (config.snow-blower) processes;
         cfg = config.snow-blower.process-compose;
         settingsFormat = pkgs.formats.yaml {};
 
@@ -152,7 +152,7 @@
               };
 
               settings = lib.mkOption {
-                type = settingsFormat.type;
+                inherit (settingsFormat) type;
                 default = {};
                 internal = true;
                 description = ''

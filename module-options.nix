@@ -95,8 +95,8 @@ in {
 
   # Config
   config.build = {
-    devShell = (pkgs.mkShell.override {stdenv = config.stdenv;}) {
-      packages = config.packages;
+    devShell = (pkgs.mkShell.override {inherit (config) stdenv;}) {
+      inherit (config) packages;
       shellHook = ''
         ${config.shellPreHook}
         ${config.shellPostHook}

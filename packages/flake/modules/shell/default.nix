@@ -195,9 +195,9 @@
           };
         };
 
-        devShells.default = (pkgs.mkShell.override {stdenv = cfg.stdenv;}) ({
+        devShells.default = (pkgs.mkShell.override {inherit (cfg) stdenv;}) ({
             name = "snow-blower";
-            packages = config.snow-blower.packages;
+            inherit (config.snow-blower) packages;
             shellHook = ''
               ${setupShell}
             '';

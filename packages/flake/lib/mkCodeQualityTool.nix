@@ -1,10 +1,17 @@
-{
-  lib,
-  pkgs,
-  ...
-}: let
+{lib, ...}: let
   inherit (lib.options) mkOption mkEnableOption;
-  inherit (lib.types) str;
+  inherit
+    (lib.types)
+    nullOr
+    oneOf
+    listOf
+    attrsOf
+    str
+    bool
+    int
+    float
+    path
+    ;
 
   # heavily modifed version of https://github.com/numtide/treefmt-nix/blob/main/default.nix
   # Thanks treefmt team!
@@ -16,7 +23,6 @@
     lint ? {},
     format ? {},
     config ? {},
-    configFormat ? pkgs.formats.yaml {},
     extraOptions ? {},
   }: {
     enable = mkEnableOption "${name} Code Quality Tool";
@@ -27,10 +33,20 @@
       default = package;
     };
 
-    settings =
+    settings = let
+      valueType = oneOf [
+        bool
+        int
+        float
+        str
+        path
+        (attrsOf valueType)
+        (listOf valueType)
+      ];
+    in
       {
         config = mkOption {
-          type = configFormat.type;
+          type = valueType;
           description = "Configuration settings for ${name}.";
           default = config;
         };

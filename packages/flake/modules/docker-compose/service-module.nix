@@ -12,7 +12,7 @@ in {
 
     # Top-level docker-compose service configuration
     service = mkOption {
-      type = yamlFormat.type;
+      inherit (yamlFormat) type;
       default = {};
       description = "Docker Compose service configuration";
       example = lib.literalExpression ''
@@ -56,8 +56,8 @@ in {
         then
           config.service
           // (
-            lib.optionalAttrs (config.volumes != []) {volumes = config.volumes;}
-            // lib.optionalAttrs (config.networks != []) {networks = config.networks;}
+            lib.optionalAttrs (config.volumes != []) {inherit (config) volumes;}
+            // lib.optionalAttrs (config.networks != []) {inherit (config) networks;}
           )
         else {};
     };

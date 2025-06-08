@@ -70,7 +70,7 @@
           docker-compose.services.blackfire = {
             enable = true;
             service = {
-              image = cfg.image;
+              inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:8307"];
               restart = "unless-stopped";
               environment = {

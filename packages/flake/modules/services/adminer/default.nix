@@ -38,7 +38,7 @@
           docker-compose.services.adminer = {
             enable = true;
             service = {
-              image = cfg.image;
+              inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:8080"];
               restart = "unless-stopped";
               environment = {

@@ -39,7 +39,7 @@
           docker-compose.services.memcached = {
             enable = true;
             service = {
-              image = cfg.image;
+              inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:11211"];
               command = ["-m" "${cfg.settings.memoryLimit}"];
               restart = "unless-stopped";

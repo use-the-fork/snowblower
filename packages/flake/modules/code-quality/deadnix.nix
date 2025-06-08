@@ -14,18 +14,18 @@
       pkgs,
       ...
     }: let
-      inherit (self.utils) mkCodeQualityTool mkConfigFile mkCodeQualityCommand;
-      tomlFormat = pkgs.formats.toml {};
+      inherit (self.utils) mkCodeQualityTool mkCodeQualityCommand;
 
-      cfg = config.snow-blower.codeQuality.alejandra;
+      cfg = config.snow-blower.codeQuality.deadnix;
     in {
-      options.snow-blower.codeQuality.alejandra = mkCodeQualityTool {
-        name = "Alejandra";
-        package = pkgs.alejandra;
+      options.snow-blower.codeQuality.deadnix = mkCodeQualityTool {
+        name = "Deadnix";
+        package = pkgs.deadnix;
 
         lint = mkCodeQualityCommand {
           enable = true;
-          command = "alejandra";
+          command = "deadnix";
+          args = ["--edit"];
         };
 
         includes = [
@@ -38,12 +38,6 @@
           packages = [
             cfg.package
           ];
-
-          wrapper = mkConfigFile {
-            name = "alejandra.toml";
-            format = tomlFormat;
-            settings = cfg.settings.config;
-          };
         };
       };
     });

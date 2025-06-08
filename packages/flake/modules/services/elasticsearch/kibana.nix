@@ -38,7 +38,7 @@
           docker-compose.services.kibana = {
             enable = true;
             service = {
-              image = cfg.image;
+              inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:5601"];
               volumes = ["${toString config.snow-blower.env.KIBANA_DATA}:/usr/share/kibana/data"];
               restart = "unless-stopped";

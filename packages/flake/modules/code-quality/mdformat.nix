@@ -17,26 +17,25 @@
       inherit (self.utils) mkCodeQualityTool mkConfigFile mkCodeQualityCommand;
       tomlFormat = pkgs.formats.toml {};
 
-      cfg = config.snow-blower.codeQuality.ruff;
+      cfg = config.snow-blower.codeQuality.mdformat;
     in {
-      options.snow-blower.codeQuality.ruff = mkCodeQualityTool {
-        name = "Ruff";
-        package = pkgs.ruff;
+      options.snow-blower.codeQuality.mdformat = mkCodeQualityTool {
+        name = "mdformat";
+        package = pkgs.mdformat;
         includes = [
-          "*.py"
-          "*.pyi"
+          "*.md"
         ];
 
-        lint = mkCodeQualityCommand {
-          enable = true;
-          command = "ruff";
-          args = ["check" "--fix"];
+        config = {
+          wrap = "keep"; # options: {"keep", "no", INTEGER}
+          number = false; # options: {false, true}
+          end_of_line = "lf"; # options: {"lf", "crlf", "keep"}
+          validate = true; # options: {false, true}
         };
 
         format = mkCodeQualityCommand {
           enable = true;
-          command = "ruff";
-          args = ["format"];
+          command = "mdformat";
           priority = 100;
         };
       };
@@ -59,7 +58,7 @@
           ];
 
           wrapper = mkConfigFile {
-            name = "ruff.toml";
+            name = ".mdformat.toml";
             format = tomlFormat;
             settings = finalSettings;
           };

@@ -47,7 +47,7 @@ topLevel @ {
 
     # Create a function to generate documentation with a specific filter
     mkOptionsDoc = pkgs.nixosOptionsDoc {
-      options = docModules.options;
+      inherit (docModules) options;
       transformOptions = mkTransformOptions;
       documentType = "none";
       warningsAreErrors = false;

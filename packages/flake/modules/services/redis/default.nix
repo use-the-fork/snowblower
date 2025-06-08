@@ -29,7 +29,7 @@
           docker-compose.services.redis = {
             enable = true;
             service = {
-              image = cfg.image;
+              inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:6379"];
               volumes = ["${toString config.snow-blower.env.REDISDATA}:/data"];
               restart = "unless-stopped";

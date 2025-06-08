@@ -58,7 +58,7 @@
     };
 
     settings = mkOption {
-      type = settingsFormat.type;
+      inherit (settingsFormat) type;
       description = "Configuration settings for ${name}.";
       default = {};
     };

@@ -63,7 +63,7 @@
           docker-compose.services.elasticsearch = {
             enable = true;
             service = {
-              image = cfg.image;
+              inherit (cfg) image;
               ports = [
                 "${toString cfg.settings.port}:9200"
                 "${toString cfg.settings.tcpPort}:9300"

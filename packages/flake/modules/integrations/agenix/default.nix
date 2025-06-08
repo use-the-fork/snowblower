@@ -61,7 +61,7 @@
         package = mkOption {
           type = lib.types.package;
           description = "The package agenix should use.";
-          default = inputs.agenix.packages.${system}.default;
+          inherit (inputs.agenix.packages.${system}) default;
         };
 
         secrets = mkOption {

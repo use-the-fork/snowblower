@@ -12,7 +12,7 @@ let
       {
         _module.args = {
           pkgs = nixpkgs;
-          lib = nixpkgs.lib;
+          inherit (nixpkgs) lib;
         };
       }
       module-options
@@ -41,7 +41,7 @@ let
           '';
         };
         config._module.args = {
-          pkgs = config.pkgs;
+          inherit (config) pkgs;
         };
       })
       module-options

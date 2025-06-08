@@ -16,7 +16,7 @@
         ...
       }: let
         serv = config.snow-blower.services;
-        env = config.snow-blower.env;
+        inherit (config.snow-blower) env;
 
         #        If Needed add your public keys here.
         #        publicKeys = [

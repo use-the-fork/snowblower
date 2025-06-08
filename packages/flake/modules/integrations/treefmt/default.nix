@@ -57,11 +57,11 @@
                           else true
                         )
                     ) {
-                      command = tool.settings.format.command;
+                      inherit (tool.settings.format) command;
                       options = tool.settings.format.args or [];
-                      includes = tool.settings.includes;
-                      excludes = tool.settings.excludes;
-                      priority = tool.settings.format.priority;
+                      inherit (tool.settings) includes;
+                      inherit (tool.settings) excludes;
+                      inherit (tool.settings.format) priority;
                     };
                 }
             )
@@ -83,11 +83,11 @@
                           else true
                         )
                     ) {
-                      command = tool.settings.lint.command;
+                      inherit (tool.settings.lint) command;
                       options = tool.settings.lint.args or [];
-                      includes = tool.settings.includes;
-                      excludes = tool.settings.excludes;
-                      priority = tool.settings.lint.priority;
+                      inherit (tool.settings) includes;
+                      inherit (tool.settings) excludes;
+                      inherit (tool.settings.lint) priority;
                     };
                 }
             )

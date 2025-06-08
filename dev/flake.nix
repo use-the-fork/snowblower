@@ -21,6 +21,9 @@
           ruff.enable = false;
           alejandra.enable = true;
           nixfmt.enable = false;
+          biome.enable = false;
+          deadnix.enable = true;
+          mdformat.enable = true;
           statix = {
             enable = true;
             settings.config = {

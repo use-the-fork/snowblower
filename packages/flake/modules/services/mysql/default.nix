@@ -62,7 +62,7 @@
           docker-compose.services.mysql = {
             enable = true;
             service = {
-              image = cfg.image;
+              inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:3306"];
               volumes = ["${toString config.snow-blower.env.MYSQLDATA}:/var/lib/mysql"];
               restart = "unless-stopped";
