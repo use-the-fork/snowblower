@@ -16,9 +16,9 @@
       inherit (lib) types mkOption;
       inherit (self.utils) mkDockerService;
 
-      cfg = config.snow-blower.services.blackfire;
+      cfg = config.snowblower.services.blackfire;
     in {
-      options.snow-blower.services.blackfire = mkDockerService {
+      options.snowblower.services.blackfire = mkDockerService {
         name = "Blackfire";
         image = "blackfire/blackfire:2";
         port = 8307;
@@ -66,7 +66,7 @@
       };
 
       config = lib.mkIf cfg.enable {
-        snow-blower = {
+        snowblower = {
           docker-compose.services.blackfire = {
             enable = true;
             service = {

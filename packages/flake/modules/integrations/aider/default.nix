@@ -17,13 +17,13 @@
       inherit (import ../utils.nix {inherit lib;}) mkIntegration;
       inherit (import ./utils.nix {inherit lib pkgs;}) commandType;
 
-      cfg = config.snow-blower.integrations.aider;
+      cfg = config.snowblower.integrations.aider;
 
       yamlFormat = pkgs.formats.yaml {};
     in {
       imports = [
         {
-          options.snow-blower.integrations.aider.commands = mkOption {
+          options.snowblower.integrations.aider.commands = mkOption {
             type = types.submoduleWith {
               modules = [{freeformType = types.attrsOf commandType;}];
               specialArgs = {inherit pkgs;};
@@ -36,7 +36,7 @@
         }
       ];
 
-      options.snow-blower.integrations.aider = mkIntegration {
+      options.snowblower.integrations.aider = mkIntegration {
         name = "Aider";
         package = pkgs.aider-chat;
 
@@ -102,7 +102,7 @@
       };
 
       config = lib.mkIf cfg.enable {
-        snow-blower = {
+        snowblower = {
           packages = [
             cfg.package
           ];

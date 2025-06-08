@@ -17,7 +17,7 @@
       inherit (lib) types;
       inherit (import ../utils.nix {inherit lib;}) mkService;
 
-      cfg = config.snow-blower.services.supervisord;
+      cfg = config.snowblower.services.supervisord;
       supervisor = cfg.package;
 
       programSections = lib.concatStringsSep "\n" (lib.filter (s: s != "") (lib.mapAttrsToList (
@@ -30,15 +30,15 @@
 
       configFile = pkgs.writeText "supervisor.conf" ''
         [unix_http_server]
-        file=${toString config.snow-blower.env.SUPERVISORD_UNIX_PORT}
+        file=${toString config.snowblower.env.SUPERVISORD_UNIX_PORT}
 
         [supervisord]
-        pidfile=${config.snow-blower.env.SUPERVISORD_PID}
-        childlogdir=${config.snow-blower.env.SUPERVISORD_DATA}/log/
-        logfile=${config.snow-blower.env.SUPERVISORD_DATA}/log/supervisor.log
+        pidfile=${config.snowblower.env.SUPERVISORD_PID}
+        childlogdir=${config.snowblower.env.SUPERVISORD_DATA}/log/
+        logfile=${config.snowblower.env.SUPERVISORD_DATA}/log/supervisor.log
 
         [supervisorctl]
-        serverurl=unix://${toString config.snow-blower.env.SUPERVISORD_UNIX_PORT}
+        serverurl=unix://${toString config.snowblower.env.SUPERVISORD_UNIX_PORT}
 
         ${programSections}
 
@@ -59,7 +59,7 @@
          --nodaemon
       '';
     in {
-      options.snow-blower.services.supervisord =
+      options.snowblower.services.supervisord =
         mkService {
           name = "Supervisor";
           package = pkgs.python312Packages.supervisor;
@@ -81,15 +81,15 @@
         };
 
       config = lib.mkIf cfg.enable {
-        snow-blower = {
+        snowblower = {
           packages = [
             cfg.package
           ];
 
           env = {
-            SUPERVISORD_DATA = config.snow-blower.env.PROJECT_STATE + "/supervisord";
-            SUPERVISORD_UNIX_PORT = config.snow-blower.env.PROJECT_RUNTIME + "/supervisor.sock";
-            SUPERVISORD_PID = config.snow-blower.env.PROJECT_RUNTIME + "/supervisor.pid";
+            SUPERVISORD_DATA = config.snowblower.env.PROJECT_STATE + "/supervisord";
+            SUPERVISORD_UNIX_PORT = config.snowblower.env.PROJECT_RUNTIME + "/supervisor.sock";
+            SUPERVISORD_PID = config.snowblower.env.PROJECT_RUNTIME + "/supervisor.pid";
           };
 
           processes.supervisor = {

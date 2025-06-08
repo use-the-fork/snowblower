@@ -18,7 +18,7 @@
     in {
       imports = [
         {
-          options.snow-blower.just.recipes = mkOption {
+          options.snowblower.just.recipes = mkOption {
             type = types.submoduleWith {
               modules = [{freeformType = types.attrsOf recipeType;}];
               specialArgs = {inherit pkgs;};
@@ -31,7 +31,7 @@
         }
       ];
 
-      options.snow-blower.just = {
+      options.snowblower.just = {
         package = mkOption {
           type = types.package;
           default = pkgs.just;
@@ -48,9 +48,9 @@
         };
       };
 
-      config.snow-blower = {
+      config.snowblower = {
         packages = [
-          config.snow-blower.just.package
+          config.snowblower.just.package
         ];
 
         shell = {
@@ -59,11 +59,11 @@
               name = "justfile";
               text =
                 lib.concatStringsSep "\n"
-                (lib.mapAttrsToList (_name: recipe: recipe.outputs.justfile) config.snow-blower.just.recipes);
+                (lib.mapAttrsToList (_name: recipe: recipe.outputs.justfile) config.snowblower.just.recipes);
             };
           in [
             ''
-              ln -sf ${builtins.toString commonJustfile} ./${config.snow-blower.just.commonFileName}
+              ln -sf ${builtins.toString commonJustfile} ./${config.snowblower.just.commonFileName}
             ''
           ];
         };

@@ -1,10 +1,10 @@
 {
   pkgs,
   inputs,
-  snow-blower,
+  snowblower,
   ...
 }: let
-  sbEval = snow-blower.evalModule pkgs inputs ../snowblower.nix;
+  sbEval = snowblower.evalModule pkgs inputs ../snowblower.nix;
 
   self = {
     # Expose the current devshell

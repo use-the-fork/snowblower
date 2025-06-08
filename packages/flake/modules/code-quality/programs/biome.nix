@@ -17,9 +17,9 @@
       inherit (self.utils) mkCodeQualityTool mkConfigFile mkCodeQualityCommand;
       jsonFormat = pkgs.formats.json {};
 
-      cfg = config.snow-blower.codeQuality.biome;
+      cfg = config.snowblower.codeQuality.programs.biome;
     in {
-      options.snow-blower.codeQuality.biome = mkCodeQualityTool {
+      options.snowblower.codeQuality.programs.biome = mkCodeQualityTool {
         name = "Biome";
         package = pkgs.biome;
         includes = [
@@ -58,7 +58,7 @@
       };
 
       config = lib.mkIf cfg.enable {
-        snow-blower = let
+        snowblower = let
           finalSettings =
             cfg.settings.config
             // (
@@ -80,7 +80,7 @@
             cfg.package
           ];
 
-          wrapper = mkConfigFile {
+          core = mkConfigFile {
             name = "biome.json";
             format = jsonFormat;
             settings = finalSettings;

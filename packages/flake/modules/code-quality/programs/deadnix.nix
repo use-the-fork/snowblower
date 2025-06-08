@@ -7,9 +7,6 @@
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
   ];
-
-  # https://github.com/google/keep-sorted
-
   flake.flakeModules.codeQuality = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
@@ -19,24 +16,25 @@
     }: let
       inherit (self.utils) mkCodeQualityTool mkCodeQualityCommand;
 
-      cfg = config.snow-blower.codeQuality.keep-sorted;
+      cfg = config.snowblower.codeQuality.programs.deadnix;
     in {
-      options.snow-blower.codeQuality.keep-sorted = mkCodeQualityTool {
-        name = "Keep-sorted";
-        package = pkgs.keep-sorted;
+      options.snowblower.codeQuality.programs.deadnix = mkCodeQualityTool {
+        name = "Deadnix";
+        package = pkgs.deadnix;
 
-        format = mkCodeQualityCommand {
+        lint = mkCodeQualityCommand {
           enable = true;
-          command = "keep-sorted";
+          command = "deadnix";
+          args = ["--edit"];
         };
 
         includes = [
-          "*"
+          "*.nix"
         ];
       };
 
       config = lib.mkIf cfg.enable {
-        snow-blower = {
+        snowblower = {
           packages = [
             cfg.package
           ];

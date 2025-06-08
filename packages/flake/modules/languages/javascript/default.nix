@@ -14,14 +14,14 @@
       ...
     }: let
       inherit (lib) types mkOption literalExpression;
-      cfg = config.snow-blower.languages.javascript;
+      cfg = config.snowblower.languages.javascript;
     in {
-      options.snow-blower.languages.javascript = {
+      options.snowblower.languages.javascript = {
         enable = lib.mkEnableOption "tools for JavaScript development";
         directory = lib.mkOption {
           type = lib.types.str;
-          default = config.snow-blower.paths.root;
-          defaultText = lib.literalExpression "config.snow-blower.paths.root";
+          default = config.snowblower.paths.root;
+          defaultText = lib.literalExpression "config.snowblower.paths.root";
           description = ''
             The JavaScript project's root directory. Defaults to the root of the snow blower project.
             Can be an absolute path or one relative to the root of the snow blower project.
@@ -85,7 +85,7 @@
         };
       };
 
-      config.snow-blower = lib.mkIf cfg.enable {
+      config.snowblower = lib.mkIf cfg.enable {
         packages = with pkgs;
           [
             cfg.package
@@ -101,9 +101,9 @@
 
         env = {
           NODEJS_HOME = cfg.package;
-          NPM_CONFIG_CACHE = config.snow-blower.env.PROJECT_STATE + "/npm";
-          NPM_CONFIG_USERCONFIG = config.snow-blower.env.PROJECT_STATE + "/npm/config";
-          NPM_CONFIG_TMP = config.snow-blower.env.PROJECT_RUNTIME + "/npm";
+          NPM_CONFIG_CACHE = config.snowblower.env.PROJECT_STATE + "/npm";
+          NPM_CONFIG_USERCONFIG = config.snowblower.env.PROJECT_STATE + "/npm/config";
+          NPM_CONFIG_TMP = config.snowblower.env.PROJECT_RUNTIME + "/npm";
         };
 
         shell.startup = [

@@ -5,7 +5,6 @@ topLevel @ {
 }: {
   imports = [
     inputs.flake-parts.flakeModules.flakeModules
-    ./pkgs # misc packages that are not available in nixpkgs
 
     ./core
     ./env
@@ -14,7 +13,6 @@ topLevel @ {
     ./languages
     ./docker-compose
     ./code-quality
-    ./wrapper
     ./services
     ./processes
     ./scripts
@@ -22,8 +20,10 @@ topLevel @ {
   ];
   flake.flakeModules.default = _flakeModule: {
     imports = [
-      #The Must Haves
-      topLevel.config.flake.flakeModules.nixpkgs
+      # The Must Haves
+      # Core is the primary entrypoint to the snowblower package.
+      topLevel.config.flake.flakeModules.core
+      # topLevel.config.flake.flakeModules.nixpkgs
       topLevel.config.flake.flakeModules.env
 
       # Yes, just can be considered an integration however since
@@ -39,7 +39,6 @@ topLevel @ {
 
       topLevel.config.flake.flakeModules.docker-compose
       topLevel.config.flake.flakeModules.codeQuality
-      topLevel.config.flake.flakeModules.wrapper
 
       topLevel.config.flake.flakeModules.shell
     ];
@@ -51,10 +50,16 @@ topLevel @ {
     }: let
       inherit (lib) types mkOption;
     in {
-      options.snow-blower = {
+      options.snowblower = {
         packages = mkOption {
           type = types.listOf types.package;
           description = "A list of packages to expose inside the developer environment. See https://search.nixos.org/packages for packages.";
+          default = [];
+        };
+
+        dockerPackages = mkOption {
+          type = types.listOf types.package;
+          description = "A list of packages to expose inside the docker developer environment. See https://search.nixos.org/packages for packages.";
           default = [];
         };
 
@@ -67,10 +72,10 @@ topLevel @ {
           root = lib.mkOption {
             type = types.str;
             internal = true;
-            default = builtins.getEnv "PWD";
+            default = builtins.getEnv "SNOWBLOWER_ROOT";
           };
 
-          dotfile = lib.mkOption {
+          snowblowerDir = lib.mkOption {
             type = types.str;
             internal = true;
           };
@@ -89,21 +94,21 @@ topLevel @ {
             type = types.str;
             internal = true;
             # The path has to be
-            # - unique to each PROJECT_STATE to let multiple snow-blower environments coexist
+            # - unique to each PROJECT_STATE to let multiple snowblower environments coexist
             # - deterministic so that it won't change constantly
             # - short so that unix domain sockets won't hit the path length limit
             # - free to create as an unprivileged user across OSes
             default = let
               runtimeEnv = builtins.getEnv "PROJECT_RUNTIME";
 
-              hashedRoot = builtins.hashString "sha256" config.snow-blower.paths.state;
+              hashedRoot = builtins.hashString "sha256" config.snowblower.paths.state;
 
               # same length as git's abbreviated commit hashes
               shortHash = builtins.substring 0 7 hashedRoot;
             in
               if runtimeEnv != ""
               then runtimeEnv
-              else "${config.snow-blower.paths.tmpdir}/sb-runtime-${shortHash}";
+              else "${config.snowblower.paths.tmpdir}/sb-runtime-${shortHash}";
           };
 
           tmpdir = lib.mkOption {
@@ -123,10 +128,10 @@ topLevel @ {
       };
 
       config = {
-        snow-blower = {};
+        snowblower = {};
         packages = {
-          "snowblower" = config.snow-blower.wrapper.build;
-          "process-compose-up" = config.snow-blower.process-compose.internals.procfileScript;
+          "snowblower" = config.snowblower.core.build;
+          "process-compose-up" = config.snowblower.process-compose.internals.procfileScript;
         };
       };
     });

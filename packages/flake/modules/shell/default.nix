@@ -15,7 +15,7 @@
     }: let
       inherit (lib) types mkOption;
 
-      cfg = config.snow-blower.shell;
+      cfg = config.snowblower.shell;
 
       drvOrPackageToPaths = drvOrPackage:
         if drvOrPackage ? outputs
@@ -25,7 +25,7 @@
       # Builds the PROJECT_PROFILE with all the dependencies
       profile = pkgs.buildEnv {
         name = "snowblower-profile";
-        paths = lib.flatten (builtins.map drvOrPackageToPaths config.snow-blower.packages);
+        paths = lib.flatten (builtins.map drvOrPackageToPaths config.snowblower.packages);
         ignoreCollisions = true;
       };
       #      unset ${lib.concatStringsSep " " config.unsetEnvVars}
@@ -50,8 +50,8 @@
           fi
 
           # setup the runtime directory
-          mkdir -p ${lib.escapeShellArg config.snow-blower.paths.runtime}
-          ln -snf ${lib.escapeShellArg config.snow-blower.paths.runtime} ${lib.escapeShellArg config.snow-blower.paths.dotfile}/run
+          mkdir -p ${lib.escapeShellArg config.snowblower.paths.runtime}
+          ln -snf ${lib.escapeShellArg config.snowblower.paths.runtime} ${lib.escapeShellArg config.snowblower.paths.snowblowerDir}/run
 
         # Determine if stdout is a terminal...
         if test -t 1; then
@@ -87,7 +87,7 @@
           fi # Interactive session
       '';
     in {
-      options.snow-blower.shell = {
+      options.snowblower.shell = {
         startup = mkOption {
           type = types.listOf types.str;
           description = "Bash code to execute on startup.";
@@ -146,10 +146,10 @@
       };
 
       config = {
-        snow-blower = {
+        snowblower = {
           paths = {
-            dotfile = lib.mkDefault (builtins.toPath (config.snow-blower.paths.root + "/.sb"));
-            state = builtins.toPath (config.snow-blower.paths.dotfile + "/state");
+            snowblowerDir = lib.mkDefault "$SNOWBLOWER_ROOT/.sb";
+            state = config.snowblower.paths.snowblowerDir + "/state";
             inherit profile;
           };
 
@@ -196,13 +196,13 @@
         };
 
         devShells.default = (pkgs.mkShell.override {inherit (cfg) stdenv;}) ({
-            name = "snow-blower";
-            inherit (config.snow-blower) packages;
+            name = "snowblower";
+            inherit (config.snowblower) packages;
             shellHook = ''
               ${setupShell}
             '';
           }
-          // config.snow-blower.env);
+          // config.snowblower.env);
       };
     });
   };

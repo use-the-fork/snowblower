@@ -15,9 +15,9 @@
     }: let
       inherit (lib) types mkOption literalExpression;
 
-      cfg = config.snow-blower.languages.ruby;
+      cfg = config.snowblower.languages.ruby;
     in {
-      options.snow-blower.languages.ruby = {
+      options.snowblower.languages.ruby = {
         enable = lib.mkEnableOption "tools for Ruby development";
 
         package = lib.mkOption {
@@ -38,14 +38,14 @@
         };
       };
 
-      config.snow-blower = lib.mkIf cfg.enable {
+      config.snowblower = lib.mkIf cfg.enable {
         languages.ruby = {
           bundler.enable = lib.mkDefault true;
         };
 
         env = {
-          BUNDLE_PATH = config.snow-blower.env.PROJECT_STATE + "/.bundle";
-          GEM_HOME = "${config.snow-blower.env.BUNDLE_PATH}/${cfg.package.rubyEngine}/${cfg.package.version.libDir}";
+          BUNDLE_PATH = config.snowblower.env.PROJECT_STATE + "/.bundle";
+          GEM_HOME = "${config.snowblower.env.BUNDLE_PATH}/${cfg.package.rubyEngine}/${cfg.package.version.libDir}";
         };
 
         packages =

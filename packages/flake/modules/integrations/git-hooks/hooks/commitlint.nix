@@ -53,7 +53,7 @@
         fi
       '';
     in {
-      config.snow-blower.integrations.git-hooks = {
+      config.snowblower.integrations.git-hooks = {
         hooks.commitlint = mkHook "commitlint" {
           enable = mkDefault false;
           entry = "${commitlint-entry}/bin/commitlint-entry";

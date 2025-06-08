@@ -14,14 +14,14 @@
     }: let
       inherit (lib) types mkOption;
 
-      cfg = config.snow-blower.dotenv;
+      cfg = config.snowblower.dotenv;
 
       normalizeFilenames = filenames:
         if lib.isList filenames
         then filenames
         else [filenames];
       dotenvFiles = normalizeFilenames cfg.filename;
-      dotenvPaths = map (filename: ("${config.snow-blower.paths.root}" + "/" + filename)) dotenvFiles;
+      dotenvPaths = map (filename: ("${config.snowblower.paths.root}" + "/" + filename)) dotenvFiles;
 
       # Parses a single line of an environment file.
       parseLine = line: let
@@ -45,7 +45,7 @@
           )) {}
         files;
     in {
-      options.snow-blower.dotenv = {
+      options.snowblower.dotenv = {
         enable = lib.mkEnableOption ".env integration, doesn't support comments or multiline values.";
 
         filename = lib.mkOption {
@@ -60,7 +60,7 @@
         };
       };
 
-      config.snow-blower = lib.mkIf cfg.enable {
+      config.snowblower = lib.mkIf cfg.enable {
         # Maps the resolved .env to the flakes env using a new attribute structure
         # env Varibles should always override flake varibles.
         env = lib.mapAttrs (_: attrs: lib.mkForce attrs) cfg.resolved;

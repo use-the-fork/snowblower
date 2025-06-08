@@ -16,9 +16,9 @@
       inherit (lib) types mkOption;
       inherit (self.utils) mkDockerService;
 
-      cfg = config.snow-blower.services.memcached;
+      cfg = config.snowblower.services.memcached;
     in {
-      options.snow-blower.services.memcached = mkDockerService {
+      options.snowblower.services.memcached = mkDockerService {
         name = "Memcached";
         image = "memcached:alpine";
         port = 11211;
@@ -35,7 +35,7 @@
       };
 
       config = lib.mkIf cfg.enable {
-        snow-blower = {
+        snowblower = {
           docker-compose.services.memcached = {
             enable = true;
             service = {

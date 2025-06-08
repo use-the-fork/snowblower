@@ -16,9 +16,9 @@
       inherit (lib) types mkOption mkIf mkEnableOption;
       inherit (import ../utils.nix {inherit lib;}) mkIntegration;
 
-      cfg = config.snow-blower.integrations.git-cliff;
+      cfg = config.snowblower.integrations.git-cliff;
     in {
-      options.snow-blower.integrations.git-cliff = mkIntegration {
+      options.snowblower.integrations.git-cliff = mkIntegration {
         name = "Git-Cliff";
         package = pkgs.git-cliff;
         settings = {
@@ -95,7 +95,7 @@
         };
       };
 
-      config.snow-blower = mkIf cfg.enable {
+      config.snowblower = mkIf cfg.enable {
         packages = [
           cfg.package
         ];

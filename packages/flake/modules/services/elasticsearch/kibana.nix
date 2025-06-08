@@ -16,9 +16,9 @@
       inherit (lib) types mkOption;
       inherit (self.utils) mkDockerService;
 
-      cfg = config.snow-blower.services.elasticsearch.kibana;
+      cfg = config.snowblower.services.elasticsearch.kibana;
     in {
-      options.snow-blower.services.elasticsearch.kibana = mkDockerService {
+      options.snowblower.services.elasticsearch.kibana = mkDockerService {
         name = "Kibana";
         image = "kibana:8.12.0";
         port = 5601;
@@ -34,13 +34,13 @@
       };
 
       config = lib.mkIf cfg.enable {
-        snow-blower = {
+        snowblower = {
           docker-compose.services.kibana = {
             enable = true;
             service = {
               inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:5601"];
-              volumes = ["${toString config.snow-blower.env.KIBANA_DATA}:/usr/share/kibana/data"];
+              volumes = ["${toString config.snowblower.env.KIBANA_DATA}:/usr/share/kibana/data"];
               restart = "unless-stopped";
               environment = {
                 "ELASTICSEARCH_HOSTS" = cfg.settings.elasticsearchHosts;
@@ -56,7 +56,7 @@
             };
           };
 
-          env.KIBANA_DATA = config.snow-blower.env.PROJECT_STATE + "/kibana";
+          env.KIBANA_DATA = config.snowblower.env.PROJECT_STATE + "/kibana";
         };
       };
     });

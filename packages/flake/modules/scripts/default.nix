@@ -59,18 +59,18 @@
         }
       );
     in {
-      options.snow-blower.scripts = lib.mkOption {
+      options.snowblower.scripts = lib.mkOption {
         type = types.attrsOf scriptType;
         default = {};
         description = "A set of scripts available when the environment is active.";
       };
 
-      config.snow-blower = {
-        packages = lib.mapAttrsToList (_: script: script.scriptPackage) config.snow-blower.scripts;
+      config.snowblower = {
+        packages = lib.mapAttrsToList (_: script: script.scriptPackage) config.snowblower.scripts;
 
         just = {
-          recipes = lib.genAttrs (builtins.attrNames config.snow-blower.scripts) (name: let
-            script = config.snow-blower.scripts.${name};
+          recipes = lib.genAttrs (builtins.attrNames config.snowblower.scripts) (name: let
+            script = config.snowblower.scripts.${name};
           in {
             enable = lib.mkDefault script.just.enable;
             justfile = lib.mkDefault ''

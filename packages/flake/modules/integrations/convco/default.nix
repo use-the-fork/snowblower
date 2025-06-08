@@ -16,9 +16,9 @@
       inherit (lib) types mkOption mkIf;
       inherit (import ../utils.nix {inherit lib;}) mkIntegration;
 
-      cfg = config.snow-blower.integrations.convco;
+      cfg = config.snowblower.integrations.convco;
     in {
-      options.snow-blower.integrations.convco = mkIntegration {
+      options.snowblower.integrations.convco = mkIntegration {
         name = "Convco";
         package = pkgs.convco;
         settings = {
@@ -30,7 +30,7 @@
         };
       };
 
-      config.snow-blower = mkIf cfg.enable {
+      config.snowblower = mkIf cfg.enable {
         packages = [
           cfg.package
         ];

@@ -17,14 +17,14 @@ args @ {
         self',
         ...
       }: {
-        snow-blower =
-          # If snow-blower is a function, call it with pkgs
-          if builtins.isFunction userArgs.snow-blower or null
-          then userArgs.snow-blower {inherit pkgs inputs self inputs' self';}
-          else userArgs.snow-blower or {};
+        snowblower =
+          # If snowblower is a function, call it with pkgs
+          if builtins.isFunction userArgs.snowblower or null
+          then userArgs.snowblower {inherit pkgs inputs self inputs' self';}
+          else userArgs.snowblower or {};
 
         # Pass all other user arguments to perSystem
-        _module.args = builtins.removeAttrs userArgs ["snow-blower"];
+        _module.args = builtins.removeAttrs userArgs ["snowblower"];
       };
     });
 in

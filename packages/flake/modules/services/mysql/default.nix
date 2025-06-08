@@ -16,9 +16,9 @@
       inherit (lib) types mkOption;
       inherit (self.utils) mkDockerService;
 
-      cfg = config.snow-blower.services.mysql;
+      cfg = config.snowblower.services.mysql;
     in {
-      options.snow-blower.services.mysql = mkDockerService {
+      options.snowblower.services.mysql = mkDockerService {
         name = "MySQL";
         image = "mysql:8";
         port = 3306;
@@ -58,13 +58,13 @@
       };
 
       config = lib.mkIf cfg.enable {
-        snow-blower = {
+        snowblower = {
           docker-compose.services.mysql = {
             enable = true;
             service = {
               inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:3306"];
-              volumes = ["${toString config.snow-blower.env.MYSQLDATA}:/var/lib/mysql"];
+              volumes = ["${toString config.snowblower.env.MYSQLDATA}:/var/lib/mysql"];
               restart = "unless-stopped";
               environment =
                 {
@@ -88,7 +88,7 @@
             };
           };
 
-          env.MYSQLDATA = config.snow-blower.env.PROJECT_STATE + "/mysql";
+          env.MYSQLDATA = config.snowblower.env.PROJECT_STATE + "/mysql";
         };
       };
     });

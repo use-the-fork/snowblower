@@ -14,17 +14,20 @@
     ;
 
   inherit
-    (import ./mkCodeQualityTool.nix {
+    (import ./code-quality/mkCodeQualityTool.nix {
       inherit lib;
       pkgs = inputs.nixpkgs.legacyPackages.${self.system};
     })
     mkCodeQualityTool
-    mkCodeQualityCommand
     ;
+
+  inherit (import ./code-quality/mkCodeQualityCommand.nix {inherit lib;}) mkCodeQualityCommand;
 
   inherit (import ./utils.nix {inherit lib;}) mkEnableOption';
   inherit (import ./mkCmdArgs.nix {inherit lib;}) mkCmdArgs;
   inherit (import ./mkConfigFile.nix {inherit lib;}) mkConfigFile;
+
+  inherit (import ./mkLanguage.nix {inherit lib;}) mkLanguage;
 in {
   flake.utils = {
     inherit mkEnableOption';
@@ -32,5 +35,6 @@ in {
     inherit mkDockerService mkIntegration;
     inherit mkCodeQualityTool mkCodeQualityCommand;
     inherit mkConfigFile;
+    inherit mkLanguage;
   };
 }

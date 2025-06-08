@@ -1,17 +1,17 @@
 {
   inputs = {
     systems.url = "github:nix-systems/default-linux";
-    snow-blower.url = "github:use-the-fork/snow-blower";
+    snowblower.url = "github:use-the-fork/snowblower";
     flake-parts.url = "github:hercules-ci/flake-parts";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
   outputs = inputs:
-    inputs.snow-blower.mkSnowBlower {
+    inputs.snowblower.mkSnowBlower {
       inherit inputs;
 
       imports = [
-        inputs.snow-blower.flakeModule
+        inputs.snowblower.flakeModule
       ];
 
       src = ./.;
@@ -26,7 +26,7 @@
           # ./foo.nix
         ];
 
-        snow-blower = {
+        snowblower = {
           integrations = {
             #the options here mirror the offical repo: https://github.com/numtide/treefmt-nix/tree/main
             treefmt = {
@@ -71,16 +71,16 @@
       };
     };
 
-  #Optional: Use the nix / snow-blower
+  #Optional: Use the nix / snowblower
   nixConfig = {
     extra-trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      "snow-blower.cachix.org-1:f14pyJhxRZJHAymrilTUpC5m+Qy6hX437tmkR22rYOk="
+      "snowblower.cachix.org-1:f14pyJhxRZJHAymrilTUpC5m+Qy6hX437tmkR22rYOk="
     ];
 
     extra-substituters = [
       "https://cache.nixos.org"
-      "https://snow-blower.cachix.org"
+      "https://snowblower.cachix.org"
     ];
   };
 }

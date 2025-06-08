@@ -10,6 +10,7 @@
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
       config,
+      pkgs,
       ...
     }:
       with lib; let
@@ -19,7 +20,7 @@
             mapAttrsToList (name: value: "export ${name}=${value}") envAttrs
           );
       in {
-        options.snow-blower = {
+        options.snowblower = {
           env = lib.mkOption {
             type = types.submoduleWith {
               modules = [
@@ -31,26 +32,51 @@
             description = "Environment variables to be exposed inside the developer environment.";
             default = {};
           };
+          core = {
+            packages.environment = mkOption {
+              type = types.package;
+              internal = true;
+            };
+          };
         };
 
-        config.snow-blower = {
+        config.snowblower = {
           # Default env
           env = {
-            "PROJECT_ROOT" = toString config.snow-blower.paths.root;
-            "PROJECT_DOTFILE" = toString config.snow-blower.paths.dotfile;
+            "PROJECT_ROOT" = toString config.snowblower.paths.root;
+            "PROJECT_DOTFILE" = toString config.snowblower.paths.snowblowerDir;
 
-            "PROJECT_PROFILE" = toString config.snow-blower.paths.profile;
-            "PROJECT_STATE" = toString config.snow-blower.paths.state;
-            "PROJECT_RUNTIME" = toString config.snow-blower.paths.runtime;
-
-            #            # Expose the path to nixpkgs
-            #            "NIXPKGS_PATH" = toString pkgs.path;
-            #
-            #            # This is used by bash-completions to find new completions on demand
-            #            "XDG_DATA_DIRS" = ''$DEVSHELL_DIR/share:''${XDG_DATA_DIRS:-/usr/local/share:/usr/share}'';
+            "PROJECT_PROFILE" = toString config.snowblower.paths.profile;
+            "PROJECT_STATE" = toString config.snowblower.paths.state;
+            "PROJECT_RUNTIME" = toString config.snowblower.paths.runtime;
           };
 
-          shell.startup_env = generateExportString config.snow-blower.env;
+          # Credits to https://github.com/srid/flake-root
+          # This script first finds the `root` of the snowblower projects it then exports all other env varibles that need to be set at runtime etc.
+          core.packages.environment = pkgs.writeShellApplication {
+            name = "snowblower-setup-environment";
+            text = ''
+
+              find_flake() {
+                  ancestors=()
+                  while true; do
+                  if [[ -f "flake.nix" ]]; then
+                      export SNOWBLOWER_ROOT="$PWD"
+                      return 0
+                  fi
+                  ancestors+=("$PWD")
+                  if [[ $PWD == / ]] || [[ $PWD == // ]]; then
+                      echo "ERROR: Unable to locate the flake.nix in any of: ''${ancestors[*]@Q}" >&2
+                      exit 1
+                  fi
+                  cd ..
+                  done
+              }
+
+              find_flake
+              ${generateExportString config.snowblower.env}
+            '';
+          };
         };
       });
   };

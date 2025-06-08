@@ -15,9 +15,9 @@
     }: let
       inherit (lib) types mkOption literalExpression;
 
-      cfg = config.snow-blower.languages.python;
+      cfg = config.snowblower.languages.python;
     in {
-      options.snow-blower.languages.python = {
+      options.snowblower.languages.python = {
         enable = lib.mkEnableOption "tools for Python development";
 
         version = lib.mkOption {
@@ -42,17 +42,17 @@
         };
       };
 
-      config.snow-blower = lib.mkIf cfg.enable {
+      config.snowblower = lib.mkIf cfg.enable {
         packages = [cfg.uv.package];
 
         env = {
-          UV_CACHE_DIR = config.snow-blower.env.PROJECT_STATE + "/uv/cache";
-          # UV_PROJECT_ENVIRONMENT = config.snow-blower.env.PROJECT_STATE + "/uv/environment";
-          UV_PYTHON_BIN_DIR = config.snow-blower.env.PROJECT_STATE + "/uv/python/bin";
-          UV_PYTHON_CACHE_DIR = config.snow-blower.env.PROJECT_STATE + "/uv/python/cache";
-          UV_PYTHON_INSTALL_DIR = config.snow-blower.env.PROJECT_STATE + "/uv/python/install";
-          UV_TOOL_BIN_DIR = config.snow-blower.env.PROJECT_STATE + "/uv/tools/bin";
-          UV_TOOL_DIR = config.snow-blower.env.PROJECT_STATE + "/uv/tools";
+          UV_CACHE_DIR = config.snowblower.env.PROJECT_STATE + "/uv/cache";
+          # UV_PROJECT_ENVIRONMENT = config.snowblower.env.PROJECT_STATE + "/uv/environment";
+          UV_PYTHON_BIN_DIR = config.snowblower.env.PROJECT_STATE + "/uv/python/bin";
+          UV_PYTHON_CACHE_DIR = config.snowblower.env.PROJECT_STATE + "/uv/python/cache";
+          UV_PYTHON_INSTALL_DIR = config.snowblower.env.PROJECT_STATE + "/uv/python/install";
+          UV_TOOL_BIN_DIR = config.snowblower.env.PROJECT_STATE + "/uv/tools/bin";
+          UV_TOOL_DIR = config.snowblower.env.PROJECT_STATE + "/uv/tools";
         };
 
         scripts = lib.mkIf (!cfg.venv.enable) {
@@ -79,7 +79,7 @@
           ]
           # Create a virtual Env if needed and log into it.
           ++ (lib.optional cfg.venv.enable ''
-            source ${config.snow-blower.env.UV_PROJECT_ENVIRONMENT}/bin/activate
+            source ${config.snowblower.env.UV_PROJECT_ENVIRONMENT}/bin/activate
           '');
       };
     });

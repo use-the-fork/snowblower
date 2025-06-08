@@ -15,8 +15,8 @@
     }: let
       inherit (lib) types mkOption literalExpression attrValues getAttrs;
 
-      cfg = config.snow-blower.languages.php;
-      srv = config.snow-blower.services;
+      cfg = config.snowblower.languages.php;
+      srv = config.snowblower.services;
 
       filterDefaultExtensions = ext: builtins.length (builtins.filter (inner: inner == ext.extensionName) cfg.disableExtensions) == 0;
 
@@ -30,7 +30,7 @@
           extraConfig = cfg.ini;
         };
     in {
-      options.snow-blower.languages.php = {
+      options.snowblower.languages.php = {
         enable = lib.mkEnableOption "tools for PHP development";
 
         package = lib.mkOption {
@@ -93,7 +93,7 @@
         };
       };
 
-      config.snow-blower = lib.mkIf cfg.enable {
+      config.snowblower = lib.mkIf cfg.enable {
         languages.php = {
           ini = ''
             ${lib.optionalString srv.mysql.enable ''

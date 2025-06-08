@@ -18,9 +18,9 @@
       inherit (lib) types mkOption;
       inherit (self.utils) mkCodeQualityTool mkCmdArgs;
 
-      cfg = config.snow-blower.codeQuality.nixfmt;
+      cfg = config.snowblower.codeQuality.programs.nixfmt;
     in {
-      options.snow-blower.codeQuality.nixfmt = mkCodeQualityTool {
+      options.snowblower.codeQuality.programs.nixfmt = mkCodeQualityTool {
         name = "nixfmt";
         package = pkgs.nixfmt-rfc-style;
         includes = [
@@ -57,7 +57,7 @@
       };
 
       config = lib.mkIf cfg.enable {
-        snow-blower = let
+        snowblower = let
           cmdArgs = mkCmdArgs [
             [cfg.settings.strict "--strict"]
             [true "--width ${builtins.toString cfg.settings.width}"]

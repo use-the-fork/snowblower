@@ -17,9 +17,9 @@
       inherit (self.utils) mkCodeQualityTool mkConfigFile mkCodeQualityCommand;
       tomlFormat = pkgs.formats.toml {};
 
-      cfg = config.snow-blower.codeQuality.mdformat;
+      cfg = config.snowblower.codeQuality.programs.mdformat;
     in {
-      options.snow-blower.codeQuality.mdformat = mkCodeQualityTool {
+      options.snowblower.codeQuality.programs.mdformat = mkCodeQualityTool {
         name = "mdformat";
         package = pkgs.mdformat;
         includes = [
@@ -41,7 +41,7 @@
       };
 
       config = lib.mkIf cfg.enable {
-        snow-blower = let
+        snowblower = let
           finalSettings =
             cfg.settings.config
             // (
@@ -57,7 +57,7 @@
             cfg.package
           ];
 
-          wrapper = mkConfigFile {
+          core = mkConfigFile {
             name = ".mdformat.toml";
             format = tomlFormat;
             settings = finalSettings;

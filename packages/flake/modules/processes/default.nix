@@ -14,16 +14,16 @@
       ...
     }:
       with lib; let
-        inherit (config.snow-blower) processes;
-        cfg = config.snow-blower.process-compose;
+        inherit (config.snowblower) processes;
+        cfg = config.snowblower.process-compose;
         settingsFormat = pkgs.formats.yaml {};
 
         envList =
           lib.mapAttrsToList
           (name: value: "${name}=${builtins.toJSON value}")
-          config.snow-blower.env;
+          config.snowblower.env;
 
-        justCommand = pkgs.writeScriptBin "snow-blower-process-compose-just" ''
+        justCommand = pkgs.writeScriptBin "snowblower-process-compose-just" ''
           #!/usr/bin/env bash
 
           # we want subshells to fail the program
@@ -67,7 +67,7 @@
           };
         });
       in {
-        options.snow-blower = {
+        options.snowblower = {
           processes = lib.mkOption {
             type = types.attrsOf processType;
             default = {};
@@ -91,13 +91,13 @@
                 '';
                 default = {
                   version = "0.5";
-                  unix-socket = "${config.snow-blower.paths.runtime}/pc.sock";
+                  unix-socket = "${config.snowblower.paths.runtime}/pc.sock";
                   tui = true;
                 };
                 defaultText = lib.literalExpression ''
                   {
                     version = "0.5";
-                    unix-socket = "''${config.snow-blower.paths.runtime}/pc.sock";
+                    unix-socket = "''${config.snowblower.paths.runtime}/pc.sock";
                     tui = true;
                   }
                 '';
@@ -177,7 +177,7 @@
         config = lib.mkIf (processes != {}) {
           #Expose process-compose as a buildable package.
 
-          snow-blower = {
+          snowblower = {
             packages = [cfg.package];
 
             process-compose = {
@@ -190,7 +190,7 @@
                   environment =
                     lib.mapAttrsToList
                     (name: value: "${name}=${toString value}")
-                    config.snow-blower.env;
+                    config.snowblower.env;
                   processes =
                     lib.mapAttrs
                     (name: value: {command = "exec ${pkgs.writeShellScript name value.exec}";} // value.process-compose)
@@ -225,7 +225,7 @@
                     wait $backgroundPID
                     ${cfg.settings.after}
                     echo "Processes stopped."
-                    rm -rf ${config.snow-blower.paths.runtime}
+                    rm -rf ${config.snowblower.paths.runtime}
 
                   }
 

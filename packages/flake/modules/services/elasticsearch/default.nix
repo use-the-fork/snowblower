@@ -17,9 +17,9 @@
       inherit (lib) types mkOption;
       inherit (self.utils) mkDockerService;
 
-      cfg = config.snow-blower.services.elasticsearch;
+      cfg = config.snowblower.services.elasticsearch;
     in {
-      options.snow-blower.services.elasticsearch = mkDockerService {
+      options.snowblower.services.elasticsearch = mkDockerService {
         name = "Elasticsearch";
         image = "elasticsearch:8.12.0";
         port = 9200;
@@ -59,7 +59,7 @@
       };
 
       config = lib.mkIf cfg.enable {
-        snow-blower = {
+        snowblower = {
           docker-compose.services.elasticsearch = {
             enable = true;
             service = {
@@ -68,7 +68,7 @@
                 "${toString cfg.settings.port}:9200"
                 "${toString cfg.settings.tcpPort}:9300"
               ];
-              volumes = ["${toString config.snow-blower.env.ELASTICSEARCH_DATA}:/usr/share/elasticsearch/data"];
+              volumes = ["${toString config.snowblower.env.ELASTICSEARCH_DATA}:/usr/share/elasticsearch/data"];
               restart = "unless-stopped";
               environment = {
                 "discovery.type" = lib.mkIf cfg.settings.singleNode "single-node";
@@ -96,7 +96,7 @@
             };
           };
 
-          env.ELASTICSEARCH_DATA = config.snow-blower.env.PROJECT_STATE + "/elasticsearch";
+          env.ELASTICSEARCH_DATA = config.snowblower.env.PROJECT_STATE + "/elasticsearch";
         };
       };
     });

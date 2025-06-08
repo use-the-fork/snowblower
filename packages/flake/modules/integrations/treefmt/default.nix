@@ -19,13 +19,13 @@
 
       tomlFormat = pkgs.formats.toml {};
 
-      cfg = config.snow-blower.integrations.treefmt;
+      cfg = config.snowblower.integrations.treefmt;
     in {
-      options.snow-blower.integrations.treefmt = {
+      options.snowblower.integrations.treefmt = {
         just.enable = mkEnableOption' "enable just command";
       };
 
-      config.snow-blower = {
+      config.snowblower = {
         #automatically add treefmt-nix to just.
         just.recipes.treefmt = mkIf cfg.just.enable {
           enable = lib.mkDefault true;
@@ -40,7 +40,7 @@
           pkgs.treefmt
         ];
 
-        wrapper = let
+        core = let
           formatters =
             lib.mapAttrs
             (
@@ -65,7 +65,7 @@
                     };
                 }
             )
-            config.snow-blower.codeQuality;
+            config.snowblower.codeQuality.programs;
 
           linters =
             lib.mapAttrs
@@ -91,7 +91,7 @@
                     };
                 }
             )
-            config.snow-blower.codeQuality;
+            config.snowblower.codeQuality.programs;
 
           finalConfiguration =
             lib.foldl' lib.recursiveUpdate {}

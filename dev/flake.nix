@@ -5,8 +5,9 @@
 
   outputs = inputs:
     inputs.snow-blower.mkSnowBlower {
-      snow-blower = {pkgs, ...}: {
+      snowblower = {pkgs, ...}: {
         paths.src = ./.;
+
         dotenv.enable = true;
         languages = {
           javascript.enable = true;
@@ -17,7 +18,7 @@
           redis.enable = false;
         };
 
-        codeQuality = {
+        codeQuality.programs = {
           ruff.enable = false;
           alejandra.enable = true;
           nixfmt.enable = false;

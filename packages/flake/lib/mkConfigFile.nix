@@ -4,7 +4,7 @@ _: let
     format,
     settings ? {},
   }: {
-    files.config = [
+    files = [
       {
         inherit name;
         inherit format;

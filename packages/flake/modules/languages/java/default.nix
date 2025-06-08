@@ -1,6 +1,7 @@
 {
   inputs,
   flake-parts-lib,
+  self,
   ...
 }: {
   imports = [
@@ -14,11 +15,11 @@
       ...
     }: let
       inherit (lib) types mkOption literalExpression optional mkDefault mkEnableOption;
-      inherit (import ../utils.nix {inherit lib;}) mkLanguage;
+      inherit (self.utils) mkLanguage;
 
-      cfg = config.snow-blower.languages.java;
+      cfg = config.snowblower.languages.java;
     in {
-      options.snow-blower.languages.java = mkLanguage {
+      options.snowblower.languages.java = mkLanguage {
         name = "Java";
         package = pkgs.jdk;
         settings = {
@@ -47,11 +48,11 @@
         };
       };
 
-      config.snow-blower = lib.mkIf cfg.enable {
+      config.snowblower = lib.mkIf cfg.enable {
         env = {
-          M2_HOME = config.snow-blower.env.PROJECT_STATE + "/m2";
-          GRADLE_USER_HOME = config.snow-blower.env.PROJECT_STATE + "/gradle";
-          JAVA_HOME = config.snow-blower.languages.java.package;
+          M2_HOME = config.snowblower.env.PROJECT_STATE + "/m2";
+          GRADLE_USER_HOME = config.snowblower.env.PROJECT_STATE + "/gradle";
+          JAVA_HOME = config.snowblower.languages.java.package;
         };
 
         languages.java = {

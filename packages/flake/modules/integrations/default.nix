@@ -4,7 +4,7 @@
     ./aider
     ./convco
     ./dotenv
-    ./snow-blower
+    ./snowblower
     ./treefmt
     ./git-hooks
     ./git-cliff

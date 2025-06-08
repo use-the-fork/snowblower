@@ -16,9 +16,9 @@
       inherit (lib) types mkOption;
       inherit (self.utils) mkDockerService;
 
-      cfg = config.snow-blower.services.adminer;
+      cfg = config.snowblower.services.adminer;
     in {
-      options.snow-blower.services.adminer = mkDockerService {
+      options.snowblower.services.adminer = mkDockerService {
         name = "Adminer";
         image = "adminer:latest";
         port = 8080;
@@ -34,7 +34,7 @@
       };
 
       config = lib.mkIf cfg.enable {
-        snow-blower = {
+        snowblower = {
           docker-compose.services.adminer = {
             enable = true;
             service = {
@@ -44,7 +44,7 @@
               environment = {
                 ADMINER_DEFAULT_SERVER = cfg.settings.defaultServer;
               };
-              depends_on = lib.optional config.snow-blower.services.mysql.enable "mysql";
+              depends_on = lib.optional config.snowblower.services.mysql.enable "mysql";
             };
           };
         };

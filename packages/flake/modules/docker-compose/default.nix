@@ -20,7 +20,7 @@
     in {
       imports = [
         {
-          options.snow-blower.docker-compose.services = mkOption {
+          options.snowblower.docker-compose.services = mkOption {
             type = types.submoduleWith {
               modules = [{freeformType = types.attrsOf serviceType;}];
               specialArgs = {inherit pkgs;};
@@ -33,7 +33,7 @@
         }
       ];
 
-      options.snow-blower.docker-compose = {
+      options.snowblower.docker-compose = {
         fileName = mkOption {
           type = types.str;
           default = "docker-compose.yml";
@@ -43,7 +43,7 @@
         };
       };
 
-      config.snow-blower = {
+      config.snowblower = {
         packages = [
           pkgs.docker-compose
         ];
@@ -53,7 +53,7 @@
             # Extract service configurations
             composeServices =
               lib.mapAttrs (_name: service: service.outputs.service)
-              config.snow-blower.docker-compose.services;
+              config.snowblower.docker-compose.services;
 
             # Extract networks from services
             serviceNetworks = lib.unique (lib.flatten (
@@ -63,7 +63,7 @@
                   then service.networks
                   else []
               )
-              config.snow-blower.docker-compose.services
+              config.snowblower.docker-compose.services
             ));
 
             # Create networks configuration
@@ -82,10 +82,10 @@
                 networks = networksConfig;
               };
 
-            composeFile = yamlFormat.generate config.snow-blower.docker-compose.fileName composeConfig;
+            composeFile = yamlFormat.generate config.snowblower.docker-compose.fileName composeConfig;
           in [
             ''
-              cp -f ${builtins.toString composeFile} ./${config.snow-blower.docker-compose.fileName}
+              cp -f ${builtins.toString composeFile} ./${config.snowblower.docker-compose.fileName}
             ''
           ];
         };

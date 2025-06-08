@@ -4,14 +4,14 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
-    snow-blower.url = "github:use-the-fork/snow-blower";
+    snowblower.url = "github:use-the-fork/snowblower";
   };
 
   outputs = inputs:
-    inputs.snow-blower.mkSnowBlower {
+    inputs.snowblower.mkSnowBlower {
       inherit inputs;
       perSystem = _: {
-        snow-blower = {
+        snowblower = {
           paths.src = ./.;
 
           services = {
@@ -49,12 +49,12 @@
   nixConfig = {
     extra-trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      "snow-blower.cachix.org-1:f14pyJhxRZJHAymrilTUpC5m+Qy6hX437tmkR22rYOk="
+      "snowblower.cachix.org-1:f14pyJhxRZJHAymrilTUpC5m+Qy6hX437tmkR22rYOk="
     ];
 
     extra-substituters = [
       "https://cache.nixos.org"
-      "https://snow-blower.cachix.org"
+      "https://snowblower.cachix.org"
     ];
   };
 }

@@ -19,7 +19,7 @@
     }: let
       inherit (lib) mkOption types mkEnableOption;
 
-      cfg = config.snow-blower.integrations.agenix;
+      cfg = config.snowblower.integrations.agenix;
 
       #We use this to figure out where our age file is in relation to the root of the flake.
 
@@ -55,7 +55,7 @@
         };
       });
     in {
-      options.snow-blower.integrations.agenix = {
+      options.snowblower.integrations.agenix = {
         enable = mkEnableOption "Agenix .env Integration";
 
         package = mkOption {
@@ -78,7 +78,7 @@
       };
 
       config = lib.mkIf cfg.enable {
-        snow-blower = let
+        snowblower = let
           _installSecret = secret: ''
             echo "''${GREEN}[agenix] decrypting secret file: ${secret.name}''${NC}"
             (

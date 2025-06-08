@@ -12,9 +12,9 @@
       config,
       ...
     }: {
-      config.snow-blower = {
-        # snow-blower utility just commands
-        just.recipes.bump-snow-blower = {
+      config.snowblower = {
+        # snowblower utility just commands
+        just.recipes.bump-snowblower = {
           enable = lib.mkDefault true;
           justfile = lib.mkDefault ''
             # update flake inputs commit flake lock.

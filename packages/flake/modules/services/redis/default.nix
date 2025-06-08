@@ -15,9 +15,9 @@
     }: let
       inherit (self.utils) mkDockerService;
 
-      cfg = config.snow-blower.services.redis;
+      cfg = config.snowblower.services.redis;
     in {
-      options.snow-blower.services.redis = mkDockerService {
+      options.snowblower.services.redis = mkDockerService {
         name = "Redis";
         image = "redis:alpine";
         port = 6379;
@@ -25,13 +25,13 @@
       };
 
       config = lib.mkIf cfg.enable {
-        snow-blower = {
+        snowblower = {
           docker-compose.services.redis = {
             enable = true;
             service = {
               inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:6379"];
-              volumes = ["${toString config.snow-blower.env.REDISDATA}:/data"];
+              volumes = ["${toString config.snowblower.env.REDISDATA}:/data"];
               restart = "unless-stopped";
               healthcheck = {
                 test = ["CMD" "redis-cli" "ping"];
@@ -42,7 +42,7 @@
             };
           };
 
-          env.REDISDATA = config.snow-blower.env.PROJECT_STATE + "/redis";
+          env.REDISDATA = config.snowblower.env.PROJECT_STATE + "/redis";
         };
       };
     });
