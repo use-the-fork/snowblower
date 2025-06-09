@@ -35,6 +35,10 @@
           };
         };
 
+        processes = {
+          npm-dev.exec = "npm run dev";
+        };
+
         integrations = {
           aider = {
             enable = true;
@@ -48,19 +52,6 @@
               };
             };
           };
-
-          # treefmt = {
-          #   programs = {
-          #     alejandra.enable = true;
-          #     deadnix.enable = true;
-          #     statix = {
-          #       enable = true;
-          #       disabled-lints = [
-          #         "manual_inherit_from"
-          #       ];
-          #     };
-          #   };
-          # };
 
           agenix = {
             enable = true;

@@ -46,9 +46,15 @@ topLevel @ {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
       config,
+      pkgs,
       ...
     }: let
       inherit (lib) types mkOption;
+
+      drvOrPackageToPaths = drvOrPackage:
+        if drvOrPackage ? outputs
+        then builtins.map (output: drvOrPackage.${output}) drvOrPackage.outputs
+        else [drvOrPackage];
     in {
       options.snowblower = {
         packages = mkOption {
@@ -125,7 +131,12 @@ topLevel @ {
         snowblower = {};
         packages = {
           "snowblower" = config.snowblower.core.build;
-          "process-compose-up" = config.snowblower.process-compose.internals.procfileScript;
+          "snowblower-container" = pkgs.buildEnv {
+            name = "snowblower-profile";
+            paths = lib.flatten (builtins.map drvOrPackageToPaths config.snowblower.packages);
+            ignoreCollisions = true;
+          };
+          # "process-compose-up" = config.snowblower.process-compose.internals.procfileScript;
         };
       };
     });

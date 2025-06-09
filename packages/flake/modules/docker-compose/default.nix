@@ -101,6 +101,13 @@
             build = {
               context = ".";
               dockerfile = "./docker/Dockerfile";
+              args = {
+                USER_UID = "\${USER_UID}";
+                USER_GID = "\${USER_GID}";
+              };
+            };
+            environment = {
+              USER_GID = "\${USER_GID}";
             };
             volumes = [
               ".:/workspace"

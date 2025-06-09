@@ -10,7 +10,6 @@
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,
       config,
-      pkgs,
       ...
     }:
       with lib; let
@@ -33,8 +32,8 @@
             default = {};
           };
           core = {
-            packages.environment = mkOption {
-              type = types.package;
+            scripts.environment = mkOption {
+              type = types.str;
               internal = true;
             };
           };
@@ -53,30 +52,26 @@
 
           # Credits to https://github.com/srid/flake-root
           # This script first finds the `root` of the snowblower projects it then exports all other env varibles that need to be set at runtime etc.
-          core.packages.environment = pkgs.writeShellApplication {
-            name = "snowblower-setup-environment";
-            text = ''
+          core.scripts.environment = ''
+            find_flake() {
+                ancestors=()
+                while true; do
+                if [[ -f "flake.nix" ]]; then
+                    export SNOWBLOWER_ROOT="$PWD"
+                    return 0
+                fi
+                ancestors+=("$PWD")
+                if [[ $PWD == / ]] || [[ $PWD == // ]]; then
+                    echo "ERROR: Unable to locate the flake.nix in any of: ''${ancestors[*]@Q}" >&2
+                    exit 1
+                fi
+                cd ..
+                done
+            }
 
-              find_flake() {
-                  ancestors=()
-                  while true; do
-                  if [[ -f "flake.nix" ]]; then
-                      export SNOWBLOWER_ROOT="$PWD"
-                      return 0
-                  fi
-                  ancestors+=("$PWD")
-                  if [[ $PWD == / ]] || [[ $PWD == // ]]; then
-                      echo "ERROR: Unable to locate the flake.nix in any of: ''${ancestors[*]@Q}" >&2
-                      exit 1
-                  fi
-                  cd ..
-                  done
-              }
-
-              find_flake
-              ${generateExportString config.snowblower.env}
-            '';
-          };
+            find_flake
+            ${generateExportString config.snowblower.env}
+          '';
         };
       });
   };

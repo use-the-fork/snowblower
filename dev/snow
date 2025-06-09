@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+set -o errexit
+set -o nounset
+set -o pipefail
+
+UNAMEOUT="$(uname -s)"
+
+# Verify operating system is supported...
+case "${UNAMEOUT}" in
+    Linux*)             MACHINE=linux;;
+    Darwin*)            MACHINE=mac;;
+    *)                  MACHINE="UNKNOWN"
+esac
+
+if [ "$MACHINE" == "UNKNOWN" ]; then
+    echo "Unsupported operating system [$(uname -s)]. SnowBlower supports macOS, Linux, and Windows (WSL2)." >&2
+    exit 1
+fi
+
+# Determine if stdout is a terminal...
+if test -t 1; then
+    # Determine if colors are supported...
+    ncolors=$(tput colors)
+
+    if test -n "$ncolors" && test "$ncolors" -ge 8; then
+        # Text attributes
+        BOLD="$(tput bold)"
+        # UNDERLINE="$(tput smul)"
+        # BLINK="$(tput blink)"
+        # REVERSE="$(tput rev)"
+        NC="$(tput sgr0)"  # No Color
+
+        # Regular colors
+        # BLACK="$(tput setaf 0)"
+        # RED="$(tput setaf 1)"
+        GREEN="$(tput setaf 2)"
+        YELLOW="$(tput setaf 3)"
+        # BLUE="$(tput setaf 4)"
+        # MAGENTA="$(tput setaf 5)"
+        # CYAN="$(tput setaf 6)"
+        # WHITE="$(tput setaf 7)"
+    fi
+fi
+
+find_flake() {
+    ancestors=()
+    while true; do
+    if [[ -f "flake.nix" ]]; then
+        export SNOWBLOWER_ROOT="$PWD"
+        return 0
+    fi
+    ancestors+=("$PWD")
+    if [[ $PWD == / ]] || [[ $PWD == // ]]; then
+        echo "ERROR: Unable to locate the flake.nix in any of: ${ancestors[*]@Q}" >&2
+        exit 1
+    fi
+    cd ..
+    done
+}
+
+find_flake
+export NODEJS_HOME=/nix/store/3kgq7lav9kavr7a5dz0d2qrk4gi898rh-nodejs-slim-22.14.0
+export NPM_CONFIG_CACHE=$SNOWBLOWER_ROOT/.sb/state/npm
+export NPM_CONFIG_TMP=/tmp/sb-runtime-daeae52/npm
+export NPM_CONFIG_USERCONFIG=$SNOWBLOWER_ROOT/.sb/state/npm/config
+export PROJECT_DOTFILE=$SNOWBLOWER_ROOT/.sb
+export PROJECT_PROFILE=/nix/store/sr8mwcn48yg74s6g23lvpli92gqsw7wd-snowblower-profile
+export PROJECT_ROOT=
+export PROJECT_RUNTIME=/tmp/sb-runtime-daeae52
+export PROJECT_STATE=$SNOWBLOWER_ROOT/.sb/state
+
+#A few extra environment vars that should not be set or passed to docker.
+export APP_USER=${APP_USER:-"snowblower"}
+export USER_UID=${USER_UID:-$UID}
+export USER_GID=${USER_GID:-$(id -g)}
+
+
+# Function that prints the available commands...
+function display_help {
+    echo "❄️ 💨 SnowBlower"
+    echo
+    echo "${YELLOW}Usage:${NC}" >&2
+    echo "  snow COMMAND [options] [arguments]"
+    echo
+    echo "${YELLOW}Core Commands:${NC}"
+    echo "  ${GREEN}snow switch${NC}          TODO: Foo Bar"
+    echo "  ${GREEN}snow artisan queue:work${NC}"
+    echo
+    echo "${YELLOW}PHP Commands:${NC}"
+    echo "  ${GREEN}snow php ...${NC}   Run a snippet of PHP code"
+    echo "  ${GREEN}snow php -v${NC}"
+    echo
+
+
+    exit 1
+}
+
+
+# Proxy the "help" command...
+if [ $# -gt 0 ]; then
+    if [ "$1" == "help" ] || [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ]; then
+        display_help
+    fi
+else
+    display_help
+fi
+
+
+# Function that outputs SnowBlower is not running...
+function snowblower_is_not_running {
+    echo "${BOLD}SnowBlower is not running.${NC}" >&2
+    echo "" >&2
+    echo "${BOLD}You may start docker using the following commands:${NC} './snow up'" >&2
+
+    exit 1
+}
+
+# Define Docker Compose command prefix...
+if docker compose &> /dev/null; then
+    DOCKER_COMPOSE=(docker compose)
+else
+    DOCKER_COMPOSE=(docker-compose)
+fi
+
+# ARGS=()
+if [ "$1" == "switch" ]; then
+    nix run .#snowblower-files
+fi
+
+# Build the Docker containers
+if [ "$1" == "build" ]; then
+    echo "1234";
+    "${DOCKER_COMPOSE[@]}" build "$@"
+    exit
+fi
+
+
