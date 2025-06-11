@@ -16,6 +16,7 @@ RUN apt update -y && \
     ca-certificates \
     curl \
     locales \
+    git \
     acl && \
     rm -rf /var/lib/apt/lists/*
 
@@ -47,8 +48,5 @@ RUN chmod +x /docker-entrypoint.sh
 RUN sudo chown -R ${USERNAME}: /nix
 
 USER ${USERNAME}
-
-RUN nix-channel --add https://nixos.org/channels/nixpkgs-unstable pkgs && \
-    nix-channel --update
 
 ENTRYPOINT [ "/docker-entrypoint.sh" ]

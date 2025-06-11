@@ -27,83 +27,105 @@
     agenix.url = "github:ryantm/agenix";
   };
 
-  outputs = inputs @ {
-    self,
-    flake-parts,
-    ...
-  }: let
-    src = ./.;
-    #
-    bootstrap =
-      inputs.flake-parts.lib.mkFlake {
-        inherit inputs self;
-        moduleLocation = ./flake.nix;
-      } ({...}: {
-        imports = [
-          {
-            _module.args = {
-              inherit src;
-            };
-          }
-          ./packages/flake/modules
-          ./packages/flake/lib
-        ];
-        debug = true;
-        systems = import inputs.systems;
-      });
-
-    mkSnowBlower = import ./packages/flake/mkSnowBlower.nix {inherit inputs self;};
-  in
-    inputs.flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
+  outputs = inputs @ {flake-parts, ...}:
+    flake-parts.lib.mkFlake {inherit inputs;} ({
+      withSystem,
+      flake-parts-lib,
+      ...
+    }: let
+      inherit (flake-parts-lib) importApply;
+      flakeModules.default = importApply ./flake-module.nix {inherit withSystem;};
+    in {
       imports = [
-        bootstrap.flakeModules.default
-        # ./options-document.nix
+        flakeModules.default
       ];
-
-      flake =
-        bootstrap
-        // {
-          templates = let
-            base = {
-              path = ./packages/flake/templates/base;
-              description = "The base snow blower flake.";
-            };
-          in {
-            inherit base;
-            default = base;
-
-            ruby = {
-              path = ./packages/flake/templates/ruby;
-              description = "A simple Ruby project";
-              welcomeText = ''
-                # Simple Ruby Project Template
-                ## Intended usage
-                The intended usage of this flake is to provide a starting point for Ruby projects using Nix flakes.
-
-                ## More info
-                - [Ruby language](https://www.ruby-lang.org/)
-                - [Ruby on the NixOS Wiki](https://wiki.nixos.org/wiki/Ruby)
-                - ...
-              '';
-            };
-            laravel = {
-              path = ./packages/flake/templates/laravel;
-              description = "A simple Laravel project";
-              welcomeText = ''
-                # Simple Laravel Project Template
-                ## Intended usage
-                The intended usage of this flake is to provide a starting point for Laravel projects using Nix flakes.
-
-                ## More info
-                - [Laravel framework](https://laravel.com/)
-                - [Laravel on the NixOS Wiki](https://wiki.nixos.org/wiki/Laravel)
-                - ...
-              '';
-            };
-          };
-        }
-        // {
-          inherit mkSnowBlower;
+      systems = import inputs.systems;
+      perSystem = _: {
+        snowblower.file.".test.toml" = {
+          enable = true;
+          text = ''
+            test!!
+          '';
         };
+      };
+      flake = {
+        inherit flakeModules;
+      };
     });
 }
+#   outputs = inputs @ {
+#     self,
+#     flake-parts,
+#     ...
+#   }: let
+#     src = ./.;
+#     #
+#     bootstrap =
+#       inputs.flake-parts.lib.mkFlake {
+#         inherit inputs self;
+#         moduleLocation = ./flake.nix;
+#       } ({...}: {
+#         imports = [
+#           {
+#             _module.args = {
+#               inherit src;
+#             };import inputs.systems;
+#           }
+#           ./packages/flake/modules
+#           ./packages/flake/lib
+#         ];
+#         debug = true;
+#         systems = import inputs.systems;
+#       });
+#     mkSnowBlower = import ./packages/flake/mkSnowBlower.nix {inherit inputs self;};
+#   in
+#     inputs.flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
+#       imports = [
+#         bootstrap.flakeModules.default
+#         # ./options-document.nix
+#       ];
+#       flake =
+#         bootstrap
+#         // {
+#           templates = let
+#             base = {
+#               path = ./packages/flake/templates/base;
+#               description = "The base snow blower flake.";
+#             };
+#           in {
+#             inherit base;
+#             default = base;
+#             ruby = {
+#               path = ./packages/flake/templates/ruby;
+#               description = "A simple Ruby project";
+#               welcomeText = ''
+#                 # Simple Ruby Project Template
+#                 ## Intended usage
+#                 The intended usage of this flake is to provide a starting point for Ruby projects using Nix flakes.
+#                 ## More info
+#                 - [Ruby language](https://www.ruby-lang.org/)
+#                 - [Ruby on the NixOS Wiki](https://wiki.nixos.org/wiki/Ruby)
+#                 - ...
+#               '';
+#             };
+#             laravel = {
+#               path = ./packages/flake/templates/laravel;
+#               description = "A simple Laravel project";
+#               welcomeText = ''
+#                 # Simple Laravel Project Template
+#                 ## Intended usage
+#                 The intended usage of this flake is to provide a starting point for Laravel projects using Nix flakes.
+#                 ## More info
+#                 - [Laravel framework](https://laravel.com/)
+#                 - [Laravel on the NixOS Wiki](https://wiki.nixos.org/wiki/Laravel)
+#                 - ...
+#               '';
+#             };
+#           };
+#         }
+#         // {
+#           inherit mkSnowBlower;
+#         };
+#     });
+# }
+

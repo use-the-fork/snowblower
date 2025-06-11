@@ -50,6 +50,20 @@
           description = "A list of packages to expose inside the docker developer container. See https://search.nixos.org/packages for packages.";
           default = [];
         };
+        common = mkOption {
+          type = yamlFormat.type;
+          default = {};
+          description = ''
+            Common configuration to be shared across services using Docker Compose's YAML anchors.
+            This will be added as 'x-snowblower-common' in the generated docker-compose.yml.
+          '';
+          example = lib.literalExpression ''
+            {
+              restart = "always";
+              init = true;
+            }
+          '';
+        };
       };
 
       config.snowblower = let
@@ -79,6 +93,8 @@
         # Create the compose configuration
         composeConfig =
           {
+            # AI: how do we get the first line of the generated yaml to read `x-snowblower-common: &snowblower-common` right now it reads `x-snowblower-common:` AI
+            "x-snowblower-common" = config.snowblower.docker-compose.common;
             services = composeServices;
           }
           // lib.optionalAttrs (serviceNetworks != []) {
@@ -88,12 +104,35 @@
         # Create Dockerfile content
         dockerfileContent = ''
           FROM docker.io/use-the-fork/snowblower-base:latest
-          ${lib.concatMapStringsSep "\n" (pkg: "RUN nix-env -iA pkgs.${pkg.pname or pkg.name}") config.snowblower.docker-compose.packages}
+
+          COPY flake.nix /home/''${USERNAME}/flake.nix
+          COPY flake.lock /home/''${USERNAME}/flake.lock
+
+          RUN nix profile install /home/''${USERNAME}#snowblower-container
         '';
       in {
         packages = [
           pkgs.docker-compose
         ];
+
+        docker-compose.common = {
+          build = {
+            context = ".";
+            dockerfile = "./docker/Dockerfile";
+            args = {
+              USER_UID = "\${USER_UID}";
+              USER_GID = "\${USER_GID}";
+            };
+          };
+          environment = {
+            USER_GID = "\${USER_GID}";
+          };
+          volumes = [
+            ".:/workspace"
+          ];
+          working_dir = "/workspace";
+          tty = true;
+        };
 
         docker-compose.services.dev = {
           enable = true;

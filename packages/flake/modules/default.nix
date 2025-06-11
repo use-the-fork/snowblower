@@ -1,4 +1,4 @@
-topLevel @ {
+{
   inputs,
   flake-parts-lib,
   ...
@@ -22,25 +22,25 @@ topLevel @ {
     imports = [
       # The Must Haves
       # Core is the primary entrypoint to the snowblower package.
-      topLevel.config.flake.flakeModules.core
-      # topLevel.config.flake.flakeModules.nixpkgs
-      topLevel.config.flake.flakeModules.env
+      # topLevel.config.flake.flakeModules.core
+      # # topLevel.config.flake.flakeModules.nixpkgs
+      # topLevel.config.flake.flakeModules.env
 
-      # Yes, just can be considered an integration however since
-      # it's used in most integrations as well as other submodules
-      # I see it as more of a core function.
-      topLevel.config.flake.flakeModules.just
+      # # Yes, just can be considered an integration however since
+      # # it's used in most integrations as well as other submodules
+      # # I see it as more of a core function.
+      # topLevel.config.flake.flakeModules.just
 
-      topLevel.config.flake.flakeModules.integrations
-      topLevel.config.flake.flakeModules.scripts
-      topLevel.config.flake.flakeModules.processes
-      topLevel.config.flake.flakeModules.languages
-      topLevel.config.flake.flakeModules.services
+      # topLevel.config.flake.flakeModules.integrations
+      # topLevel.config.flake.flakeModules.scripts
+      # topLevel.config.flake.flakeModules.processes
+      # topLevel.config.flake.flakeModules.languages
+      # topLevel.config.flake.flakeModules.services
 
-      topLevel.config.flake.flakeModules.docker-compose
-      topLevel.config.flake.flakeModules.codeQuality
+      # topLevel.config.flake.flakeModules.docker-compose
+      # topLevel.config.flake.flakeModules.codeQuality
 
-      topLevel.config.flake.flakeModules.shell
+      # topLevel.config.flake.flakeModules.shell
     ];
 
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
