@@ -39,6 +39,7 @@ in {
                 files to be disabled.
               '';
             };
+
             target = mkOption {
               type = types.str;
               defaultText = literalExpression "name";
@@ -85,7 +86,10 @@ in {
                 pkgs.writeTextFile {
                   name = config.target;
                   inherit (config) text;
-                  executable = config.executable; # can be null
+                  executable =
+                    if config.executable == null
+                    then false
+                    else config.executable;
                 }
               )
             );

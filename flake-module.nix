@@ -5,7 +5,11 @@ _localFlake:
 # where this module was imported.
 {...}: {
   imports = [
+    ./modules/docker
+    ./modules/integrations
+    ./modules/env.nix
     ./modules/files.nix
+    ./modules/packages.nix
   ];
 
   perSystem = _: {

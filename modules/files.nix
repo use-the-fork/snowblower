@@ -11,10 +11,12 @@ in {
 
     cfg = lib.filterAttrs (_n: f: f.enable) config.snowblower.file;
 
-    fileType =
-      (import lib/fileType.nix {
+    inherit
+      ((import lib/fileType.nix {
         inherit lib pkgs;
-      }).fileType;
+      }))
+      fileType
+      ;
 
     sourceStorePath = file: let
       sourcePath = toString file.source;

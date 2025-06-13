@@ -1,0 +1,27 @@
+services:
+  dev:
+    build:
+      args:
+        USER_GID: ${USER_GID}
+        USER_UID: ${USER_UID}
+      context: .
+      dockerfile: ./docker/Dockerfile
+    environment:
+      USER_GID: ${USER_GID}
+    tty: true
+    volumes:
+    - .:/workspace
+    working_dir: /workspace
+x-snowblower-common:
+  build:
+    args:
+      USER_GID: ${USER_GID}
+      USER_UID: ${USER_UID}
+    context: .
+    dockerfile: ./docker/Dockerfile
+  environment:
+    USER_GID: ${USER_GID}
+  tty: true
+  volumes:
+  - .:/workspace
+  working_dir: /workspace

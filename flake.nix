@@ -27,8 +27,18 @@
     agenix.url = "github:ryantm/agenix";
   };
 
-  outputs = inputs @ {flake-parts, ...}:
-    flake-parts.lib.mkFlake {inherit inputs;} ({
+  outputs = inputs @ {
+    flake-parts,
+    nixpkgs,
+    ...
+  }: let
+    # We extend the base library with our snowblower functions.
+    lib = nixpkgs.lib.extend (l: _: (import ./modules/lib l));
+  in
+    flake-parts.lib.mkFlake {
+      inherit inputs;
+      specialArgs = {inherit lib;};
+    } ({
       withSystem,
       flake-parts-lib,
       ...
@@ -41,12 +51,7 @@
       ];
       systems = import inputs.systems;
       perSystem = _: {
-        snowblower.file.".test.toml" = {
-          enable = true;
-          text = ''
-            test!!
-          '';
-        };
+        snowblower.integrations.aider.enable = true;
       };
       flake = {
         inherit flakeModules;

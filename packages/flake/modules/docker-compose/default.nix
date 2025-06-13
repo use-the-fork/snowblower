@@ -51,7 +51,7 @@
           default = [];
         };
         common = mkOption {
-          type = yamlFormat.type;
+          inherit (yamlFormat) type;
           default = {};
           description = ''
             Common configuration to be shared across services using Docker Compose's YAML anchors.

@@ -9,78 +9,141 @@ in {
   }: let
     inherit (lib) types mkOption;
 
-    cfg = lib.filterAttrs (_n: f: f.enable) config.snowblower.file;
+    serviceModule = {
+      imports = [./service-module.nix];
+      config._module.args = {inherit pkgs;};
+    };
+    serviceType = types.submodule serviceModule;
 
-    fileType =
-      (import lib/fileType.nix {
-        inherit lib pkgs;
-      }).fileType;
-
-    sourceStorePath = file: let
-      sourcePath = toString file.source;
-      sourceName = config.lib.strings.storeFileName (baseNameOf sourcePath);
-    in
-      if builtins.hasContext sourcePath
-      then file.source
-      else
-        builtins.path {
-          path = file.source;
-          name = sourceName;
-        };
+    yamlFormat = pkgs.formats.yaml {};
   in {
-    options.snowblower = {
-      file = mkOption {
-        description = "Attribute set of files that will be created in the environment.";
-        default = {};
-        type = fileType "snowblower.file" "{env}`HOME`" "";
-      };
+    imports = [
+      {
+        options.snowblower.docker.services = mkOption {
+          type = types.submoduleWith {
+            modules = [{freeformType = types.attrsOf serviceType;}];
+            specialArgs = {inherit pkgs;};
+          };
+          default = {};
+          description = ''
+            The services that are available to docker-compose
+          '';
+        };
+      }
+    ];
 
-      packages.files = mkOption {
-        type = types.package;
-        internal = true;
-        description = "Package to contain and generate all files";
+    options.snowblower = {
+      docker.common = mkOption {
+        inherit (yamlFormat) type;
+        default = {};
+        description = ''
+          Common configuration to be shared across services using Docker Compose's YAML anchors.
+          This will be added as 'x-snowblower-common' in the generated docker-compose.yml.
+        '';
+        example = lib.literalExpression ''
+          {
+            restart = "always";
+            init = true;
+          }
+        '';
       };
     };
 
-    config = {
-      snowblower.packages.files = pkgs.writeScriptBin "snowblower-files" ''
-        #!/usr/bin/env bash
+    config.snowblower = let
+      # Extract service configurations
+      composeServices =
+        lib.mapAttrs (_name: service: service.outputs.service)
+        config.snowblower.docker.services;
 
-        function insertFile() {
-          local source="$1"
-          local relTarget="$2"
-          local executable="$3"
+      # Extract networks from services
+      serviceNetworks = lib.unique (lib.flatten (
+        lib.mapAttrsToList (
+          _name: service:
+            if service.enable && service.networks != []
+            then service.networks
+            else []
+        )
+        config.snowblower.docker.services
+      ));
 
-          mkdir -p "$(dirname "./$relTarget")"
-          cp -f "$source" "./$relTarget"
-          if [[ $executable == "1" ]]; then
-            chmod +x "./$relTarget"
-          fi
-          echo "Created file: $relTarget"
+      # Create networks configuration
+      networksConfig = lib.listToAttrs (map (name: {
+          inherit name;
+          value = {};
+        })
+        serviceNetworks);
+
+      # Create the compose configuration
+      composeConfig =
+        {
+          "x-snowblower-common" = config.snowblower.docker.common;
+          services = composeServices;
         }
+        // lib.optionalAttrs (serviceNetworks != []) {
+          networks = networksConfig;
+        };
 
-        ${lib.concatStrings (
-          lib.mapAttrsToList (_n: v: ''
-            insertFile ${
-              lib.escapeShellArgs [
-                (sourceStorePath v)
-                v.target
-                (
-                  if v.executable == null
-                  then "inherit"
-                  else toString v.executable
-                )
-              ]
-            }
-          '')
-          cfg
-        )}
+      # Create Dockerfile content
+      dockerfileContent = ''
+        FROM docker.io/use-the-fork/snowblower-base:latest
 
-        echo "Files copied to current directory"
+        COPY flake.nix /home/''${USERNAME}/flake.nix
+        COPY flake.lock /home/''${USERNAME}/flake.lock
+
+        RUN nix profile install /home/''${USERNAME}#snowblower-container
       '';
+    in {
+      docker = {
+        common = {
+          build = {
+            context = ".";
+            dockerfile = "./docker/Dockerfile";
+            args = {
+              USER_UID = "\${USER_UID}";
+              USER_GID = "\${USER_GID}";
+            };
+          };
+          environment = {
+            USER_GID = "\${USER_GID}";
+          };
+          volumes = [
+            ".:/workspace"
+          ];
+          working_dir = "/workspace";
+          tty = true;
+        };
 
-      packages = {
-        snowblowerFiles = config.snowblower.packages.files;
+        services.dev = {
+          enable = true;
+          service = {
+            build = {
+              context = ".";
+              dockerfile = "./docker/Dockerfile";
+              args = {
+                USER_UID = "\${USER_UID}";
+                USER_GID = "\${USER_GID}";
+              };
+            };
+            environment = {
+              USER_GID = "\${USER_GID}";
+            };
+            volumes = [
+              ".:/workspace"
+            ];
+            working_dir = "/workspace";
+            tty = true;
+          };
+        };
+      };
+
+      file."docker-compose.yml" = {
+        enable = true;
+        source = yamlFormat.generate "docker-compose.yml" composeConfig;
+      };
+
+      file."docker/Dockerfile" = {
+        enable = true;
+        source = pkgs.writeText "dockerfile" dockerfileContent;
       };
     };
   });
