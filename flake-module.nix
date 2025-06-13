@@ -8,6 +8,7 @@ _localFlake:
     ./modules/code-quality
     ./modules/docker
     ./modules/integrations
+    ./modules/just
     ./modules/files.nix
     ./modules/packages.nix
     ./modules/snowblower-environment.nix

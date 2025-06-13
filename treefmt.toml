@@ -1,0 +1,9 @@
+["formatter.alejandra-lint"]
+command = "alejandra"
+includes = ["*.nix"]
+priority = 0
+
+["formatter.statix-lint"]
+command = "statix-fix"
+includes = ["*.nix"]
+priority = 0

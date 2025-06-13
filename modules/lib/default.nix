@@ -4,10 +4,10 @@ lib: let
   shell = import ./shell.nix {inherit lib;};
 in {
   sbl = {
-    inherit (functions) mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand;
+    inherit (functions) mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand mkEnableOption';
     inherit dag;
     inherit shell;
   };
 
-  inherit (functions) mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand;
+  inherit (functions) mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand mkEnableOption';
 }
