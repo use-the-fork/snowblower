@@ -5,11 +5,12 @@ _localFlake:
 # where this module was imported.
 {...}: {
   imports = [
+    ./modules/code-quality
     ./modules/docker
     ./modules/integrations
-    ./modules/env.nix
     ./modules/files.nix
     ./modules/packages.nix
+    ./modules/snowblower-environment.nix
   ];
 
   perSystem = _: {

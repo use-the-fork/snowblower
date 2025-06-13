@@ -52,6 +52,10 @@
       systems = import inputs.systems;
       perSystem = _: {
         snowblower.integrations.aider.enable = true;
+        snowblower.codeQuality.programs = {
+          alejandra.enable = true;
+          statix.enable = true;
+        };
       };
       flake = {
         inherit flakeModules;

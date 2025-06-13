@@ -1,5 +1,3 @@
-
-
 # Function that outputs SnowBlower is not running...
 function snowblower_is_not_running {
     echo "${BOLD}SnowBlower is not running.${NC}" >&2
