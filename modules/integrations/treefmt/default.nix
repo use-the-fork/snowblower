@@ -5,12 +5,9 @@
     config,
     ...
   }: let
-    inherit (lib) mkIf;
     inherit (lib) mkEnableOption';
 
     tomlFormat = pkgs.formats.toml {};
-
-    cfg = config.snowblower.integrations.treefmt;
   in {
     options.snowblower.integrations.treefmt = {
       just.enable = mkEnableOption' "enable just command";
@@ -18,14 +15,14 @@
 
     config.snowblower = {
       # automatically add treefmt-nix to just.
-      just.recipes.treefmt = mkIf cfg.just.enable {
-        enable = lib.mkDefault true;
-        justfile = lib.mkDefault ''
-          # Auto-format the source tree using treefmt
-          fmt:
-            treefmt
-        '';
-      };
+      # just.recipes.treefmt = mkIf cfg.just.enable {
+      #   enable = lib.mkDefault true;
+      #   justfile = lib.mkDefault ''
+      #     # Auto-format the source tree using treefmt
+      #     fmt:
+      #       treefmt
+      #   '';
+      # };
 
       dependencies.shell = [
         pkgs.treefmt

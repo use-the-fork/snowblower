@@ -10,7 +10,7 @@ in {
     inherit (lib) types mkOption;
 
     serviceModule = {
-      imports = [./service-module.nix];
+      imports = [./../lib/types/service-module.nix];
       config._module.args = {inherit pkgs;};
     };
     serviceType = types.submodule serviceModule;

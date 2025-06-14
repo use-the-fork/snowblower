@@ -28,6 +28,8 @@
   mkIntegration = {
     name,
     package,
+    config ? {},
+    extraOptions ? {},
   }: {
     # Standard enable option for the integration
     enable = mkEnableOption "${name} integration";
@@ -39,11 +41,15 @@
       default = package;
     };
 
-    settings = mkOption {
-      type = valueType;
-      description = "Configuration settings for ${name}.";
-      default = {};
-    };
+    settings =
+      {
+        config = mkOption {
+          type = valueType;
+          description = "Configuration settings for ${name}.";
+          default = config;
+        };
+      }
+      // extraOptions;
   };
 
   # a utility helper to standerdize integrations.

@@ -12,7 +12,7 @@ in {
     cfg = lib.filterAttrs (_n: f: f.enable) config.snowblower.file;
 
     inherit
-      ((import lib/fileType.nix {
+      ((import ./../lib/fileType.nix {
         inherit lib pkgs;
       }))
       fileType

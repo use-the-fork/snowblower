@@ -189,19 +189,32 @@ in {
         # library. Most importantly, this will prepare for using translated strings
         # in the `hm-modules` text domain.
         activation.initSnowBlowerLib = ''
-          ${builtins.readFile ./lib-bash/utils.sh}
+          ${builtins.readFile ./../lib-bash/utils.sh}
         '';
 
         file."snow" = let
+          #  ${lib.concatStringsSep "\n" (lib.mapAttrsToList
+          # (name: cmd:
+          #   lib.sbl.command.formatCommand {
+          #     inherit name;
+          #     inherit (builtins.trace cmd cmd) description lib.sbl.dag.resolveDag subcommands;
+          #   })
+          # config.snowblower.commands)}
           activationPackage = pkgs.writeShellScript "sb-activation-package" ''
-            ${builtins.readFile ./lib-bash/utils.sh}
+            ${builtins.readFile ./../lib-bash/utils.sh}
 
-              ${builtins.readFile ./lib-bash/boot.sh}
+              ${builtins.readFile ./../lib-bash/boot.sh}
 
               cd $SB_FLAKE_ROOT
 
               ${builtins.readFile config.snowblower.environmentVariablesPackage}
-              ${builtins.readFile ./lib-bash/help.sh}
+
+              ${builtins.readFile config.snowblower.commandsHelpPackage}
+
+
+
+
+              ${builtins.readFile ./../lib-bash/help.sh}
 
 
           '';

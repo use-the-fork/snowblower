@@ -15,7 +15,6 @@
     };
 
     process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
-    flake-root.url = "github:srid/flake-root";
 
     git-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
@@ -33,7 +32,7 @@
     ...
   }: let
     # We extend the base library with our snowblower functions.
-    lib = nixpkgs.lib.extend (l: _: (import ./modules/lib l));
+    lib = nixpkgs.lib.extend (l: _: (import ./lib l));
   in
     flake-parts.lib.mkFlake {
       inherit inputs;

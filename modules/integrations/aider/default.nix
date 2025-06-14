@@ -41,7 +41,7 @@
 
     config = lib.mkIf cfg.enable {
       snowblower = {
-        integrations.aider.settings = mkDefault {
+        integrations.aider.settings.config = mkDefault {
           "auto-commits" = false;
           "dirty-commits" = true;
           "auto-lint" = true;
@@ -50,22 +50,6 @@
           "cache-prompts" = false;
           "code-theme" = "solarized-dark";
         };
-
-        # shell = {
-        #   startup = let
-        #     cfgWithoutExcludedKeys = lib.attrsets.filterAttrs (name: _value: name != "conventions" && name != "extraConf" && name != "port" && name != "host") cfg.settings;
-        #     cfgWithExtraConf = lib.attrsets.recursiveUpdate cfgWithoutExcludedKeys (cfg.settings.extraConf
-        #       // {
-        #         check-update = false;
-        #       });
-
-        #     aiderYml = yamlFormat.generate "aider-conf" cfgWithExtraConf;
-        #   in [
-        #     ''
-        #       ln -sf ${builtins.toString aiderYml} ./.aider.conf.yml
-        #     ''
-        #   ];
-        # };
 
         # just.recipes = lib.mkMerge (lib.mapAttrsToList (
         #     name: cmdCfg: {
@@ -99,7 +83,6 @@
         #             (lib.concatMapStringsSep " " (cmd: "--read \"${cmd}\"") cmdCfg.readFiles)
         #             (lib.concatMapStringsSep " " (cmd: "--lint-cmd \"${cmd}\"") cmdCfg.lintCommands)
         #             (lib.concatMapStringsSep " " (cmd: "--test-cmd \"${cmd}\"") cmdCfg.testCommands)
-        #             cmdCfg.extraArgs
         #           ])}
         #         '';
         #       };
@@ -107,13 +90,21 @@
         #   )
         #   cfg.commands);
 
+        commands."aider" = {
+          description = "Aider Code Assitant";
+          subcommands."start" = {
+            description = "start aider";
+            script = "aider ai";
+          };
+        };
+
         dependencies.shell = [
           cfg.package
         ];
 
         file.".aider.conf.yml" = {
           enable = true;
-          source = yamlFormat.generate ".aider.conf.yml" cfg.settings;
+          source = yamlFormat.generate ".aider.conf.yml" cfg.settings.config;
         };
       };
     };

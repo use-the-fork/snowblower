@@ -6,9 +6,9 @@ _localFlake:
 {...}: {
   imports = [
     ./modules/code-quality
-    ./modules/docker
+    ./docker.nix
     ./modules/integrations
-    ./modules/just
+    ./commands.nix
     ./modules/files.nix
     ./modules/packages.nix
     ./modules/snowblower-environment.nix
