@@ -15,7 +15,7 @@ fi
 
 # Source the ".env" file so environment variables are available...
 # shellcheck source=/dev/null
-if [ -n "$APP_ENV" ] && [ -f ./.env."$APP_ENV" ]; then
+if [ -n "${APP_ENV+x}" ] && [ -n "$APP_ENV" ] && [ -f ./.env."$APP_ENV" ]; then
   source ./.env."$APP_ENV";
 elif [ -f ./.env ]; then
   source ./.env;
@@ -36,17 +36,17 @@ function __sb__bootSnowBlowerEnvironment() {
     fi
 
     warnEcho "Booting SnowBlower Session"
-    noteEcho "Creating Session File: ${SB_SESS_FILE}"
+    statusEcho "OK" "Creating Session File" "${SB_SESS_FILE}"
 
     # Check if Docker is installed
     if ! command -v docker &> /dev/null; then
-        errorEcho "Docker is not installed or not in PATH. Please install Docker to continue."
+        statusEcho "FAIL" "Docker is not installed or not in PATH. Please install Docker to continue."
         exit 1
     fi
 
     # Check if Docker Compose is available
     if ! docker compose &> /dev/null && ! command -v docker-compose &> /dev/null; then
-        errorEcho "Docker Compose is not installed or not in PATH. Please install Docker Compose to continue."
+        statusEcho "FAIL" "Docker Compose is not installed or not in PATH. Please install Docker Compose to continue."
         exit 1
     fi
 
@@ -64,26 +64,25 @@ function __sb__bootSnowBlowerEnvironment() {
     echo "export SB_PROJECT_STATE=\"$SB_PROJECT_STATE\"" >> "$SB_SESS_FILE"
     echo "export SB_PROJECT_RUNTIME=\"$SB_PROJECT_RUNTIME\"" >> "$SB_SESS_FILE"
     
-    noteEcho "SnowBlower directory set to: ${SB_PROJECT_ROOT}"
-
+    statusEcho "OK" "SnowBlower directory set to" "${SB_PROJECT_ROOT}"
 
     # Create directories if they don't exist
     if [ ! -d "$SB_PROJECT_ROOT" ]; then
-        noteEcho "Creating project directory: $SB_PROJECT_ROOT"
+        statusEcho "OK" "Creating project directory" "${SB_PROJECT_ROOT}"
         mkdir -p "$SB_PROJECT_ROOT"
     fi
     if [ ! -d "$SB_PROJECT_PROFILE" ]; then
-        noteEcho "Creating profile directory: $SB_PROJECT_PROFILE"
+        statusEcho "OK" "Creating profile directory" "${SB_PROJECT_PROFILE}"
         mkdir -p "$SB_PROJECT_PROFILE"
     fi
 
     if [ ! -d "$SB_PROJECT_STATE" ]; then
-        noteEcho "Creating state directory: $SB_PROJECT_STATE"
+        statusEcho "OK" "Creating state directory" "${SB_PROJECT_STATE}"
         mkdir -p "$SB_PROJECT_STATE"
     fi
 
     if [ ! -d "$SB_PROJECT_RUNTIME" ]; then
-        noteEcho "Creating runtime directory: $SB_PROJECT_RUNTIME"
+        statusEcho "OK" "Creating runtime directory" "${SB_PROJECT_RUNTIME}"
         mkdir -p "$SB_PROJECT_RUNTIME"
     fi
 
@@ -99,13 +98,13 @@ function __sb__bootSnowBlowerEnvironment() {
     fi
 
     echo "export SB_DOCKER_COMPOSE=\"$SB_DOCKER_COMPOSE\"" >> "$SB_SESS_FILE"
-    noteEcho "Docker Compose Command set as: ${SB_DOCKER_COMPOSE}"
+    statusEcho "OK" "Docker Compose Command set as" "${SB_DOCKER_COMPOSE}"
 
     # Check if nix command is available and set variable if found
     if [ -n "${SB_SESS_IS_DEV_SHELL+x}" ]; then
-        noteEcho "Nix command found and available"
+        statusEcho "OK" "Nix command found and available"
     else
-        noteEcho "Nix command not found, some features may be limited"
+        statusEcho "FAIL" "Nix command not found, some features may be limited"
     fi
 
     echo "export __SB_SESS_BOOTED=1" >> "$SB_SESS_FILE"

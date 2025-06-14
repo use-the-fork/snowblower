@@ -54,15 +54,15 @@
           enable = true;
           commands = {
             start = {
-              description = "default";
+              description = "w/ linting, watchfiles, and conventions.";
               watchFiles = true;
               suggestShellCommands = false;
               readFiles = ["CONVENTIONS.MD"];
-              lintCommands = ["treefmt"];
+              lintCommands = ["snow treefmt"];
             };
           };
         };
-        snowblower.codeQuality.programs = {
+        snowblower.codeQuality = {
           alejandra.enable = true;
           statix.enable = true;
         };

@@ -21,12 +21,3 @@
 * Include usage examples in markdown documentation.
 * Keep documentation up-to-date when changing module behavior.
 * Follow the existing documentation structure for consistency.
-
-## Project Structure
-
-* Place new modules in the appropriate directory based on their functionality.
-* Follow the established pattern for module organization:
-  * Core modules in `modules/core/`
-  * Language support in `modules/languages/`
-  * Services in `modules/services/`
-  * Integrations in `modules/integrations/`

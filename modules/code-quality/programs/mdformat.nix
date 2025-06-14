@@ -8,9 +8,9 @@
     inherit (lib) mkCodeQualityTool mkCodeQualityCommand;
     tomlFormat = pkgs.formats.toml {};
 
-    cfg = config.snowblower.codeQuality.programs.mdformat;
+    cfg = config.snowblower.codeQuality.mdformat;
   in {
-    options.snowblower.codeQuality.programs.mdformat = mkCodeQualityTool {
+    options.snowblower.codeQuality.mdformat = mkCodeQualityTool {
       name = "mdformat";
       package = pkgs.mdformat;
       includes = [

@@ -8,9 +8,9 @@
     inherit (lib) types mkOption;
     inherit (lib) mkCodeQualityTool mkCmdArgs;
 
-    cfg = config.snowblower.codeQuality.programs.nixfmt;
+    cfg = config.snowblower.codeQuality.nixfmt;
   in {
-    options.snowblower.codeQuality.programs.nixfmt = mkCodeQualityTool {
+    options.snowblower.codeQuality.nixfmt = mkCodeQualityTool {
       name = "nixfmt";
       package = pkgs.nixfmt-rfc-style;
       includes = [

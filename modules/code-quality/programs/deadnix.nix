@@ -7,9 +7,9 @@
   }: let
     inherit (lib) mkCodeQualityTool mkCodeQualityCommand;
 
-    cfg = config.snowblower.codeQuality.programs.deadnix;
+    cfg = config.snowblower.codeQuality.deadnix;
   in {
-    options.snowblower.codeQuality.programs.deadnix = mkCodeQualityTool {
+    options.snowblower.codeQuality.deadnix = mkCodeQualityTool {
       name = "Deadnix";
       package = pkgs.deadnix;
 

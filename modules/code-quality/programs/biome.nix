@@ -8,9 +8,9 @@
     inherit (lib) mkCodeQualityTool mkCodeQualityCommand;
     jsonFormat = pkgs.formats.json {};
 
-    cfg = config.snowblower.codeQuality.programs.biome;
+    cfg = config.snowblower.codeQuality.biome;
   in {
-    options.snowblower.codeQuality.programs.biome = mkCodeQualityTool {
+    options.snowblower.codeQuality.biome = mkCodeQualityTool {
       name = "Biome";
       package = pkgs.biome;
       includes = [

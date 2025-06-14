@@ -8,9 +8,9 @@
     inherit (lib) mkCodeQualityTool mkCodeQualityCommand;
     tomlFormat = pkgs.formats.toml {};
 
-    cfg = config.snowblower.codeQuality.programs.ruff;
+    cfg = config.snowblower.codeQuality.ruff;
   in {
-    options.snowblower.codeQuality.programs.ruff = mkCodeQualityTool {
+    options.snowblower.codeQuality.ruff = mkCodeQualityTool {
       name = "Ruff";
       package = pkgs.ruff;
       includes = [

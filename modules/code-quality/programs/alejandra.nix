@@ -8,9 +8,9 @@
     inherit (lib) mkCodeQualityTool mkCodeQualityCommand;
     tomlFormat = pkgs.formats.toml {};
 
-    cfg = config.snowblower.codeQuality.programs.alejandra;
+    cfg = config.snowblower.codeQuality.alejandra;
   in {
-    options.snowblower.codeQuality.programs.alejandra = mkCodeQualityTool {
+    options.snowblower.codeQuality.alejandra = mkCodeQualityTool {
       name = "Alejandra";
       package = pkgs.alejandra;
 

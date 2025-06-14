@@ -104,7 +104,7 @@ in {
         name = "snowblower-directories";
         text = ''
           function __sb__createDirectories() {
-            noteEcho "Creating Directories"
+            statusEcho "OK" "Creating Directories" "''${SB_PROJECT_ROOT}"
             ${lib.concatStrings (
             map (dir: ''
               __sb__createDirectory ${lib.escapeShellArgs [dir]}
@@ -116,7 +116,7 @@ in {
           function __sb__createDirectory() {
               local dirPath="$1"
               mkdir -p "$SB_PROJECT_ROOT/$dirPath"
-              noteEcho "Created directory: $dirPath"
+              statusEcho "OK" "Created directory" "$dirPath"
           }
         '';
       };

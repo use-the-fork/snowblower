@@ -8,9 +8,9 @@
     inherit (lib) mkCodeQualityTool mkCodeQualityCommand;
     tomlFormat = pkgs.formats.toml {};
 
-    cfg = config.snowblower.codeQuality.programs.statix;
+    cfg = config.snowblower.codeQuality.statix;
   in {
-    options.snowblower.codeQuality.programs.statix = mkCodeQualityTool {
+    options.snowblower.codeQuality.statix = mkCodeQualityTool {
       name = "Statix";
       package = pkgs.statix;
 
