@@ -145,6 +145,20 @@ findUp() {
     done
 }
 
+function __sb__createDirectory() {
+    local dirPath="$1"
+    # Evaluate the path with variables
+    dirPath=$(eval echo "$dirPath")
+
+    # Check if the path is not already within the project root
+    if [[ "$dirPath" != "$SB_PROJECT_ROOT"* ]]; then
+        dirPath="${SB_PROJECT_ROOT}/${dirPath}"
+    fi
+
+    mkdir -p "$dirPath"
+    statusEcho "OK" "Created directory" "$dirPath"
+}
+
 # Runs the given command on live run, otherwise prints the command to standard
 # output.
 function run() {

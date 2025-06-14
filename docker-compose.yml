@@ -16,5 +16,5 @@ x-snowblower-common: &snowblower-common
   - .:/workspace
   working_dir: /workspace
 services:
-  dev:
+  snowblower-dev:
     <<: *snowblower-common

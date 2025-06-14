@@ -145,6 +145,20 @@ findUp() {
     done
 }
 
+function __sb__createDirectory() {
+    local dirPath="$1"
+    # Evaluate the path with variables
+    dirPath=$(eval echo "$dirPath")
+
+    # Check if the path is not already within the project root
+    if [[ "$dirPath" != "$SB_PROJECT_ROOT"* ]]; then
+        dirPath="${SB_PROJECT_ROOT}/${dirPath}"
+    fi
+
+    mkdir -p "$dirPath"
+    statusEcho "OK" "Created directory" "$dirPath"
+}
+
 # Runs the given command on live run, otherwise prints the command to standard
 # output.
 function run() {
@@ -163,13 +177,9 @@ function run() {
 
   function __sb__createDirectories() {
   statusEcho "OK" "Creating Directories" "${SB_PROJECT_ROOT}"
-  
-}
+  __sb__createDirectory '${SB_PROJECT_STATE}/npm'
+__sb__createDirectory '${SB_PROJECT_STATE}/npm/config'
 
-function __sb__createDirectory() {
-    local dirPath="$1"
-    mkdir -p "$SB_PROJECT_ROOT/$dirPath"
-    statusEcho "OK" "Created directory" "$dirPath"
 }
 
 
@@ -301,7 +311,9 @@ export SB_USER_GID=${USER_GID:-$(id -g)}
   if [ -v __SB_SESS_VARS_SOURCED ]; then return; fi
   export __SB_SESS_VARS_SOURCED=1
 
-  
+  export NPM_CONFIG_CACHE="${SB_PROJECT_STATE}/npm"
+export NPM_CONFIG_TMP="${SB_PROJECT_STATE}/npm"
+export NPM_CONFIG_USERCONFIG="${SB_PROJECT_STATE}/npm/config"
 }
 
 setupEnvironmentVariables
@@ -321,6 +333,12 @@ function display_help {
     echo "${YELLOW}Aider Commands:${NC}"
 echo "  ${GREEN}snow aider ...${NC}          Run a Aider command"
 echo "  ${GREEN}snow aider start${NC}          w/ linting, watchfiles, and conventions."
+
+echo
+
+echo "${YELLOW}NPM Commands:${NC}"
+echo "  ${GREEN}snow npm ...${NC}          Run a NPM command"
+
 
 echo
 
@@ -353,6 +371,13 @@ function __sb__command__aider__start {
                aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "CONVENTIONS.MD" --lint-cmd "snow treefmt"
 
            }
+
+
+function __sb__command__npm {
+  npm
+}
+
+
 
 
 function __sb__command__treefmt {

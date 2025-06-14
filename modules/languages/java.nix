@@ -1,12 +1,8 @@
 {
-  inputs,
   flake-parts-lib,
   self,
   ...
 }: {
-  imports = [
-    inputs.flake-parts.flakeModules.flakeModules
-  ];
   flake.flakeModules.languages = {
     options.perSystem = flake-parts-lib.mkPerSystemOption ({
       lib,

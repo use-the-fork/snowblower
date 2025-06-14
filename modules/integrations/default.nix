@@ -4,7 +4,7 @@
     ./aider
     # ./convco
     # ./dotenv
-    ./treefmt
+    ./treefmt.nix
     # ./git-hooks
     # ./git-cliff
   ];

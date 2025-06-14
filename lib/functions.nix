@@ -67,6 +67,20 @@
     inherit settings;
   };
 
+  mkPackageManager = {
+    name,
+    package,
+    settings ? {}, # used to define additional modules
+  }: {
+    enable = mkEnableOption "${name} Package Manager";
+    package = mkOption {
+      type = lib.types.package;
+      description = "The package ${name} should use.";
+      default = package;
+    };
+    inherit settings;
+  };
+
   # heavily modifed version of https://github.com/numtide/treefmt-nix/blob/main/default.nix
   # Thanks treefmt team!
   mkCodeQualityTool = {
@@ -145,5 +159,5 @@
   #Same as mkEnableOption but with the default set to true.
   mkEnableOption' = desc: lib.mkEnableOption "${desc}" // {default = true;};
 in {
-  inherit mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand mkEnableOption';
+  inherit mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand mkEnableOption' mkPackageManager;
 }

@@ -112,12 +112,6 @@ in {
             config.snowblower.directories
           )}
           }
-
-          function __sb__createDirectory() {
-              local dirPath="$1"
-              mkdir -p "$SB_PROJECT_ROOT/$dirPath"
-              statusEcho "OK" "Created directory" "$dirPath"
-          }
         '';
       };
 

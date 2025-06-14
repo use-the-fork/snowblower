@@ -62,6 +62,12 @@
             };
           };
         };
+
+        snowblower.languages.javascript = {
+          enable = true;
+          npm.enable = true;
+        };
+
         snowblower.codeQuality = {
           alejandra.enable = true;
           statix.enable = true;

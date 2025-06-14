@@ -113,7 +113,7 @@ in {
           tty = true;
         };
 
-        services.dev = {
+        services."snowblower-dev" = {
           enable = true;
           service = {
             "a-use-snowblower-common" = "";
