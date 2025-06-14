@@ -18,15 +18,26 @@
   subCommandType = types.submodule subCommandModule;
 in {
   options = {
+    displayName = mkOption {
+      type = types.str;
+      description = "Display name of the command (e.g., 'NPM' for npm, 'SnowBlower' for snow)";
+    };
+
+    script = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = "Script to execute for the general command (when no specific subcommand is provided)";
+    };
+
     description = mkOption {
       type = types.str;
       description = "Description of the command";
     };
 
-    subcommands = mkOption {
+    subcommand = mkOption {
       type = lib.sbl.types.dagOf subCommandType;
       default = {};
-      description = "Subcommands available for this command";
+      description = "Subcommand available for this command";
     };
   };
 }

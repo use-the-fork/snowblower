@@ -50,7 +50,18 @@
       ];
       systems = import inputs.systems;
       perSystem = _: {
-        snowblower.integrations.aider.enable = true;
+        snowblower.integrations.aider = {
+          enable = true;
+          commands = {
+            start = {
+              description = "default";
+              watchFiles = true;
+              suggestShellCommands = false;
+              readFiles = ["CONVENTIONS.MD"];
+              lintCommands = ["treefmt"];
+            };
+          };
+        };
         snowblower.codeQuality.programs = {
           alejandra.enable = true;
           statix.enable = true;

@@ -37,10 +37,22 @@ in {
         type = fileType "snowblower.file" "{env}`HOME`" "";
       };
 
+      directories = mkOption {
+        description = "List of directories that will be created in the environment.";
+        default = [];
+        type = types.listOf types.str;
+      };
+
       packages.files = mkOption {
         type = types.package;
         internal = true;
         description = "Package to contain and generate all files";
+      };
+
+      directoriesPackage = mkOption {
+        type = types.package;
+        internal = true;
+        description = "Package to contain all directories that need to be generated";
       };
     };
 
@@ -87,6 +99,27 @@ in {
 
         echo "Files copied to current directory"
       '';
+
+      snowblower.directoriesPackage = pkgs.writeTextFile {
+        name = "snowblower-directories";
+        text = ''
+          function __sb__createDirectories() {
+            noteEcho "Creating Directories"
+            ${lib.concatStrings (
+            map (dir: ''
+              __sb__createDirectory ${lib.escapeShellArgs [dir]}
+            '')
+            config.snowblower.directories
+          )}
+          }
+
+          function __sb__createDirectory() {
+              local dirPath="$1"
+              mkdir -p "$SB_PROJECT_ROOT/$dirPath"
+              noteEcho "Created directory: $dirPath"
+          }
+        '';
+      };
 
       packages = {
         snowblowerFiles = config.snowblower.packages.files;

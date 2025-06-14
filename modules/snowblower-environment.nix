@@ -200,26 +200,27 @@ in {
           #     inherit (builtins.trace cmd cmd) description lib.sbl.dag.resolveDag subcommands;
           #   })
           # config.snowblower.commands)}
-          activationPackage = pkgs.writeShellScript "sb-activation-package" ''
-            ${builtins.readFile ./../lib-bash/utils.sh}
+          activationPackage = pkgs.writeTextFile {
+            name = "sb-activation-package";
+            text = ''
+              ${builtins.readFile ./../lib-bash/utils.sh}
 
-              ${builtins.readFile ./../lib-bash/boot.sh}
+                ${builtins.readFile config.snowblower.directoriesPackage}
 
-              cd $SB_FLAKE_ROOT
+                ${builtins.readFile ./../lib-bash/boot.sh}
 
-              ${builtins.readFile config.snowblower.environmentVariablesPackage}
+                ${builtins.readFile config.snowblower.environmentVariablesPackage}
 
-              ${builtins.readFile config.snowblower.commandsHelpPackage}
+                ${builtins.readFile config.snowblower.commandHelpPackage}
 
+                ${builtins.readFile ./../lib-bash/help.sh}
 
-
-
-              ${builtins.readFile ./../lib-bash/help.sh}
-
-
-          '';
+                ${builtins.readFile config.snowblower.commandRunPackage}
+            '';
+          };
         in {
           enable = true;
+          executable = true;
           source = activationPackage;
         };
       };

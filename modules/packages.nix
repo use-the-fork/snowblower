@@ -58,9 +58,9 @@ in {
       snowblower.packages.shell = pkgs.mkShell {
         name = "snowblower";
         packages = config.snowblower.dependencies.shell ++ config.snowblower.dependencies.common;
-        # shellHook = ''
-        #   ${setupShell}
-        # '';
+        shellHook = ''
+          export SB_SESS_IS_DEV_SHELL=1
+        '';
       };
 
       snowblower.packages.docker = pkgs.buildEnv {

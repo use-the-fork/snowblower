@@ -5,24 +5,22 @@
     config,
     ...
   }: let
-    inherit (lib) mkEnableOption';
-
     tomlFormat = pkgs.formats.toml {};
   in {
     options.snowblower.integrations.treefmt = {
-      just.enable = mkEnableOption' "enable just command";
+      name = "Treefmt";
+      package = pkgs.treefmt;
+      config = {
+        "tree-root" = "snow";
+      };
     };
 
     config.snowblower = {
-      # automatically add treefmt-nix to just.
-      # just.recipes.treefmt = mkIf cfg.just.enable {
-      #   enable = lib.mkDefault true;
-      #   justfile = lib.mkDefault ''
-      #     # Auto-format the source tree using treefmt
-      #     fmt:
-      #       treefmt
-      #   '';
-      # };
+      command."treefmt" = {
+        displayName = "Treefmt";
+        description = "formatter multiplexer";
+        script = ''treefmt'';
+      };
 
       dependencies.shell = [
         pkgs.treefmt

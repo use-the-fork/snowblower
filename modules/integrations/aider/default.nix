@@ -5,7 +5,7 @@
     lib,
     ...
   }: let
-    inherit (lib) types mkOption mkDefault;
+    inherit (lib) types mkOption;
     inherit (lib) mkIntegration;
 
     commandModule = {
@@ -37,65 +37,61 @@
     options.snowblower.integrations.aider = mkIntegration {
       name = "Aider";
       package = pkgs.aider-chat;
+      config = {
+        "auto-commits" = false;
+        "dirty-commits" = true;
+        "auto-lint" = true;
+        "dark-mode" = true;
+        "light-mode" = false;
+        "cache-prompts" = false;
+        "code-theme" = "solarized-dark";
+      };
     };
 
     config = lib.mkIf cfg.enable {
       snowblower = {
-        integrations.aider.settings.config = mkDefault {
-          "auto-commits" = false;
-          "dirty-commits" = true;
-          "auto-lint" = true;
-          "dark-mode" = true;
-          "light-mode" = false;
-          "cache-prompts" = false;
-          "code-theme" = "solarized-dark";
-        };
-
-        # just.recipes = lib.mkMerge (lib.mapAttrsToList (
-        #     name: cmdCfg: {
-        #       "ai-${name}" = {
-        #         enable = true;
-        #         justfile = ''
-        #           # ${cmdCfg.description}
-        #           @ai-${name}:
-        #             ${lib.getExe cfg.package} ${lib.concatStringsSep " " (lib.filter (s: s != "") [
-        #             "--model ${cmdCfg.model}"
-        #             (
-        #               if cmdCfg.watchFiles
-        #               then "--watch-files"
-        #               else "--no-watch-files"
-        #             )
-        #             (
-        #               if cmdCfg.suggestShellCommands
-        #               then "--suggest-shell-commands"
-        #               else "--no-suggest-shell-commands"
-        #             )
-        #             (
-        #               if cmdCfg.detectUrls
-        #               then "--detect-urls"
-        #               else "--no-detect-urls"
-        #             )
-        #             (
-        #               if cmdCfg.gitCommitVerify
-        #               then "--git-commit-verify"
-        #               else "--no-git-commit-verify"
-        #             )
-        #             (lib.concatMapStringsSep " " (cmd: "--read \"${cmd}\"") cmdCfg.readFiles)
-        #             (lib.concatMapStringsSep " " (cmd: "--lint-cmd \"${cmd}\"") cmdCfg.lintCommands)
-        #             (lib.concatMapStringsSep " " (cmd: "--test-cmd \"${cmd}\"") cmdCfg.testCommands)
-        #           ])}
-        #         '';
-        #       };
-        #     }
-        #   )
-        #   cfg.commands);
-
-        commands."aider" = {
+        command."aider" = let
+          subCommands = lib.mkMerge (lib.mapAttrsToList (
+              name: cmdCfg: {
+                "${name}" = {
+                  inherit (cmdCfg) description;
+                  script = ''
+                    aider ${lib.concatStringsSep " " (lib.filter (s: s != "") [
+                      "--model ${cmdCfg.model}"
+                      (
+                        if cmdCfg.watchFiles
+                        then "--watch-files"
+                        else "--no-watch-files"
+                      )
+                      (
+                        if cmdCfg.suggestShellCommands
+                        then "--suggest-shell-commands"
+                        else "--no-suggest-shell-commands"
+                      )
+                      (
+                        if cmdCfg.detectUrls
+                        then "--detect-urls"
+                        else "--no-detect-urls"
+                      )
+                      (
+                        if cmdCfg.gitCommitVerify
+                        then "--git-commit-verify"
+                        else "--no-git-commit-verify"
+                      )
+                      (lib.concatMapStringsSep " " (cmd: "--read \"${cmd}\"") cmdCfg.readFiles)
+                      (lib.concatMapStringsSep " " (cmd: "--lint-cmd \"${cmd}\"") cmdCfg.lintCommands)
+                      (lib.concatMapStringsSep " " (cmd: "--test-cmd \"${cmd}\"") cmdCfg.testCommands)
+                    ])}
+                  '';
+                };
+              }
+            )
+            cfg.commands);
+        in {
+          displayName = "Aider";
           description = "Aider Code Assitant";
-          subcommands."start" = {
-            description = "start aider";
-            script = "aider ai";
-          };
+          script = ''aider'';
+          subcommand = subCommands;
         };
 
         dependencies.shell = [
