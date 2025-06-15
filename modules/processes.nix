@@ -50,7 +50,7 @@ in {
             ports =
               lib.optional (process.port.container != null && process.port.host != null)
               "${toString process.port.host}:${toString process.port.container}";
-            command = "snow ${name}-process";
+            command = "./snow ${name}-process";
           };
         })
         cfg;
