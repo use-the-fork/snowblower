@@ -29,6 +29,37 @@ function __sb__runChecks {
     fi
 }
 
+
+# Figures out the type of envirment the command is running in and then routes approriatly.
+function __sb__RoutedCommandExecute() {
+    local cmd="$1"
+    
+    # Remove surrounding quotes if present
+    cmd="${cmd//\'}"
+    
+    # If not in a nix shell, show error and exit
+    if [ -z "$SB_SESS_IS_NIX_SHELL" ]; then
+        __sb__isNotRunning
+    fi
+
+    # If in nix shell but not in docker, execute command directly
+    if [ -n "$SB_SESS_IS_NIX_SHELL" ] && [ -z "$SB_SESS_IS_DOCKER" ]; then
+        eval "$cmd"
+        return $?
+    fi
+
+    # If in nix shell and in docker, execute via docker-compose
+    __sb__runChecks
+        
+    ARGS=()
+    ARGS+=(exec -u "$SB_USER_UID")
+    [ ! -t 0 ] && ARGS+=(-T)
+    ARGS+=("$SB_APP_SERVICE")
+
+    # Execute the command with proper shell evaluation
+    "${SB_DOCKER_COMPOSE_COMMAND[@]}" "${ARGS[@]}" bash -c "$cmd"
+}
+
 # Function to run dynamically generated command functions
 function __sb__runCommand {
     local command_name="$1"
@@ -57,25 +88,9 @@ function __sb__runCommand {
     fi
 }
 
-# TODO: This should prob be handled in the run_command function.
 # Check if $2 exists before passing it to run_command                                                
 if [ $# -ge 2 ]; then                                                                                
     __sb__runCommand "$1" "$2"                                                                            
 else                                                                                                 
     __sb__runCommand "$1" ""                                                                              
-fi 
-
-
-# Runs the given command on live run, otherwise prints the command to standard
-# output.
-function __sb__runInDocker() {
-    local cmd=("$@")
-    
-    ARGS=()
-    ARGS+=(exec -u "$SB_USER_UID")
-    [ ! -t 0 ] && ARGS+=(-T)
-    ARGS+=("$SB_APP_SERVICE")
-
-    # Execute the command with proper array expansion
-    "${SB_DOCKER_COMPOSE_COMMAND[@]}" "${ARGS[@]}" "${cmd[@]}"
-}
+fi

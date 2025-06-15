@@ -8,9 +8,13 @@
         description = "Description of the subcommand";
       };
 
-      script = mkOption {
+      cmdWithArgs = mkOption {
         type = types.str;
-        description = "Script to execute for this subcommand";
+        description = "Command to execute for this subcommand";
+        apply = str:
+          if str == null
+          then null
+          else lib.strings.trim str;
       };
     };
   };
@@ -23,10 +27,14 @@ in {
       description = "Display name of the command (e.g., 'NPM' for npm, 'SnowBlower' for snow)";
     };
 
-    script = mkOption {
+    cmdWithArgs = mkOption {
       type = types.nullOr types.str;
       default = null;
-      description = "Script to execute for the general command (when no specific subcommand is provided)";
+      description = "Command to execute for the general command (when no specific subcommand is provided)";
+      apply = str:
+        if str == null
+        then null
+        else lib.strings.trim str;
     };
 
     description = mkOption {

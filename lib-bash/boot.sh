@@ -51,7 +51,7 @@ function __sb__bootSnowBlowerEnvironment() {
     fi
 
     # These are the must have varibles for the project
-    export SB_FLAKE_ROOT=$(findUp 'flake.nix')
+    export SB_FLAKE_ROOT=$(__sb__findUp 'flake.nix')
     export SB_PROJECT_ROOT="$SB_FLAKE_ROOT/.snowblower"
     export SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
     export SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
@@ -100,8 +100,8 @@ function __sb__bootSnowBlowerEnvironment() {
     echo "export SB_DOCKER_COMPOSE=\"$SB_DOCKER_COMPOSE\"" >> "$SB_SESS_FILE"
     statusEcho "OK" "Docker Compose Command set as" "${SB_DOCKER_COMPOSE}"
 
-    # Check if nix command is available and set variable if found
-    if [ -n "${SB_SESS_IS_DEV_SHELL+x}" ]; then
+    # Check if we are running in a Nix Shell
+    if [ -n "${SB_SESS_IS_NIX_SHELL+x}" ]; then
         statusEcho "OK" "Nix command found and available"
     else
         statusEcho "FAIL" "Nix command not found, some features may be limited"
@@ -112,13 +112,14 @@ function __sb__bootSnowBlowerEnvironment() {
     echo
 }
 
-__sb__bootSnowBlowerEnvironment
-
 # Finally we define environment variables...
 export SB_APP_SERVICE=${APP_SERVICE:-"snowblower-dev"}
 export SB_USER_UID=${USER_UID:-$UID}
 export SB_USER_GID=${USER_GID:-$(id -g)}
 export SB_SKIP_CHECKS=${SKIP_CHECKS:-}
+export SB_SESS_IS_NIX_SHELL=${IS_NIX_SHELL:-}
+
+__sb__bootSnowBlowerEnvironment
 
 # Split the SB_DOCKER_COMPOSE string into an array
 read -ra SB_DOCKER_COMPOSE_COMMAND <<< "$SB_DOCKER_COMPOSE"

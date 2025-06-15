@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eu
+set -e
 set -o pipefail
 
 # Credits to https://github.com/nix-community/home-manager/blob/master/lib/bash/home-manager.sh
@@ -65,6 +65,10 @@ function statusEcho() {
         echo "${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
     elif [ "$status" == "FAIL" ]; then
         echo "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+    elif [ "$status" == "WARN" ]; then
+        echo "${WHITE}[ ${YELLOW}WARN${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+    elif [ "$status" == "INFO" ]; then
+        echo "${WHITE}[ ${BLUE}INFO${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
     else
         echo "          ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
     fi
@@ -132,7 +136,7 @@ function _iVerbose() {
 
 # Credits: https://github.com/srid/flake-root/blob/master/flake-module.nix
 # This function is used to find the flake root and set it as a env varible.
-findUp() {
+__sb__findUp() {
     ancestors=()
     while true; do
     if [[ -f $1 ]]; then
@@ -159,5 +163,5 @@ function __sb__createDirectory() {
     fi
 
     mkdir -p "$dirPath"
-    statusEcho "OK" "Created directory" "$dirPath"
+    statusEcho "" "Created directory" "$dirPath"
 }

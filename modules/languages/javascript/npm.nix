@@ -21,7 +21,7 @@
       command."npm" = {
         displayName = "NPM";
         description = "NPM Package Manager";
-        script = ''npm'';
+        cmdWithArgs = "npm";
       };
 
       environmentVariables = {

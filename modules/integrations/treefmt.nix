@@ -19,7 +19,7 @@
       command."treefmt" = {
         displayName = "Treefmt";
         description = "formatter multiplexer";
-        script = ''treefmt'';
+        cmdWithArgs = "treefmt";
       };
 
       dependencies.shell = [

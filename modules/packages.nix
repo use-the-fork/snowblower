@@ -59,7 +59,7 @@ in {
         name = "snowblower";
         packages = config.snowblower.dependencies.shell ++ config.snowblower.dependencies.common;
         shellHook = ''
-          export SB_SESS_IS_DEV_SHELL=1
+          export IS_NIX_SHELL="1"
         '';
       };
 

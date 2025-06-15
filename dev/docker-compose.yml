@@ -10,7 +10,6 @@ x-snowblower-common: &snowblower-common
     context: .
     dockerfile: ./docker/Dockerfile
   environment:
-    SB_SESS_IS_DOCKER: '1'
     USER_GID: ${USER_GID}
   tty: true
   volumes:

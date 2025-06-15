@@ -57,7 +57,7 @@
           concatLines [
             ''echo "''${YELLOW}${section.data.displayName} Commands:''${NC}"''
             (
-              optionalString (section.data.script != null)
+              optionalString (section.data.cmdWithArgs != null)
               ''echo "  ''${GREEN}snow ${section.name} ...''${NC}          Run a ${section.data.displayName} command"''
             )
             resolvedSubCommands
@@ -88,8 +88,7 @@
           mkSubCommandSection = name: subSection: let
             subSectionName = subSection.name;
           in ''            function __sb__command__${name}__${subSectionName} {
-                            __sb__runChecks
-                           ${subSection.data.script}
+                           __sb__RoutedCommandExecute "${subSection.data.cmdWithArgs}"
                        }'';
 
           resolvedSubCommands = lib.sbl.dag.resolveDag {
@@ -102,10 +101,9 @@
           };
         in
           concatLines [
-            (optionalString (section.data.script != null) ''
+            (optionalString (section.data.cmdWithArgs != null) ''
               function __sb__command__${section.name} {
-                __sb__runChecks
-                ${section.data.script}
+                __sb__RoutedCommandExecute "${section.data.cmdWithArgs}"
               }
             '')
             resolvedSubCommands

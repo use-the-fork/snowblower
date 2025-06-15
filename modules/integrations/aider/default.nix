@@ -55,8 +55,7 @@
               name: cmdCfg: {
                 "${name}" = {
                   inherit (cmdCfg) description;
-                  script = ''
-                    aider ${lib.concatStringsSep " " (lib.filter (s: s != "") [
+                  cmdWithArgs = ''aider ${lib.concatStringsSep " " (lib.filter (s: s != "") [
                       "--model ${cmdCfg.model}"
                       (
                         if cmdCfg.watchFiles
@@ -81,8 +80,7 @@
                       (lib.concatMapStringsSep " " (cmd: "--read \"${cmd}\"") cmdCfg.readFiles)
                       (lib.concatMapStringsSep " " (cmd: "--lint-cmd \"${cmd}\"") cmdCfg.lintCommands)
                       (lib.concatMapStringsSep " " (cmd: "--test-cmd \"${cmd}\"") cmdCfg.testCommands)
-                    ])}
-                  '';
+                    ])}'';
                 };
               }
             )
@@ -90,7 +88,7 @@
         in {
           displayName = "Aider";
           description = "Aider Code Assitant";
-          script = ''aider'';
+          cmdWithArgs = ''aider'';
           subcommand = subCommands;
         };
 
