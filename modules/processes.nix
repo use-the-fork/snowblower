@@ -32,26 +32,28 @@ in {
 
     config = {
       snowblower.command =
-        lib.mapAttrs (name: process: {
-          internal = true;
-          displayName = "Process";
-          description = "Run the ${name} process";
-          exec = process.exec;
-        })
-        config.snowblower.process;
+        lib.filterAttrs (_: process: process.enable)
+        (lib.mapAttrs (name: process: {
+            internal = true;
+            displayName = "Process";
+            description = "Run the ${name} process";
+            exec = process.exec;
+          })
+          config.snowblower.process);
 
       snowblower.docker.service =
-        lib.mapAttrs (name: process: {
-          enable = true;
-          service = {
-            "a-use-snowblower-common" = "";
-            ports =
-              lib.optional (process.port.container != null && process.port.host != null)
-              "${toString process.port.host}:${toString process.port.container}";
-            command = "snow ${name}-process";
-          };
-        })
-        config.snowblower.process;
+        lib.filterAttrs (_: process: process.enable)
+        (lib.mapAttrs (name: process: {
+            enable = true;
+            service = {
+              "a-use-snowblower-common" = "";
+              ports =
+                lib.optional (process.port.container != null && process.port.host != null)
+                "${toString process.port.host}:${toString process.port.container}";
+              command = "snow ${name}-process";
+            };
+          })
+          config.snowblower.process);
     };
   });
 }

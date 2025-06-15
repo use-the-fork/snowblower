@@ -11,6 +11,15 @@
           enable = true;
           npm.enable = true;
         };
+
+        process."npm-dev" = {
+          enable = true;
+          exec = "npm run dev";
+          port = {
+            container = 5432;
+            host = 5432;
+          };
+        };
       };
     });
 }
