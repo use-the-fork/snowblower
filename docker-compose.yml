@@ -9,6 +9,7 @@ x-snowblower-common: &snowblower-common
       USER_UID: ${SB_USER_UID}
     context: .
     dockerfile: ./docker/Dockerfile
+  depends_on: []
   environment:
     SB_SESS_IS_DOCKER: '1'
     USER_GID: ${SB_USER_GID}

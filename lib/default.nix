@@ -7,7 +7,7 @@ lib: let
   strings = import ./strings.nix {inherit lib;};
 in {
   sbl = {
-    inherit (functions) mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand mkEnableOption' mkPackageManager;
+    inherit functions;
     inherit types;
     inherit command;
     inherit dag;
@@ -15,5 +15,5 @@ in {
     inherit strings;
   };
 
-  inherit (functions) mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand mkEnableOption' mkPackageManager;
+  inherit (functions) mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand mkEnableOption' mkPackageManager mkDockerService;
 }

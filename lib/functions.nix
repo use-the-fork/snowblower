@@ -10,6 +10,7 @@
     int
     float
     path
+    either
     ;
 
   valueType = oneOf [
@@ -21,6 +22,36 @@
     (attrsOf valueType)
     (listOf valueType)
   ];
+
+  # The `mkDockerService` function takes a few arguments to generate
+  # a module for a service without repeating the same options
+  # over and over: every online service needs a host and a port.
+  mkDockerService = {
+    name,
+    image,
+    port ? 0, # default port should be a stub
+    extraOptions ? {}, # used to define additional modules
+  }: {
+    enable = mkEnableOption "${name} docker service";
+    image = mkOption {
+      type = lib.types.str;
+      description = "The image ${name} should use.";
+      default = image;
+    };
+    settings =
+      {
+        port = mkOption {
+          type = either int str;
+          default = port;
+          description = "The port ${name} will listen on";
+          apply = value:
+            if lib.isString value
+            then lib.toInt value
+            else value;
+        };
+      }
+      // extraOptions;
+  };
 
   # The `mkIntegration` function creates a standardized module for integrations
   # with consistent options and behavior. It reduces boilerplate when defining
@@ -159,5 +190,5 @@
   #Same as mkEnableOption but with the default set to true.
   mkEnableOption' = desc: lib.mkEnableOption "${desc}" // {default = true;};
 in {
-  inherit mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand mkEnableOption' mkPackageManager;
+  inherit mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand mkEnableOption' mkPackageManager mkDockerService;
 }

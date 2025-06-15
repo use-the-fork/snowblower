@@ -33,19 +33,34 @@ in {
     ];
 
     options.snowblower = {
-      docker.common = mkOption {
-        inherit (yamlFormat) type;
-        default = {};
-        description = ''
-          Common configuration to be shared across services using Docker Compose's YAML anchors.
-          This will be added as 'x-snowblower-common' in the generated docker-compose.yml.
-        '';
-        example = lib.literalExpression ''
-          {
-            restart = "always";
-            init = true;
-          }
-        '';
+      docker = {
+        common = {
+          dependsOn = mkOption {
+            type = types.listOf types.str;
+            default = [];
+            description = ''
+              List of services that this service depends on.
+              Will be used for the `depends_on` field in docker-compose.
+            '';
+            example = lib.literalExpression ''[ "db" "redis" ]'';
+          };
+        };
+
+        commonService = mkOption {
+          inherit (yamlFormat) type;
+          default = {};
+          internal = true;
+          description = ''
+            Common configuration to be shared across services using Docker Compose's YAML anchors.
+            This will be added as 'x-snowblower-common' in the generated docker-compose.yml.
+          '';
+          example = lib.literalExpression ''
+            {
+              restart = "always";
+              init = true;
+            }
+          '';
+        };
       };
     };
 
@@ -76,7 +91,7 @@ in {
       # Create the compose configuration
       composeConfig =
         {
-          "a-snowblower-common" = config.snowblower.docker.common;
+          "a-snowblower-common" = config.snowblower.docker.commonService;
           services = composeServices;
         }
         // lib.optionalAttrs (serviceNetworks != []) {
@@ -96,7 +111,7 @@ in {
       '';
     in {
       docker = {
-        common = {
+        commonService = {
           build = {
             context = ".";
             dockerfile = "./docker/Dockerfile";
@@ -112,6 +127,7 @@ in {
           volumes = [
             ".:/workspace"
           ];
+          depends_on = config.snowblower.docker.common.dependsOn;
           working_dir = "/workspace";
           tty = true;
         };

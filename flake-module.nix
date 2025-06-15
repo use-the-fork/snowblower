@@ -4,6 +4,7 @@ _localFlake: {...}: {
     ./modules/docker.nix
     ./modules/integrations
     ./modules/languages
+    ./modules/services
     ./modules/command.nix
     ./modules/files.nix
     ./modules/packages.nix
