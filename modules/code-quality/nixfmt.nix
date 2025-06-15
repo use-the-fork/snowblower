@@ -62,7 +62,7 @@
           '';
         };
       in {
-        dependencies.shell = [
+        packages = [
           finalPackage
         ];
       };

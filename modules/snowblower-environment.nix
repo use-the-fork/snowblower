@@ -145,7 +145,7 @@ in {
         '';
       };
 
-      home.activationPackage = mkOption {
+      activationPackage = mkOption {
         internal = true;
         type = types.package;
         description = "The package containing the complete activation script.";

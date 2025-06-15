@@ -22,7 +22,7 @@
         exec = "treefmt";
       };
 
-      dependencies.shell = [
+      packages = [
         pkgs.treefmt
       ];
 

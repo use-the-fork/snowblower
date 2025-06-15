@@ -67,7 +67,7 @@
             }
           );
       in {
-        dependencies.shell = [
+        packages = [
           cfg.package
         ];
 

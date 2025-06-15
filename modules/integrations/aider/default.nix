@@ -92,7 +92,7 @@
           subcommand = subCommands;
         };
 
-        dependencies.shell = [
+        packages = [
           cfg.package
         ];
 

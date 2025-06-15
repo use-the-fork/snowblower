@@ -43,7 +43,7 @@ in {
         type = types.listOf types.str;
       };
 
-      packages.files = mkOption {
+      filesPackage = mkOption {
         type = types.package;
         internal = true;
         description = "Package to contain and generate all files";
@@ -57,7 +57,7 @@ in {
     };
 
     config = {
-      snowblower.packages.files = pkgs.writeScriptBin "snowblower-files" ''
+      snowblower.filesPackage = pkgs.writeScriptBin "snowblower-files" ''
         #!/usr/bin/env bash
 
         function insertFile() {
@@ -116,7 +116,7 @@ in {
       };
 
       packages = {
-        snowblowerFiles = config.snowblower.packages.files;
+        snowblowerFiles = config.snowblower.filesPackage;
       };
     };
   });

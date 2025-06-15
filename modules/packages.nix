@@ -16,63 +16,46 @@ in {
       else [drvOrPackage];
   in {
     options.snowblower = {
-      dependencies = {
-        shell = mkOption {
-          type = listOf types.package;
-          internal = true;
-          description = "Packages to install in the development shell environment";
-          default = [];
-        };
-
-        docker = mkOption {
-          type = listOf types.package;
-          internal = true;
-          description = "Packages to install in Docker containers";
-          default = [];
-        };
-
-        common = mkOption {
-          type = listOf types.package;
-          internal = true;
-          description = "Packages to install in both development shell and Docker containers";
-          default = [];
-        };
+      dockerPackage = mkOption {
+        internal = true;
+        type = types.package;
+        description = "The package containing the complete activation script.";
       };
 
-      packages = {
-        shell = mkOption {
-          type = types.package;
-          internal = true;
-          description = "Combined package containing all shell environment dependencies";
-        };
+      devShellPackage = mkOption {
+        internal = true;
+        type = types.package;
+        description = "The package containing the complete activation script.";
+      };
 
-        docker = mkOption {
-          type = types.package;
-          internal = true;
-          description = "Combined package containing all Docker container dependencies";
-        };
+      packages = mkOption {
+        type = listOf types.package;
+        description = "Packages to install in the development shell environment";
+        default = [];
       };
     };
 
     config = {
-      snowblower.packages.shell = pkgs.mkShell {
-        name = "snowblower";
-        packages = config.snowblower.dependencies.shell ++ config.snowblower.dependencies.common;
-        shellHook = ''
-          export IS_NIX_SHELL="1"
-        '';
+      snowblower = {
+        devShellPackage = pkgs.mkShell {
+          name = "snowblower";
+          packages = config.snowblower.packages;
+          shellHook = ''
+            export IS_NIX_SHELL="1"
+          '';
+        };
+
+        dockerPackage = pkgs.buildEnv {
+          name = "snowblower-docker";
+          paths = lib.flatten (builtins.map drvOrPackageToPaths config.snowblower.packages);
+          ignoreCollisions = true;
+        };
       };
 
-      snowblower.packages.docker = pkgs.buildEnv {
-        name = "snowblower-docker";
-        paths = lib.flatten (builtins.map drvOrPackageToPaths (config.snowblower.dependencies.docker ++ config.snowblower.dependencies.common));
-        ignoreCollisions = true;
-      };
-
-      devShells.default = config.snowblower.packages.shell;
+      devShells.default = config.snowblower.devShellPackage;
       packages = {
-        snowblowerDevShell = config.snowblower.packages.shell;
-        snowblowerDocker = config.snowblower.packages.docker;
+        snowblowerDevShell = config.snowblower.devShellPackage;
+        snowblowerDocker = config.snowblower.dockerPackage;
       };
     };
   });

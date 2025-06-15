@@ -27,7 +27,7 @@
 
     config = lib.mkIf cfg.enable {
       snowblower = {
-        dependencies.shell = [
+        packages = [
           cfg.package
         ];
       };

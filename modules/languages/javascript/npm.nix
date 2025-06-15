@@ -14,7 +14,7 @@
     };
 
     config.snowblower = lib.mkIf cfg.enable {
-      dependencies.common = [
+      packages = [
         cfg.package
       ];
 
