@@ -32,19 +32,20 @@ function setupColors() {
 
             # Text attributes
             BOLD="$(tput bold)"
+            DIM="$(tput dim)"
             # UNDERLINE="$(tput smul)"
             # BLINK="$(tput blink)"
             # REVERSE="$(tput rev)"
             NC="$(tput sgr0)"  # No Color
 
             # Regular colors
-            # BLACK="$(tput setaf 0)"
+            BLACK="$(tput setaf 0)"
             RED="$(tput setaf 1)"
             GREEN="$(tput setaf 2)"
             YELLOW="$(tput setaf 3)"
-            # BLUE="$(tput setaf 4)"
-            # MAGENTA="$(tput setaf 5)"
-            # CYAN="$(tput setaf 6)"
+            BLUE="$(tput setaf 4)"
+            MAGENTA="$(tput setaf 5)"
+            CYAN="$(tput setaf 6)"
             WHITE="$(tput setaf 7)"
         fi
     fi
@@ -56,14 +57,16 @@ function setupColors() {
 setupColors
 
 function statusEcho() {
-    local status="$1"
+    local status="${1:-}"
     local message="$2"
     local detail="${3:-}"
     
     if [ "$status" == "OK" ]; then
-        echo "${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${message} ${WHITE}${detail}${NC}"
+        echo "${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+    elif [ "$status" == "FAIL" ]; then
+        echo "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
     else
-        echo "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${message} ${WHITE}${detail}${NC}"
+        echo "          ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
     fi
 }
 
@@ -161,17 +164,19 @@ function __sb__createDirectory() {
 
 # Runs the given command on live run, otherwise prints the command to standard
 # output.
-function run() {
+function __sb__runInDocker() {
+    local cmd=("$@")
+    
+    # Split the SB_DOCKER_COMPOSE string into an array
+    read -ra docker_compose_cmd <<< "$SB_DOCKER_COMPOSE"
 
-    if [[ -v DRY_RUN ]] ; then
-        echo "$@"
-    elif [[ -v quiet ]] ; then
-        "$@" > /dev/null
-    elif [[ -v silence ]] ; then
-        "$@" > /dev/null 2>&1
-    else
-        "$@"
-    fi
+    ARGS=()
+    ARGS+=(exec -u "$SB_USER_UID")
+    [ ! -t 0 ] && ARGS+=(-T)
+    ARGS+=("$SB_APP_SERVICE")
+
+    # Execute the command with proper array expansion
+    "${docker_compose_cmd[@]}" "${ARGS[@]}" "${cmd[@]}"
 }
 
 
@@ -206,7 +211,6 @@ elif [ -f ./.env ]; then
   source ./.env;
 fi
 
-
 # Create a session file in tmp dir. this allows us to do the "heavy" lifiting for the snow command one time.
 export SB_SESS_FILE="${TMPDIR:-/tmp}/.sb_session_$(tty | tr '/' '_')"
 
@@ -222,6 +226,7 @@ function __sb__bootSnowBlowerEnvironment() {
 
     warnEcho "Booting SnowBlower Session"
     statusEcho "OK" "Creating Session File" "${SB_SESS_FILE}"
+
 
     # Check if Docker is installed
     if ! command -v docker &> /dev/null; then
@@ -300,7 +305,7 @@ function __sb__bootSnowBlowerEnvironment() {
 __sb__bootSnowBlowerEnvironment
 
 # Finally we define environment variables...
-export SB_APP_SERVICE=${SB_APP_SERVICE:-"snowblower.test"}
+export SB_APP_SERVICE=${SB_APP_SERVICE:-"snowblower-dev"}
 export APP_USER=${APP_USER:-"snowblower"}
 export SB_USER_UID=${USER_UID:-$UID}
 export SB_USER_GID=${USER_GID:-$(id -g)}
@@ -319,17 +324,22 @@ export NPM_CONFIG_USERCONFIG="${SB_PROJECT_STATE}/npm/config"
 setupEnvironmentVariables
 
 
-  # Function that prints the available commands...
-function display_help {
-    echo "❄️ 💨 SnowBlower"
-    echo "All Flake No Fluff"
-    echo
-    echo "${YELLOW}Usage:${NC}" >&2
-    echo "  snow COMMAND [options] [arguments]"
-    echo
-    echo "${YELLOW}SnowBlower Commands:${NC}"
-    echo "  ${GREEN}snow switch${NC}          TODO: Foo Bar"
-    echo
+              function display_help {
+                echo "❄️ 💨 SnowBlower"
+                echo "All Flake No Fluff"
+                echo
+                echo "''${YELLOW}Usage:''${NC}" >&2
+                echo "  snow COMMAND [options] [arguments]"
+                echo
+                echo "''${YELLOW}SnowBlower Commands:''${NC}"
+                echo "  ''${GREEN}snow switch''${NC}          TODO: Foo Bar"
+                echo
+                __sb__displayResolvedCommands
+                echo
+                exit 1
+            }
+  # Prints the resolved commands from the nix build.
+function __sb__displayResolvedCommands {
     echo "${YELLOW}Aider Commands:${NC}"
 echo "  ${GREEN}snow aider ...${NC}          Run a Aider command"
 echo "  ${GREEN}snow aider start${NC}          w/ linting, watchfiles, and conventions."
@@ -349,8 +359,6 @@ echo "  ${GREEN}snow treefmt ...${NC}          Run a Treefmt command"
 echo
 
 
-    echo
-    exit 1
 }
 
 
@@ -363,6 +371,22 @@ else
     display_help
 fi
 
+  # Commands that are specific to Docker and Docker Compose.
+function __sb__command__up {
+  docker-compose up "$@"
+}
+
+function __sb__command__stop {
+  docker-compose down "$@"
+}
+
+function __sb__command__restart {
+  docker-compose restart "$@"
+}
+
+function __sb__command__ps {
+  docker-compose ps "$@"
+}
   function __sb__command__aider {
   aider
 }
@@ -434,3 +458,5 @@ else
 fi 
 
 
+
+  

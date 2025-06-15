@@ -32,19 +32,20 @@ function setupColors() {
 
             # Text attributes
             BOLD="$(tput bold)"
+            DIM="$(tput dim)"
             # UNDERLINE="$(tput smul)"
             # BLINK="$(tput blink)"
             # REVERSE="$(tput rev)"
             NC="$(tput sgr0)"  # No Color
 
             # Regular colors
-            # BLACK="$(tput setaf 0)"
+            BLACK="$(tput setaf 0)"
             RED="$(tput setaf 1)"
             GREEN="$(tput setaf 2)"
             YELLOW="$(tput setaf 3)"
-            # BLUE="$(tput setaf 4)"
-            # MAGENTA="$(tput setaf 5)"
-            # CYAN="$(tput setaf 6)"
+            BLUE="$(tput setaf 4)"
+            MAGENTA="$(tput setaf 5)"
+            CYAN="$(tput setaf 6)"
             WHITE="$(tput setaf 7)"
         fi
     fi
@@ -56,14 +57,16 @@ function setupColors() {
 setupColors
 
 function statusEcho() {
-    local status="$1"
+    local status="${1:-}"
     local message="$2"
     local detail="${3:-}"
     
     if [ "$status" == "OK" ]; then
-        echo "${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${message} ${WHITE}${detail}${NC}"
+        echo "${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+    elif [ "$status" == "FAIL" ]; then
+        echo "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
     else
-        echo "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${message} ${WHITE}${detail}${NC}"
+        echo "          ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
     fi
 }
 
@@ -161,15 +164,17 @@ function __sb__createDirectory() {
 
 # Runs the given command on live run, otherwise prints the command to standard
 # output.
-function run() {
+function __sb__runInDocker() {
+    local cmd=("$@")
+    
+    # Split the SB_DOCKER_COMPOSE string into an array
+    read -ra docker_compose_cmd <<< "$SB_DOCKER_COMPOSE"
 
-    if [[ -v DRY_RUN ]] ; then
-        echo "$@"
-    elif [[ -v quiet ]] ; then
-        "$@" > /dev/null
-    elif [[ -v silence ]] ; then
-        "$@" > /dev/null 2>&1
-    else
-        "$@"
-    fi
+    ARGS=()
+    ARGS+=(exec -u "$SB_USER_UID")
+    [ ! -t 0 ] && ARGS+=(-T)
+    ARGS+=("$SB_APP_SERVICE")
+
+    # Execute the command with proper array expansion
+    "${docker_compose_cmd[@]}" "${ARGS[@]}" "${cmd[@]}"
 }

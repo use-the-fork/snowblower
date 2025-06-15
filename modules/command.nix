@@ -76,20 +76,9 @@
         pkgs.writeTextFile {
           name = "sb-help-commands.sh";
           text = ''
-            # Function that prints the available commands...
-            function display_help {
-                echo "❄️ 💨 SnowBlower"
-                echo "All Flake No Fluff"
-                echo
-                echo "''${YELLOW}Usage:''${NC}" >&2
-                echo "  snow COMMAND [options] [arguments]"
-                echo
-                echo "''${YELLOW}SnowBlower Commands:''${NC}"
-                echo "  ''${GREEN}snow switch''${NC}          TODO: Foo Bar"
-                echo
+            # Prints the resolved commands from the nix build.
+            function __sb__displayResolvedCommands {
                 ${resolvedCommands}
-                echo
-                exit 1
             }
           '';
         };

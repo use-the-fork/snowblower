@@ -21,7 +21,6 @@ elif [ -f ./.env ]; then
   source ./.env;
 fi
 
-
 # Create a session file in tmp dir. this allows us to do the "heavy" lifiting for the snow command one time.
 export SB_SESS_FILE="${TMPDIR:-/tmp}/.sb_session_$(tty | tr '/' '_')"
 
@@ -37,6 +36,7 @@ function __sb__bootSnowBlowerEnvironment() {
 
     warnEcho "Booting SnowBlower Session"
     statusEcho "OK" "Creating Session File" "${SB_SESS_FILE}"
+
 
     # Check if Docker is installed
     if ! command -v docker &> /dev/null; then
@@ -115,7 +115,7 @@ function __sb__bootSnowBlowerEnvironment() {
 __sb__bootSnowBlowerEnvironment
 
 # Finally we define environment variables...
-export SB_APP_SERVICE=${SB_APP_SERVICE:-"snowblower.test"}
+export SB_APP_SERVICE=${SB_APP_SERVICE:-"snowblower-dev"}
 export APP_USER=${APP_USER:-"snowblower"}
 export SB_USER_UID=${USER_UID:-$UID}
 export SB_USER_GID=${USER_GID:-$(id -g)}
