@@ -295,6 +295,7 @@ export SB_USER_UID=${USER_UID:-$UID}
 export SB_USER_GID=${USER_GID:-$(id -g)}
 export SB_SKIP_CHECKS=${SKIP_CHECKS:-}
 export SB_SESS_IS_NIX_SHELL=${IS_NIX_SHELL:-}
+export SB_SESS_IS_DOCKER=${IS_DOCKER:-}
 
 __sb__bootSnowBlowerEnvironment
 
@@ -477,6 +478,9 @@ function __sb__RoutedCommandExecute() {
     # Remove surrounding quotes if present
     cmd="${cmd//\'}"
     
+    echo 123454
+    echo $SB_SESS_IS_NIX_SHELL
+
     # If in a nix shell, show error and exit
     if [ -n "$SB_SESS_IS_NIX_SHELL" ]; then
         eval "$cmd"

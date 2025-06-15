@@ -104,6 +104,9 @@ in {
       dockerfileDockerContent = ''
         FROM docker.io/use-the-fork/snowblower-base:latest
 
+        ENV IS_NIX_SHELL=1
+        ENV IS_DOCKER=1
+
         COPY flake.nix /home/''${USERNAME}/flake.nix
         COPY flake.lock /home/''${USERNAME}/flake.lock
 
@@ -122,8 +125,8 @@ in {
           };
           environment = {
             USER_GID = "\${SB_USER_GID}";
-            SB_SESS_IS_NIX_SHELL = "1";
-            SB_SESS_IS_DOCKER = "1";
+            IS_NIX_SHELL = "1";
+            IS_DOCKER = "1";
           };
           volumes = [
             ".:/workspace"

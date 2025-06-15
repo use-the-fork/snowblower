@@ -24,6 +24,13 @@ fi
 # Create a session file in tmp dir. this allows us to do the "heavy" lifiting for the snow command one time.
 export SB_SESS_FILE="${TMPDIR:-/tmp}/.sb_session_$(tty | tr '/' '_')"
 
+# we define environment variables...
+export SB_APP_SERVICE=${APP_SERVICE:-"snowblower-dev"}
+export SB_USER_UID=${USER_UID:-$UID}
+export SB_USER_GID=${USER_GID:-$(id -g)}
+export SB_SKIP_CHECKS=${SKIP_CHECKS:-}
+export SB_SESS_IS_NIX_SHELL=${IS_NIX_SHELL:-}
+export SB_SESS_IS_DOCKER=${IS_DOCKER:-}
 
 function __sb__bootSnowBlowerEnvironment() {
     # Only source this once.
@@ -111,13 +118,6 @@ function __sb__bootSnowBlowerEnvironment() {
 
     echo
 }
-
-# Finally we define environment variables...
-export SB_APP_SERVICE=${APP_SERVICE:-"snowblower-dev"}
-export SB_USER_UID=${USER_UID:-$UID}
-export SB_USER_GID=${USER_GID:-$(id -g)}
-export SB_SKIP_CHECKS=${SKIP_CHECKS:-}
-export SB_SESS_IS_NIX_SHELL=${IS_NIX_SHELL:-}
 
 __sb__bootSnowBlowerEnvironment
 
