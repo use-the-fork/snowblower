@@ -19,7 +19,7 @@ x-snowblower-common: &snowblower-common
 services:
   npm-dev:
     <<: *snowblower-common
-    command: snow npm-dev-process
+    command: ./snow npm-dev-process
     ports:
     - 5432:5432
   snowblower-dev:

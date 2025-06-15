@@ -39,13 +39,13 @@ function __sb__bootSnowBlowerEnvironment() {
 
 
     # Check if Docker is installed
-    if ! command -v docker &> /dev/null; then
+    if [ -z "${SB_SESS_IS_DOCKER}" ] && ! command -v docker &> /dev/null; then
         statusEcho "FAIL" "Docker is not installed or not in PATH. Please install Docker to continue."
         exit 1
     fi
 
     # Check if Docker Compose is available
-    if ! docker compose &> /dev/null && ! command -v docker-compose &> /dev/null; then
+    if [ -z "${SB_SESS_IS_DOCKER}" ] && ! docker compose &> /dev/null && ! command -v docker-compose &> /dev/null; then
         statusEcho "FAIL" "Docker Compose is not installed or not in PATH. Please install Docker Compose to continue."
         exit 1
     fi

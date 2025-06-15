@@ -7,6 +7,10 @@ function __sb__command__up {
     fi
 }
 
+function __sb__command__down {
+    __sb__command__stop
+}
+
 function __sb__command__stop {
     if [ $# -le 1 ]; then
         "${SB_DOCKER_COMPOSE_COMMAND[@]}" down
