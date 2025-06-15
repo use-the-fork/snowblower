@@ -10,7 +10,7 @@
   in {
     options.snowblower.languages.javascript.npm = mkPackageManager {
       name = "NPM";
-      package = pkgs.nodejs-slim;
+      package = pkgs.nodejs_24;
     };
 
     config.snowblower = lib.mkIf cfg.enable {

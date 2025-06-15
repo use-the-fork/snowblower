@@ -227,11 +227,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1750008988,
-        "narHash": "sha256-v4p9gpipIpgld9Cii5wg74LumCV+Eo6Emd/Xcg9wdAE=",
+        "lastModified": 1750009600,
+        "narHash": "sha256-CxFHnPchfqe+38N1/Ss/RboTAL71Rwaz3d9cKRrmz9c=",
         "ref": "2.x-dev",
-        "rev": "e5d89d78581b7ee0249e7001c369f3a22213b414",
-        "revCount": 203,
+        "rev": "75c6e713ef0656d7703f31d2e37e4836b9bf5450",
+        "revCount": 204,
         "type": "git",
         "url": "https://github.com/use-the-fork/snowblower"
       },

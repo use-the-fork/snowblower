@@ -6,7 +6,8 @@ function display_help {
     echo "  snow COMMAND [options] [arguments]"
     echo
     echo "${YELLOW}SnowBlower Commands:${NC}"
-    echo "  ${GREEN}snow switch${NC}          Regenerate all config files."
+    echo "  ${GREEN}snow switch${NC}          Regenerate all config files"
+    echo "  ${GREEN}snow update${NC}          Update all dependencies by updateing the Flake"
     echo
     echo "${YELLOW}docker-compose Commands:${NC}"
     echo "  ${GREEN}snow docker up${NC}        Start the application"

@@ -201,6 +201,13 @@ fi
 # Create a session file in tmp dir. this allows us to do the "heavy" lifiting for the snow command one time.
 export SB_SESS_FILE="${TMPDIR:-/tmp}/.sb_session_$(tty | tr '/' '_')"
 
+# we define environment variables...
+export SB_APP_SERVICE=${APP_SERVICE:-"snowblower-dev"}
+export SB_USER_UID=${USER_UID:-$UID}
+export SB_USER_GID=${USER_GID:-$(id -g)}
+export SB_SKIP_CHECKS=${SKIP_CHECKS:-}
+export SB_SESS_IS_NIX_SHELL=${IS_NIX_SHELL:-}
+export SB_SESS_IS_DOCKER=${IS_DOCKER:-}
 
 function __sb__bootSnowBlowerEnvironment() {
     # Only source this once.
@@ -289,13 +296,6 @@ function __sb__bootSnowBlowerEnvironment() {
     echo
 }
 
-# Finally we define environment variables...
-export SB_APP_SERVICE=${APP_SERVICE:-"snowblower-dev"}
-export SB_USER_UID=${USER_UID:-$UID}
-export SB_USER_GID=${USER_GID:-$(id -g)}
-export SB_SKIP_CHECKS=${SKIP_CHECKS:-}
-export SB_SESS_IS_NIX_SHELL=${IS_NIX_SHELL:-}
-
 __sb__bootSnowBlowerEnvironment
 
 # Split the SB_DOCKER_COMPOSE string into an array
@@ -323,7 +323,8 @@ setupEnvironmentVariables
     echo "  snow COMMAND [options] [arguments]"
     echo
     echo "${YELLOW}SnowBlower Commands:${NC}"
-    echo "  ${GREEN}snow switch${NC}          Regenerate all config files."
+    echo "  ${GREEN}snow switch${NC}          Regenerate all config files"
+    echo "  ${GREEN}snow update${NC}          Update all dependencies by updateing the Flake"
     echo
     echo "${YELLOW}docker-compose Commands:${NC}"
     echo "  ${GREEN}snow docker up${NC}        Start the application"
@@ -418,6 +419,10 @@ function __sb__command__docker__build {
   # Commands that are specific to controling SnowBlower.
 function __sb__command__switch {
      nix run .#snowblowerFiles
+     return $?
+}
+function __sb__command__update {
+     nix flake update
      return $?
 }
 

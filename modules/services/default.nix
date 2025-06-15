@@ -1,10 +1,10 @@
 {
   imports = [
-    # ./adminer
-    # ./blackfire
-    # ./elasticsearch
-    # ./mysql
+    ./adminer.nix
+    ./blackfire.nix
+    ./elasticsearch
+    ./mysql.nix
     ./redis.nix
-    # ./memcached
+    ./memcached.nix
   ];
 }

@@ -11,7 +11,8 @@ x-snowblower-common: &snowblower-common
     dockerfile: ./docker/Dockerfile
   depends_on: []
   environment:
-    SB_SESS_IS_NIX_SHELL: '1'
+    IS_DOCKER: '1'
+    IS_NIX_SHELL: '1'
     USER_GID: ${SB_USER_GID}
   tty: true
   volumes:
