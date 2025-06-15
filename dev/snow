@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eu
+set -e
 set -o pipefail
 
 # Credits to https://github.com/nix-community/home-manager/blob/master/lib/bash/home-manager.sh
@@ -65,6 +65,10 @@ function statusEcho() {
         echo "${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
     elif [ "$status" == "FAIL" ]; then
         echo "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+    elif [ "$status" == "WARN" ]; then
+        echo "${WHITE}[ ${YELLOW}WARN${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+    elif [ "$status" == "INFO" ]; then
+        echo "${WHITE}[ ${BLUE}INFO${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
     else
         echo "          ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
     fi
@@ -132,7 +136,7 @@ function _iVerbose() {
 
 # Credits: https://github.com/srid/flake-root/blob/master/flake-module.nix
 # This function is used to find the flake root and set it as a env varible.
-findUp() {
+__sb__findUp() {
     ancestors=()
     while true; do
     if [[ -f $1 ]]; then
@@ -159,7 +163,7 @@ function __sb__createDirectory() {
     fi
 
     mkdir -p "$dirPath"
-    statusEcho "OK" "Created directory" "$dirPath"
+    statusEcho "" "Created directory" "$dirPath"
 }
 
 
@@ -224,7 +228,7 @@ function __sb__bootSnowBlowerEnvironment() {
     fi
 
     # These are the must have varibles for the project
-    export SB_FLAKE_ROOT=$(findUp 'flake.nix')
+    export SB_FLAKE_ROOT=$(__sb__findUp 'flake.nix')
     export SB_PROJECT_ROOT="$SB_FLAKE_ROOT/.snowblower"
     export SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
     export SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
@@ -273,8 +277,8 @@ function __sb__bootSnowBlowerEnvironment() {
     echo "export SB_DOCKER_COMPOSE=\"$SB_DOCKER_COMPOSE\"" >> "$SB_SESS_FILE"
     statusEcho "OK" "Docker Compose Command set as" "${SB_DOCKER_COMPOSE}"
 
-    # Check if nix command is available and set variable if found
-    if [ -n "${SB_SESS_IS_DEV_SHELL+x}" ]; then
+    # Check if we are running in a Nix Shell
+    if [ -n "${SB_SESS_IS_NIX_SHELL+x}" ]; then
         statusEcho "OK" "Nix command found and available"
     else
         statusEcho "FAIL" "Nix command not found, some features may be limited"
@@ -285,13 +289,14 @@ function __sb__bootSnowBlowerEnvironment() {
     echo
 }
 
-__sb__bootSnowBlowerEnvironment
-
 # Finally we define environment variables...
 export SB_APP_SERVICE=${APP_SERVICE:-"snowblower-dev"}
 export SB_USER_UID=${USER_UID:-$UID}
 export SB_USER_GID=${USER_GID:-$(id -g)}
 export SB_SKIP_CHECKS=${SKIP_CHECKS:-}
+export SB_SESS_IS_NIX_SHELL=${IS_NIX_SHELL:-}
+
+__sb__bootSnowBlowerEnvironment
 
 # Split the SB_DOCKER_COMPOSE string into an array
 read -ra SB_DOCKER_COMPOSE_COMMAND <<< "$SB_DOCKER_COMPOSE"
@@ -325,6 +330,7 @@ setupEnvironmentVariables
     echo "  ${GREEN}snow up -d${NC}     Start the application in the background"
     echo "  ${GREEN}snow down${NC}      Stop the application"
     echo "  ${GREEN}snow restart${NC}   Restart the application"
+    echo "  ${GREEN}snow build${NC}     Builds all containers in compose file"
     echo "  ${GREEN}snow ps${NC}        Display the status of all containers"
     echo
     __sb__displayResolvedCommands
@@ -338,6 +344,7 @@ echo "  ${GREEN}snow npm ...${NC}          Run a NPM command"
 
 
 echo
+
 
 echo "${YELLOW}Treefmt Commands:${NC}"
 echo "  ${GREEN}snow treefmt ...${NC}          Run a Treefmt command"
@@ -360,32 +367,47 @@ fi
 
   # Commands that are specific to Docker and Docker Compose.
 function __sb__command__up {
-    "${SB_DOCKER_COMPOSE_COMMAND[@]}" up
-  docker-compose up "$@"
+  "${SB_DOCKER_COMPOSE_COMMAND[@]}" up
 }
 
 function __sb__command__stop {
-  docker-compose down "$@"
+  "${SB_DOCKER_COMPOSE_COMMAND[@]}" down "$@"
 }
 
 function __sb__command__restart {
-  docker-compose restart "$@"
+  "${SB_DOCKER_COMPOSE_COMMAND[@]}" restart "$@"
 }
 
 function __sb__command__ps {
     "${SB_DOCKER_COMPOSE_COMMAND[@]}" ps
 }
+
+function __sb__command__build {
+    
+    if [ $# -le 1 ]; then                                                                            
+        echo "Running: ${SB_DOCKER_COMPOSE_COMMAND[@]} build"                                        
+        "${SB_DOCKER_COMPOSE_COMMAND[@]}" build
+    else                                                                                             
+        echo "Running: ${SB_DOCKER_COMPOSE_COMMAND[@]} build $@"                                     
+        "${SB_DOCKER_COMPOSE_COMMAND[@]}" build "$@"
+    fi  
+}
   function __sb__command__npm {
-  __sb__runChecks
-  npm
+  __sb__RoutedCommandExecute "npm"
+}
+
+
+
+
+function __sb__command__npm-dev {
+  __sb__RoutedCommandExecute "npm run dev"
 }
 
 
 
 
 function __sb__command__treefmt {
-  __sb__runChecks
-  treefmt
+  __sb__RoutedCommandExecute "treefmt"
 }
 
 
@@ -423,6 +445,37 @@ function __sb__runChecks {
     fi
 }
 
+
+# Figures out the type of envirment the command is running in and then routes approriatly.
+function __sb__RoutedCommandExecute() {
+    local cmd="$1"
+    
+    # Remove surrounding quotes if present
+    cmd="${cmd//\'}"
+    
+    # If not in a nix shell, show error and exit
+    if [ -z "$SB_SESS_IS_NIX_SHELL" ]; then
+        __sb__isNotRunning
+    fi
+
+    # If in nix shell but not in docker, execute command directly
+    if [ -n "$SB_SESS_IS_NIX_SHELL" ] && [ -z "$SB_SESS_IS_DOCKER" ]; then
+        eval "$cmd"
+        return $?
+    fi
+
+    # If in nix shell and in docker, execute via docker-compose
+    __sb__runChecks
+        
+    ARGS=()
+    ARGS+=(exec -u "$SB_USER_UID")
+    [ ! -t 0 ] && ARGS+=(-T)
+    ARGS+=("$SB_APP_SERVICE")
+
+    # Execute the command with proper shell evaluation
+    "${SB_DOCKER_COMPOSE_COMMAND[@]}" "${ARGS[@]}" bash -c "$cmd"
+}
+
 # Function to run dynamically generated command functions
 function __sb__runCommand {
     local command_name="$1"
@@ -451,28 +504,12 @@ function __sb__runCommand {
     fi
 }
 
-# TODO: This should prob be handled in the run_command function.
 # Check if $2 exists before passing it to run_command                                                
 if [ $# -ge 2 ]; then                                                                                
     __sb__runCommand "$1" "$2"                                                                            
 else                                                                                                 
     __sb__runCommand "$1" ""                                                                              
-fi 
-
-
-# Runs the given command on live run, otherwise prints the command to standard
-# output.
-function __sb__runInDocker() {
-    local cmd=("$@")
-    
-    ARGS=()
-    ARGS+=(exec -u "$SB_USER_UID")
-    [ ! -t 0 ] && ARGS+=(-T)
-    ARGS+=("$SB_APP_SERVICE")
-
-    # Execute the command with proper array expansion
-    "${SB_DOCKER_COMPOSE_COMMAND[@]}" "${ARGS[@]}" "${cmd[@]}"
-}
+fi
 
 
 
