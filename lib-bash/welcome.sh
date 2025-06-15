@@ -13,6 +13,7 @@ function display_help {
     echo "  ${GREEN}snow up -d${NC}     Start the application in the background"
     echo "  ${GREEN}snow down${NC}      Stop the application"
     echo "  ${GREEN}snow restart${NC}   Restart the application"
+    echo "  ${GREEN}snow build${NC}     Builds all containers in compose file"
     echo "  ${GREEN}snow ps${NC}        Display the status of all containers"
     echo
     __sb__displayResolvedCommands
