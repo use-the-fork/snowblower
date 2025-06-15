@@ -19,7 +19,7 @@ in {
   in {
     imports = [
       {
-        options.snowblower.docker.services = mkOption {
+        options.snowblower.docker.service = mkOption {
           type = types.submoduleWith {
             modules = [{freeformType = types.attrsOf serviceType;}];
             specialArgs = {inherit pkgs;};
@@ -53,7 +53,7 @@ in {
       # Extract service configurations
       composeServices =
         lib.mapAttrs (_name: service: service.outputs.service)
-        config.snowblower.docker.services;
+        config.snowblower.docker.service;
 
       # Extract networks from services
       serviceNetworks = lib.unique (lib.flatten (
@@ -63,7 +63,7 @@ in {
             then service.networks
             else []
         )
-        config.snowblower.docker.services
+        config.snowblower.docker.service
       ));
 
       # Create networks configuration
@@ -124,7 +124,7 @@ in {
           tty = true;
         };
 
-        services."snowblower-dev" = {
+        service."snowblower-dev" = {
           enable = true;
           service = {
             "a-use-snowblower-common" = "";

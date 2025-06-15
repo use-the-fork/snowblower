@@ -54,27 +54,38 @@
       ];
       systems = import inputs.systems;
       perSystem = _: {
-        snowblower.integrations.aider = {
-          enable = true;
-          commands = {
-            start = {
-              description = "w/ linting, watchfiles, and conventions.";
-              watchFiles = true;
-              suggestShellCommands = false;
-              readFiles = ["CONVENTIONS.MD"];
-              lintCommands = ["snow treefmt"];
+        snowblower = {
+          integrations.aider = {
+            enable = true;
+            commands = {
+              start = {
+                description = "w/ linting, watchfiles, and conventions.";
+                watchFiles = true;
+                suggestShellCommands = false;
+                readFiles = ["CONVENTIONS.MD"];
+                lintCommands = ["snow treefmt"];
+              };
             };
           };
-        };
 
-        snowblower.languages.javascript = {
-          enable = true;
-          npm.enable = true;
-        };
+          languages.javascript = {
+            enable = true;
+            npm.enable = true;
+          };
 
-        snowblower.codeQuality = {
-          alejandra.enable = true;
-          statix.enable = true;
+          process."npm-dev" = {
+            # enable = true;
+            exec = "npm run dev";
+            port = {
+              container = 5432;
+              host = 5432;
+            };
+          };
+
+          codeQuality = {
+            alejandra.enable = true;
+            statix.enable = true;
+          };
         };
       };
       flake = {

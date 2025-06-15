@@ -7,6 +7,7 @@ _localFlake: {...}: {
     ./modules/command.nix
     ./modules/files.nix
     ./modules/packages.nix
+    ./modules/processes.nix
     ./modules/snowblower-environment.nix
   ];
 }

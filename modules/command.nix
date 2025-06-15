@@ -43,7 +43,10 @@
           mkSubCommandSection = name: subSection: let
             subSectionName = subSection.name;
             subSectionDescription = subSection.data.description;
-          in ''echo "  ''${GREEN}snow ${name} ${subSectionName}''${NC}          ${subSectionDescription}"'';
+          in
+            if subSection.data.internal
+            then ""
+            else ''echo "  ''${GREEN}snow ${name} ${subSectionName}''${NC}          ${subSectionDescription}"'';
 
           resolvedSubCommands = lib.sbl.dag.resolveDag {
             name = "snowblower sub commands for ${section.name} ";
@@ -54,15 +57,18 @@
               ];
           };
         in
-          concatLines [
-            ''echo "''${YELLOW}${section.data.displayName} Commands:''${NC}"''
-            (
-              optionalString (section.data.cmdWithArgs != null)
-              ''echo "  ''${GREEN}snow ${section.name} ...''${NC}          Run a ${section.data.displayName} command"''
-            )
-            resolvedSubCommands
-            ''echo''
-          ];
+          if section.data.internal
+          then ""
+          else
+            concatLines [
+              ''echo "''${YELLOW}${section.data.displayName} Commands:''${NC}"''
+              (
+                optionalString (section.data.exec != null)
+                ''echo "  ''${GREEN}snow ${section.name} ...''${NC}          Run a ${section.data.displayName} command"''
+              )
+              resolvedSubCommands
+              ''echo''
+            ];
 
         resolvedCommands = lib.sbl.dag.resolveDag {
           name = "snowblower help commands script";
@@ -88,7 +94,7 @@
           mkSubCommandSection = name: subSection: let
             subSectionName = subSection.name;
           in ''            function __sb__command__${name}__${subSectionName} {
-                           __sb__RoutedCommandExecute "${subSection.data.cmdWithArgs}"
+                           __sb__RoutedCommandExecute "${subSection.data.exec}"
                        }'';
 
           resolvedSubCommands = lib.sbl.dag.resolveDag {
@@ -101,9 +107,9 @@
           };
         in
           concatLines [
-            (optionalString (section.data.cmdWithArgs != null) ''
+            (optionalString (section.data.exec != null) ''
               function __sb__command__${section.name} {
-                __sb__RoutedCommandExecute "${section.data.cmdWithArgs}"
+                __sb__RoutedCommandExecute "${section.data.exec}"
               }
             '')
             resolvedSubCommands

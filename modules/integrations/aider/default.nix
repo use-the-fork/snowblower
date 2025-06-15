@@ -55,7 +55,7 @@
               name: cmdCfg: {
                 "${name}" = {
                   inherit (cmdCfg) description;
-                  cmdWithArgs = ''aider ${lib.concatStringsSep " " (lib.filter (s: s != "") [
+                  exec = ''aider ${lib.concatStringsSep " " (lib.filter (s: s != "") [
                       "--model ${cmdCfg.model}"
                       (
                         if cmdCfg.watchFiles
@@ -88,7 +88,7 @@
         in {
           displayName = "Aider";
           description = "Aider Code Assitant";
-          cmdWithArgs = ''aider'';
+          exec = ''aider'';
           subcommand = subCommands;
         };
 

@@ -278,7 +278,6 @@ function __sb__bootSnowBlowerEnvironment() {
     statusEcho "OK" "Docker Compose Command set as" "${SB_DOCKER_COMPOSE}"
 
     # Check if we are running in a Nix Shell
-    # AI: What does the -n and +x do here 
     if [ -n "${SB_SESS_IS_NIX_SHELL+x}" ]; then
         statusEcho "OK" "Nix command found and available"
     else
@@ -351,6 +350,7 @@ echo "  ${GREEN}snow npm ...${NC}          Run a NPM command"
 
 echo
 
+
 echo "${YELLOW}Treefmt Commands:${NC}"
 echo "  ${GREEN}snow treefmt ...${NC}          Run a Treefmt command"
 
@@ -398,6 +398,13 @@ function __sb__command__aider__start {
 
 function __sb__command__npm {
   __sb__RoutedCommandExecute "npm"
+}
+
+
+
+
+function __sb__command__npm-dev {
+  __sb__RoutedCommandExecute "npm run dev"
 }
 
 
