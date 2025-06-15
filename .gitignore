@@ -12,6 +12,7 @@ secrets.nix
 docs/.vitepress/dist
 docs/.vitepress/cache
 .idea
+.snowblower
 
 .pre-commit-config.yaml
 just-flake.just

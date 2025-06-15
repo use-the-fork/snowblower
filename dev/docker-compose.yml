@@ -9,6 +9,8 @@ x-snowblower-common: &snowblower-common
       USER_UID: ${SB_USER_UID}
     context: .
     dockerfile: ./docker/Dockerfile
+  depends_on:
+  - redis
   environment:
     SB_SESS_IS_DOCKER: '1'
     USER_GID: ${SB_USER_GID}
@@ -19,8 +21,23 @@ x-snowblower-common: &snowblower-common
 services:
   npm-dev:
     <<: *snowblower-common
-    command: ./snow npm-dev-process
+    command: ./snow npm-dev
     ports:
     - 5432:5432
+  redis:
+    healthcheck:
+      interval: 10s
+      retries: 3
+      test:
+      - CMD
+      - redis-cli
+      - ping
+      timeout: 5s
+    image: redis:alpine
+    ports:
+    - 6379:6379
+    restart: unless-stopped
+    volumes:
+    - ${SB_PROJECT_STATE}/redis:/data
   snowblower-dev:
     <<: *snowblower-common

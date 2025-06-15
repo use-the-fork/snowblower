@@ -122,7 +122,7 @@ in {
           };
           environment = {
             USER_GID = "\${SB_USER_GID}";
-            SB_SESS_IS_DOCKER = "1";
+            SB_SESS_IS_NIX_SHELL = "1";
           };
           volumes = [
             ".:/workspace"

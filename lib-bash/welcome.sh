@@ -9,12 +9,12 @@ function display_help {
     echo "  ${GREEN}snow switch${NC}          Regenerate all config files."
     echo
     echo "${YELLOW}docker-compose Commands:${NC}"
-    echo "  ${GREEN}snow up${NC}        Start the application"
-    echo "  ${GREEN}snow up -d${NC}     Start the application in the background"
-    echo "  ${GREEN}snow down${NC}      Stop the application"
-    echo "  ${GREEN}snow restart${NC}   Restart the application"
-    echo "  ${GREEN}snow build${NC}     Builds all containers in compose file"
-    echo "  ${GREEN}snow ps${NC}        Display the status of all containers"
+    echo "  ${GREEN}snow docker up${NC}        Start the application"
+    echo "  ${GREEN}snow docker up -d${NC}     Start the application in the background"
+    echo "  ${GREEN}snow docker down${NC}      Stop the application"
+    echo "  ${GREEN}snow docker restart${NC}   Restart the application"
+    echo "  ${GREEN}snow docker build${NC}     Builds all containers in compose file"
+    echo "  ${GREEN}snow docker ps${NC}        Display the status of all containers"
     echo
     __sb__displayResolvedCommands
     echo

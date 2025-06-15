@@ -326,12 +326,12 @@ setupEnvironmentVariables
     echo "  ${GREEN}snow switch${NC}          Regenerate all config files."
     echo
     echo "${YELLOW}docker-compose Commands:${NC}"
-    echo "  ${GREEN}snow up${NC}        Start the application"
-    echo "  ${GREEN}snow up -d${NC}     Start the application in the background"
-    echo "  ${GREEN}snow down${NC}      Stop the application"
-    echo "  ${GREEN}snow restart${NC}   Restart the application"
-    echo "  ${GREEN}snow build${NC}     Builds all containers in compose file"
-    echo "  ${GREEN}snow ps${NC}        Display the status of all containers"
+    echo "  ${GREEN}snow docker up${NC}        Start the application"
+    echo "  ${GREEN}snow docker up -d${NC}     Start the application in the background"
+    echo "  ${GREEN}snow docker down${NC}      Stop the application"
+    echo "  ${GREEN}snow docker restart${NC}   Restart the application"
+    echo "  ${GREEN}snow docker build${NC}     Builds all containers in compose file"
+    echo "  ${GREEN}snow docker ps${NC}        Display the status of all containers"
     echo
     __sb__displayResolvedCommands
     echo
@@ -372,44 +372,55 @@ else
 fi
 
   # Commands that are specific to Docker and Docker Compose.
-function __sb__command__up {
+function __sb__command__docker__up {
     if [ $# -le 1 ]; then
         "${SB_DOCKER_COMPOSE_COMMAND[@]}" up
     else                                
         "${SB_DOCKER_COMPOSE_COMMAND[@]}" up "$@"
     fi
+    return $?
 }
 
-function __sb__command__down {
-    __sb__command__stop
+function __sb__command__docker__down {
+    __sb__command__docker__stop
 }
 
-function __sb__command__stop {
+function __sb__command__docker__stop {
     if [ $# -le 1 ]; then
         "${SB_DOCKER_COMPOSE_COMMAND[@]}" down
     else                                
         "${SB_DOCKER_COMPOSE_COMMAND[@]}" down "$@"
     fi
+    return $?
 }
 
-function __sb__command__restart {
+function __sb__command__docker__restart {
     if [ $# -le 1 ]; then
         "${SB_DOCKER_COMPOSE_COMMAND[@]}" restart
     else                                
         "${SB_DOCKER_COMPOSE_COMMAND[@]}" restart "$@"
     fi
+    return $?
 }
 
-function __sb__command__ps {
+function __sb__command__docker__ps {
     "${SB_DOCKER_COMPOSE_COMMAND[@]}" ps
+    return $?
 }
-function __sb__command__build {
+function __sb__command__docker__build {
     if [ $# -le 1 ]; then
         "${SB_DOCKER_COMPOSE_COMMAND[@]}" build
     else                                
         "${SB_DOCKER_COMPOSE_COMMAND[@]}" build "$@"
     fi
+    return $?
 }
+  # Commands that are specific to controling SnowBlower.
+function __sb__command__switch {
+     nix run .#snowblowerFiles
+     return $?
+}
+
   function __sb__command__aider {
   __sb__RoutedCommandExecute "aider"
 }
@@ -480,13 +491,8 @@ function __sb__RoutedCommandExecute() {
     # Remove surrounding quotes if present
     cmd="${cmd//\'}"
     
-    # If not in a nix shell, show error and exit
-    if [ -z "$SB_SESS_IS_NIX_SHELL" ]; then
-        __sb__isNotRunning
-    fi
-
-    # If in nix shell but not in docker, execute command directly
-    if [ -n "$SB_SESS_IS_NIX_SHELL" ] && [ -z "$SB_SESS_IS_DOCKER" ]; then
+    # If in a nix shell, show error and exit
+    if [ -n "$SB_SESS_IS_NIX_SHELL" ]; then
         eval "$cmd"
         return $?
     fi

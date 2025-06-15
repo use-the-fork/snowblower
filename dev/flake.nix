@@ -11,6 +11,7 @@
           enable = true;
           npm.enable = true;
         };
+        service.redis.enable = true;
 
         process."npm-dev" = {
           enable = true;

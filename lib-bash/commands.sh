@@ -37,13 +37,8 @@ function __sb__RoutedCommandExecute() {
     # Remove surrounding quotes if present
     cmd="${cmd//\'}"
     
-    # If not in a nix shell, show error and exit
-    if [ -z "$SB_SESS_IS_NIX_SHELL" ]; then
-        __sb__isNotRunning
-    fi
-
-    # If in nix shell but not in docker, execute command directly
-    if [ -n "$SB_SESS_IS_NIX_SHELL" ] && [ -z "$SB_SESS_IS_DOCKER" ]; then
+    # If in a nix shell, show error and exit
+    if [ -n "$SB_SESS_IS_NIX_SHELL" ]; then
         eval "$cmd"
         return $?
     fi

@@ -310,6 +310,7 @@ read -ra SB_DOCKER_COMPOSE_COMMAND <<< "$SB_DOCKER_COMPOSE"
   export NPM_CONFIG_CACHE="${SB_PROJECT_STATE}/npm"
 export NPM_CONFIG_TMP="${SB_PROJECT_STATE}/npm"
 export NPM_CONFIG_USERCONFIG="${SB_PROJECT_STATE}/npm/config"
+export REDISDATA="${SB_PROJECT_STATE}/redis"
 }
 
 setupEnvironmentVariables
@@ -372,6 +373,10 @@ function __sb__command__up {
     else                                
         "${SB_DOCKER_COMPOSE_COMMAND[@]}" up "$@"
     fi
+}
+
+function __sb__command__down {
+    __sb__command__stop
 }
 
 function __sb__command__stop {
