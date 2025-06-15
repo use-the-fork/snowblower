@@ -109,12 +109,12 @@ in {
             context = ".";
             dockerfile = "./docker/Dockerfile";
             args = {
-              USER_UID = "\${USER_UID}";
-              USER_GID = "\${USER_GID}";
+              USER_UID = "\${SB_USER_UID}";
+              USER_GID = "\${SB_USER_GID}";
             };
           };
           environment = {
-            USER_GID = "\${USER_GID}";
+            USER_GID = "\${SB_USER_GID}";
             SB_SESS_IS_DOCKER = "1";
           };
           volumes = [
