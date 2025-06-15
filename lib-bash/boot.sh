@@ -34,7 +34,7 @@ function __sb__bootSnowBlowerEnvironment() {
         return
     fi
 
-    warnEcho "Booting SnowBlower Session"
+    statusEcho "" "Booting SnowBlower Session" ""
     statusEcho "OK" "Creating Session File" "${SB_SESS_FILE}"
 
 
@@ -115,7 +115,10 @@ function __sb__bootSnowBlowerEnvironment() {
 __sb__bootSnowBlowerEnvironment
 
 # Finally we define environment variables...
-export SB_APP_SERVICE=${SB_APP_SERVICE:-"snowblower-dev"}
-export APP_USER=${APP_USER:-"snowblower"}
+export SB_APP_SERVICE=${APP_SERVICE:-"snowblower-dev"}
 export SB_USER_UID=${USER_UID:-$UID}
 export SB_USER_GID=${USER_GID:-$(id -g)}
+export SB_SKIP_CHECKS=${SKIP_CHECKS:-}
+
+# Split the SB_DOCKER_COMPOSE string into an array
+read -ra SB_DOCKER_COMPOSE_COMMAND <<< "$SB_DOCKER_COMPOSE"

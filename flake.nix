@@ -40,10 +40,14 @@
     } ({
       withSystem,
       flake-parts-lib,
+      inputs,
+      self,
       ...
     }: let
       inherit (flake-parts-lib) importApply;
       flakeModules.default = importApply ./flake-module.nix {inherit withSystem;};
+
+      mkSnow = import ./mkSnow.nix {inherit lib inputs self;};
     in {
       imports = [
         flakeModules.default
@@ -74,7 +78,7 @@
         };
       };
       flake = {
-        inherit flakeModules;
+        inherit flakeModules mkSnow;
       };
     });
 }

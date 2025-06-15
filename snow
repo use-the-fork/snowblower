@@ -162,23 +162,6 @@ function __sb__createDirectory() {
     statusEcho "OK" "Created directory" "$dirPath"
 }
 
-# Runs the given command on live run, otherwise prints the command to standard
-# output.
-function __sb__runInDocker() {
-    local cmd=("$@")
-    
-    # Split the SB_DOCKER_COMPOSE string into an array
-    read -ra docker_compose_cmd <<< "$SB_DOCKER_COMPOSE"
-
-    ARGS=()
-    ARGS+=(exec -u "$SB_USER_UID")
-    [ ! -t 0 ] && ARGS+=(-T)
-    ARGS+=("$SB_APP_SERVICE")
-
-    # Execute the command with proper array expansion
-    "${docker_compose_cmd[@]}" "${ARGS[@]}" "${cmd[@]}"
-}
-
 
   function __sb__createDirectories() {
   statusEcho "OK" "Creating Directories" "${SB_PROJECT_ROOT}"
@@ -224,7 +207,7 @@ function __sb__bootSnowBlowerEnvironment() {
         return
     fi
 
-    warnEcho "Booting SnowBlower Session"
+    statusEcho "" "Booting SnowBlower Session" ""
     statusEcho "OK" "Creating Session File" "${SB_SESS_FILE}"
 
 
@@ -305,10 +288,13 @@ function __sb__bootSnowBlowerEnvironment() {
 __sb__bootSnowBlowerEnvironment
 
 # Finally we define environment variables...
-export SB_APP_SERVICE=${SB_APP_SERVICE:-"snowblower-dev"}
-export APP_USER=${APP_USER:-"snowblower"}
+export SB_APP_SERVICE=${APP_SERVICE:-"snowblower-dev"}
 export SB_USER_UID=${USER_UID:-$UID}
 export SB_USER_GID=${USER_GID:-$(id -g)}
+export SB_SKIP_CHECKS=${SKIP_CHECKS:-}
+
+# Split the SB_DOCKER_COMPOSE string into an array
+read -ra SB_DOCKER_COMPOSE_COMMAND <<< "$SB_DOCKER_COMPOSE"
 
 
   function setupEnvironmentVariables() {
@@ -324,20 +310,27 @@ export NPM_CONFIG_USERCONFIG="${SB_PROJECT_STATE}/npm/config"
 setupEnvironmentVariables
 
 
-              function display_help {
-                echo "❄️ 💨 SnowBlower"
-                echo "All Flake No Fluff"
-                echo
-                echo "''${YELLOW}Usage:''${NC}" >&2
-                echo "  snow COMMAND [options] [arguments]"
-                echo
-                echo "''${YELLOW}SnowBlower Commands:''${NC}"
-                echo "  ''${GREEN}snow switch''${NC}          TODO: Foo Bar"
-                echo
-                __sb__displayResolvedCommands
-                echo
-                exit 1
-            }
+  function display_help {
+    echo "❄️ 💨 SnowBlower"
+    echo "All Flake No Fluff"
+    echo
+    echo "${YELLOW}Usage:${NC}" >&2
+    echo "  snow COMMAND [options] [arguments]"
+    echo
+    echo "${YELLOW}SnowBlower Commands:${NC}"
+    echo "  ${GREEN}snow switch${NC}          Regenerate all config files."
+    echo
+    echo "${YELLOW}docker-compose Commands:${NC}"
+    echo "  ${GREEN}snow up${NC}        Start the application"
+    echo "  ${GREEN}snow up -d${NC}     Start the application in the background"
+    echo "  ${GREEN}snow down${NC}      Stop the application"
+    echo "  ${GREEN}snow restart${NC}   Restart the application"
+    echo "  ${GREEN}snow ps${NC}        Display the status of all containers"
+    echo
+    __sb__displayResolvedCommands
+    echo
+    exit 1
+}
   # Prints the resolved commands from the nix build.
 function __sb__displayResolvedCommands {
     echo "${YELLOW}Aider Commands:${NC}"
@@ -373,6 +366,7 @@ fi
 
   # Commands that are specific to Docker and Docker Compose.
 function __sb__command__up {
+    "${SB_DOCKER_COMPOSE_COMMAND[@]}" up
   docker-compose up "$@"
 }
 
@@ -385,19 +379,22 @@ function __sb__command__restart {
 }
 
 function __sb__command__ps {
-  docker-compose ps "$@"
+    "${SB_DOCKER_COMPOSE_COMMAND[@]}" ps
 }
   function __sb__command__aider {
+  __sb__runChecks
   aider
 }
 
 function __sb__command__aider__start {
+                __sb__runChecks
                aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "CONVENTIONS.MD" --lint-cmd "snow treefmt"
 
            }
 
 
 function __sb__command__npm {
+  __sb__runChecks
   npm
 }
 
@@ -405,6 +402,7 @@ function __sb__command__npm {
 
 
 function __sb__command__treefmt {
+  __sb__runChecks
   treefmt
 }
 
@@ -414,11 +412,33 @@ function __sb__command__treefmt {
 
 # Function that outputs SnowBlower is not running...
 function __sb__isNotRunning {
-    echo "${BOLD}SnowBlower is not running.${NC}" >&2
+    errorEcho "${BOLD}SnowBlower is not running.${NC}" >&2
     echo "" >&2
-    echo "${BOLD}You may start docker using the following commands:${NC} './snow up'" >&2
+    errorEcho "${BOLD}You may start docker using the following commands:${NC} 'snow up'" >&2
 
     exit 1
+}
+
+# Function that checks
+function __sb__runChecks {
+    if [ -z "$SB_SKIP_CHECKS" ]; then
+        # Ensure that Docker is running...
+        if ! docker info > /dev/null 2>&1; then
+            errorEcho "${BOLD}Docker is not running.${NC}" >&2
+            exit 1
+        fi
+
+        # Determine if SnowBlower is currently up...
+        if "${DOCKER_COMPOSE[@]}" ps "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
+            warnEcho "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
+
+            "${DOCKER_COMPOSE[@]}" down > /dev/null 2>&1
+
+            __sb__isNotRunning
+        elif [ -z "$("${DOCKER_COMPOSE[@]}" ps -q "$SB_APP_SERVICE")" ]; then
+            __sb__isNotRunning
+        fi
+    fi
 }
 
 # Function to run dynamically generated command functions
@@ -458,5 +478,19 @@ else
 fi 
 
 
+# Runs the given command on live run, otherwise prints the command to standard
+# output.
+function __sb__runInDocker() {
+    local cmd=("$@")
+    
+    ARGS=()
+    ARGS+=(exec -u "$SB_USER_UID")
+    [ ! -t 0 ] && ARGS+=(-T)
+    ARGS+=("$SB_APP_SERVICE")
 
-  
+    # Execute the command with proper array expansion
+    "${SB_DOCKER_COMPOSE_COMMAND[@]}" "${ARGS[@]}" "${cmd[@]}"
+}
+
+
+

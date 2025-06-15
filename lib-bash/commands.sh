@@ -1,10 +1,32 @@
 # Function that outputs SnowBlower is not running...
 function __sb__isNotRunning {
-    echo "${BOLD}SnowBlower is not running.${NC}" >&2
+    errorEcho "${BOLD}SnowBlower is not running.${NC}" >&2
     echo "" >&2
-    echo "${BOLD}You may start docker using the following commands:${NC} './snow up'" >&2
+    errorEcho "${BOLD}You may start docker using the following commands:${NC} 'snow up'" >&2
 
     exit 1
+}
+
+# Function that checks
+function __sb__runChecks {
+    if [ -z "$SB_SKIP_CHECKS" ]; then
+        # Ensure that Docker is running...
+        if ! docker info > /dev/null 2>&1; then
+            errorEcho "${BOLD}Docker is not running.${NC}" >&2
+            exit 1
+        fi
+
+        # Determine if SnowBlower is currently up...
+        if "${DOCKER_COMPOSE[@]}" ps "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
+            warnEcho "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
+
+            "${DOCKER_COMPOSE[@]}" down > /dev/null 2>&1
+
+            __sb__isNotRunning
+        elif [ -z "$("${DOCKER_COMPOSE[@]}" ps -q "$SB_APP_SERVICE")" ]; then
+            __sb__isNotRunning
+        fi
+    fi
 }
 
 # Function to run dynamically generated command functions
@@ -42,3 +64,18 @@ if [ $# -ge 2 ]; then
 else                                                                                                 
     __sb__runCommand "$1" ""                                                                              
 fi 
+
+
+# Runs the given command on live run, otherwise prints the command to standard
+# output.
+function __sb__runInDocker() {
+    local cmd=("$@")
+    
+    ARGS=()
+    ARGS+=(exec -u "$SB_USER_UID")
+    [ ! -t 0 ] && ARGS+=(-T)
+    ARGS+=("$SB_APP_SERVICE")
+
+    # Execute the command with proper array expansion
+    "${SB_DOCKER_COMPOSE_COMMAND[@]}" "${ARGS[@]}" "${cmd[@]}"
+}

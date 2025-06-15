@@ -84,13 +84,23 @@ in {
         };
 
       # Create Dockerfile content
-      dockerfileContent = ''
+      dockerfileDevShellContent = ''
         FROM docker.io/use-the-fork/snowblower-base:latest
 
         COPY flake.nix /home/''${USERNAME}/flake.nix
         COPY flake.lock /home/''${USERNAME}/flake.lock
 
-        RUN nix profile install /home/''${USERNAME}#snowblower-container
+        RUN nix profile install /home/''${USERNAME}#snowblowerDevShell
+      '';
+
+      # Create Dockerfile content
+      dockerfileDockerContent = ''
+        FROM docker.io/use-the-fork/snowblower-base:latest
+
+        COPY flake.nix /home/''${USERNAME}/flake.nix
+        COPY flake.lock /home/''${USERNAME}/flake.lock
+
+        RUN nix profile install /home/''${USERNAME}#snowblowerDocker
       '';
     in {
       docker = {
@@ -139,7 +149,12 @@ in {
 
       file."docker/Dockerfile" = {
         enable = true;
-        source = pkgs.writeText "dockerfile" dockerfileContent;
+        source = pkgs.writeText "dockerfile" dockerfileDockerContent;
+      };
+
+      file."docker/Dockerfile.devshell" = {
+        enable = true;
+        source = pkgs.writeText "dockerfile" dockerfileDevShellContent;
       };
     };
   });

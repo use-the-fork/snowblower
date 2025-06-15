@@ -88,6 +88,7 @@
           mkSubCommandSection = name: subSection: let
             subSectionName = subSection.name;
           in ''            function __sb__command__${name}__${subSectionName} {
+                            __sb__runChecks
                            ${subSection.data.script}
                        }'';
 
@@ -103,6 +104,7 @@
           concatLines [
             (optionalString (section.data.script != null) ''
               function __sb__command__${section.name} {
+                __sb__runChecks
                 ${section.data.script}
               }
             '')

@@ -161,20 +161,3 @@ function __sb__createDirectory() {
     mkdir -p "$dirPath"
     statusEcho "OK" "Created directory" "$dirPath"
 }
-
-# Runs the given command on live run, otherwise prints the command to standard
-# output.
-function __sb__runInDocker() {
-    local cmd=("$@")
-    
-    # Split the SB_DOCKER_COMPOSE string into an array
-    read -ra docker_compose_cmd <<< "$SB_DOCKER_COMPOSE"
-
-    ARGS=()
-    ARGS+=(exec -u "$SB_USER_UID")
-    [ ! -t 0 ] && ARGS+=(-T)
-    ARGS+=("$SB_APP_SERVICE")
-
-    # Execute the command with proper array expansion
-    "${docker_compose_cmd[@]}" "${ARGS[@]}" "${cmd[@]}"
-}
