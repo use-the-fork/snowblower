@@ -1,8 +1,12 @@
 {lib, ...}: let
-  inherit (lib) mkOption mkEnableOption types;
+  inherit (lib) mkOption types;
 in {
   options = {
-    enable = mkEnableOption "this service";
+    enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Whether to enable this service";
+    };
 
     port = {
       container = mkOption {

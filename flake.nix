@@ -74,7 +74,7 @@
           };
 
           process."npm-dev" = {
-            # enable = true;
+            enable = true;
             exec = "npm run dev";
             port = {
               container = 5432;
