@@ -165,3 +165,17 @@ function __sb__createDirectory() {
     mkdir -p "$dirPath"
     statusEcho "" "Created directory" "$dirPath"
 }
+
+# Various Check functions
+
+function __sb__isInsideDocker(){
+    test -f /.dockerenv
+}
+
+function __sb__hasNix(){
+    if [ -n "$SB_NIX_PATH" ]; then
+        return 0
+    else
+        return 1
+    fi
+}

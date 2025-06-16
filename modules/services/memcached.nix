@@ -7,9 +7,9 @@
     inherit (lib) types mkOption;
     inherit (lib) mkDockerService;
 
-    cfg = config.snowblower.services.memcached;
+    cfg = config.snowblower.service.memcached;
   in {
-    options.snowblower.services.memcached = mkDockerService {
+    options.snowblower.service.memcached = mkDockerService {
       name = "Memcached";
       image = "memcached:alpine";
       port = 11211;
@@ -28,7 +28,7 @@
     config = lib.mkIf cfg.enable {
       snowblower = {
         docker.common.dependsOn = ["memcached"];
-        docker.services.memcached = {
+        docker.service.memcached = {
           enable = true;
           service = {
             inherit (cfg) image;

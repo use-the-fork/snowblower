@@ -7,3 +7,13 @@ function __sb__command__update {
      nix flake update
      return $?
 }
+function __sb__command__update {
+     nix flake update
+     return $?
+}
+
+function __sb__command__reboot() {
+    rm -f "$SB_SESS_FILE"
+    __sb__bootSnowBlowerEnvironment
+    return 0
+}

@@ -8,7 +8,7 @@ case "${UNAMEOUT}" in
 esac
 
 if [ "$MACHINE" == "UNKNOWN" ]; then
-    echo "Unsupported operating system [$(uname -s)]. SnowBlower supports macOS, Linux, and Windows (WSL2)." >&2
+    statusEcho "FAIL" "Unsupported operating system [$(uname -s)]." "SnowBlower supports macOS, Linux, and Windows (WSL2)." >&2
     exit 1
 fi
 
@@ -17,10 +17,12 @@ fi
 # shellcheck source=/dev/null
 if [ -n "${APP_ENV+x}" ] && [ -n "$APP_ENV" ] && [ -f ./.env."$APP_ENV" ]; then
   source ./.env."$APP_ENV";
+  statusEcho "OK" "Found and sources" ".env.{$APP_ENV}"
 elif [ -f ./.env ]; then
   source ./.env;
+  statusEcho "OK" "Found and sourced" ".env"
 fi
-
+``
 # Create a session file in tmp dir. this allows us to do the "heavy" lifiting for the snow command one time.
 export SB_SESS_FILE="${TMPDIR:-/tmp}/.sb_session_$(tty | tr '/' '_')"
 
@@ -29,48 +31,63 @@ export SB_APP_SERVICE=${APP_SERVICE:-"snowblower-dev"}
 export SB_USER_UID=${USER_UID:-$UID}
 export SB_USER_GID=${USER_GID:-$(id -g)}
 export SB_SKIP_CHECKS=${SKIP_CHECKS:-}
-export SB_SESS_IS_NIX_SHELL=${IS_NIX_SHELL:-}
-export SB_SESS_IS_DOCKER=${IS_DOCKER:-}
+
 
 function __sb__bootSnowBlowerEnvironment() {
     # Only source this once.
 
     if [ -f "$SB_SESS_FILE" ]; then
         source "$SB_SESS_FILE"
-        warnEcho ${SB_SESS_FILE}
+        statusEcho "OK" "Found session at" "${SB_SESS_FILE}"
         return
     fi
 
     statusEcho "" "Booting SnowBlower Session" ""
     statusEcho "OK" "Creating Session File" "${SB_SESS_FILE}"
 
-
-    # Check if Docker is installed
-    if [ -z "${SB_SESS_IS_DOCKER}" ] && ! command -v docker &> /dev/null; then
-        statusEcho "FAIL" "Docker is not installed or not in PATH. Please install Docker to continue."
-        exit 1
-    fi
-
-    # Check if Docker Compose is available
-    if [ -z "${SB_SESS_IS_DOCKER}" ] && ! docker compose &> /dev/null && ! command -v docker-compose &> /dev/null; then
-        statusEcho "FAIL" "Docker Compose is not installed or not in PATH. Please install Docker Compose to continue."
-        exit 1
-    fi
-
     # These are the must have varibles for the project
-    export SB_FLAKE_ROOT=$(__sb__findUp 'flake.nix')
-    export SB_PROJECT_ROOT="$SB_FLAKE_ROOT/.snowblower"
+    export SB_SRC_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    export SB_PROJECT_ROOT="$SB_SRC_ROOT/.snowblower"
     export SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
     export SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
     export SB_PROJECT_RUNTIME="$SB_PROJECT_ROOT/runtime"
     
     # Save exports to session file
-    echo "export SB_FLAKE_ROOT=\"$SB_FLAKE_ROOT\"" > "$SB_SESS_FILE"
+    echo "export SB_SRC_ROOT=\"$SB_SRC_ROOT\"" > "$SB_SESS_FILE"
     echo "export SB_PROJECT_ROOT=\"$SB_PROJECT_ROOT\"" >> "$SB_SESS_FILE"
     echo "export SB_PROJECT_PROFILE=\"$SB_PROJECT_PROFILE\"" >> "$SB_SESS_FILE"
     echo "export SB_PROJECT_STATE=\"$SB_PROJECT_STATE\"" >> "$SB_SESS_FILE"
     echo "export SB_PROJECT_RUNTIME=\"$SB_PROJECT_RUNTIME\"" >> "$SB_SESS_FILE"
     
+
+    if ! __sb__isInsideDocker; then
+        # Check if Docker is installed
+        export SB_DOCKER_PATH=$(which docker 2>/dev/null)
+        SB_DOCKER_STATUS=$?
+
+        if [ $SB_DOCKER_STATUS -eq 0 ] && [ -n "$SB_DOCKER_PATH" ]; then
+            # Command succeeded and returned a path                                                        
+            statusEcho "OK" "Docker found at:" "{$SB_DOCKER_PATH}"
+            echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >> "$SB_SESS_FILE"
+        else
+            statusEcho "FAIL" "Docker is not installed or not in PATH. Please install Docker to continue."
+            exit 1
+        fi
+
+        # Check if Docker Compose is available
+        export SB_DOCKER_COMPOSE_PATH=$(which docker-compose 2>/dev/null)
+        SB_DOCKER_COMPOSE_STATUS=$?
+                                                                                                        
+        if [ $SB_DOCKER_COMPOSE_STATUS -eq 0 ] && [ -n "$SB_DOCKER_COMPOSE_PATH" ]; then
+            # Command succeeded and returned a path                                                        
+            statusEcho "OK" "Docker Compose found at:" "{$SB_DOCKER_COMPOSE_PATH}"
+            echo "export SB_DOCKER_COMPOSE_PATH=\"$SB_DOCKER_COMPOSE_PATH\"" >> "$SB_SESS_FILE"
+        else
+            statusEcho "FAIL" "Docker Compose is not installed or not in PATH. Please install Docker to continue."
+            exit 1
+        fi
+    fi
+
     statusEcho "OK" "SnowBlower directory set to" "${SB_PROJECT_ROOT}"
 
     # Create directories if they don't exist
@@ -97,19 +114,14 @@ function __sb__bootSnowBlowerEnvironment() {
     # But we need to boot it here so we can be sure all directories are created.
     __sb__createDirectories
 
-    # Define Docker Compose command prefix
-    if docker compose &> /dev/null; then
-        export SB_DOCKER_COMPOSE="docker compose"
-    else
-        export SB_DOCKER_COMPOSE="docker-compose"
-    fi
-
-    echo "export SB_DOCKER_COMPOSE=\"$SB_DOCKER_COMPOSE\"" >> "$SB_SESS_FILE"
-    statusEcho "OK" "Docker Compose Command set as" "${SB_DOCKER_COMPOSE}"
-
     # Check if we are running in a Nix Shell
-    if [ -n "${SB_SESS_IS_NIX_SHELL+x}" ]; then
-        statusEcho "OK" "Nix command found and available"
+    export SB_NIX_PATH=$(which nix 2>/dev/null)
+    SB_NIX_STATUS=$?
+                                                                                                    
+    if [ $SB_NIX_STATUS -eq 0 ] && __sb__hasNix; then
+        # Command succeeded and returned a path                                                        
+        statusEcho "OK" "Nix found at:" "{$SB_NIX_PATH}"
+        echo "export SB_NIX_PATH=\"$SB_NIX_PATH\"" >> "$SB_SESS_FILE"
     else
         statusEcho "FAIL" "Nix command not found, some features may be limited"
     fi

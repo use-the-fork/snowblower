@@ -102,15 +102,14 @@ in {
 
       # Create Dockerfile content
       dockerfileDockerContent = ''
-        FROM docker.io/use-the-fork/snowblower-base:latest
-
-        ENV IS_NIX_SHELL=1
-        ENV IS_DOCKER=1
+        ${builtins.readFile ./../lib-docker/Dockerfile}
 
         COPY flake.nix /home/''${USERNAME}/flake.nix
         COPY flake.lock /home/''${USERNAME}/flake.lock
 
         RUN nix profile install /home/''${USERNAME}#snowblowerDocker
+
+        ENTRYPOINT [ "/docker-entrypoint.sh" ]
       '';
     in {
       docker = {
@@ -163,6 +162,17 @@ in {
       file."docker/Dockerfile" = {
         enable = true;
         source = pkgs.writeText "dockerfile" dockerfileDockerContent;
+      };
+
+      file."docker/docker-entrypoint.sh" = {
+        enable = true;
+        text = builtins.readFile ./../lib-docker/docker-entrypoint.sh;
+      };
+
+      # TODO: Not sold on this should maybe directly in here.
+      file."docker/nix.conf" = {
+        enable = true;
+        text = builtins.readFile ./../lib-docker/nix.conf;
       };
     };
   });

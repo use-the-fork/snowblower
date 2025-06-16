@@ -39,10 +39,3 @@ RUN chmod +x /docker-entrypoint.sh
 RUN sudo chown -R ${USERNAME}: /nix
 
 USER ${USERNAME}
-
-COPY flake.nix /home/${USERNAME}/flake.nix
-COPY flake.lock /home/${USERNAME}/flake.lock
-
-RUN nix profile install /home/${USERNAME}#snowblowerDocker
-
-ENTRYPOINT [ "/docker-entrypoint.sh" ]

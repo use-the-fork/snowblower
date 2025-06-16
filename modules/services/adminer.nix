@@ -25,7 +25,7 @@
 
     config = lib.mkIf cfg.enable {
       snowblower = {
-        docker.services.adminer = {
+        docker.service.adminer = {
           enable = true;
           service = {
             inherit (cfg) image;

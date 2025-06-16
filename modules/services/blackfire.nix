@@ -57,7 +57,7 @@
 
     config = lib.mkIf cfg.enable {
       snowblower = {
-        docker.services.blackfire = {
+        docker.service.blackfire = {
           enable = true;
           service = {
             inherit (cfg) image;

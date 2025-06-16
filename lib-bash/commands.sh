@@ -17,13 +17,13 @@ function __sb__runChecks {
         fi
 
         # Determine if SnowBlower is currently up...
-        if "${DOCKER_COMPOSE[@]}" ps "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
+        if "${SB_DOCKER_COMPOSE_PATH[@]}" ps "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
             warnEcho "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
 
-            "${DOCKER_COMPOSE[@]}" down > /dev/null 2>&1
+            "${SB_DOCKER_COMPOSE_PATH[@]}" down > /dev/null 2>&1
 
             __sb__isNotRunning
-        elif [ -z "$("${DOCKER_COMPOSE[@]}" ps -q "$SB_APP_SERVICE")" ]; then
+        elif [ -z "$("${SB_DOCKER_COMPOSE_PATH[@]}" ps -q "$SB_APP_SERVICE")" ]; then
             __sb__isNotRunning
         fi
     fi
@@ -37,8 +37,8 @@ function __sb__RoutedCommandExecute() {
     # Remove surrounding quotes if present
     cmd="${cmd//\'}"
     
-    # If in a nix shell, show error and exit
-    if [ -n "$SB_SESS_IS_NIX_SHELL" ]; then
+    # If the env has Nix we can run the command directly
+    if __sb__hasNix; then
         eval "$cmd"
         return $?
     fi
@@ -52,7 +52,7 @@ function __sb__RoutedCommandExecute() {
     ARGS+=("$SB_APP_SERVICE")
 
     # Execute the command with proper shell evaluation
-    "${SB_DOCKER_COMPOSE_COMMAND[@]}" "${ARGS[@]}" bash -c "$cmd"
+    "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" bash -c "$cmd"
 }
 
 # Function to run dynamically generated command functions

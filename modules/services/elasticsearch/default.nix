@@ -1,6 +1,6 @@
 {flake-parts-lib, ...}: {
   imports = [
-    ./kibana.nix
+    #./kibana.nix
   ];
 
   options.perSystem = flake-parts-lib.mkPerSystemOption ({
