@@ -99,16 +99,26 @@
             )
             config.snowblower.codeQuality;
 
-          finalConfiguration =
-            lib.recursiveUpdate {
-              repos = [
-                {
-                  hooks = lib.filter (hook: hook != {}) (formatters ++ linters);
-                  repo = "local";
-                }
-              ];
-            }
-            cfg.settings.config;
+          finalConfiguration = let
+            # Start with user's base config
+            baseConfig = cfg.settings.config;
+
+            # Create the local repo with our generated hooks
+            localRepo = {
+              hooks = lib.filter (hook: hook != {}) (formatters ++ linters);
+              repo = "local";
+            };
+
+            # Get existing repos from user config, or empty list
+            existingRepos = baseConfig.repos or [];
+
+            # Combine all repos
+            allRepos = existingRepos ++ [localRepo];
+          in
+            baseConfig
+            // {
+              repos = allRepos;
+            };
         in {
           enable = true;
           source = yamlFormat.generate ".pre-commit-config.yaml" finalConfiguration;
