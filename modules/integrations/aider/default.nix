@@ -5,7 +5,7 @@
     lib,
     ...
   }: let
-    inherit (lib) types mkOption;
+    inherit (lib) types mkOption optionalString;
     inherit (lib) mkIntegration;
 
     commandModule = {
