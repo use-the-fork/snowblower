@@ -101,6 +101,7 @@ in {
       # Create Dockerfile content
 
       # Create Dockerfile content
+      # TODO: Should we move this to all be in the `Dockerfile` or add an option to insert commands as part of the docker file.
       dockerfileDockerContent = ''
         ${builtins.readFile ./../lib-docker/Dockerfile}
 
@@ -110,11 +111,11 @@ in {
         RUN nix profile install '.#dockerPackage'
 
         # Initialize shell environment variables.
-        RUN ~/.nix-profile/bin/docker-entrypoint init
+        RUN /home/''${USERNAME}/.nix-profile/bin/docker-entrypoint init
 
         # Execute everything with the shell environment variables.
-        SHELL ["~/.nix-profile/bin/docker-entrypoint", "exec"]
-        ENTRYPOINT ["~/.nix-profile/bin/docker-entrypoint", "exec"]
+        SHELL /home/''${USERNAME}/.nix-profile/bin/docker-entrypoint exec
+        ENTRYPOINT /home/''${USERNAME}/.nix-profile/bin/docker-entrypoint exec
 
         # Drop into a shell by default.
         CMD bash
