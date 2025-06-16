@@ -73,7 +73,7 @@
 
         file."biome.json" = {
           enable = true;
-          settings = jsonFormat.generate "biome.json" finalSettings;
+          source = jsonFormat.generate "biome.json" finalSettings;
         };
       };
     };

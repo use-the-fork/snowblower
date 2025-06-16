@@ -51,7 +51,7 @@
 
         file."ruff.toml" = {
           enable = finalSettings != {};
-          settings = tomlFormat.generate "ruff.toml" finalSettings;
+          source = tomlFormat.generate "ruff.toml" finalSettings;
         };
       };
     };

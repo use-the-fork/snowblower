@@ -50,7 +50,7 @@
 
         file.".mdformat.toml" = {
           enable = finalSettings != {};
-          settings = tomlFormat.generate ".mdformat.toml" finalSettings;
+          source = tomlFormat.generate ".mdformat.toml" finalSettings;
         };
       };
     };
