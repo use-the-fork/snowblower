@@ -8,7 +8,7 @@
     inherit (lib) mkIntegration;
 
     tomlFormat = pkgs.formats.toml {};
-    cfg = config.snowblower.integration.preCommit;
+    cfg = config.snowblower.integration.treefmt;
   in {
     options.snowblower.integration.treefmt = mkIntegration {
       name = "Treefmt";
