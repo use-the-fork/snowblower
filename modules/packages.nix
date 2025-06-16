@@ -34,7 +34,7 @@ in {
       snowblower = {
         devShellPackage = pkgs.mkShell {
           name = "snowblower";
-          packages = config.snowblower.packages;
+          inherit (config.snowblower) packages;
           shellHook = ''
           '';
         };
@@ -77,7 +77,7 @@ in {
       devShells.default = config.snowblower.devShellPackage;
       packages = {
         snowblowerDevShell = config.snowblower.devShellPackage;
-        dockerPackage = config.snowblower.dockerPackage;
+        inherit (config.snowblower) dockerPackage;
       };
     };
   });

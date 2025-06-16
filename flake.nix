@@ -49,16 +49,21 @@
       systems = import inputs.systems;
       perSystem = _: {
         snowblower = {
-          integrations.aider = {
-            enable = true;
-            commands = {
-              start = {
-                description = "w/ linting, watchfiles, and conventions.";
-                watchFiles = true;
-                suggestShellCommands = false;
-                readFiles = ["CONVENTIONS.MD"];
-                lintCommands = ["snow treefmt"];
+          integrations = {
+            aider = {
+              enable = true;
+              commands = {
+                start = {
+                  description = "w/ linting, watchfiles, and conventions.";
+                  watchFiles = true;
+                  suggestShellCommands = false;
+                  readFiles = ["CONVENTIONS.MD"];
+                  lintCommands = ["snow treefmt"];
+                };
               };
+            };
+            preCommit = {
+              enable = true;
             };
           };
 

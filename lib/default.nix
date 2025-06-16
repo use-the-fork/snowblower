@@ -15,5 +15,5 @@ in {
     inherit strings;
   };
 
-  inherit (functions) mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand mkEnableOption' mkPackageManager mkDockerService;
+  inherit (functions) mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand mkEnableOption' mkPackageManager mkDockerService mkCodeQualityCommandHook;
 }

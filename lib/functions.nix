@@ -158,11 +158,34 @@
       // extraOptions;
   };
 
+  mkCodeQualityCommandHook = {
+    enable ? true,
+    args ? [],
+    config ? {},
+  }: {
+    enable = mkOption {
+      type = lib.types.bool;
+      description = "Enable hook";
+      default = enable;
+    };
+    args = mkOption {
+      type = lib.types.listOf lib.types.str;
+      description = "Additional arguments to pass to the command when running as a hook";
+      default = args;
+    };
+    config = mkOption {
+      type = valueType;
+      description = "Configuration settings for the local command when running inside precommit hooks.";
+      default = config;
+    };
+  };
+
   mkCodeQualityCommand = {
     command,
     enable ? false,
     args ? [],
     priority ? 0,
+    hook ? mkCodeQualityCommandHook {},
   }: {
     enable = mkOption {
       type = lib.types.bool;
@@ -179,16 +202,16 @@
       type = lib.types.nullOr lib.types.int;
       default = priority;
     };
-
     command = mkOption {
       type = lib.types.str;
       description = "The executable name";
       default = command;
     };
+    inherit hook;
   };
 
   #Same as mkEnableOption but with the default set to true.
   mkEnableOption' = desc: lib.mkEnableOption "${desc}" // {default = true;};
 in {
-  inherit mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand mkEnableOption' mkPackageManager mkDockerService;
+  inherit mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand mkEnableOption' mkPackageManager mkDockerService mkCodeQualityCommandHook;
 }

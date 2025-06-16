@@ -33,7 +33,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf -L ${NIX_INSTALL_SCRIPT} | sh -s -- ins
 
 ENV PATH="${PATH}:/nix/var/nix/profiles/default/bin"
 
-# Change ownership of the nix store.
+# Change ownership of nix store to the user
 RUN sudo chown -R ${USERNAME}: /nix
 
 WORKDIR /workspace
@@ -44,14 +44,14 @@ USER ${USERNAME}
 COPY flake.nix /workspace/flake.nix
 COPY flake.lock /workspace/flake.lock
 
-RUN nix profile install '.#snowblowerDockerEnv'
+RUN nix profile install '.#dockerPackage'
 
 # Initialize shell environment variables.
-RUN /root/.nix-profile/bin/docker-env init
+RUN /home/${USERNAME}/.nix-profile/bin/docker-entrypoint init
 
 # Execute everything with the shell environment variables.
-SHELL ["/root/.nix-profile/bin/docker-entrypoint", "exec"]
-ENTRYPOINT ["/root/.nix-profile/bin/docker-entrypoint", "exec"]
+SHELL /home/${USERNAME}/.nix-profile/bin/docker-entrypoint exec
+ENTRYPOINT /home/${USERNAME}/.nix-profile/bin/docker-entrypoint exec
 
 # Drop into a shell by default.
 CMD bash

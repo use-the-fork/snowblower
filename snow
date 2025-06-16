@@ -184,6 +184,7 @@ function __sb__hasNix(){
   statusEcho "OK" "Creating Directories" "${SB_PROJECT_ROOT}"
   __sb__createDirectory '${SB_PROJECT_STATE}/npm'
 __sb__createDirectory '${SB_PROJECT_STATE}/npm/config'
+__sb__createDirectory '${SB_PROJECT_STATE}/pre_commit'
 
 }
 
@@ -335,6 +336,7 @@ read -ra SB_DOCKER_COMPOSE_COMMAND <<< "$SB_DOCKER_COMPOSE"
   export NPM_CONFIG_CACHE="${SB_PROJECT_STATE}/npm"
 export NPM_CONFIG_TMP="${SB_PROJECT_STATE}/npm"
 export NPM_CONFIG_USERCONFIG="${SB_PROJECT_STATE}/npm/config"
+export PRE_COMMIT_HOME="${SB_PROJECT_STATE}/pre_commit"
 }
 
 setupEnvironmentVariables
@@ -377,6 +379,12 @@ echo "  ${GREEN}snow npm ...${NC}          Run a NPM command"
 
 echo
 
+
+echo "${YELLOW}Pre-commit Commands:${NC}"
+echo "  ${GREEN}snow pre-commit ...${NC}          Run a Pre-commit command"
+echo "  ${GREEN}snow pre-commit all${NC}          Run precommit on all files"
+
+echo
 
 echo "${YELLOW}Treefmt Commands:${NC}"
 echo "  ${GREEN}snow treefmt ...${NC}          Run a Treefmt command"
@@ -478,6 +486,15 @@ function __sb__command__npm-dev {
 }
 
 
+
+
+function __sb__command__pre-commit {
+  __sb__RoutedCommandExecute "pre-commit"
+}
+
+function __sb__command__pre-commit__all {
+               __sb__RoutedCommandExecute "pre-commit run --all-files"
+           }
 
 
 function __sb__command__treefmt {

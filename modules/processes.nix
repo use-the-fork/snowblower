@@ -38,7 +38,7 @@ in {
           internal = true;
           displayName = "Process";
           description = "Run the ${name} process";
-          exec = process.exec;
+          inherit (process) exec;
         })
         cfg;
 

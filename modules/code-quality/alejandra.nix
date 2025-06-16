@@ -5,7 +5,7 @@
     pkgs,
     ...
   }: let
-    inherit (lib) mkCodeQualityTool mkCodeQualityCommand;
+    inherit (lib) mkCodeQualityTool mkCodeQualityCommand mkCodeQualityCommandHook;
     tomlFormat = pkgs.formats.toml {};
 
     cfg = config.snowblower.codeQuality.alejandra;
@@ -17,6 +17,7 @@
       lint = mkCodeQualityCommand {
         enable = true;
         command = "alejandra";
+        hook = mkCodeQualityCommandHook {};
       };
 
       includes = [
