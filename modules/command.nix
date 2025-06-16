@@ -61,7 +61,6 @@
           then ""
           else
             concatLines [
-              ''function __sb__display__${section.name}__commands {''
               ''echo "''${YELLOW}${section.data.displayName} Commands:''${NC}"''
               (
                 optionalString (section.data.exec != null)
@@ -69,8 +68,6 @@
               )
               resolvedSubCommands
               ''echo''
-              ''}''
-              "__sb__display__${section.name}__commands"
             ];
 
         resolvedCommands = lib.sbl.dag.resolveDag {
@@ -96,8 +93,7 @@
           mkSubCommandSection = name: subSection: let
             subSectionName = subSection.name;
           in ''            function __sb__command__${name}__${subSectionName} {
-                            echoDebug "${section.data.exec}"
-                            __sb__RoutedCommandExecute "${subSection.data.exec}"
+                            __sb__RoutedCommandExecute ${lib.strings.escapeShellArg subSection.data.exec}
                            }'';
 
           resolvedSubCommands = lib.sbl.dag.resolveDag {
@@ -112,8 +108,7 @@
           concatLines [
             (optionalString (section.data.exec != null) ''
               function __sb__command__${section.name} {
-                echoDebug "${section.data.exec}"
-                __sb__RoutedCommandExecute "${section.data.exec}"
+                __sb__RoutedCommandExecute ${lib.strings.escapeShellArg section.data.exec}
               }
             '')
             resolvedSubCommands

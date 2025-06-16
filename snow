@@ -9,7 +9,6 @@
 
 set -e
 set -o pipefail
-[ -n "${DEBUG:-}" ] && set -x
 
 # Credits to https://github.com/nix-community/home-manager/blob/master/lib/bash/home-manager.sh
 # Sets up colors suitable for the `errorEcho`, `warnEcho`, and `noteEcho`
@@ -384,33 +383,24 @@ setupEnvironmentVariables
     exit 1
 }
   function __sb__displayResolvedCommands {
-            function __sb__display__aider__commands {
-echo "${YELLOW}Aider Commands:${NC}"
+            echo "${YELLOW}Aider Commands:${NC}"
 echo "  ${GREEN}snow aider ...${NC}          Run a Aider command"
 echo "  ${GREEN}snow aider start${NC}          w/ linting, watchfiles, and conventions."
 
 echo
-}
-__sb__display__aider__commands
 
-function __sb__display__npm__commands {
 echo "${YELLOW}NPM Commands:${NC}"
 echo "  ${GREEN}snow npm ...${NC}          Run a NPM command"
 
 
 echo
-}
-__sb__display__npm__commands
 
 
-function __sb__display__pre-commit__commands {
 echo "${YELLOW}Pre-commit Commands:${NC}"
 echo "  ${GREEN}snow pre-commit ...${NC}          Run a Pre-commit command"
 echo "  ${GREEN}snow pre-commit all${NC}          Run precommit on all files"
 
 echo
-}
-__sb__display__pre-commit__commands
 
 
           }
@@ -487,40 +477,34 @@ function __sb__command__reboot() {
     return 0
 }
   function __sb__command__aider {
-  echoDebug "aider"
-  __sb__RoutedCommandExecute "aider"
+  __sb__RoutedCommandExecute aider
 }
 
 function __sb__command__aider__start {
-                echoDebug "aider"
-                __sb__RoutedCommandExecute "aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "CONVENTIONS.MD" --lint-cmd "'snow pre-commit'""
+                __sb__RoutedCommandExecute 'aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "CONVENTIONS.MD" --lint-cmd "snow pre-commit"'
                }
 
 
 function __sb__command__npm {
-  echoDebug "npm"
-  __sb__RoutedCommandExecute "npm"
+  __sb__RoutedCommandExecute npm
 }
 
 
 
 
 function __sb__command__npm-dev {
-  echoDebug "npm run dev"
-  __sb__RoutedCommandExecute "npm run dev"
+  __sb__RoutedCommandExecute 'npm run dev'
 }
 
 
 
 
 function __sb__command__pre-commit {
-  echoDebug "pre-commit"
-  __sb__RoutedCommandExecute "pre-commit"
+  __sb__RoutedCommandExecute pre-commit
 }
 
 function __sb__command__pre-commit__all {
-                echoDebug "pre-commit"
-                __sb__RoutedCommandExecute "pre-commit run --all-files"
+                __sb__RoutedCommandExecute 'pre-commit run --all-files'
                }
 
 
@@ -558,12 +542,14 @@ function __sb__runChecks {
 # Figures out the type of envirment the command is running in and then routes approriatly.
 function __sb__RoutedCommandExecute() {
     local cmd="$1"
+    echoDebug "$1"
     
     # Remove surrounding quotes if present
     cmd="${cmd//\'}"
     
     # If the env has Nix we can run the command directly
     if __sb__hasNix; then
+        echoDebug "$cmd"
         eval "$cmd"
         return $?
     fi
@@ -604,6 +590,7 @@ function __sb__runCommand {
     else
         echoFail "Unknown command: snow $command_name $subcommand_name"
         echoBlank "Run 'snow help' for a list of available commands."
+        # AI: add a line here for snow COMMAND -h to display sub commands
         exit 1
     fi
 }

@@ -58,7 +58,7 @@
                   watchFiles = true;
                   suggestShellCommands = false;
                   readFiles = ["CONVENTIONS.MD"];
-                  lintCommands = ["'snow pre-commit'"];
+                  lintCommands = ["snow pre-commit"];
                 };
               };
             };

@@ -51,7 +51,7 @@
 
           # setup the runtime directory
           mkdir -p ${lib.escapeShellArg config.snowblower.paths.runtime}
-          ln -snf ${lib.escapeShellArg config.snowblower.paths.runtime} ${lib.escapeShellArg config.snowblower.paths.snowblowerDir}/run
+          ln -snf ${lib. config.snowblower.paths.runtime} ${lib.escapeShellArg config.snowblower.paths.snowblowerDir}/run
 
         # Determine if stdout is a terminal...
         if test -t 1; then

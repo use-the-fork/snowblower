@@ -70,7 +70,7 @@ in {
 
     config = {
       snowblower.filesPackage = pkgs.writeScriptBin "snowblower-files" ''
-        #!/usr/bin/env bash
+        ${builtins.readFile ./../lib-bash/utils.sh}
 
         function insertFile() {
           local source="$1"
@@ -89,7 +89,7 @@ in {
           if [[ $executable == "1" ]]; then
             chmod +x "./$relTarget"
           fi
-          echo "Created file: $relTarget"
+          echoOk "Created file" "$relTarget"
         }
 
         ${lib.concatStrings (
@@ -109,7 +109,7 @@ in {
           cfg
         )}
 
-        echo "Files copied to current directory"
+        echoOk "Files copied to current directory"
       '';
 
       snowblower.directoriesPackage = pkgs.writeTextFile {

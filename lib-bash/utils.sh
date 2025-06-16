@@ -9,7 +9,6 @@
 
 set -e
 set -o pipefail
-[ -n "${DEBUG:-}" ] && set -x
 
 # Credits to https://github.com/nix-community/home-manager/blob/master/lib/bash/home-manager.sh
 # Sets up colors suitable for the `errorEcho`, `warnEcho`, and `noteEcho`

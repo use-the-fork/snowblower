@@ -31,12 +31,14 @@ function __sb__runChecks {
 # Figures out the type of envirment the command is running in and then routes approriatly.
 function __sb__RoutedCommandExecute() {
     local cmd="$1"
+    echoDebug "$1"
     
     # Remove surrounding quotes if present
     cmd="${cmd//\'}"
     
     # If the env has Nix we can run the command directly
     if __sb__hasNix; then
+        echoDebug "$cmd"
         eval "$cmd"
         return $?
     fi
@@ -77,6 +79,7 @@ function __sb__runCommand {
     else
         echoFail "Unknown command: snow $command_name $subcommand_name"
         echoBlank "Run 'snow help' for a list of available commands."
+        # AI: add a line here for snow COMMAND -h to display sub commands
         exit 1
     fi
 }
