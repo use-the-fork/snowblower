@@ -53,7 +53,7 @@ in {
 
                 case "$cmd" in
                 "init")
-                  ${pkgs.nix}/bin/nix-shell --pure --run 'declare -xp > /nix-environment'
+                  cd /workspace && ${pkgs.nix}/bin/nix develop . --command bash -c 'declare -xp > /nix-environment'
                   ;;
                 "exec")
                   __user=$USER
