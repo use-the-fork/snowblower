@@ -20,7 +20,7 @@
 
       # We swap the javascript package for the full package that includes NPM
       # even if javascript is off this will get properly merged in.
-      config.snowblower.languages.javascript.package = cfg.package;
+      languages.javascript.package = cfg.package;
 
       command."npm" = {
         displayName = "NPM";
