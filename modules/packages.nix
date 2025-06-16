@@ -53,13 +53,13 @@ in {
 
                 case "$cmd" in
                 "init")
-                  cd /workspace && ${pkgs.nix}/bin/nix develop . --command bash -c 'declare -xp > /nix-environment'
+                  cd /workspace && ${pkgs.nix}/bin/nix develop . --command bash -c 'declare -xp > ~/nix-environment'
                   ;;
                 "exec")
                   __user=$USER
                   __home=$HOME
 
-                  source /nix-environment
+                  source ~/nix-environment
 
                   USER=$__user
                   HOME=$__home

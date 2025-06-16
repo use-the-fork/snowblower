@@ -110,11 +110,11 @@ in {
         RUN nix profile install '.#dockerPackage'
 
         # Initialize shell environment variables.
-        RUN /root/.nix-profile/bin/docker-env init
+        RUN ~/.nix-profile/bin/docker-entrypoint init
 
         # Execute everything with the shell environment variables.
-        SHELL ["/root/.nix-profile/bin/docker-entrypoint", "exec"]
-        ENTRYPOINT ["/root/.nix-profile/bin/docker-entrypoint", "exec"]
+        SHELL ["~/.nix-profile/bin/docker-entrypoint", "exec"]
+        ENTRYPOINT ["~/.nix-profile/bin/docker-entrypoint", "exec"]
 
         # Drop into a shell by default.
         CMD bash
