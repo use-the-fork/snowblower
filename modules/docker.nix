@@ -107,7 +107,7 @@ in {
         COPY flake.nix /workspace/flake.nix
         COPY flake.lock /workspace/flake.lock
 
-        RUN nix profile install flakes '.#snowblowerDockerEnv'
+        RUN nix profile install '.#dockerPackage'
 
         # Initialize shell environment variables.
         RUN /root/.nix-profile/bin/docker-env init

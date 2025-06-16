@@ -76,7 +76,7 @@ in {
       devShells.default = config.snowblower.devShellPackage;
       packages = {
         snowblowerDevShell = config.snowblower.devShellPackage;
-        snowblowerDocker = config.snowblower.dockerPackage;
+        dockerPackage = config.snowblower.dockerPackage;
       };
     };
   });
