@@ -6,6 +6,7 @@ function __sb__command__switch {
 function __sb__command__update {
      nix flake update
      __sb__command__switch
+     __sb__command__reboot
      return $?
 }
 

@@ -1,8 +1,8 @@
 # Function that outputs SnowBlower is not running...
 function __sb__isNotRunning {
-    errorEcho "${BOLD}SnowBlower is not running.${NC}" >&2
+    echoFail "${BOLD}SnowBlower is not running.${NC}" >&2
     echo "" >&2
-    errorEcho "${BOLD}You may start docker using the following commands:${NC} 'snow up'" >&2
+    echoFail "${BOLD}You may start docker using the following commands:${NC} 'snow up'" >&2
 
     exit 1
 }
@@ -12,16 +12,14 @@ function __sb__runChecks {
     if [ -z "$SB_SKIP_CHECKS" ]; then
         # Ensure that Docker is running...
         if ! docker info > /dev/null 2>&1; then
-            errorEcho "${BOLD}Docker is not running.${NC}" >&2
+            echoFail "${BOLD}Docker is not running.${NC}" >&2
             exit 1
         fi
 
         # Determine if SnowBlower is currently up...
         if "${SB_DOCKER_COMPOSE_PATH[@]}" ps "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
-            warnEcho "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
-
+            echoWarn "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
             "${SB_DOCKER_COMPOSE_PATH[@]}" down > /dev/null 2>&1
-
             __sb__isNotRunning
         elif [ -z "$("${SB_DOCKER_COMPOSE_PATH[@]}" ps -q "$SB_APP_SERVICE")" ]; then
             __sb__isNotRunning
@@ -77,8 +75,8 @@ function __sb__runCommand {
         shift 1
         "$general_function" "$@"
     else
-        errorEcho "Unknown command: snow $command_name $subcommand_name"
-        errorEcho "Run 'snow help' for a list of available commands."
+        echoFail "Unknown command: snow $command_name $subcommand_name"
+        echoBlank "Run 'snow help' for a list of available commands."
         exit 1
     fi
 }

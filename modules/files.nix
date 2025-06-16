@@ -116,7 +116,7 @@ in {
         name = "snowblower-directories";
         text = ''
           function __sb__createDirectories() {
-            statusEcho "OK" "Creating Directories" "''${SB_PROJECT_ROOT}"
+            echoOk "Creating Directories" "''${SB_PROJECT_ROOT}"
             ${lib.concatStrings (
             map (dir: ''
               __sb__createDirectory ${lib.escapeShellArgs [dir]}
@@ -131,7 +131,7 @@ in {
         name = "snowblower-touch-files";
         text = ''
           function __sb__createTouchFiles() {
-            statusEcho "OK" "Creating Touch Files" "''${SB_PROJECT_ROOT}"
+            echoOk "Creating Touch Files" "''${SB_PROJECT_ROOT}"
             ${lib.concatStrings (
             map (file: ''
               __sb__createTouchFile ${lib.escapeShellArgs [file]}

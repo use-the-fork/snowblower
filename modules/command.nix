@@ -61,6 +61,7 @@
           then ""
           else
             concatLines [
+              ''function __sb__display__${section.name}__commands {''
               ''echo "''${YELLOW}${section.data.displayName} Commands:''${NC}"''
               (
                 optionalString (section.data.exec != null)
@@ -68,6 +69,8 @@
               )
               resolvedSubCommands
               ''echo''
+              ''}''
+              "__sb__display__${section.name}__commands"
             ];
 
         resolvedCommands = lib.sbl.dag.resolveDag {
@@ -81,11 +84,10 @@
       in
         pkgs.writeTextFile {
           name = "sb-help-commands.sh";
-          text = ''
-            # Prints the resolved commands from the nix build.
-            function __sb__displayResolvedCommands {
-                ${resolvedCommands}
-            }
+          # Prints the resolved commands from the nix build.
+          text = ''            function __sb__displayResolvedCommands {
+                        ${resolvedCommands}
+                      }
           '';
         };
 
@@ -94,8 +96,9 @@
           mkSubCommandSection = name: subSection: let
             subSectionName = subSection.name;
           in ''            function __sb__command__${name}__${subSectionName} {
-                           __sb__RoutedCommandExecute "${subSection.data.exec}"
-                       }'';
+                            echoDebug "${section.data.exec}"
+                            __sb__RoutedCommandExecute "${subSection.data.exec}"
+                           }'';
 
           resolvedSubCommands = lib.sbl.dag.resolveDag {
             name = "snowblower sub commands for ${section.name} ";
@@ -109,6 +112,7 @@
           concatLines [
             (optionalString (section.data.exec != null) ''
               function __sb__command__${section.name} {
+                echoDebug "${section.data.exec}"
                 __sb__RoutedCommandExecute "${section.data.exec}"
               }
             '')

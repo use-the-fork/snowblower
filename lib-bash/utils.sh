@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
+###############################################################################################
+# 
+#  SnowBlower: All Flake No Fluff
+#  https://github.com/use-the-fork/snowblower
+#
+#
+###############################################################################################
 
 set -e
 set -o pipefail
+[ -n "${DEBUG:-}" ] && set -x
 
 # Credits to https://github.com/nix-community/home-manager/blob/master/lib/bash/home-manager.sh
-
 # Sets up colors suitable for the `errorEcho`, `warnEcho`, and `noteEcho`
 # functions.
 #
@@ -51,105 +58,83 @@ function setupColors() {
     fi
 }
 
-
-
-
 setupColors
 
-function statusEcho() {
-    local status="${1:-}"
-    local message="$2"
+function executeWithSpinner() {
+    local message="$1"
+    local command="$2"
     local detail="${3:-}"
     
-    if [ "$status" == "OK" ]; then
-        echo "${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
-    elif [ "$status" == "FAIL" ]; then
-        echo "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
-    elif [ "$status" == "WARN" ]; then
-        echo "${WHITE}[ ${YELLOW}WARN${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
-    elif [ "$status" == "INFO" ]; then
-        echo "${WHITE}[ ${BLUE}INFO${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+    local spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+    local temp_file=$(mktemp)
+    
+    # Start command in background
+    eval "$command" > "$temp_file" 2>&1 &
+    local cmd_pid=$!
+    
+    # Show spinner while command runs
+    local i=0
+    while kill -0 $cmd_pid 2>/dev/null; do
+        printf "\r${WHITE}[ ${YELLOW}%s${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}" \
+               "${spinner:$i:1}" "$message" "$detail"
+        i=$(( (i + 1) % ${#spinner} ))
+        sleep 0.1
+    done
+    
+    # Wait for command to finish and get exit code
+    wait $cmd_pid
+    local exit_code=$?
+    
+    # Show final status
+    if [ $exit_code -eq 0 ]; then
+        printf "\r${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "$message" "$detail"
     else
-        echo "          ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+        printf "\r${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "$message" "$detail"
+        # Optionally show the output on failure
+        cat "$temp_file"
+    fi
+    
+    rm -f "$temp_file"
+    return $exit_code
+}
+
+function echoOk() {
+    local message="${1:-}"
+    local detail="${2:-}"
+    echo "${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+}
+function echoWarn() {
+    local message="${1:-}"
+    local detail="${2:-}"
+    echo "${WHITE}[ ${YELLOW}WARN${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+}
+function echoFail() {
+    local message="${1:-}"
+    local detail="${2:-}"
+    echo "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+}
+function statusInfo() {
+    local message="${1:-}"
+    local detail="${2:-}"
+    echo "${WHITE}[ ${BLUE}INFO${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+}
+function echoBlank() {
+    local message="${1:-}"
+    local detail="${2:-}"
+    echo "          ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+}
+function echoDebug() {
+    local message="${1:-}"
+    local detail="${2:-}"
+
+    if [ -n "${DEBUG:-}" ]; then
+        echo "${WHITE}[ ${YELLOW}DEBUG${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
     fi
 }
-
-function errorEcho() {
-    echo "${errorColor}$*${normalColor}"
-}
-
-function warnEcho() {
-    echo "${warnColor}$*${normalColor}"
-}
-
-function noteEcho() {
-    echo "${noteColor}$*${normalColor}"
-}
-
-function verboseEcho() {
+function echoVerbose() {
     if [[ -v VERBOSE ]]; then
         echo "$*"
     fi
-}
-
-function _i() {
-    local msgid="$1"
-    shift
-
-    # shellcheck disable=2059
-    printf "$("$msgid")\n" "$@"
-}
-
-function _ip() {
-    local msgid="$1"
-    local msgidPlural="$2"
-    local count="$3"
-    shift 3
-
-    # shellcheck disable=2059
-    printf "$("$msgid" "$msgidPlural" "$count")\n" "$@"
-}
-
-function _iError() {
-    echo -n "${errorColor}"
-    _i "$@"
-    echo -n "${normalColor}"
-}
-
-function _iWarn() {
-    echo -n "${warnColor}"
-    _i "$@"
-    echo -n "${normalColor}"
-}
-
-function _iNote() {
-    echo -n "${noteColor}"
-    _i "$@"
-    echo -n "${normalColor}"
-}
-
-function _iVerbose() {
-    if [[ -v VERBOSE ]]; then
-        _i "$@"
-    fi
-}
-
-# Credits: https://github.com/srid/flake-root/blob/master/flake-module.nix
-# This function is used to find the flake root and set it as a env varible.
-__sb__findUp() {
-    ancestors=()
-    while true; do
-    if [[ -f $1 ]]; then
-        echo "$PWD"
-        exit 0
-    fi
-    ancestors+=("$PWD")
-    if [[ $PWD == / ]] || [[ $PWD == // ]]; then
-        echo "ERROR: Unable to locate the ${config.flake-root.projectRootFile} in any of: ''${ancestors[*]@Q}" >&2
-        exit 1
-    fi
-    cd ..
-    done
 }
 
 function __sb__createTouchFile() {
@@ -167,7 +152,7 @@ function __sb__createTouchFile() {
     
     # Touch the file to create it empty
     touch "$filePath"
-    statusEcho "" "Created touch file" "$filePath"
+    echoBlank "Created touch file" "$filePath"
 }
 
 function __sb__createDirectory() {
@@ -181,7 +166,7 @@ function __sb__createDirectory() {
     fi
 
     mkdir -p "$dirPath"
-    statusEcho "" "Created directory" "$dirPath"
+    echoBlank "Created directory" "$dirPath"
 }
 
 # Various Check functions

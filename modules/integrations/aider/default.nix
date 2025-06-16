@@ -28,7 +28,7 @@
           };
           default = {};
           description = ''
-            The aider start commands that we can run with just.
+            The aider start commands that are added to SnowBlower.
           '';
         };
       }
