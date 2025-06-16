@@ -6,9 +6,9 @@
     ...
   }: let
     inherit (lib) mkPackageManager;
-    cfg = config.snowblower.languages.javascript.npm;
+    cfg = config.snowblower.language.javascript.npm;
   in {
-    options.snowblower.languages.javascript.npm = mkPackageManager {
+    options.snowblower.language.javascript.npm = mkPackageManager {
       name = "NPM";
       package = pkgs.nodejs_24;
     };
@@ -20,7 +20,7 @@
 
       # We swap the javascript package for the full package that includes NPM
       # even if javascript is off this will get properly merged in.
-      languages.javascript.package = cfg.package;
+      language.javascript.package = cfg.package;
 
       command."npm" = {
         displayName = "NPM";

@@ -470,7 +470,7 @@ function __sb__command__reboot() {
 }
 
 function __sb__command__aider__start {
-               __sb__RoutedCommandExecute "aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "CONVENTIONS.MD" --lint-cmd "snow treefmt""
+               __sb__RoutedCommandExecute "aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "CONVENTIONS.MD" --lint-cmd "'snow pre-commit'""
            }
 
 

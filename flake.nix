@@ -58,7 +58,7 @@
                   watchFiles = true;
                   suggestShellCommands = false;
                   readFiles = ["CONVENTIONS.MD"];
-                  lintCommands = ["snow treefmt"];
+                  lintCommands = ["'snow pre-commit'"];
                 };
               };
             };
@@ -67,7 +67,7 @@
             };
           };
 
-          languages.javascript = {
+          language.javascript = {
             enable = true;
             npm.enable = true;
           };

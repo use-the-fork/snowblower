@@ -5,9 +5,12 @@
     config,
     ...
   }: let
+    inherit (lib) mkIntegration;
+
     tomlFormat = pkgs.formats.toml {};
+    cfg = config.snowblower.integrations.preCommit;
   in {
-    options.snowblower.integrations.treefmt = {
+    options.snowblower.integrations.treefmt = mkIntegration {
       name = "Treefmt";
       package = pkgs.treefmt;
       config = {
@@ -15,7 +18,7 @@
       };
     };
 
-    config.snowblower = {
+    config.snowblower = lib.mkIf cfg.enable {
       command."treefmt" = {
         displayName = "Treefmt";
         description = "formatter multiplexer";

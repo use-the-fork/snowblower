@@ -3,7 +3,7 @@
     # ./java
     ./javascript
     # ./php
-    # ./python
+    ./python
     # ./ruby
   ];
 }

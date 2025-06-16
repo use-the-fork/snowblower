@@ -1,6 +1,6 @@
 {flake-parts-lib, ...}: {
   imports = [
-    ./npm.nix
+    ./uv.nix
   ];
 
   options.perSystem = flake-parts-lib.mkPerSystemOption ({
@@ -10,11 +10,11 @@
     ...
   }: let
     inherit (lib) mkLanguage;
-    cfg = config.snowblower.language.javascript;
+    cfg = config.snowblower.language.python;
   in {
-    options.snowblower.language.javascript = mkLanguage {
-      name = "Javascript";
-      package = pkgs.nodejs-slim;
+    options.snowblower.language.python = mkLanguage {
+      name = "Python";
+      package = pkgs.python312;
     };
 
     config.snowblower = lib.mkIf cfg.enable {
@@ -24,5 +24,3 @@
     };
   });
 }
-# mkPackageManager
-

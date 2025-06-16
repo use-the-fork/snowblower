@@ -101,7 +101,8 @@
   mkPackageManager = {
     name,
     package,
-    settings ? {}, # used to define additional modules
+    config ? {},
+    extraOptions ? {},
   }: {
     enable = mkEnableOption "${name} Package Manager";
     package = mkOption {
@@ -109,7 +110,15 @@
       description = "The package ${name} should use.";
       default = package;
     };
-    inherit settings;
+    settings =
+      {
+        config = mkOption {
+          type = valueType;
+          description = "Configuration settings for ${name}.";
+          default = config;
+        };
+      }
+      // extraOptions;
   };
 
   # heavily modifed version of https://github.com/numtide/treefmt-nix/blob/main/default.nix
