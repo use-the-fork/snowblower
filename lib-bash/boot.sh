@@ -77,6 +77,12 @@ function __sb__bootSnowBlowerEnvironment() {
         # Check if Docker Compose is available
         export SB_DOCKER_COMPOSE_PATH=$(which docker-compose 2>/dev/null)
         SB_DOCKER_COMPOSE_STATUS=$?
+
+        # If docker-compose not found, try podman-compose
+        if [ $SB_DOCKER_COMPOSE_STATUS -ne 0 ] || [ -z "$SB_DOCKER_COMPOSE_PATH" ]; then
+            export SB_DOCKER_COMPOSE_PATH=$(which podman-compose 2>/dev/null)
+            SB_DOCKER_COMPOSE_STATUS=$?
+        fi
                                                                                                         
         if [ $SB_DOCKER_COMPOSE_STATUS -eq 0 ] && [ -n "$SB_DOCKER_COMPOSE_PATH" ]; then
             # Command succeeded and returned a path                                                        
