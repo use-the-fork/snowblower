@@ -104,12 +104,20 @@ in {
       dockerfileDockerContent = ''
         ${builtins.readFile ./../lib-docker/Dockerfile}
 
-        COPY flake.nix /home/''${USERNAME}/flake.nix
-        COPY flake.lock /home/''${USERNAME}/flake.lock
+        COPY flake.nix /workspace/flake.nix
+        COPY flake.lock /workspace/flake.lock
 
-        RUN nix profile install /home/''${USERNAME}#snowblowerDocker
+        RUN nix profile install flakes '.#snowblowerDockerEnv'
 
-        ENTRYPOINT [ "/docker-entrypoint.sh" ]
+        # Initialize shell environment variables.
+        RUN /root/.nix-profile/bin/docker-env init
+
+        # Execute everything with the shell environment variables.
+        SHELL ["/root/.nix-profile/bin/docker-entrypoint", "exec"]
+        ENTRYPOINT ["/root/.nix-profile/bin/docker-entrypoint", "exec"]
+
+        # Drop into a shell by default.
+        CMD bash
       '';
     in {
       docker = {
@@ -124,8 +132,6 @@ in {
           };
           environment = {
             USER_GID = "\${SB_USER_GID}";
-            IS_NIX_SHELL = "1";
-            IS_DOCKER = "1";
           };
           volumes = [
             ".:/workspace"

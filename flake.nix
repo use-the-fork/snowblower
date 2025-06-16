@@ -4,17 +4,11 @@
   inputs = {
     # global, so they can be `.follow`ed
     systems.url = "github:nix-systems/default-linux";
-
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-
-    treefmt-nix.url = "github:numtide/treefmt-nix";
-
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
-
-    process-compose-flake.url = "github:Platonic-Systems/process-compose-flake";
 
     git-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";

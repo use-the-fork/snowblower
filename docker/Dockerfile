@@ -16,14 +16,14 @@ RUN apt update -y && \
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen
 
 ARG USERNAME=${USERNAME:-snowblower}
-ARG USER_UID=${USER_UID}
-ARG USER_GID=${USER_GID}
+ARG USER_UID=${USER_UID:-1000}
+ARG USER_GID=${USER_UID:-1000}
 RUN groupadd --gid ${USER_GID} ${USERNAME} && \
     useradd --uid ${USER_UID} --gid ${USER_GID} -m ${USERNAME} -s /bin/bash && \
     echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/devcontainer && \
     chmod 0440 /etc/sudoers.d/devcontainer
 
-COPY nix.conf /etc/nix/nix.conf
+COPY docker/nix.conf /etc/nix/nix.conf
 RUN chmod 0664 /etc/nix/nix.conf
 
 ARG NIX_INSTALL_SCRIPT=https://install.lix.systems/lix
@@ -33,16 +33,25 @@ RUN curl --proto '=https' --tlsv1.2 -sSf -L ${NIX_INSTALL_SCRIPT} | sh -s -- ins
 
 ENV PATH="${PATH}:/nix/var/nix/profiles/default/bin"
 
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-
+# Change ownership of the nix store.
 RUN sudo chown -R ${USERNAME}: /nix
+
+WORKDIR /workspace
+RUN chown ${USER_UID}:${USER_UID} /workspace
 
 USER ${USERNAME}
 
-COPY flake.nix /home/${USERNAME}/flake.nix
-COPY flake.lock /home/${USERNAME}/flake.lock
+COPY flake.nix /workspace/flake.nix
+COPY flake.lock /workspace/flake.lock
 
-RUN nix profile install /home/${USERNAME}#snowblowerDocker
+RUN nix profile install '.#snowblowerDockerEnv'
 
-ENTRYPOINT [ "/docker-entrypoint.sh" ]
+# Initialize shell environment variables.
+RUN /root/.nix-profile/bin/docker-env init
+
+# Execute everything with the shell environment variables.
+SHELL ["/root/.nix-profile/bin/docker-entrypoint", "exec"]
+ENTRYPOINT ["/root/.nix-profile/bin/docker-entrypoint", "exec"]
+
+# Drop into a shell by default.
+CMD bash
