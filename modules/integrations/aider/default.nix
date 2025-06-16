@@ -15,13 +15,13 @@
 
     commandType = types.submodule commandModule;
 
-    cfg = config.snowblower.integrations.aider;
+    cfg = config.snowblower.integration.aider;
 
     yamlFormat = pkgs.formats.yaml {};
   in {
     imports = [
       {
-        options.snowblower.integrations.aider.commands = mkOption {
+        options.snowblower.integration.aider.commands = mkOption {
           type = types.submoduleWith {
             modules = [{freeformType = types.attrsOf commandType;}];
             specialArgs = {inherit pkgs;};
@@ -34,7 +34,7 @@
       }
     ];
 
-    options.snowblower.integrations.aider = mkIntegration {
+    options.snowblower.integration.aider = mkIntegration {
       name = "Aider";
       package = pkgs.aider-chat;
       config = {

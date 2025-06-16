@@ -8,9 +8,9 @@
     inherit (lib) mkIntegration;
 
     yamlFormat = pkgs.formats.yaml {};
-    cfg = config.snowblower.integrations.preCommit;
+    cfg = config.snowblower.integration.preCommit;
   in {
-    options.snowblower.integrations.preCommit = mkIntegration {
+    options.snowblower.integration.preCommit = mkIntegration {
       name = "pre-commit Hooks";
       package = pkgs.pre-commit;
       config = {
