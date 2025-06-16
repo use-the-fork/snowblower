@@ -43,6 +43,18 @@ in {
         type = types.listOf types.str;
       };
 
+      touchFiles = mkOption {
+        description = "List of empty files that will be created (touched) in the environment.";
+        default = [];
+        type = types.listOf types.str;
+      };
+
+      touchFilesPackage = mkOption {
+        type = types.package;
+        internal = true;
+        description = "Package to contain and generate all touch files";
+      };
+
       filesPackage = mkOption {
         type = types.package;
         internal = true;
@@ -110,6 +122,21 @@ in {
               __sb__createDirectory ${lib.escapeShellArgs [dir]}
             '')
             config.snowblower.directories
+          )}
+          }
+        '';
+      };
+
+      snowblower.touchFilesPackage = pkgs.writeTextFile {
+        name = "snowblower-touch-files";
+        text = ''
+          function __sb__createTouchFiles() {
+            statusEcho "OK" "Creating Touch Files" "''${SB_PROJECT_ROOT}"
+            ${lib.concatStrings (
+            map (file: ''
+              __sb__createTouchFile ${lib.escapeShellArgs [file]}
+            '')
+            config.snowblower.touchFiles
           )}
           }
         '';

@@ -152,6 +152,24 @@ __sb__findUp() {
     done
 }
 
+function __sb__createTouchFile() {
+    local filePath="$1"
+    # Evaluate the path with variables
+    filePath=$(eval echo "$filePath")
+
+    # Check if the path is not already within the project root
+    if [[ "$filePath" != "$SB_PROJECT_ROOT"* ]]; then
+        filePath="${SB_PROJECT_ROOT}/${filePath}"
+    fi
+
+    # Create parent directory if it doesn't exist
+    mkdir -p "$(dirname "$filePath")"
+    
+    # Touch the file to create it empty
+    touch "$filePath"
+    statusEcho "" "Created touch file" "$filePath"
+}
+
 function __sb__createDirectory() {
     local dirPath="$1"
     # Evaluate the path with variables

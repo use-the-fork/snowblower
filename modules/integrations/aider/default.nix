@@ -77,6 +77,15 @@
                         then "--git-commit-verify"
                         else "--no-git-commit-verify"
                       )
+                      (
+                        optionalString cmdCfg.subtreeOnly
+                        "--subtree-only"
+                      )
+                      (
+                        if cmdCfg.separateHistoryFiles
+                        then "--input-history-file \${SB_PROJECT_STATE}/aider/cache/.aider.${name}.input.history --chat-history-file \${SB_PROJECT_STATE}/aider/cache/.aider.${name}.chat.history --llm-history-file \${SB_PROJECT_STATE}/aider/cache/.aider.${name}.llm.history"
+                        else ""
+                      )
                       (lib.concatMapStringsSep " " (cmd: "--read \"${cmd}\"") cmdCfg.readFiles)
                       (lib.concatMapStringsSep " " (cmd: "--lint-cmd \"${cmd}\"") cmdCfg.lintCommands)
                       (lib.concatMapStringsSep " " (cmd: "--test-cmd \"${cmd}\"") cmdCfg.testCommands)
@@ -95,6 +104,23 @@
         packages = [
           cfg.package
         ];
+
+        directories = [
+          "\${SB_PROJECT_STATE}/aider"
+          "\${SB_PROJECT_STATE}/aider/cache"
+        ];
+
+        touchFiles = lib.flatten (lib.mapAttrsToList (
+            name: cmdCfg:
+              if cmdCfg.separateHistoryFiles
+              then [
+                "\${SB_PROJECT_STATE}/aider/cache/.aider.${name}.input.history"
+                "\${SB_PROJECT_STATE}/aider/cache/.aider.${name}.chat.history"
+                "\${SB_PROJECT_STATE}/aider/cache/.aider.${name}.llm.history"
+              ]
+              else []
+          )
+          cfg.commands);
 
         file.".aider.conf.yml" = {
           enable = true;

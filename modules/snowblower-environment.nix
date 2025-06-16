@@ -206,6 +206,7 @@ in {
               ${builtins.readFile ./../lib-bash/utils.sh}
 
                 ${builtins.readFile config.snowblower.directoriesPackage}
+                ${builtins.readFile config.snowblower.touchFilesPackage}
 
                 ${builtins.readFile ./../lib-bash/boot.sh}
 
