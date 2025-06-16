@@ -23,7 +23,7 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} && \
     echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/devcontainer && \
     chmod 0440 /etc/sudoers.d/devcontainer
 
-COPY nix.conf /etc/nix/nix.conf
+COPY docker/nix.conf /etc/nix/nix.conf
 RUN chmod 0664 /etc/nix/nix.conf
 
 ARG NIX_INSTALL_SCRIPT=https://install.lix.systems/lix
@@ -33,7 +33,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf -L ${NIX_INSTALL_SCRIPT} | sh -s -- ins
 
 ENV PATH="${PATH}:/nix/var/nix/profiles/default/bin"
 
-COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
 RUN sudo chown -R ${USERNAME}: /nix
