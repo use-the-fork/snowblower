@@ -49,7 +49,7 @@
       systems = import inputs.systems;
       perSystem = _: {
         snowblower = {
-          integrations = {
+          integration = {
             aider = {
               enable = true;
               commands = {
