@@ -103,17 +103,24 @@
             # Start with user's base config
             baseConfig = cfg.settings.config;
 
-            # Create the local repo with our generated hooks
-            localRepo = {
-              hooks = lib.filter (hook: hook != {}) (formatters ++ linters);
-              repo = "local";
-            };
+            # Filter out empty hooks
+            generatedHooks = lib.filter (hook: hook != {}) (formatters ++ linters);
 
             # Get existing repos from user config, or empty list
             existingRepos = baseConfig.repos or [];
 
-            # Combine all repos
-            allRepos = existingRepos ++ [localRepo];
+            # Only add local repo if we have generated hooks
+            allRepos =
+              if generatedHooks != []
+              then
+                existingRepos
+                ++ [
+                  {
+                    repo = "local";
+                    hooks = generatedHooks;
+                  }
+                ]
+              else existingRepos;
           in
             baseConfig
             // {
