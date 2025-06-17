@@ -4,19 +4,11 @@
 #  SnowBlower: All Flake No Fluff
 #  https://github.com/use-the-fork/snowblower
 #
-#
-###############################################################################################
 
 set -e
 set -o pipefail
 
 # Credits to https://github.com/nix-community/home-manager/blob/master/lib/bash/home-manager.sh
-# Sets up colors suitable for the `errorEcho`, `warnEcho`, and `noteEcho`
-# functions.
-#
-# The check for terminal output and color support is heavily inspired by
-# https://unix.stackexchange.com/a/10065.
-#
 # The setup respects the `NO_COLOR` environment variable.
 function setupColors() {
   BOLD=""
@@ -79,7 +71,7 @@ function executeWithSpinner() {
   # Show spinner while command runs
   local i=0
   while kill -0 $cmd_pid 2>/dev/null; do
-    printf "\r${WHITE}[ ${YELLOW}%s${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}" \
+    printf "\r${WHITE}[ ${BLUE}%s${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}" \
       "${spinner:i:1}" "$message" "$detail"
     i=$(((i + 1) % ${#spinner}))
     sleep 0.1
@@ -91,10 +83,9 @@ function executeWithSpinner() {
 
   # Show final status
   if [ $exit_code -eq 0 ]; then
-    printf "\r${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "$message" "$detail"
+    echoOk "$message" "$detail"
   else
-    printf "\r${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "$message" "$detail"
-    # Optionally show the output on failure
+    echoFail "$message" "$detail"
     cat "$temp_file"
   fi
 
@@ -104,44 +95,39 @@ function executeWithSpinner() {
 
 function echoSnow() {
   local message="${1:-}"
-  echo "${WHITE}[ ${GREEN} ❄️💨 ${WHITE} ]  ${BOLD}${WHITE}${message}${NC}"
+  printf "${WHITE}[ ${GREEN} ❄️💨 ${WHITE} ]  ${BOLD}${WHITE}%s${NC}\n" "${message}"
 }
 function echoOk() {
   local message="${1:-}"
   local detail="${2:-}"
-  echo "${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+  printf "${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
 }
 function echoWarn() {
   local message="${1:-}"
   local detail="${2:-}"
-  echo "${WHITE}[ ${YELLOW}WARN${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+  printf "${WHITE}[ ${YELLOW}WARN${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
 }
 function echoFail() {
   local message="${1:-}"
   local detail="${2:-}"
-  echo "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+  printf "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
 }
 function statusInfo() {
   local message="${1:-}"
   local detail="${2:-}"
-  echo "${WHITE}[ ${BLUE}INFO${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+  printf "${WHITE}[ ${BLUE}INFO${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
 }
 function echoBlank() {
   local message="${1:-}"
   local detail="${2:-}"
-  echo "          ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+  printf "          ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
 }
 function echoDebug() {
   local message="${1:-}"
   local detail="${2:-}"
 
   if [ -n "${DEBUG:-}" ]; then
-    echo "${WHITE}[ ${YELLOW}DEBUG${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
-  fi
-}
-function echoVerbose() {
-  if [[ -v VERBOSE ]]; then
-    echo "$*"
+    printf "${WHITE}[ ${YELLOW}DEBUG${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
   fi
 }
 

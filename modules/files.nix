@@ -109,6 +109,9 @@ in {
           cfg
         )}
 
+        ${lib.getExe pkgs.shfmt} -s -w snow
+        echoOk "Format snow package"
+
         echoOk "Files copied to current directory"
       '';
 

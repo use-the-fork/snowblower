@@ -4,7 +4,7 @@ function __sb__command__switch {
   return $?
 }
 function __sb__command__update {
-  nix flake update
+  executeWithSpinner "Updating Flake" "nix flake update"
   __sb__command__switch
   __sb__command__reboot
   return $?

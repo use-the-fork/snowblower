@@ -11,12 +11,6 @@ set -e
 set -o pipefail
 
 # Credits to https://github.com/nix-community/home-manager/blob/master/lib/bash/home-manager.sh
-# Sets up colors suitable for the `errorEcho`, `warnEcho`, and `noteEcho`
-# functions.
-#
-# The check for terminal output and color support is heavily inspired by
-# https://unix.stackexchange.com/a/10065.
-#
 # The setup respects the `NO_COLOR` environment variable.
 function setupColors() {
   BOLD=""
@@ -199,24 +193,22 @@ function __sb__isInsideSnowblowerShell() {
   fi
 }
 
-
-  function __sb__createDirectories() {
+function __sb__createDirectories() {
   echoOk "Creating Directories" "${SB_PROJECT_ROOT}"
   __sb__createDirectory '${SB_PROJECT_STATE}/npm'
-__sb__createDirectory '${SB_PROJECT_STATE}/npm/config'
-__sb__createDirectory '${SB_PROJECT_STATE}/pre_commit'
-__sb__createDirectory '${SB_PROJECT_STATE}/aider'
-__sb__createDirectory '${SB_PROJECT_STATE}/aider/cache'
+  __sb__createDirectory '${SB_PROJECT_STATE}/npm/config'
+  __sb__createDirectory '${SB_PROJECT_STATE}/pre_commit'
+  __sb__createDirectory '${SB_PROJECT_STATE}/aider'
+  __sb__createDirectory '${SB_PROJECT_STATE}/aider/cache'
 
 }
 
-  function __sb__createTouchFiles() {
+function __sb__createTouchFiles() {
   echoOk "Creating Touch Files" "${SB_PROJECT_ROOT}"
-  
+
 }
 
-
-  UNAMEOUT="$(uname -s)"
+UNAMEOUT="$(uname -s)"
 
 # Verify operating system is supported...
 case "${UNAMEOUT}" in
@@ -358,22 +350,20 @@ __sb__bootSnowBlowerEnvironment
 # Split the SB_DOCKER_COMPOSE string into an array
 read -ra SB_DOCKER_COMPOSE_COMMAND <<<"$SB_DOCKER_COMPOSE"
 
-
-  function setupEnvironmentVariables() {
+function setupEnvironmentVariables() {
   # Only source this once.
   if [ -v __SB_SESS_VARS_SOURCED ]; then return; fi
   export __SB_SESS_VARS_SOURCED=1
 
   export NPM_CONFIG_CACHE="${SB_PROJECT_STATE}/npm"
-export NPM_CONFIG_TMP="${SB_PROJECT_STATE}/npm"
-export NPM_CONFIG_USERCONFIG="${SB_PROJECT_STATE}/npm/config"
-export PRE_COMMIT_HOME="${SB_PROJECT_STATE}/pre_commit"
+  export NPM_CONFIG_TMP="${SB_PROJECT_STATE}/npm"
+  export NPM_CONFIG_USERCONFIG="${SB_PROJECT_STATE}/npm/config"
+  export PRE_COMMIT_HOME="${SB_PROJECT_STATE}/pre_commit"
 }
 
 setupEnvironmentVariables
 
-
-  function display_help {
+function display_help {
   echo "❄️ 💨 SnowBlower: All flake no fluff."
   echo
   echo "${YELLOW}Usage:${NC}" >&2
@@ -397,31 +387,27 @@ setupEnvironmentVariables
   exit 1
 }
 
-  function __sb__displayResolvedCommands {
-            echo "${YELLOW}Aider Commands:${NC}"
-echo "  ${GREEN}snow aider ...${NC}          Run a Aider command"
-echo "  ${GREEN}snow aider start${NC}          w/ linting, watchfiles, and conventions."
+function __sb__displayResolvedCommands {
+  echo "${YELLOW}Aider Commands:${NC}"
+  echo "  ${GREEN}snow aider ...${NC}          Run a Aider command"
+  echo "  ${GREEN}snow aider start${NC}          w/ linting, watchfiles, and conventions."
 
-echo
+  echo
 
-echo "${YELLOW}NPM Commands:${NC}"
-echo "  ${GREEN}snow npm ...${NC}          Run a NPM command"
+  echo "${YELLOW}NPM Commands:${NC}"
+  echo "  ${GREEN}snow npm ...${NC}          Run a NPM command"
 
+  echo
 
-echo
+  echo "${YELLOW}Pre-commit Commands:${NC}"
+  echo "  ${GREEN}snow pre-commit ...${NC}          Run a Pre-commit command"
+  echo "  ${GREEN}snow pre-commit all${NC}          Run precommit on all files"
 
+  echo
 
-echo "${YELLOW}Pre-commit Commands:${NC}"
-echo "  ${GREEN}snow pre-commit ...${NC}          Run a Pre-commit command"
-echo "  ${GREEN}snow pre-commit all${NC}          Run precommit on all files"
+}
 
-echo
-
-
-          }
-
-
-  # Proxy the "help" command...
+# Proxy the "help" command...
 if [ $# -gt 0 ]; then
   if [ "$1" == "help" ] || [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ]; then
     display_help
@@ -430,8 +416,7 @@ else
   display_help
 fi
 
-
-  # Commands that are specific to Docker and Docker Compose.
+# Commands that are specific to Docker and Docker Compose.
 function __sb__command__docker__up {
   if [ $# -le 1 ]; then
     "${SB_DOCKER_COMPOSE_PATH}" up
@@ -476,13 +461,13 @@ function __sb__command__docker__build {
   return $?
 }
 
-  # Commands that are specific to controling SnowBlower.
+# Commands that are specific to controling SnowBlower.
 function __sb__command__switch {
   nix run .#snowblowerFiles
   return $?
 }
 function __sb__command__update {
-  nix flake update
+  executeWithSpinner "Updating Flake" "nix flake update"
   __sb__command__switch
   __sb__command__reboot
   return $?
@@ -494,38 +479,29 @@ function __sb__command__reboot() {
   return 0
 }
 
-  function __sb__command__aider {
+function __sb__command__aider {
   __sb__RoutedCommandExecute aider
 }
 
 function __sb__command__aider__start {
-                __sb__RoutedCommandExecute 'aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "CONVENTIONS.MD" --lint-cmd "snow pre-commit"'
-               }
-
+  __sb__RoutedCommandExecute 'aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "CONVENTIONS.MD" --lint-cmd "snow pre-commit"'
+}
 
 function __sb__command__npm {
   __sb__RoutedCommandExecute npm
 }
 
-
-
-
 function __sb__command__npm-dev {
   __sb__RoutedCommandExecute 'npm run dev'
 }
-
-
-
 
 function __sb__command__pre-commit {
   __sb__RoutedCommandExecute pre-commit
 }
 
 function __sb__command__pre-commit__all {
-                __sb__RoutedCommandExecute 'pre-commit run --all-files'
-               }
-
-
+  __sb__RoutedCommandExecute 'pre-commit run --all-files'
+}
 
 # Function that outputs SnowBlower is not running...
 function __sb__isNotRunning {
@@ -617,5 +593,3 @@ if [ $# -ge 2 ]; then
 else
   __sb__runCommand "$1" ""
 fi
-
-
