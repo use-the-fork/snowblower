@@ -59,21 +59,21 @@ in {
             text = ''
               ${builtins.readFile ./../lib-bash/utils.sh}
 
-                ${builtins.readFile config.snowblower.directoriesPackage}
-                ${builtins.readFile config.snowblower.touchFilesPackage}
+              ${builtins.readFile config.snowblower.directoriesPackage}
+              ${builtins.readFile config.snowblower.touchFilesPackage}
 
-                ${builtins.readFile ./../lib-bash/boot.sh}
+              ${builtins.readFile ./../lib-bash/boot.sh}
 
-                ${builtins.readFile config.snowblower.environmentVariablesPackage}
+              ${builtins.readFile config.snowblower.environmentVariablesPackage}
 
-                ${builtins.readFile ./../lib-bash/welcome.sh}
-                ${builtins.readFile config.snowblower.commandHelpPackage}
+              ${builtins.readFile ./../lib-bash/welcome.sh}
+              ${builtins.readFile config.snowblower.commandHelpPackage}
 
-                ${builtins.readFile ./../lib-bash/help.sh}
+              ${builtins.readFile ./../lib-bash/help.sh}
 
-                ${builtins.readFile ./../lib-bash/docker-commands.sh}
-                ${builtins.readFile ./../lib-bash/snowblower-commands.sh}
-                ${builtins.readFile config.snowblower.commandRunPackage}
+              ${builtins.readFile ./../lib-bash/docker-commands.sh}
+              ${builtins.readFile ./../lib-bash/snowblower-commands.sh}
+              ${builtins.readFile config.snowblower.commandRunPackage}
             '';
           };
         in {

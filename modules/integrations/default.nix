@@ -1,6 +1,6 @@
 {
   imports = [
-    # ./agenix
+    ./agenix.nix
     ./aider
     # ./convco
     # ./dotenv

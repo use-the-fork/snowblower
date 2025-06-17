@@ -26,7 +26,6 @@ in {
 
     config = {
       snowblower = {
-
         # From: https://github.com/diamondburned/gotk4/blob/4/flake.nix
         # A intresting way of building a dev shell where it's created using an init of our flakes dev shell and
         # then output to `~/nix-environment'` from which we can then source it when we `exec` (Default entrypoint)

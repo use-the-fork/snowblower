@@ -7,6 +7,7 @@ _localFlake: {...}: {
     ./modules/services
     ./modules/command.nix
     ./modules/files.nix
+    ./modules/hooks.nix
     ./modules/packages.nix
     ./modules/processes.nix
     ./modules/shell.nix

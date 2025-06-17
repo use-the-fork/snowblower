@@ -58,7 +58,18 @@
                   watchFiles = true;
                   suggestShellCommands = false;
                   readFiles = ["CONVENTIONS.MD"];
-                  lintCommands = ["snow pre-commit"];
+                  lintCommands = ["snow pre-commit all"];
+                };
+              };
+            };
+            agenix = {
+              enable = true;
+              secrets = {
+                ".env.local" = {
+                  publicKeys = [
+                    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL0idNvgGiucWgup/mP78zyC23uFjYq0evcWdjGQUaBH"
+                    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOSE69dmDxQ/UJ8k+8CL3lzc/PyJXXO/2aCcYQOjkTW+"
+                  ];
                 };
               };
             };

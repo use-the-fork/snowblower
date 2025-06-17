@@ -171,11 +171,6 @@ in {
         source = pkgs.writeText "dockerfile" dockerfileDockerContent;
       };
 
-      file."docker/docker-entrypoint.sh" = {
-        enable = true;
-        text = builtins.readFile ./../lib-docker/docker-entrypoint.sh;
-      };
-
       # TODO: Not sold on this should maybe directly in here.
       file."docker/nix.conf" = {
         enable = true;

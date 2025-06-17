@@ -112,7 +112,7 @@ function echoFail() {
   local detail="${2:-}"
   printf "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
 }
-function statusInfo() {
+function echoInfo() {
   local message="${1:-}"
   local detail="${2:-}"
   printf "${WHITE}[ ${BLUE}INFO${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
@@ -247,10 +247,6 @@ SCRIPT_HASH=$(echo "${BASH_SOURCE[0]}" | md5sum | cut -d' ' -f1 | cut -c1-8)
 export SB_SESS_FILE="${TMPDIR:-/tmp}/.sb_session_$(tty | tr '/' '_')_${SCRIPT_HASH}"
 
 # we define environment variables...
-# export SB_SRC_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-echoDebug "${BASH_SOURCE[0]}"
-
 export SB_APP_SERVICE=${APP_SERVICE:-"snowblower-dev"}
 export SB_USER_UID=${USER_UID:-$UID}
 export SB_USER_GID=${USER_GID:-$(id -g)}
@@ -412,6 +408,12 @@ function display_help {
 }
 
 function __sb__displayResolvedCommands {
+  echo "${YELLOW}Agenix Commands:${NC}"
+  echo "  ${GREEN}snow agenix ...${NC}          Run a Agenix command"
+  echo "  ${GREEN}snow agenix rekey${NC}          Rekey secrets"
+
+  echo
+
   echo "${YELLOW}Aider Commands:${NC}"
   echo "  ${GREEN}snow aider ...${NC}          Run a Aider command"
   echo "  ${GREEN}snow aider start${NC}          w/ linting, watchfiles, and conventions."
@@ -503,12 +505,20 @@ function __sb__command__reboot() {
   return 0
 }
 
+function __sb__command__agenix {
+  __sb__RoutedCommandExecute sb-agenix
+}
+
+function __sb__command__agenix__rekey {
+  __sb__RoutedCommandExecute 'sb-agenix --rekey'
+}
+
 function __sb__command__aider {
   __sb__RoutedCommandExecute aider
 }
 
 function __sb__command__aider__start {
-  __sb__RoutedCommandExecute 'aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "CONVENTIONS.MD" --lint-cmd "snow pre-commit"'
+  __sb__RoutedCommandExecute 'aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "CONVENTIONS.MD" --lint-cmd "snow pre-commit all"'
 }
 
 function __sb__command__npm {

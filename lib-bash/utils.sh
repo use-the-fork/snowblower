@@ -112,7 +112,7 @@ function echoFail() {
   local detail="${2:-}"
   printf "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
 }
-function statusInfo() {
+function echoInfo() {
   local message="${1:-}"
   local detail="${2:-}"
   printf "${WHITE}[ ${BLUE}INFO${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
