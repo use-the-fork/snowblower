@@ -190,7 +190,7 @@
   };
 
   mkCodeQualityCommand = {
-    command,
+    exec,
     enable ? false,
     args ? [],
     priority ? 0,
@@ -198,7 +198,7 @@
   }: {
     enable = mkOption {
       type = lib.types.bool;
-      description = "Enable ${command}";
+      description = "Enable ${exec}";
       default = enable;
     };
     args = mkOption {
@@ -211,10 +211,10 @@
       type = lib.types.nullOr lib.types.int;
       default = priority;
     };
-    command = mkOption {
+    exec = mkOption {
       type = lib.types.str;
       description = "The executable name";
-      default = command;
+      default = exec;
     };
     inherit hook;
   };

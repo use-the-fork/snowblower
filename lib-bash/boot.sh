@@ -43,7 +43,7 @@ function __sb__bootSnowBlowerEnvironment() {
         return
     fi
 
-    echoBlank "Booting SnowBlower Session" ""
+    echoSnow "Booting SnowBlower Session" ""
     echoOk "Creating Session File" "${SB_SESS_FILE}"
 
     # These are the must have varibles for the project

@@ -97,6 +97,10 @@ function executeWithSpinner() {
     return $exit_code
 }
 
+function echoSnow() {
+    local message="${1:-}"
+    echo "${WHITE}[ ${GREEN} ❄️💨 ${WHITE} ]  ${WHITE}${message}${NC}"
+}
 function echoOk() {
     local message="${1:-}"
     local detail="${2:-}"
@@ -176,6 +180,14 @@ function __sb__isInsideDocker(){
 
 function __sb__hasNix(){
     if [ -n "$SB_NIX_PATH" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function __sb__isInsideSnowblowerShell(){
+    if [ -n "$SB_IS_SHELL" ]; then
         return 0
     else
         return 1

@@ -36,13 +36,13 @@
 
       lint = mkCodeQualityCommand {
         enable = true;
-        command = "biome";
+        exec = "biome";
         args = ["lint" "--write"];
       };
 
       format = mkCodeQualityCommand {
         enable = true;
-        command = "biome";
+        exec = "biome";
         args = ["format" "--write"];
         priority = 100;
       };

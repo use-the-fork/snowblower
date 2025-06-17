@@ -16,7 +16,7 @@
 
       lint = mkCodeQualityCommand {
         enable = true;
-        command = "statix-fix";
+        exec = "statix-fix";
       };
 
       includes = [

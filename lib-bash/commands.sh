@@ -1,9 +1,9 @@
 # Function that outputs SnowBlower is not running...
 function __sb__isNotRunning {
-    echoFail "${BOLD}SnowBlower is not running.${NC}" >&2
-    echo "" >&2
-    echoFail "${BOLD}You may start docker using the following commands:${NC} 'snow up'" >&2
-
+    echo
+    echoFail "Environment is not running." >&2
+    echoBlank "If you have Nix installed, you may enter the dev shell by running:" "nix develop"
+    echoBlank "To start in Docker run" "snow docker up"
     exit 1
 }
 
@@ -37,7 +37,7 @@ function __sb__RoutedCommandExecute() {
     cmd="${cmd//\'}"
     
     # If the env has Nix we can run the command directly
-    if __sb__hasNix; then
+    if __sb__isInsideSnowblowerShell; then
         echoDebug "$cmd"
         eval "$cmd"
         return $?
@@ -79,7 +79,6 @@ function __sb__runCommand {
     else
         echoFail "Unknown command: snow $command_name $subcommand_name"
         echoBlank "Run 'snow help' for a list of available commands."
-        # AI: add a line here for snow COMMAND -h to display sub commands
         exit 1
     fi
 }

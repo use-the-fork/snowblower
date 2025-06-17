@@ -8,21 +8,27 @@
     inherit (lib) mkCodeQualityTool mkCodeQualityCommand mkCodeQualityCommandHook;
     tomlFormat = pkgs.formats.toml {};
 
-    cfg = config.snowblower.codeQuality.alejandra;
+    cfg = config.snowblower.codeQuality.shfmt;
   in {
-    options.snowblower.codeQuality.alejandra = mkCodeQualityTool {
-      name = "Alejandra";
-      package = pkgs.alejandra;
+    options.snowblower.codeQuality.shfmt = mkCodeQualityTool {
+      name = "shfmt";
+      package = pkgs.shfmt;
+      includes = [
+        "*.sh"
+        "*.bash"
+        "*.envrc"
+        "*.envrc.*"
+      ];
 
       lint = mkCodeQualityCommand {
         enable = true;
-        exec = "alejandra";
+        exec = "shfmt";
+        args = [
+          "-s"
+          "-w"
+        ];
         hook = mkCodeQualityCommandHook {};
       };
-
-      includes = [
-        "*.nix"
-      ];
     };
 
     config = lib.mkIf cfg.enable {
@@ -30,11 +36,6 @@
         packages = [
           cfg.package
         ];
-
-        file."alejandra.toml" = {
-          enable = cfg.settings.config != {};
-          source = tomlFormat.generate "alejandra.toml" cfg.settings.config;
-        };
       };
     };
   });

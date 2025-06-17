@@ -20,13 +20,13 @@
 
       lint = mkCodeQualityCommand {
         enable = true;
-        command = "ruff";
+        exec = "ruff";
         args = ["check" "--fix"];
       };
 
       format = mkCodeQualityCommand {
         enable = true;
-        command = "ruff";
+        exec = "ruff";
         args = ["format"];
         priority = 100;
       };

@@ -60,7 +60,7 @@
                 lib.optionalAttrs (tool.enable && (tool.settings.format.enable or false) && (tool.settings.format.hook.enable or false)) (
                   lib.recursiveUpdate {
                     "args" = (tool.settings.format.args or []) ++ (tool.settings.format.hook.args or []);
-                    "entry" = tool.settings.format.command;
+                    "entry" = tool.settings.format.exec;
                     "id" = "${lib.toLower name}-format";
                     "language" = "system";
                     "name" = "${lib.toLower name}-format";
@@ -83,7 +83,7 @@
                 lib.optionalAttrs (tool.enable && (tool.settings.lint.enable or false) && (tool.settings.lint.hook.enable or false)) (
                   lib.recursiveUpdate {
                     "args" = (tool.settings.lint.args or []) ++ (tool.settings.lint.hook.args or []);
-                    "entry" = tool.settings.lint.command;
+                    "entry" = tool.settings.lint.exec;
                     "id" = "${lib.toLower name}-lint";
                     "language" = "system";
                     "name" = "${lib.toLower name}-lint";

@@ -26,7 +26,7 @@
 
       format = mkCodeQualityCommand {
         enable = true;
-        command = "mdformat";
+        exec = "mdformat";
         priority = 100;
       };
     };

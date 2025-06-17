@@ -36,6 +36,7 @@ in {
           name = "snowblower";
           inherit (config.snowblower) packages;
           shellHook = ''
+            export SB_IS_SHELL=1
           '';
         };
 

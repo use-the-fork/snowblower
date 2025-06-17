@@ -15,7 +15,7 @@
 
       lint = mkCodeQualityCommand {
         enable = true;
-        command = "deadnix";
+        exec = "deadnix";
         args = ["--edit"];
       };
 

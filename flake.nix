@@ -84,6 +84,7 @@
           codeQuality = {
             alejandra.enable = true;
             statix.enable = true;
+            shfmt.enable = true;
           };
         };
       };

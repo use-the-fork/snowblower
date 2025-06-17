@@ -17,7 +17,7 @@
 
       format = mkCodeQualityCommand {
         enable = true;
-        command = "keep-sorted";
+        exec = "keep-sorted";
       };
 
       includes = [

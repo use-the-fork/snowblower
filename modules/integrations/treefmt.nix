@@ -46,7 +46,7 @@
                         else true
                       )
                   ) {
-                    inherit (tool.settings.format) command;
+                    command = tool.settings.format.exec;
                     options = tool.settings.format.args or [];
                     inherit (tool.settings) includes;
                     inherit (tool.settings) excludes;
@@ -72,7 +72,7 @@
                         else true
                       )
                   ) {
-                    inherit (tool.settings.lint) command;
+                    command = tool.settings.lint.exec;
                     options = tool.settings.lint.args or [];
                     inherit (tool.settings) includes;
                     inherit (tool.settings) excludes;

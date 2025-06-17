@@ -173,33 +173,7 @@ in {
           '';
         };
 
-        # The entry acting as a boundary between the activation script's "check" and
-        # the "write" phases. This is where we commit to attempting to actually
-        # activate the configuration.
-        activation.writeBoundary = lib.sbl.dag.entryAnywhere ''
-          if [[ ! -v oldGenPath || "$oldGenPath" != "$newGenPath" ]] ; then
-              _i "Creating new profile generation"
-              run nix-env $VERBOSE_ARG --profile "$genProfilePath" --set "$newGenPath"
-          else
-              _i "No change so reusing latest profile generation"
-          fi
-        '';
-
-        # Text containing Bash commands that will initialize the Home Manager Bash
-        # library. Most importantly, this will prepare for using translated strings
-        # in the `hm-modules` text domain.
-        activation.initSnowBlowerLib = ''
-          ${builtins.readFile ./../lib-bash/utils.sh}
-        '';
-
         file."snow" = let
-          #  ${lib.concatStringsSep "\n" (lib.mapAttrsToList
-          # (name: cmd:
-          #   lib.sbl.command.formatCommand {
-          #     inherit name;
-          #     inherit (builtins.trace cmd cmd) description lib.sbl.dag.resolveDag subcommands;
-          #   })
-          # config.snowblower.commands)}
           activationPackage = pkgs.writeTextFile {
             name = "sb-activation-package";
             text = ''
@@ -220,8 +194,6 @@ in {
                 ${builtins.readFile ./../lib-bash/docker-commands.sh}
                 ${builtins.readFile ./../lib-bash/snowblower-commands.sh}
                 ${builtins.readFile config.snowblower.commandRunPackage}
-
-
             '';
           };
         in {

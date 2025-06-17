@@ -8,6 +8,7 @@
     ./mdformat.nix
     ./nixfmt.nix
     ./ruff.nix
+    ./shfmt.nix
     ./statix.nix
   ];
 }
