@@ -17,12 +17,6 @@ in {
         description = "The package containing the complete activation script.";
       };
 
-      devShellPackage = mkOption {
-        internal = true;
-        type = types.package;
-        description = "The package containing the complete activation script.";
-      };
-
       packages = mkOption {
         type = listOf types.package;
         description = "Packages to install in the development shell environment";
@@ -32,13 +26,6 @@ in {
 
     config = {
       snowblower = {
-        devShellPackage = pkgs.mkShell {
-          name = "snowblower";
-          inherit (config.snowblower) packages;
-          shellHook = ''
-            export SB_IS_SHELL=1
-          '';
-        };
 
         # From: https://github.com/diamondburned/gotk4/blob/4/flake.nix
         # A intresting way of building a dev shell where it's created using an init of our flakes dev shell and
@@ -75,9 +62,7 @@ in {
         };
       };
 
-      devShells.default = config.snowblower.devShellPackage;
       packages = {
-        snowblowerDevShell = config.snowblower.devShellPackage;
         inherit (config.snowblower) dockerPackage;
       };
     };

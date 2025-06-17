@@ -1,13 +1,13 @@
 # Commands that are specific to controling SnowBlower.
 function __sb__command__switch {
   nix run .#snowblowerFiles
-  return $?
+  return 0
 }
 function __sb__command__update {
   executeWithSpinner "Updating Flake" "nix flake update"
   __sb__command__switch
   __sb__command__reboot
-  return $?
+  return 0
 }
 
 function __sb__command__reboot() {

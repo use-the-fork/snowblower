@@ -21,7 +21,7 @@ elif [ -f ./.env ]; then
   source ./.env
   echoOk "Found and sourced" ".env"
 fi
-$()
+
 # Create a session file in tmp dir. this allows us to do the "heavy" lifiting for the snow command one time.
 SCRIPT_HASH=$(echo "${BASH_SOURCE[0]}" | md5sum | cut -d' ' -f1 | cut -c1-8)
 export SB_SESS_FILE="${TMPDIR:-/tmp}/.sb_session_$(tty | tr '/' '_')_${SCRIPT_HASH}"
@@ -31,6 +31,15 @@ export SB_APP_SERVICE=${APP_SERVICE:-"snowblower-dev"}
 export SB_USER_UID=${USER_UID:-$UID}
 export SB_USER_GID=${USER_GID:-$(id -g)}
 export SB_SKIP_CHECKS=${SKIP_CHECKS:-}
+export SB_PROJECT_ROOT_FILE=${PROJECT_ROOT_FILE:-"flake.nix"}
+
+SB_SRC_ROOT="$(__sb__findUp "$SB_PROJECT_ROOT_FILE")"
+if [ $? -ne 0 ]; then
+  echoFail "Unable to locate $SB_PROJECT_ROOT_FILE" "Make sure you're in a project directory with a $SB_PROJECT_ROOT_FILE file"
+  exit 1
+fi
+
+export SB_SRC_ROOT
 
 function __sb__bootSnowBlowerEnvironment() {
   # Only source this once.
@@ -45,14 +54,12 @@ function __sb__bootSnowBlowerEnvironment() {
   echoOk "Creating Session File" "${SB_SESS_FILE}"
 
   # These are the must have varibles for the project
-  export SB_SRC_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   export SB_PROJECT_ROOT="$SB_SRC_ROOT/.snowblower"
   export SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
   export SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
   export SB_PROJECT_RUNTIME="$SB_PROJECT_ROOT/runtime"
 
   # Save exports to session file
-  echo "export SB_SRC_ROOT=\"$SB_SRC_ROOT\"" >"$SB_SESS_FILE"
   echo "export SB_PROJECT_ROOT=\"$SB_PROJECT_ROOT\"" >>"$SB_SESS_FILE"
   echo "export SB_PROJECT_PROFILE=\"$SB_PROJECT_PROFILE\"" >>"$SB_SESS_FILE"
   echo "export SB_PROJECT_STATE=\"$SB_PROJECT_STATE\"" >>"$SB_SESS_FILE"
@@ -92,7 +99,7 @@ function __sb__bootSnowBlowerEnvironment() {
     fi
   fi
 
-  echoOk "SnowBlower directory set to" "${SB_PROJECT_ROOT}"
+  echoOk "SnowBlower root directory set to" "${SB_SRC_ROOT}"
 
   # Create directories if they don't exist
   if [ ! -d "$SB_PROJECT_ROOT" ]; then
@@ -113,6 +120,9 @@ function __sb__bootSnowBlowerEnvironment() {
     echoOk "Creating runtime directory" "${SB_PROJECT_RUNTIME}"
     mkdir -p "$SB_PROJECT_RUNTIME"
   fi
+
+  #Symlink SnowBlower to the profile
+  ln -sf "${SB_SRC_ROOT}/snow" "${SB_PROJECT_PROFILE}/snow"
 
   # the below two function are added via a seperate package in files.nix.
   # But we need to boot it here so we can be sure all directories are created.

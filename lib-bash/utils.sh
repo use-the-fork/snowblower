@@ -131,6 +131,25 @@ function echoDebug() {
   fi
 }
 
+
+# Credits: https://github.com/srid/flake-root/blob/master/flake-module.nix
+# This function is used to find the flake root and set it as a env varible.
+__sb__findUp() {
+  ancestors=()
+  while true; do
+  if [[ -f $1 ]]; then
+      echo "$PWD"
+      exit 0
+  fi
+  ancestors+=("$PWD")
+  if [[ $PWD == / ]] || [[ $PWD == // ]]; then
+      echo "Unable to locate ${1}"
+      exit 1
+  fi
+  cd ..
+  done
+}
+
 function __sb__createTouchFile() {
   local filePath="$1"
   # Evaluate the path with variables
@@ -178,7 +197,7 @@ function __sb__hasNix() {
 }
 
 function __sb__isInsideSnowblowerShell() {
-  if [ -n "$SB_IS_SHELL" ]; then
+  if [ -n "$SB_IN_SHELL" ]; then
     return 0
   else
     return 1
