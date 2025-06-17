@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ###############################################################################################
-# 
+#
 #  SnowBlower: All Flake No Fluff
 #  https://github.com/use-the-fork/snowblower
 #
@@ -19,175 +19,184 @@ set -o pipefail
 #
 # The setup respects the `NO_COLOR` environment variable.
 function setupColors() {
-    normalColor=""
-    errorColor=""
-    warnColor=""
-    noteColor=""
+  BOLD=""
+  DIM=""
+  UNDERLINE=""
+  BLINK=""
+  REVERSE=""
+  NC=""
+  BLACK=""
+  RED=""
+  GREEN=""
+  YELLOW=""
+  BLUE=""
+  MAGENTA=""
+  CYAN=""
+  WHITE=""
 
-    # Enable colors for terminals, and allow opting out.
-    if [[ ! -v NO_COLOR && -t 1 ]]; then
-        # See if it supports colors.
-        local ncolors
-        ncolors=$(tput colors 2> /dev/null || echo 0)
+  # Enable colors for terminals, and allow opting out.
+  if [[ ! -v NO_COLOR && -t 1 ]]; then
+    # See if it supports colors.
+    local ncolors
+    ncolors=$(tput colors 2>/dev/null || echo 0)
 
-        if [[ -n "$ncolors" && "$ncolors" -ge 8 ]]; then
-            normalColor="$(tput sgr0)"
-            errorColor="$(tput bold)$(tput setaf 1)"
-            warnColor="$(tput setaf 3)"
-            noteColor="$(tput bold)$(tput setaf 6)"
+    if [[ -n $ncolors && $ncolors -ge 8 ]]; then
+      # Text attributes
+      BOLD="$(tput bold)"
+      DIM="$(tput dim)"
+      UNDERLINE="$(tput smul)"
+      BLINK="$(tput blink)"
+      REVERSE="$(tput rev)"
+      NC="$(tput sgr0)" # No Color
 
-            # Text attributes
-            BOLD="$(tput bold)"
-            DIM="$(tput dim)"
-            # UNDERLINE="$(tput smul)"
-            # BLINK="$(tput blink)"
-            # REVERSE="$(tput rev)"
-            NC="$(tput sgr0)"  # No Color
-
-            # Regular colors
-            BLACK="$(tput setaf 0)"
-            RED="$(tput setaf 1)"
-            GREEN="$(tput setaf 2)"
-            YELLOW="$(tput setaf 3)"
-            BLUE="$(tput setaf 4)"
-            MAGENTA="$(tput setaf 5)"
-            CYAN="$(tput setaf 6)"
-            WHITE="$(tput setaf 7)"
-        fi
+      # Regular colors
+      BLACK="$(tput setaf 0)"
+      RED="$(tput setaf 1)"
+      GREEN="$(tput setaf 2)"
+      YELLOW="$(tput setaf 3)"
+      BLUE="$(tput setaf 4)"
+      MAGENTA="$(tput setaf 5)"
+      CYAN="$(tput setaf 6)"
+      WHITE="$(tput setaf 7)"
     fi
+  fi
 }
 
 setupColors
 
 function executeWithSpinner() {
-    local message="$1"
-    local command="$2"
-    local detail="${3:-}"
-    
-    local spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
-    local temp_file=$(mktemp)
-    
-    # Start command in background
-    eval "$command" > "$temp_file" 2>&1 &
-    local cmd_pid=$!
-    
-    # Show spinner while command runs
-    local i=0
-    while kill -0 $cmd_pid 2>/dev/null; do
-        printf "\r${WHITE}[ ${YELLOW}%s${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}" \
-               "${spinner:$i:1}" "$message" "$detail"
-        i=$(( (i + 1) % ${#spinner} ))
-        sleep 0.1
-    done
-    
-    # Wait for command to finish and get exit code
-    wait $cmd_pid
-    local exit_code=$?
-    
-    # Show final status
-    if [ $exit_code -eq 0 ]; then
-        printf "\r${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "$message" "$detail"
-    else
-        printf "\r${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "$message" "$detail"
-        # Optionally show the output on failure
-        cat "$temp_file"
-    fi
-    
-    rm -f "$temp_file"
-    return $exit_code
+  local message="$1"
+  local command="$2"
+  local detail="${3:-}"
+
+  local spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+  local temp_file=$(mktemp)
+
+  # Start command in background
+  eval "$command" >"$temp_file" 2>&1 &
+  local cmd_pid=$!
+
+  # Show spinner while command runs
+  local i=0
+  while kill -0 $cmd_pid 2>/dev/null; do
+    printf "\r${WHITE}[ ${YELLOW}%s${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}" \
+      "${spinner:i:1}" "$message" "$detail"
+    i=$(((i + 1) % ${#spinner}))
+    sleep 0.1
+  done
+
+  # Wait for command to finish and get exit code
+  wait $cmd_pid
+  local exit_code=$?
+
+  # Show final status
+  if [ $exit_code -eq 0 ]; then
+    printf "\r${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "$message" "$detail"
+  else
+    printf "\r${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "$message" "$detail"
+    # Optionally show the output on failure
+    cat "$temp_file"
+  fi
+
+  rm -f "$temp_file"
+  return $exit_code
 }
 
+function echoSnow() {
+  local message="${1:-}"
+  echo "${WHITE}[ ${GREEN} ❄️💨 ${WHITE} ]  ${BOLD}${WHITE}${message}${NC}"
+}
 function echoOk() {
-    local message="${1:-}"
-    local detail="${2:-}"
-    echo "${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+  local message="${1:-}"
+  local detail="${2:-}"
+  echo "${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
 }
 function echoWarn() {
-    local message="${1:-}"
-    local detail="${2:-}"
-    echo "${WHITE}[ ${YELLOW}WARN${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+  local message="${1:-}"
+  local detail="${2:-}"
+  echo "${WHITE}[ ${YELLOW}WARN${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
 }
 function echoFail() {
-    local message="${1:-}"
-    local detail="${2:-}"
-    echo "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+  local message="${1:-}"
+  local detail="${2:-}"
+  echo "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
 }
 function statusInfo() {
-    local message="${1:-}"
-    local detail="${2:-}"
-    echo "${WHITE}[ ${BLUE}INFO${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+  local message="${1:-}"
+  local detail="${2:-}"
+  echo "${WHITE}[ ${BLUE}INFO${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
 }
 function echoBlank() {
-    local message="${1:-}"
-    local detail="${2:-}"
-    echo "          ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+  local message="${1:-}"
+  local detail="${2:-}"
+  echo "          ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
 }
 function echoDebug() {
-    local message="${1:-}"
-    local detail="${2:-}"
+  local message="${1:-}"
+  local detail="${2:-}"
 
-    if [ -n "${DEBUG:-}" ]; then
-        echo "${WHITE}[ ${YELLOW}DEBUG${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
-    fi
+  if [ -n "${DEBUG:-}" ]; then
+    echo "${WHITE}[ ${YELLOW}DEBUG${WHITE} ]  ${NC}${DIM}${message}${NC} ${WHITE}${detail}${NC}"
+  fi
 }
 function echoVerbose() {
-    if [[ -v VERBOSE ]]; then
-        echo "$*"
-    fi
+  if [[ -v VERBOSE ]]; then
+    echo "$*"
+  fi
 }
 
 function __sb__createTouchFile() {
-    local filePath="$1"
-    # Evaluate the path with variables
-    filePath=$(eval echo "$filePath")
+  local filePath="$1"
+  # Evaluate the path with variables
+  filePath=$(eval echo "$filePath")
 
-    # Check if the path is not already within the project root
-    if [[ "$filePath" != "$SB_PROJECT_ROOT"* ]]; then
-        filePath="${SB_PROJECT_ROOT}/${filePath}"
-    fi
+  # Check if the path is not already within the project root
+  if [[ $filePath != "$SB_PROJECT_ROOT"* ]]; then
+    filePath="${SB_PROJECT_ROOT}/${filePath}"
+  fi
 
-    # Create parent directory if it doesn't exist
-    mkdir -p "$(dirname "$filePath")"
-    
-    # Touch the file to create it empty
-    touch "$filePath"
-    echoBlank "Created touch file" "$filePath"
+  # Create parent directory if it doesn't exist
+  mkdir -p "$(dirname "$filePath")"
+
+  # Touch the file to create it empty
+  touch "$filePath"
+  echoBlank "Created touch file" "$filePath"
 }
 
 function __sb__createDirectory() {
-    local dirPath="$1"
-    # Evaluate the path with variables
-    dirPath=$(eval echo "$dirPath")
+  local dirPath="$1"
+  # Evaluate the path with variables
+  dirPath=$(eval echo "$dirPath")
 
-    # Check if the path is not already within the project root
-    if [[ "$dirPath" != "$SB_PROJECT_ROOT"* ]]; then
-        dirPath="${SB_PROJECT_ROOT}/${dirPath}"
-    fi
+  # Check if the path is not already within the project root
+  if [[ $dirPath != "$SB_PROJECT_ROOT"* ]]; then
+    dirPath="${SB_PROJECT_ROOT}/${dirPath}"
+  fi
 
-    mkdir -p "$dirPath"
-    echoBlank "Created directory" "$dirPath"
+  mkdir -p "$dirPath"
+  echoBlank "Created directory" "$dirPath"
 }
 
 # Various Check functions
 
-function __sb__isInsideDocker(){
-    test -f /.dockerenv
+function __sb__isInsideDocker() {
+  test -f /.dockerenv
 }
 
-function __sb__hasNix(){
-    if [ -n "$SB_NIX_PATH" ]; then
-        return 0
-    else
-        return 1
-    fi
+function __sb__hasNix() {
+  if [ -n "$SB_NIX_PATH" ]; then
+    return 0
+  else
+    return 1
+  fi
 }
 
-function __sb__isInsideSnowblowerShell(){
-    if [ -n "$SB_IS_SHELL" ]; then
-        return 0
-    else
-        return 1
-    fi
+function __sb__isInsideSnowblowerShell() {
+  if [ -n "$SB_IS_SHELL" ]; then
+    return 0
+  else
+    return 1
+  fi
 }
 
 
@@ -211,27 +220,26 @@ __sb__createDirectory '${SB_PROJECT_STATE}/aider/cache'
 
 # Verify operating system is supported...
 case "${UNAMEOUT}" in
-    Linux*)             MACHINE=linux;;
-    Darwin*)            MACHINE=mac;;
-    *)                  MACHINE="UNKNOWN"
+Linux*) MACHINE=linux ;;
+Darwin*) MACHINE=mac ;;
+*) MACHINE="UNKNOWN" ;;
 esac
 
 if [ "$MACHINE" == "UNKNOWN" ]; then
-    echoFail "Unsupported operating system [$(uname -s)]." "SnowBlower supports macOS, Linux, and Windows (WSL2)." >&2
-    exit 1
+  echoFail "Unsupported operating system [$(uname -s)]." "SnowBlower supports macOS, Linux, and Windows (WSL2)." >&2
+  exit 1
 fi
-
 
 # Source the ".env" file so environment variables are available...
 # shellcheck source=/dev/null
 if [ -n "${APP_ENV+x}" ] && [ -n "$APP_ENV" ] && [ -f ./.env."$APP_ENV" ]; then
-  source ./.env."$APP_ENV";
+  source ./.env."$APP_ENV"
   echoOk "Found and sources" ".env.{$APP_ENV}"
 elif [ -f ./.env ]; then
-  source ./.env;
+  source ./.env
   echoOk "Found and sourced" ".env"
 fi
-``
+$()
 # Create a session file in tmp dir. this allows us to do the "heavy" lifiting for the snow command one time.
 SCRIPT_HASH=$(echo "${BASH_SOURCE[0]}" | md5sum | cut -d' ' -f1 | cut -c1-8)
 export SB_SESS_FILE="${TMPDIR:-/tmp}/.sb_session_$(tty | tr '/' '_')_${SCRIPT_HASH}"
@@ -242,115 +250,113 @@ export SB_USER_UID=${USER_UID:-$UID}
 export SB_USER_GID=${USER_GID:-$(id -g)}
 export SB_SKIP_CHECKS=${SKIP_CHECKS:-}
 
-
 function __sb__bootSnowBlowerEnvironment() {
-    # Only source this once.
+  # Only source this once.
 
-    if [ -f "$SB_SESS_FILE" ]; then
-        source "$SB_SESS_FILE"
-        echoOk "Found session at" "${SB_SESS_FILE}"
-        return
-    fi
+  if [ -f "$SB_SESS_FILE" ]; then
+    source "$SB_SESS_FILE"
+    echoOk "Found session at" "${SB_SESS_FILE}"
+    return
+  fi
 
-    echoBlank "Booting SnowBlower Session" ""
-    echoOk "Creating Session File" "${SB_SESS_FILE}"
+  echoSnow "Booting SnowBlower Session" ""
+  echoOk "Creating Session File" "${SB_SESS_FILE}"
 
-    # These are the must have varibles for the project
-    export SB_SRC_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    export SB_PROJECT_ROOT="$SB_SRC_ROOT/.snowblower"
-    export SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
-    export SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
-    export SB_PROJECT_RUNTIME="$SB_PROJECT_ROOT/runtime"
-    
-    # Save exports to session file
-    echo "export SB_SRC_ROOT=\"$SB_SRC_ROOT\"" > "$SB_SESS_FILE"
-    echo "export SB_PROJECT_ROOT=\"$SB_PROJECT_ROOT\"" >> "$SB_SESS_FILE"
-    echo "export SB_PROJECT_PROFILE=\"$SB_PROJECT_PROFILE\"" >> "$SB_SESS_FILE"
-    echo "export SB_PROJECT_STATE=\"$SB_PROJECT_STATE\"" >> "$SB_SESS_FILE"
-    echo "export SB_PROJECT_RUNTIME=\"$SB_PROJECT_RUNTIME\"" >> "$SB_SESS_FILE"
-    
+  # These are the must have varibles for the project
+  export SB_SRC_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  export SB_PROJECT_ROOT="$SB_SRC_ROOT/.snowblower"
+  export SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
+  export SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
+  export SB_PROJECT_RUNTIME="$SB_PROJECT_ROOT/runtime"
 
-    if ! __sb__isInsideDocker; then
-        # Check if Docker is installed
-        export SB_DOCKER_PATH=$(which docker 2>/dev/null)
-        SB_DOCKER_STATUS=$?
+  # Save exports to session file
+  echo "export SB_SRC_ROOT=\"$SB_SRC_ROOT\"" >"$SB_SESS_FILE"
+  echo "export SB_PROJECT_ROOT=\"$SB_PROJECT_ROOT\"" >>"$SB_SESS_FILE"
+  echo "export SB_PROJECT_PROFILE=\"$SB_PROJECT_PROFILE\"" >>"$SB_SESS_FILE"
+  echo "export SB_PROJECT_STATE=\"$SB_PROJECT_STATE\"" >>"$SB_SESS_FILE"
+  echo "export SB_PROJECT_RUNTIME=\"$SB_PROJECT_RUNTIME\"" >>"$SB_SESS_FILE"
 
-        if [ $SB_DOCKER_STATUS -eq 0 ] && [ -n "$SB_DOCKER_PATH" ]; then
-            # Command succeeded and returned a path                                                        
-            echoOk "Docker found at:" "{$SB_DOCKER_PATH}"
-            echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >> "$SB_SESS_FILE"
-        else
-            echoFail "Docker is not installed or not in PATH. Please install Docker to continue."
-            exit 1
-        fi
+  if ! __sb__isInsideDocker; then
+    # Check if Docker is installed
+    export SB_DOCKER_PATH=$(which docker 2>/dev/null)
+    SB_DOCKER_STATUS=$?
 
-        # Check if Docker Compose is available
-        export SB_DOCKER_COMPOSE_PATH=$(which docker-compose 2>/dev/null)
-        SB_DOCKER_COMPOSE_STATUS=$?
-
-        # If docker-compose not found, try podman-compose
-        if [ $SB_DOCKER_COMPOSE_STATUS -ne 0 ] || [ -z "$SB_DOCKER_COMPOSE_PATH" ]; then
-            export SB_DOCKER_COMPOSE_PATH=$(which podman-compose 2>/dev/null)
-            SB_DOCKER_COMPOSE_STATUS=$?
-        fi
-                                                                                                        
-        if [ $SB_DOCKER_COMPOSE_STATUS -eq 0 ] && [ -n "$SB_DOCKER_COMPOSE_PATH" ]; then
-            # Command succeeded and returned a path                                                        
-            echoOk "Docker Compose found at:" "{$SB_DOCKER_COMPOSE_PATH}"
-            echo "export SB_DOCKER_COMPOSE_PATH=\"$SB_DOCKER_COMPOSE_PATH\"" >> "$SB_SESS_FILE"
-        else
-            echoFail "Docker Compose is not installed or not in PATH. Please install Docker to continue."
-            exit 1
-        fi
-    fi
-
-    echoOk "SnowBlower directory set to" "${SB_PROJECT_ROOT}"
-
-    # Create directories if they don't exist
-    if [ ! -d "$SB_PROJECT_ROOT" ]; then
-        echoOk "Creating project directory" "${SB_PROJECT_ROOT}"
-        mkdir -p "$SB_PROJECT_ROOT"
-    fi
-    if [ ! -d "$SB_PROJECT_PROFILE" ]; then
-        echoOk "Creating profile directory" "${SB_PROJECT_PROFILE}"
-        mkdir -p "$SB_PROJECT_PROFILE"
-    fi
-
-    if [ ! -d "$SB_PROJECT_STATE" ]; then
-        echoOk "Creating state directory" "${SB_PROJECT_STATE}"
-        mkdir -p "$SB_PROJECT_STATE"
-    fi
-
-    if [ ! -d "$SB_PROJECT_RUNTIME" ]; then
-        echoOk "Creating runtime directory" "${SB_PROJECT_RUNTIME}"
-        mkdir -p "$SB_PROJECT_RUNTIME"
-    fi
-
-    # the below two function are added via a seperate package in files.nix.
-    # But we need to boot it here so we can be sure all directories are created.
-    __sb__createDirectories
-    __sb__createTouchFiles
-
-    # Check if we are running in a Nix Shell
-    export SB_NIX_PATH=$(which nix 2>/dev/null)
-    SB_NIX_STATUS=$?
-                                                                                                    
-    if [ $SB_NIX_STATUS -eq 0 ] && __sb__hasNix; then
-        # Command succeeded and returned a path                                                        
-        echoOk "Nix found at:" "{$SB_NIX_PATH}"
-        echo "export SB_NIX_PATH=\"$SB_NIX_PATH\"" >> "$SB_SESS_FILE"
+    if [ $SB_DOCKER_STATUS -eq 0 ] && [ -n "$SB_DOCKER_PATH" ]; then
+      # Command succeeded and returned a path
+      echoOk "Docker found at:" "{$SB_DOCKER_PATH}"
+      echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >>"$SB_SESS_FILE"
     else
-        echoFail "Nix command not found, some features may be limited"
+      echoFail "Docker is not installed or not in PATH. Please install Docker to continue."
+      exit 1
     fi
 
-    echo "export __SB_SESS_BOOTED=1" >> "$SB_SESS_FILE"
-    echo
+    # Check if Docker Compose is available
+    export SB_DOCKER_COMPOSE_PATH=$(which docker-compose 2>/dev/null)
+    SB_DOCKER_COMPOSE_STATUS=$?
+
+    # If docker-compose not found, try podman-compose
+    if [ $SB_DOCKER_COMPOSE_STATUS -ne 0 ] || [ -z "$SB_DOCKER_COMPOSE_PATH" ]; then
+      export SB_DOCKER_COMPOSE_PATH=$(which podman-compose 2>/dev/null)
+      SB_DOCKER_COMPOSE_STATUS=$?
+    fi
+
+    if [ $SB_DOCKER_COMPOSE_STATUS -eq 0 ] && [ -n "$SB_DOCKER_COMPOSE_PATH" ]; then
+      # Command succeeded and returned a path
+      echoOk "Docker Compose found at:" "{$SB_DOCKER_COMPOSE_PATH}"
+      echo "export SB_DOCKER_COMPOSE_PATH=\"$SB_DOCKER_COMPOSE_PATH\"" >>"$SB_SESS_FILE"
+    else
+      echoFail "Docker Compose is not installed or not in PATH. Please install Docker to continue."
+      exit 1
+    fi
+  fi
+
+  echoOk "SnowBlower directory set to" "${SB_PROJECT_ROOT}"
+
+  # Create directories if they don't exist
+  if [ ! -d "$SB_PROJECT_ROOT" ]; then
+    echoOk "Creating project directory" "${SB_PROJECT_ROOT}"
+    mkdir -p "$SB_PROJECT_ROOT"
+  fi
+  if [ ! -d "$SB_PROJECT_PROFILE" ]; then
+    echoOk "Creating profile directory" "${SB_PROJECT_PROFILE}"
+    mkdir -p "$SB_PROJECT_PROFILE"
+  fi
+
+  if [ ! -d "$SB_PROJECT_STATE" ]; then
+    echoOk "Creating state directory" "${SB_PROJECT_STATE}"
+    mkdir -p "$SB_PROJECT_STATE"
+  fi
+
+  if [ ! -d "$SB_PROJECT_RUNTIME" ]; then
+    echoOk "Creating runtime directory" "${SB_PROJECT_RUNTIME}"
+    mkdir -p "$SB_PROJECT_RUNTIME"
+  fi
+
+  # the below two function are added via a seperate package in files.nix.
+  # But we need to boot it here so we can be sure all directories are created.
+  __sb__createDirectories
+  __sb__createTouchFiles
+
+  # Check if we are running in a Nix Shell
+  export SB_NIX_PATH=$(which nix 2>/dev/null)
+  SB_NIX_STATUS=$?
+
+  if [ $SB_NIX_STATUS -eq 0 ] && __sb__hasNix; then
+    # Command succeeded and returned a path
+    echoOk "Nix found at:" "{$SB_NIX_PATH}"
+    echo "export SB_NIX_PATH=\"$SB_NIX_PATH\"" >>"$SB_SESS_FILE"
+  else
+    echoFail "Nix command not found, some features may be limited"
+  fi
+
+  echo "export __SB_SESS_BOOTED=1" >>"$SB_SESS_FILE"
+  echo
 }
 
 __sb__bootSnowBlowerEnvironment
 
 # Split the SB_DOCKER_COMPOSE string into an array
-read -ra SB_DOCKER_COMPOSE_COMMAND <<< "$SB_DOCKER_COMPOSE"
+read -ra SB_DOCKER_COMPOSE_COMMAND <<<"$SB_DOCKER_COMPOSE"
 
 
   function setupEnvironmentVariables() {
@@ -368,28 +374,29 @@ setupEnvironmentVariables
 
 
   function display_help {
-    echo "❄️ 💨 SnowBlower: All flake no fluff."
-    echo
-    echo "${YELLOW}Usage:${NC}" >&2
-    echo "  snow COMMAND [options] [arguments]"
-    echo
-    echo "${YELLOW}SnowBlower Commands:${NC}"
-    echo "  ${GREEN}snow switch${NC}          Regenerate all config files"
-    echo "  ${GREEN}snow update${NC}          Update all dependencies by updating the Flake (Nix flake update)"
-    echo "  ${GREEN}snow reboot${NC}          Erase current session and reset vars"
-    echo
-    echo "${YELLOW}docker-compose Commands:${NC}"
-    echo "  ${GREEN}snow docker up${NC}        Start the application"
-    echo "  ${GREEN}snow docker up -d${NC}     Start the application in the background"
-    echo "  ${GREEN}snow docker down${NC}      Stop the application"
-    echo "  ${GREEN}snow docker restart${NC}   Restart the application"
-    echo "  ${GREEN}snow docker build${NC}     Builds all containers in compose file"
-    echo "  ${GREEN}snow docker ps${NC}        Display the status of all containers"
-    echo
-    __sb__displayResolvedCommands
-    echo
-    exit 1
+  echo "❄️ 💨 SnowBlower: All flake no fluff."
+  echo
+  echo "${YELLOW}Usage:${NC}" >&2
+  echo "  snow COMMAND [options] [arguments]"
+  echo
+  echo "${YELLOW}SnowBlower Commands:${NC}"
+  echo "  ${GREEN}snow switch${NC}          Regenerate all config files"
+  echo "  ${GREEN}snow update${NC}          Update all dependencies by updating the Flake (Nix flake update)"
+  echo "  ${GREEN}snow reboot${NC}          Erase current session and reset vars"
+  echo
+  echo "${YELLOW}docker-compose Commands:${NC}"
+  echo "  ${GREEN}snow docker up${NC}        Start the application"
+  echo "  ${GREEN}snow docker up -d${NC}     Start the application in the background"
+  echo "  ${GREEN}snow docker down${NC}      Stop the application"
+  echo "  ${GREEN}snow docker restart${NC}   Restart the application"
+  echo "  ${GREEN}snow docker build${NC}     Builds all containers in compose file"
+  echo "  ${GREEN}snow docker ps${NC}        Display the status of all containers"
+  echo
+  __sb__displayResolvedCommands
+  echo
+  exit 1
 }
+
   function __sb__displayResolvedCommands {
             echo "${YELLOW}Aider Commands:${NC}"
 echo "  ${GREEN}snow aider ...${NC}          Run a Aider command"
@@ -416,74 +423,77 @@ echo
 
   # Proxy the "help" command...
 if [ $# -gt 0 ]; then
-    if [ "$1" == "help" ] || [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ]; then
-        display_help
-    fi
-else
+  if [ "$1" == "help" ] || [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ]; then
     display_help
+  fi
+else
+  display_help
 fi
+
 
   # Commands that are specific to Docker and Docker Compose.
 function __sb__command__docker__up {
-    if [ $# -le 1 ]; then
-        "${SB_DOCKER_COMPOSE_PATH}" up
-    else                                
-        "${SB_DOCKER_COMPOSE_PATH}" up "$@"
-    fi
-    return $?
+  if [ $# -le 1 ]; then
+    "${SB_DOCKER_COMPOSE_PATH}" up
+  else
+    "${SB_DOCKER_COMPOSE_PATH}" up "$@"
+  fi
+  return $?
 }
 
 function __sb__command__docker__down {
-    __sb__command__docker__stop
+  __sb__command__docker__stop
 }
 
 function __sb__command__docker__stop {
-    if [ $# -le 1 ]; then
-        "${SB_DOCKER_COMPOSE_PATH}" down
-    else                                
-        "${SB_DOCKER_COMPOSE_PATH}" down "$@"
-    fi
-    return $?
+  if [ $# -le 1 ]; then
+    "${SB_DOCKER_COMPOSE_PATH}" down
+  else
+    "${SB_DOCKER_COMPOSE_PATH}" down "$@"
+  fi
+  return $?
 }
 
 function __sb__command__docker__restart {
-    if [ $# -le 1 ]; then
-        "${SB_DOCKER_COMPOSE_PATH}" restart
-    else                                
-        "${SB_DOCKER_COMPOSE_PATH}" restart "$@"
-    fi
-    return $?
+  if [ $# -le 1 ]; then
+    "${SB_DOCKER_COMPOSE_PATH}" restart
+  else
+    "${SB_DOCKER_COMPOSE_PATH}" restart "$@"
+  fi
+  return $?
 }
 
 function __sb__command__docker__ps {
-    "${SB_DOCKER_COMPOSE_PATH}" ps
-    return $?
+  "${SB_DOCKER_COMPOSE_PATH}" ps
+  return $?
 }
 function __sb__command__docker__build {
-    if [ $# -le 1 ]; then
-        "${SB_DOCKER_COMPOSE_PATH}" build
-    else                                
-        "${SB_DOCKER_COMPOSE_PATH}" build "$@"
-    fi
-    return $?
+  if [ $# -le 1 ]; then
+    "${SB_DOCKER_COMPOSE_PATH}" build
+  else
+    "${SB_DOCKER_COMPOSE_PATH}" build "$@"
+  fi
+  return $?
 }
+
   # Commands that are specific to controling SnowBlower.
 function __sb__command__switch {
-     nix run .#snowblowerFiles
-     return $?
+  nix run .#snowblowerFiles
+  return $?
 }
 function __sb__command__update {
-     nix flake update
-     __sb__command__switch
-     __sb__command__reboot
-     return $?
+  nix flake update
+  __sb__command__switch
+  __sb__command__reboot
+  return $?
 }
 
 function __sb__command__reboot() {
-    rm -f "$SB_SESS_FILE"
-    __sb__bootSnowBlowerEnvironment
-    return 0
+  rm -f "$SB_SESS_FILE"
+  __sb__bootSnowBlowerEnvironment
+  return 0
 }
+
   function __sb__command__aider {
   __sb__RoutedCommandExecute aider
 }
@@ -519,92 +529,93 @@ function __sb__command__pre-commit__all {
 
 # Function that outputs SnowBlower is not running...
 function __sb__isNotRunning {
-    echo
-    echoFail "Environment is not running." >&2
-    echoBlank "If you have Nix installed, you may enter the dev shell by running:" "nix develop"
-    echoBlank "To start in Docker run" "snow docker up"
-    exit 1
+  echo
+  echoFail "Environment is not running." >&2
+  echoBlank "If you have Nix installed, you may enter the dev shell by running:" "nix develop"
+  echoBlank "To start in Docker run" "snow docker up"
+  exit 1
 }
 
 # Function that checks
 function __sb__runChecks {
-    if [ -z "$SB_SKIP_CHECKS" ]; then
-        # Ensure that Docker is running...
-        if ! docker info > /dev/null 2>&1; then
-            echoFail "${BOLD}Docker is not running.${NC}" >&2
-            exit 1
-        fi
-
-        # Determine if SnowBlower is currently up...
-        if "${SB_DOCKER_COMPOSE_PATH[@]}" ps "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
-            echoWarn "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
-            "${SB_DOCKER_COMPOSE_PATH[@]}" down > /dev/null 2>&1
-            __sb__isNotRunning
-        elif [ -z "$("${SB_DOCKER_COMPOSE_PATH[@]}" ps -q "$SB_APP_SERVICE")" ]; then
-            __sb__isNotRunning
-        fi
+  if [ -z "$SB_SKIP_CHECKS" ]; then
+    # Ensure that Docker is running...
+    if ! docker info >/dev/null 2>&1; then
+      echoFail "${BOLD}Docker is not running.${NC}" >&2
+      exit 1
     fi
-}
 
+    # Determine if SnowBlower is currently up...
+    if "${SB_DOCKER_COMPOSE_PATH[@]}" ps "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
+      echoWarn "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
+      "${SB_DOCKER_COMPOSE_PATH[@]}" down >/dev/null 2>&1
+      __sb__isNotRunning
+    elif [ -z "$("${SB_DOCKER_COMPOSE_PATH[@]}" ps -q "$SB_APP_SERVICE")" ]; then
+      __sb__isNotRunning
+    fi
+  fi
+}
 
 # Figures out the type of envirment the command is running in and then routes approriatly.
 function __sb__RoutedCommandExecute() {
-    local cmd="$1"
-    echoDebug "$1"
-    
-    # Remove surrounding quotes if present
-    cmd="${cmd//\'}"
-    
-    # If the env has Nix we can run the command directly
-    if __sb__isInsideSnowblowerShell; then
-        echoDebug "$cmd"
-        eval "$cmd"
-        return $?
-    fi
+  local cmd="$1"
+  echoDebug "$1"
 
-    # If in nix shell and in docker, execute via docker-compose
-    __sb__runChecks
-        
-    ARGS=()
-    ARGS+=(exec -u "$SB_USER_UID")
-    [ ! -t 0 ] && ARGS+=(-T)
-    ARGS+=("$SB_APP_SERVICE")
+  # Remove surrounding quotes if present
+  cmd="${cmd//\'/}"
 
-    # Execute the command with proper shell evaluation
-    "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" bash -c "$cmd"
+  # If the env has Nix we can run the command directly
+  if __sb__isInsideSnowblowerShell; then
+    echoDebug "$cmd"
+    eval "$cmd"
+    return $?
+  fi
+
+  # If in nix shell and in docker, execute via docker-compose
+  __sb__runChecks
+
+  ARGS=()
+  ARGS+=(exec -u "$SB_USER_UID")
+  [ ! -t 0 ] && ARGS+=(-T)
+  ARGS+=("$SB_APP_SERVICE")
+
+  # Execute the command with proper shell evaluation
+  "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" bash -c "$cmd"
 }
 
 # Function to run dynamically generated command functions
 function __sb__runCommand {
-    local command_name="$1"
-    local subcommand_name="$2"
-    
-    # First try the specific command+subcommand function
-    local specific_function="__sb__command__${command_name}__${subcommand_name}"
-    
-    # Then try the general command function
-    local general_function="__sb__command__${command_name}"
-    
-    # Check if the specific function exists
-    if declare -f "$specific_function" > /dev/null; then
-        # Execute the specific function with remaining arguments
-        shift 2
-        "$specific_function" "$@"
-    # Check if the general function exists
-    elif declare -f "$general_function" > /dev/null; then
-        # Execute the general function with all subcommands
-        shift 1
-        "$general_function" "$@"
-    else
-        echoFail "Unknown command: snow $command_name $subcommand_name"
-        echoBlank "Run 'snow help' for a list of available commands."
-        exit 1
-    fi
+  local command_name="$1"
+  local subcommand_name="$2"
+
+  # First try the specific command+subcommand function
+  local specific_function="__sb__command__${command_name}__${subcommand_name}"
+
+  # Then try the general command function
+  local general_function="__sb__command__${command_name}"
+
+  # Check if the specific function exists
+  if declare -f "$specific_function" >/dev/null; then
+    # Execute the specific function with remaining arguments
+    shift 2
+    "$specific_function" "$@"
+  # Check if the general function exists
+  elif declare -f "$general_function" >/dev/null; then
+    # Execute the general function with all subcommands
+    shift 1
+    "$general_function" "$@"
+  else
+    echoFail "Unknown command: snow $command_name $subcommand_name"
+    echoBlank "Run 'snow help' for a list of available commands."
+    exit 1
+  fi
 }
 
-# Check if $2 exists before passing it to run_command                                                
-if [ $# -ge 2 ]; then                                                                                
-    __sb__runCommand "$1" "$2"                                                                            
-else                                                                                                 
-    __sb__runCommand "$1" ""                                                                              
+# Check if $2 exists before passing it to run_command
+if [ $# -ge 2 ]; then
+  __sb__runCommand "$1" "$2"
+else
+  __sb__runCommand "$1" ""
 fi
+
+
