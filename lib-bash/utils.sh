@@ -5,8 +5,19 @@
 #  https://github.com/use-the-fork/snowblower
 #
 
+export TEXTDOMAINDIR=@OUT@/share/locale
+
 set -e
 set -o pipefail
+
+function setVerboseArg() {
+    if [[ -v VERBOSE ]]; then
+        export VERBOSE_ARG="--verbose"
+    else
+        export VERBOSE_ARG=""
+    fi
+}
+
 
 # Credits to https://github.com/nix-community/home-manager/blob/master/lib/bash/home-manager.sh
 # The setup respects the `NO_COLOR` environment variable.
@@ -122,6 +133,8 @@ function echoBlank() {
   local detail="${2:-}"
   printf "          ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
 }
+
+
 function echoHasVerbose() {
   local message="${1:-}"
   local detail="${2:-}"
@@ -140,9 +153,97 @@ function echoDebug() {
 }
 
 
+# #################################
+
+
+
+function _i() {
+    local msgid="$1"
+    shift
+
+    # shellcheck disable=2059
+    printf "$msgid\n" "$@"
+}
+
+function _ip() {
+    local msgid="$1"
+    local msgidPlural="$2"
+    local count="$3"
+    shift 3
+
+    # shellcheck disable=2059
+    if [ "$count" -eq 1 ]; then
+        printf "$msgid\n" "$@"
+    else
+        printf "$msgidPlural\n" "$@"
+    fi
+}
+
+function _iError() {
+    echo -n "${RED}"
+    _i "$@"
+    echo -n "${NC}"
+}
+
+function _iWarn() {
+    echo -n "${YELLOW}"
+    _i "$@"
+    echo -n "${NC}"
+}
+
+function _iNote() {
+    echo -n "${BLUE}"
+    _i "$@"
+    echo -n "${NC}"
+}
+
+function _iVerbose() {
+    if [[ -v VERBOSE ]]; then
+        _i "$@"
+    fi
+}
+
+# Runs the given command on live run, otherwise prints the command to standard
+# output.
+#
+# If given the command line option `--quiet`, then the command's standard output
+# is sent to `/dev/null` on a live run.
+#
+# If given the command line option `--silence`, then the command's standard and
+# error output is sent to `/dev/null` on a live run.
+#
+# The `--silence` and `--quiet` flags are mutually exclusive.
+function run() {
+    if [[ $1 == '--quiet' ]]; then
+        local quiet=1
+        shift
+    elif [[ $1 == '--silence' ]]; then
+        local silence=1
+        shift
+    fi
+
+    if [[ -v DRY_RUN ]] ; then
+        echo "$@"
+    elif [[ -v quiet ]] ; then
+        "$@" > /dev/null
+    elif [[ -v silence ]] ; then
+        "$@" > /dev/null 2>&1
+    else
+        "$@"
+    fi
+}
+
+
+
+
+# #################################
+
+
+
+
 # Credits: https://github.com/srid/flake-root/blob/master/flake-module.nix
 # This function is used to find the flake root and set it as a env varible.
-__sb__findUp() {
+findUp() {
   ancestors=()
   while true; do
   if [[ -f $1 ]]; then
@@ -158,7 +259,7 @@ __sb__findUp() {
   done
 }
 
-function __sb__createTouchFile() {
+function createTouchFile() {
   local filePath="$1"
   # Evaluate the path with variables
   filePath=$(eval echo "$filePath")
@@ -176,7 +277,7 @@ function __sb__createTouchFile() {
   echoBlank "Created touch file" "$filePath"
 }
 
-function __sb__createDirectory() {
+function createDirectory() {
   local dirPath="$1"
   # Evaluate the path with variables
   dirPath=$(eval echo "$dirPath")
@@ -192,11 +293,11 @@ function __sb__createDirectory() {
 
 # Various Check functions
 
-function __sb__isInsideDocker() {
+function isInsideDocker() {
   test -f /.dockerenv
 }
 
-function __sb__hasNix() {
+function hasNix() {
   if [ -n "$SB_NIX_PATH" ]; then
     return 0
   else
@@ -204,7 +305,7 @@ function __sb__hasNix() {
   fi
 }
 
-function __sb__isInsideSnowblowerShell() {
+function isInsideSnowblowerShell() {
   if [ -n "$SB_IN_SHELL" ]; then
     return 0
   else

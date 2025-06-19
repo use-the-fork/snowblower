@@ -28,7 +28,16 @@
           The package containing the help section of snowblower.
         '';
       };
-      commandRunPackage = mkOption {
+
+      commandPackage = mkOption {
+        type = types.package;
+        internal = true;
+        description = ''
+          The package containing the wrapped commands section of snowblower.
+        '';
+      };
+
+      subCommandPackage = mkOption {
         type = types.package;
         internal = true;
         description = ''
@@ -63,7 +72,7 @@
             concatLines [
               ''echo "''${YELLOW}${section.data.displayName} Commands:''${NC}"''
               (
-                optionalString (section.data.exec != null)
+                optionalString (section.data.command != null)
                 ''echo "  ''${GREEN}snow ${section.name} ...''${NC}          Run a ${section.data.displayName} command"''
               )
               resolvedSubCommands
@@ -82,19 +91,55 @@
         pkgs.writeTextFile {
           name = "sb-help-commands.sh";
           # Prints the resolved commands from the nix build.
-          text = ''            function __sb__displayResolvedCommands {
+          text = ''            function displayResolvedCommands {
                         ${resolvedCommands}
                       }
           '';
         };
 
-      commandRunPackage = let
+      commandPackage = let
+        # Generate the command options list (e.g., "docker|npm|switch|update|reboot")
+        commandOptions = lib.concatStringsSep "|" (
+          map (section: section.name)
+          (lib.sbl.dag.resolveDag {
+            name = "snowblower command options";
+            dag = config.snowblower.command;
+            mapResult = lib.id;
+          })
+        );
+
+        # Generate the command case statements
+        commandFunctions = lib.sbl.dag.resolveDag {
+          name = "snowblower command functions";
+          dag = config.snowblower.command;
+          mapResult = result:
+            concatLines (map (section: ''
+              ${section.name})
+                  if [[ -n $SUBCOMMAND ]]; then
+                      if hasSubCommand "${section.name}" "$SUBCOMMAND"; then
+                          doCommand__${section.name}__$SUBCOMMAND "''${COMMAND_ARGS[@]}"
+                      else
+                          doCommand__${section.name} "''${COMMAND_ARGS[@]}"
+                      fi
+                  else
+                      doCommand__${section.name} "''${COMMAND_ARGS[@]}"
+                  fi
+                  ;;'')
+            result);
+        };
+
         mkCommandSection = section: let
           mkSubCommandSection = name: subSection: let
             subSectionName = subSection.name;
-          in ''            function __sb__command__${name}__${subSectionName} {
-                            __sb__RoutedCommandExecute ${lib.strings.escapeShellArg subSection.data.exec} "$@"
-                           }'';
+            # Generate proper bash array from command and args
+            commandParts = [subSection.data.command] ++ subSection.data.args;
+            execArray = "(" + (lib.concatStringsSep " " (map lib.strings.escapeShellArg commandParts)) + ")";
+          in ''
+            function doCommand__${name}__${subSectionName} {
+              local cmd_args=${execArray}
+              doRoutedCommandExecute "''${cmd_args[@]}" "$@"
+            }
+          '';
 
           resolvedSubCommands = lib.sbl.dag.resolveDag {
             name = "snowblower sub commands for ${section.name} ";
@@ -106,11 +151,7 @@
           };
         in
           concatLines [
-            (optionalString (section.data.exec != null) ''
-              function __sb__command__${section.name} {
-                __sb__RoutedCommandExecute ${lib.strings.escapeShellArg section.data.exec} "$@"
-              }
-            '')
+            (optionalString (section.data.command != null) ''function doCommand__${section.name} { doRoutedCommandExecute ${lib.strings.escapeShellArg section.data.command} "$@"; }'')
             resolvedSubCommands
           ];
 
@@ -122,12 +163,24 @@
               (concatMapStringsSep "\n" mkCommandSection result)
             ];
         };
+
+        # Read snow.sh and perform replacements
+        snowShellContent = lib.sbl.strings.modifyFileContent {
+          file = ./../lib-bash/snow.sh;
+          substitute = {
+            "@command_options@" = commandOptions;
+            "@command_functions@" = commandFunctions;
+          };
+        };
       in
         pkgs.writeTextFile {
           name = "sb-run-commands.sh";
           text = ''
             ${resolvedCommands}
+            ${builtins.readFile ./../lib-bash/docker-commands.sh}
+            ${builtins.readFile ./../lib-bash/snowblower-commands.sh}
             ${builtins.readFile ./../lib-bash/commands.sh}
+            ${snowShellContent}
           '';
         };
     };

@@ -109,11 +109,15 @@
       command."cliff" = {
         displayName = "Git-Cliff";
         description = "Changelog generator";
-        exec = "git-cliff";
+        command = "git-cliff";
         subcommand = {
           "gen" = {
             description = "Generate a changelog";
-            exec = "${exec} -o ${cfg.settings.fileName}";
+            command = exec;
+            args = [
+              "-o"
+              cfg.settings.fileName
+            ];
           };
         };
       };

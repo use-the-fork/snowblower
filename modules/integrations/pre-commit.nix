@@ -9,6 +9,7 @@
 
     yamlFormat = pkgs.formats.yaml {};
     cfg = config.snowblower.integration.preCommit;
+    # execCommand = config.snowblower.command."pre-commit".command;
   in {
     options.snowblower.integration.preCommit = mkIntegration {
       name = "pre-commit Hooks";
@@ -27,11 +28,12 @@
         command."pre-commit" = {
           displayName = "Pre-commit";
           description = "pre-commit hooks manager";
-          exec = "pre-commit";
+          command = "pre-commit";
           subcommand = {
             "all" = {
               description = "Run precommit on all files";
-              exec = "pre-commit run --all-files";
+              command = "pre-commit";
+              args = ["run" "--all-files"];
             };
           };
         };

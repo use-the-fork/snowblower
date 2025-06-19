@@ -69,11 +69,7 @@ in {
               ${builtins.readFile ./../lib-bash/welcome.sh}
               ${builtins.readFile config.snowblower.commandHelpPackage}
 
-              ${builtins.readFile ./../lib-bash/help.sh}
-
-              ${builtins.readFile ./../lib-bash/docker-commands.sh}
-              ${builtins.readFile ./../lib-bash/snowblower-commands.sh}
-              ${builtins.readFile config.snowblower.commandRunPackage}
+              ${builtins.readFile config.snowblower.commandPackage}
             '';
           };
         in {

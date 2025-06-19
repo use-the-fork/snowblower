@@ -16,6 +16,7 @@
     commandType = types.submodule commandModule;
 
     cfg = config.snowblower.integration.aider;
+    execCommand = config.snowblower.command."ai".command;
 
     yamlFormat = pkgs.formats.yaml {};
   in {
@@ -55,8 +56,11 @@
               name: cmdCfg: {
                 "${name}" = {
                   inherit (cmdCfg) description;
-                  exec = ''aider ${lib.concatStringsSep " " (lib.filter (s: s != "") [
-                      "--model ${cmdCfg.model}"
+                  command = "aider";
+                  args =
+                    lib.filter (s: s != "") [
+                      "--model"
+                      cmdCfg.model
                       (
                         if cmdCfg.watchFiles
                         then "--watch-files"
@@ -81,15 +85,22 @@
                         optionalString cmdCfg.subtreeOnly
                         "--subtree-only"
                       )
-                      (
-                        if cmdCfg.separateHistoryFiles
-                        then "--input-history-file \${SB_PROJECT_STATE}/aider/cache/.aider.${name}.input.history --chat-history-file \${SB_PROJECT_STATE}/aider/cache/.aider.${name}.chat.history --llm-history-file \${SB_PROJECT_STATE}/aider/cache/.aider.${name}.llm.history"
-                        else ""
-                      )
-                      (lib.concatMapStringsSep " " (cmd: "--read \"${cmd}\"") cmdCfg.readFiles)
-                      (lib.concatMapStringsSep " " (cmd: "--lint-cmd \"${cmd}\"") cmdCfg.lintCommands)
-                      (lib.concatMapStringsSep " " (cmd: "--test-cmd \"${cmd}\"") cmdCfg.testCommands)
-                    ])}'';
+                    ]
+                    ++ (
+                      if cmdCfg.separateHistoryFiles
+                      then [
+                        "--input-history-file"
+                        "\${SB_PROJECT_STATE}/aider/cache/.aider.${name}.input.history"
+                        "--chat-history-file"
+                        "\${SB_PROJECT_STATE}/aider/cache/.aider.${name}.chat.history"
+                        "--llm-history-file"
+                        "\${SB_PROJECT_STATE}/aider/cache/.aider.${name}.llm.history"
+                      ]
+                      else []
+                    )
+                    ++ (lib.concatMap (cmd: ["--read" cmd]) cmdCfg.readFiles)
+                    ++ (lib.concatMap (cmd: ["--lint-cmd" cmd]) cmdCfg.lintCommands)
+                    ++ (lib.concatMap (cmd: ["--test-cmd" cmd]) cmdCfg.testCommands);
                 };
               }
             )
@@ -97,7 +108,7 @@
         in {
           displayName = "Aider";
           description = "Aider Code Assitant";
-          exec = ''aider'';
+          command = "aider";
           subcommand = subCommands;
         };
 

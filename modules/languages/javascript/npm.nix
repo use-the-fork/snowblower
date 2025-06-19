@@ -25,7 +25,7 @@
       command."npm" = {
         displayName = "NPM";
         description = "NPM Package Manager";
-        exec = "npm";
+        command = "npm";
       };
 
       environmentVariables = {

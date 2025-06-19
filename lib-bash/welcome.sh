@@ -1,4 +1,4 @@
-function display_help {
+function doHelp {
   echo "❄️ 💨 SnowBlower: All flake no fluff."
   echo
   echo "${YELLOW}Usage:${NC}" >&2
@@ -17,7 +17,7 @@ function display_help {
   echo "  ${GREEN}snow docker build${NC}     Builds all containers in compose file"
   echo "  ${GREEN}snow docker ps${NC}        Display the status of all containers"
   echo
-  __sb__displayResolvedCommands
+  displayResolvedCommands
   echo
   exit 1
 }

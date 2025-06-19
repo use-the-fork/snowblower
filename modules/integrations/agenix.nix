@@ -16,6 +16,7 @@
     inherit (lib) mkOption types mkEnableOption;
 
     cfg = config.snowblower.integration.agenix;
+    # execCommand = config.snowblower.command."agenix".command;
 
     #We use this to figure out where our age file is in relation to the root of the flake.
 
@@ -205,11 +206,12 @@
         command."agenix" = {
           displayName = "Agenix";
           description = "Secret Management";
-          exec = "sb-agenix";
+          command = "sb-agenix";
           subcommand = {
             "rekey" = {
+              command = "sb-agenix";
               description = "Rekey secrets";
-              exec = "sb-agenix --rekey";
+              args = ["--rekey"];
             };
           };
         };

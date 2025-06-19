@@ -22,7 +22,7 @@
       command."treefmt" = {
         displayName = "Treefmt";
         description = "formatter multiplexer";
-        exec = "treefmt";
+        command = "treefmt";
       };
 
       packages = [

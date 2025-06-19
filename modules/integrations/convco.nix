@@ -27,11 +27,11 @@
       command."convco" = {
         displayName = "Convco";
         description = "Conventional commit cli";
-        exec = "convco";
+        command = "convco";
         subcommand = {
           "gen" = {
             description = "Generate a changelog";
-            exec = "${exec} changelog > ${cfg.settings.fileName}";
+            command = "${exec} changelog > ${cfg.settings.fileName}";
           };
         };
       };

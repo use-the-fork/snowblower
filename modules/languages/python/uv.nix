@@ -23,7 +23,7 @@
       command."uv" = {
         displayName = "UV";
         description = "UV Package Manager";
-        exec = "uv";
+        command = "uv";
       };
 
       file."uv.toml" = {

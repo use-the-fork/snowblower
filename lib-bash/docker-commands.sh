@@ -1,5 +1,5 @@
 # Commands that are specific to Docker and Docker Compose.
-function __sb__command__docker__up {
+function doCommand__docker__up {
   cd $SB_SRC_ROOT
   echo  "$@"
   echo  "$#"
@@ -11,11 +11,11 @@ function __sb__command__docker__up {
   return $?
 }
 
-function __sb__command__docker__down {
-  __sb__command__docker__stop
+function doCommand__docker__down {
+  doCommand__docker__stop
 }
 
-function __sb__command__docker__stop {
+function doCommand__docker__stop {
   cd $SB_SRC_ROOT
   if [ $# -le 1 ]; then
     "${SB_DOCKER_COMPOSE_PATH}" down
@@ -25,7 +25,7 @@ function __sb__command__docker__stop {
   return $?
 }
 
-function __sb__command__docker__restart {
+function doCommand__docker__restart {
   cd $SB_SRC_ROOT
   if [ $# -le 1 ]; then
     "${SB_DOCKER_COMPOSE_PATH}" restart
@@ -35,16 +35,22 @@ function __sb__command__docker__restart {
   return $?
 }
 
-function __sb__command__docker__ps {
+function doCommand__docker__ps {
   "${SB_DOCKER_COMPOSE_PATH}" ps
   return $?
 }
-function __sb__command__docker__build {
+function doCommand__docker__build {
   cd $SB_SRC_ROOT
   if [ $# -le 1 ]; then
     "${SB_DOCKER_COMPOSE_PATH}" build
   else
     "${SB_DOCKER_COMPOSE_PATH}" build "$@"
   fi
+  return $?
+}
+
+
+function doCommand__docker {
+  "${SB_DOCKER_COMPOSE_PATH}" "$@"
   return $?
 }

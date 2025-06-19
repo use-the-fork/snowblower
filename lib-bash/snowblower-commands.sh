@@ -1,20 +1,17 @@
 # Commands that are specific to controling SnowBlower.
-function __sb__command__switch {
-  cd $SB_SRC_ROOT
-  nix run .#snowblowerFiles
+function doSwitch {
+  (cd "$SB_SRC_ROOT" && nix run .#snowblowerFiles) 
   return 0
 }
-function __sb__command__update {
-  cd $SB_SRC_ROOT
+function doUpdate {
   executeWithSpinner "Updating Flake" "nix flake update"
-  __sb__command__switch
-  __sb__command__reboot
+  doSwitch
+  doReboot
   return 0
 }
 
-function __sb__command__reboot() {
-  cd $SB_SRC_ROOT
+function doReboot() {
   rm -f "$SB_SESS_FILE"
-  __sb__bootSnowBlowerEnvironment
+  bootSnowBlowerEnvironment
   return 0
 }
