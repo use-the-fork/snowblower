@@ -53,7 +53,7 @@ function _inlineWarning() {
 
 function _inlineNote() {
   cursorUp 1
-  printf "${BLUE} ✱    ${NC}"
+  printf "      ${NC}"
 }
 
 function _iBreak() {
