@@ -1,8 +1,6 @@
 function doHelp {
-  echo "❄️ 💨 SnowBlower: All flake no fluff."
-  echo
   echo "${YELLOW}Usage:${NC}" >&2
-  echo "  snow COMMAND [options] [arguments]"
+  echo "  snow [options] COMMAND SUBCOMMAND [arguments]"
   echo
   echo "${YELLOW}SnowBlower Commands:${NC}"
   echo "  ${GREEN}snow switch${NC}          Regenerate all config files"

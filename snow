@@ -5,230 +5,8 @@
 #  https://github.com/use-the-fork/snowblower
 #
 
-export TEXTDOMAINDIR=@OUT@/share/locale
-
 set -e
 set -o pipefail
-
-function setVerboseArg() {
-  if [[ -v VERBOSE ]]; then
-    export VERBOSE_ARG="--verbose"
-  else
-    export VERBOSE_ARG=""
-  fi
-}
-
-# Credits to https://github.com/nix-community/home-manager/blob/master/lib/bash/home-manager.sh
-# The setup respects the `NO_COLOR` environment variable.
-function setupColors() {
-  BOLD=""
-  DIM=""
-  UNDERLINE=""
-  BLINK=""
-  REVERSE=""
-  NC=""
-  BLACK=""
-  RED=""
-  GREEN=""
-  YELLOW=""
-  BLUE=""
-  MAGENTA=""
-  CYAN=""
-  WHITE=""
-
-  # Enable colors for terminals, and allow opting out.
-  if [[ ! -v NO_COLOR && -t 1 ]]; then
-    # See if it supports colors.
-    local ncolors
-    ncolors=$(tput colors 2>/dev/null || echo 0)
-
-    if [[ -n $ncolors && $ncolors -ge 8 ]]; then
-      # Text attributes
-      BOLD="$(tput bold)"
-      DIM="$(tput dim)"
-      UNDERLINE="$(tput smul)"
-      BLINK="$(tput blink)"
-      REVERSE="$(tput rev)"
-      NC="$(tput sgr0)" # No Color
-
-      # Regular colors
-      BLACK="$(tput setaf 0)"
-      RED="$(tput setaf 1)"
-      GREEN="$(tput setaf 2)"
-      YELLOW="$(tput setaf 3)"
-      BLUE="$(tput setaf 4)"
-      MAGENTA="$(tput setaf 5)"
-      CYAN="$(tput setaf 6)"
-      WHITE="$(tput setaf 7)"
-    fi
-  fi
-}
-
-setupColors
-
-function executeWithSpinner() {
-  local message="$1"
-  local command="$2"
-  local detail="${3:-}"
-
-  local spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
-  local temp_file=$(mktemp)
-
-  # Start command in background
-  eval "$command" >"$temp_file" 2>&1 &
-  local cmd_pid=$!
-
-  # Show spinner while command runs
-  local i=0
-  while kill -0 $cmd_pid 2>/dev/null; do
-    printf "\r${WHITE}[ ${BLUE}%s${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}" \
-      "${spinner:i:1}" "$message" "$detail"
-    i=$(((i + 1) % ${#spinner}))
-    sleep 0.1
-  done
-
-  # Wait for command to finish and get exit code
-  wait $cmd_pid
-  local exit_code=$?
-
-  # Show final status
-  if [ $exit_code -eq 0 ]; then
-    echoOk "$message" "$detail"
-  else
-    echoFail "$message" "$detail"
-    cat "$temp_file"
-  fi
-
-  rm -f "$temp_file"
-  return $exit_code
-}
-
-function echoSnow() {
-  local message="${1:-}"
-  printf "${WHITE}[ ❄️💨 ]  ${BOLD}${WHITE}%s${NC}\n" "${message}"
-}
-function echoOk() {
-  local message="${1:-}"
-  local detail="${2:-}"
-  printf "${WHITE}[ ${GREEN} OK ${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
-}
-function echoWarn() {
-  local message="${1:-}"
-  local detail="${2:-}"
-  printf "${WHITE}[ ${YELLOW}WARN${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
-}
-function echoFail() {
-  local message="${1:-}"
-  local detail="${2:-}"
-  printf "${WHITE}[ ${RED}FAIL${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
-}
-function echoInfo() {
-  local message="${1:-}"
-  local detail="${2:-}"
-  printf "${WHITE}[ ${BLUE}INFO${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
-}
-function echoBlank() {
-  local message="${1:-}"
-  local detail="${2:-}"
-  printf "          ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
-}
-
-function echoHasVerbose() {
-  local message="${1:-}"
-  local detail="${2:-}"
-
-  if [[ $VERBOSE != "no" ]] || [ -z "$VERBOSE" ]; then
-    printf "${WHITE}[ ${YELLOW}ECHO${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
-  fi
-}
-function echoDebug() {
-  local message="${1:-}"
-  local detail="${2:-}"
-
-  if [ -n "${DEBUG:-}" ]; then
-    printf "${WHITE}[ ${YELLOW}DEBUG${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
-  fi
-}
-
-# #################################
-
-function _i() {
-  local msgid="$1"
-  shift
-
-  # shellcheck disable=2059
-  printf "$msgid\n" "$@"
-}
-
-function _ip() {
-  local msgid="$1"
-  local msgidPlural="$2"
-  local count="$3"
-  shift 3
-
-  # shellcheck disable=2059
-  if [ "$count" -eq 1 ]; then
-    printf "$msgid\n" "$@"
-  else
-    printf "$msgidPlural\n" "$@"
-  fi
-}
-
-function _iError() {
-  echo -n "${RED}"
-  _i "$@"
-  echo -n "${NC}"
-}
-
-function _iWarn() {
-  echo -n "${YELLOW}"
-  _i "$@"
-  echo -n "${NC}"
-}
-
-function _iNote() {
-  echo -n "${BLUE}"
-  _i "$@"
-  echo -n "${NC}"
-}
-
-function _iVerbose() {
-  if [[ -v VERBOSE ]]; then
-    _i "$@"
-  fi
-}
-
-# Runs the given command on live run, otherwise prints the command to standard
-# output.
-#
-# If given the command line option `--quiet`, then the command's standard output
-# is sent to `/dev/null` on a live run.
-#
-# If given the command line option `--silence`, then the command's standard and
-# error output is sent to `/dev/null` on a live run.
-#
-# The `--silence` and `--quiet` flags are mutually exclusive.
-function run() {
-  if [[ $1 == '--quiet' ]]; then
-    local quiet=1
-    shift
-  elif [[ $1 == '--silence' ]]; then
-    local silence=1
-    shift
-  fi
-
-  if [[ -v DRY_RUN ]]; then
-    echo "$@"
-  elif [[ -v quiet ]]; then
-    "$@" >/dev/null
-  elif [[ -v silence ]]; then
-    "$@" >/dev/null 2>&1
-  else
-    "$@"
-  fi
-}
-
-# #################################
 
 # Credits: https://github.com/srid/flake-root/blob/master/flake-module.nix
 # This function is used to find the flake root and set it as a env varible.
@@ -302,8 +80,160 @@ function isInsideSnowblowerShell() {
   fi
 }
 
+# Credits to https://github.com/nix-community/home-manager/blob/master/lib/bash/home-manager.sh
+# The setup respects the `NO_COLOR` environment variable.
+function doSetupColors() {
+  BOLD=""
+  DIM=""
+  UNDERLINE=""
+  BLINK=""
+  REVERSE=""
+  NC=""
+  BLACK=""
+  RED=""
+  GREEN=""
+  YELLOW=""
+  BLUE=""
+  MAGENTA=""
+  CYAN=""
+  WHITE=""
+
+  # Enable colors for terminals, and allow opting out.
+  if [[ ! -v NO_COLOR && -t 1 ]]; then
+    # See if it supports colors.
+    local ncolors
+    ncolors=$(tput colors 2>/dev/null || echo 0)
+
+    if [[ -n $ncolors && $ncolors -ge 8 ]]; then
+      # Text attributes
+      BOLD="$(tput bold)"
+      DIM="$(tput dim)"
+      UNDERLINE="$(tput smul)"
+      BLINK="$(tput blink)"
+      REVERSE="$(tput rev)"
+      NC="$(tput sgr0)" # No Color
+
+      # Regular colors
+      BLACK="$(tput setaf 0)"
+      RED="$(tput setaf 1)"
+      GREEN="$(tput setaf 2)"
+      YELLOW="$(tput setaf 3)"
+      BLUE="$(tput setaf 4)"
+      MAGENTA="$(tput setaf 5)"
+      CYAN="$(tput setaf 6)"
+      WHITE="$(tput setaf 7)"
+    fi
+  fi
+}
+# From: https://github.com/kigster/bashmatic/blob/main/lib/output.sh#L94
+
+# TODO: Add IsTerminal to commands
+#  Note that some function names end with : – this indicates that the function outputs a new-line in the end.
+
+export LEFT_PREFIX="       "
+
+function cursorRightBy() {
+  #   output.is-terminal && printf "\e[${1}C"
+  printf "\e[${1:-"1"}C"
+}
+
+function cursorLeftBy() {
+  #   output.is-terminal && printf "\e[${1}D"
+  printf "\e[${1:-"1"}D"
+}
+
+function cursorUpBy() {
+  printf "\e[${1:-"1"}A"
+}
+
+function cursorDownBy() {
+  #   output.is-terminal && printf "\e[${1}B"
+  printf "\e[${1:-"1"}B"
+}
+
+function cursorUp() {
+  cursorUpBy "$@"
+}
+
+function cursorDown() {
+  cursorDownBy "$@"
+}
+
+function _inlineOk() {
+  cursorUp 1
+  printf "${GREEN} ✔︎    ${NC}"
+}
+
+function _inlineNotOk() {
+  inlineError
+}
+
+function _inlineError() {
+  cursorUp 1
+  printf "${RED} ✘    ${NC}"
+}
+
+function _inlineWarning() {
+  cursorUp 1
+  printf "${YELLOW} ✱    ${NC}"
+}
+
+function _inlineNote() {
+  cursorUp 1
+  printf "${BLUE} ✱    ${NC}"
+}
+
+function _iBreak() {
+  echo "${NC}"
+}
+
+function _iSnowStart() {
+  printf "${BLUE} ❄️    ${WHITE}$1${NC}\n"
+}
+function _iSnowEnd() {
+  printf "${BLUE} 💨    ${WHITE}$1${NC}\n"
+}
+
+function _i() {
+  printf -- "${LEFT_PREFIX}${NC}${DIM}$*${NC}\n"
+}
+
+function _iOk() {
+  _i "$@"
+  _inlineOk
+  echo "${NC}"
+}
+
+function _iError() {
+  _i "$@"
+  _inlineError
+  _iBreak
+}
+
+function _iFail() {
+  _iError "$@"
+}
+
+function _iWarn() {
+  _i "$@"
+  _inlineWarning
+  _iBreak
+}
+
+function _iNote() {
+  _i "$@"
+  _inlineNote
+  _iBreak
+}
+
+function _iVerbose() {
+  if [[ -v VERBOSE ]]; then
+    _i "$@"
+  fi
+}
+
 function __sb__createDirectories() {
-  echoOk "Creating Directories" "${SB_PROJECT_ROOT}"
+  _iVerbose "Creating Directories" "${SB_PROJECT_ROOT}"
   __sb__createDirectory '${SB_PROJECT_STATE}/npm'
   __sb__createDirectory '${SB_PROJECT_STATE}/npm/config'
   __sb__createDirectory '${SB_PROJECT_STATE}/pre_commit'
@@ -313,11 +243,17 @@ function __sb__createDirectories() {
 }
 
 function __sb__createTouchFiles() {
-  echoOk "Creating Touch Files" "${SB_PROJECT_ROOT}"
+  _iVerbose "Creating Touch Files" "${SB_PROJECT_ROOT}"
 
 }
 
 function doBoot() {
+  # Colors first
+  doSetupColors
+
+  # Welcome Message
+  _iSnowStart "SnowBlower: All flake no fluff."
+
   UNAMEOUT="$(uname -s)"
 
   # Verify operating system is supported...
@@ -328,7 +264,7 @@ function doBoot() {
   esac
 
   if [ "$MACHINE" == "UNKNOWN" ]; then
-    echoFail "Unsupported operating system [$(uname -s)]." "SnowBlower supports macOS, Linux, and Windows (WSL2)." >&2
+    _iError "Unsupported operating system [$(uname -s)]." "SnowBlower supports macOS, Linux, and Windows (WSL2)." >&2
     exit 1
   fi
 
@@ -336,10 +272,10 @@ function doBoot() {
   # shellcheck source=/dev/null
   if [ -n "${APP_ENV+x}" ] && [ -n "$APP_ENV" ] && [ -f ./.env."$APP_ENV" ]; then
     source ./.env."$APP_ENV"
-    echoOk "Found and sources" ".env.{$APP_ENV}"
+    _iNote "Found and sources" ".env.{$APP_ENV}"
   elif [ -f ./.env ]; then
     source ./.env
-    echoOk "Found and sourced" ".env"
+    _iNote "Found and sourced" ".env"
   fi
 
   # Create a session file in tmp dir. this allows us to do the "heavy" lifiting for the snow command one time.
@@ -355,25 +291,24 @@ function doBoot() {
 
   SB_SRC_ROOT="$(findUp "$SB_PROJECT_ROOT_FILE")"
   if [ $? -ne 0 ]; then
-    echoFail "Unable to locate $SB_PROJECT_ROOT_FILE" "Make sure you're in a project directory with a $SB_PROJECT_ROOT_FILE file"
+    _iError "Unable to locate $SB_PROJECT_ROOT_FILE" "Make sure you're in a project directory with a $SB_PROJECT_ROOT_FILE file"
     exit 1
   fi
 
   export SB_SRC_ROOT
 
-  echoOk "Set project root to" "${SB_SRC_ROOT}"
+  _iVerbose "Set project root to" "${SB_SRC_ROOT}"
 
   function bootSnowBlowerEnvironment() {
     # Only source this once.
 
     if [ -f "$SB_SESS_FILE" ]; then
       source "$SB_SESS_FILE"
-      echoOk "Found session at" "${SB_SESS_FILE}"
+      _iVerbose "Found session at" "${SB_SESS_FILE}"
       return
     fi
 
-    echoSnow "Booting SnowBlower Session" ""
-    echoOk "Creating Session File" "${SB_SESS_FILE}"
+    _iOk "Creating Session File" "${SB_SESS_FILE}"
 
     # These are the must have varibles for the project
     export SB_PROJECT_ROOT="$SB_SRC_ROOT/.snowblower"
@@ -394,10 +329,10 @@ function doBoot() {
 
       if [ $SB_DOCKER_STATUS -eq 0 ] && [ -n "$SB_DOCKER_PATH" ]; then
         # Command succeeded and returned a path
-        echoOk "Docker found at:" "{$SB_DOCKER_PATH}"
+        _iOk "Docker found at:" "{$SB_DOCKER_PATH}"
         echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >>"$SB_SESS_FILE"
       else
-        echoFail "Docker is not installed or not in PATH. Please install Docker to continue."
+        _iError "Docker is not installed or not in PATH. Please install Docker to continue."
         exit 1
       fi
 
@@ -413,33 +348,33 @@ function doBoot() {
 
       if [ $SB_DOCKER_COMPOSE_STATUS -eq 0 ] && [ -n "$SB_DOCKER_COMPOSE_PATH" ]; then
         # Command succeeded and returned a path
-        echoOk "Docker Compose found at:" "{$SB_DOCKER_COMPOSE_PATH}"
+        _iOk "Docker Compose found at:" "{$SB_DOCKER_COMPOSE_PATH}"
         echo "export SB_DOCKER_COMPOSE_PATH=\"$SB_DOCKER_COMPOSE_PATH\"" >>"$SB_SESS_FILE"
       else
-        echoFail "Docker Compose is not installed or not in PATH. Please install Docker to continue."
+        _iError "Docker Compose is not installed or not in PATH. Please install Docker to continue."
         exit 1
       fi
     fi
 
-    echoOk "SnowBlower root directory set to" "${SB_SRC_ROOT}"
+    _iNote "SnowBlower root directory set to" "${SB_SRC_ROOT}"
 
     # Create directories if they don't exist
     if [ ! -d "$SB_PROJECT_ROOT" ]; then
-      echoOk "Creating project directory" "${SB_PROJECT_ROOT}"
+      _iVerbose "Creating project directory" "${SB_PROJECT_ROOT}"
       mkdir -p "$SB_PROJECT_ROOT"
     fi
     if [ ! -d "$SB_PROJECT_PROFILE" ]; then
-      echoOk "Creating profile directory" "${SB_PROJECT_PROFILE}"
+      _iVerbose "Creating profile directory" "${SB_PROJECT_PROFILE}"
       mkdir -p "$SB_PROJECT_PROFILE"
     fi
 
     if [ ! -d "$SB_PROJECT_STATE" ]; then
-      echoOk "Creating state directory" "${SB_PROJECT_STATE}"
+      _iVerbose "Creating state directory" "${SB_PROJECT_STATE}"
       mkdir -p "$SB_PROJECT_STATE"
     fi
 
     if [ ! -d "$SB_PROJECT_RUNTIME" ]; then
-      echoOk "Creating runtime directory" "${SB_PROJECT_RUNTIME}"
+      _iVerbose "Creating runtime directory" "${SB_PROJECT_RUNTIME}"
       mkdir -p "$SB_PROJECT_RUNTIME"
     fi
 
@@ -448,8 +383,8 @@ function doBoot() {
 
     # the below two function are added via a seperate package in files.nix.
     # But we need to boot it here so we can be sure all directories are created.
-    createDirectories
-    createTouchFiles
+    # createDirectories
+    # createTouchFiles
 
     # Check if we are running in a Nix Shell
     export SB_NIX_PATH=$(which nix 2>/dev/null)
@@ -457,14 +392,13 @@ function doBoot() {
 
     if [ $SB_NIX_STATUS -eq 0 ] && hasNix; then
       # Command succeeded and returned a path
-      echoOk "Nix found at:" "{$SB_NIX_PATH}"
+      _iOk "Nix found at:" "{$SB_NIX_PATH}"
       echo "export SB_NIX_PATH=\"$SB_NIX_PATH\"" >>"$SB_SESS_FILE"
     else
-      echoFail "Nix command not found, some features may be limited"
+      _iError "Nix command not found, some features may be limited"
     fi
 
     echo "export __SB_SESS_BOOTED=1" >>"$SB_SESS_FILE"
-    echo
   }
 
   bootSnowBlowerEnvironment
@@ -487,8 +421,6 @@ function setupEnvironmentVariables() {
 setupEnvironmentVariables
 
 function doHelp {
-  echo "❄️ 💨 SnowBlower: All flake no fluff."
-  echo
   echo "${YELLOW}Usage:${NC}" >&2
   echo "  snow COMMAND [options] [arguments]"
   echo
@@ -633,15 +565,15 @@ function doUpdate {
 
 function doReboot() {
   rm -f "$SB_SESS_FILE"
-  bootSnowBlowerEnvironment
+  doBoot
   return 0
 }
 
 # Function that outputs SnowBlower is not running...
 function isNotRunning {
   echo
-  echoFail "Environment is not running." >&2
-  echoBlank "To start run" "snow docker up"
+  _iFail "Environment is not running." >&2
+  _i "To start run" "snow docker up"
   exit 1
 }
 
@@ -650,13 +582,13 @@ function doRunChecks {
   if [ -z "$SB_SKIP_CHECKS" ]; then
     # Ensure that Docker is running...
     if ! docker info >/dev/null 2>&1; then
-      echoFail "${BOLD}Docker is not running.${NC}" >&2
+      _iFail "${BOLD}Docker is not running.${NC}" >&2
       exit 1
     fi
 
     # Determine if SnowBlower is currently up...
     if "${SB_DOCKER_COMPOSE_PATH[@]}" ps "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
-      echoWarn "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
+      _iWarn "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
       "${SB_DOCKER_COMPOSE_PATH[@]}" down >/dev/null 2>&1
       isNotRunning
     elif [ -z "$("${SB_DOCKER_COMPOSE_PATH[@]}" ps -q "$SB_APP_SERVICE")" ]; then
@@ -669,7 +601,7 @@ function doRunChecks {
 function doRoutedCommandExecute() {
   # If we are inside of a SnowBlower shell we run the command directly otherwise we need to proxy the command.
   if isInsideSnowblowerShell; then
-    echoDebug "$*"
+    _iVerbose "Running: $*"
     exec "$@"
     return $?
   fi
@@ -697,7 +629,6 @@ function hasSubCommand() {
     return 1 # Function doesn't exist, so subcommand is invalid
   fi
 }
-# First we boot the SnowBlower Env
 doBoot
 
 PASSTHROUGH_OPTS=()
@@ -710,7 +641,7 @@ while [[ $# -gt 0 ]]; do
   opt="$1"
   shift
   case $opt in
-  agenix | ai | npm | npm-dev | pre-commit | switch | update | reboot)
+  agenix | ai | npm | npm-dev | pre-commit | switch | update | reboot | docker)
     COMMAND="$opt"
     ;;
   -v | --verbose)
@@ -722,7 +653,7 @@ while [[ $# -gt 0 ]]; do
     ;;
   *)
     case $COMMAND in
-    agenix | ai | npm | npm-dev | pre-commit | switch)
+    agenix | ai | npm | npm-dev | pre-commit | switch | docker)
       COMMAND_ARGS+=("$opt")
       ;;
     *)
@@ -828,7 +759,7 @@ update)
   doUpdate
   ;;
 reboot)
-  doUpdate
+  doReboot
   ;;
 help)
   doHelp

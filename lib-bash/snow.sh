@@ -1,5 +1,5 @@
-# First we boot the SnowBlower Env
 doBoot
+
 
 PASSTHROUGH_OPTS=()
 COMMAND=""
@@ -11,7 +11,7 @@ while [[ $# -gt 0 ]]; do
     opt="$1"
     shift
     case $opt in
-        @command_options@|switch|update|reboot)
+        @command_options@|switch|update|reboot|docker)
             COMMAND="$opt"
             ;;
         -v|--verbose)
@@ -23,7 +23,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         *)
             case $COMMAND in
-                @command_options@|switch)
+                @command_options@|switch|docker)
                     COMMAND_ARGS+=("$opt")
                     ;;
                 *)
@@ -74,7 +74,7 @@ case $COMMAND in
         doUpdate
         ;;
     reboot)
-        doUpdate
+        doReboot
         ;;
     help)
         doHelp

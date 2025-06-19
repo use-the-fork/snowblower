@@ -57,7 +57,11 @@ in {
           activationPackage = pkgs.writeTextFile {
             name = "sb-activation-package";
             text = ''
+              ${builtins.readFile ./../lib-bash/head.sh}
+
               ${builtins.readFile ./../lib-bash/utils.sh}
+              ${builtins.readFile ./../lib-bash/color.sh}
+              ${builtins.readFile ./../lib-bash/output.sh}
 
               ${builtins.readFile config.snowblower.directoriesPackage}
               ${builtins.readFile config.snowblower.touchFilesPackage}

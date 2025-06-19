@@ -12,6 +12,6 @@ function doUpdate {
 
 function doReboot() {
   rm -f "$SB_SESS_FILE"
-  bootSnowBlowerEnvironment
+  doBoot
   return 0
 }

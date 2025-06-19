@@ -1,4 +1,10 @@
 function doBoot() {
+  # Colors first
+  doSetupColors
+
+  # Welcome Message
+  _iSnowStart "SnowBlower: All flake no fluff."
+
   UNAMEOUT="$(uname -s)"
 
   # Verify operating system is supported...
@@ -9,7 +15,7 @@ function doBoot() {
   esac
 
   if [ "$MACHINE" == "UNKNOWN" ]; then
-    echoFail "Unsupported operating system [$(uname -s)]." "SnowBlower supports macOS, Linux, and Windows (WSL2)." >&2
+    _iError "Unsupported operating system [$(uname -s)]." "SnowBlower supports macOS, Linux, and Windows (WSL2)." >&2
     exit 1
   fi
 
@@ -17,10 +23,10 @@ function doBoot() {
   # shellcheck source=/dev/null
   if [ -n "${APP_ENV+x}" ] && [ -n "$APP_ENV" ] && [ -f ./.env."$APP_ENV" ]; then
     source ./.env."$APP_ENV"
-    echoOk "Found and sources" ".env.{$APP_ENV}"
+    _iNote "Found and sources" ".env.{$APP_ENV}"
   elif [ -f ./.env ]; then
     source ./.env
-    echoOk "Found and sourced" ".env"
+    _iNote "Found and sourced" ".env"
   fi
 
   # Create a session file in tmp dir. this allows us to do the "heavy" lifiting for the snow command one time.
@@ -36,25 +42,24 @@ function doBoot() {
 
   SB_SRC_ROOT="$(findUp "$SB_PROJECT_ROOT_FILE")"
   if [ $? -ne 0 ]; then
-    echoFail "Unable to locate $SB_PROJECT_ROOT_FILE" "Make sure you're in a project directory with a $SB_PROJECT_ROOT_FILE file"
+    _iError "Unable to locate $SB_PROJECT_ROOT_FILE" "Make sure you're in a project directory with a $SB_PROJECT_ROOT_FILE file"
     exit 1
   fi
 
   export SB_SRC_ROOT
 
-  echoOk "Set project root to" "${SB_SRC_ROOT}"
+  _iVerbose "Set project root to" "${SB_SRC_ROOT}"
 
   function bootSnowBlowerEnvironment() {
     # Only source this once.
 
     if [ -f "$SB_SESS_FILE" ]; then
       source "$SB_SESS_FILE"
-      echoOk "Found session at" "${SB_SESS_FILE}"
+      _iVerbose "Found session at" "${SB_SESS_FILE}"
       return
     fi
 
-    echoSnow "Booting SnowBlower Session" ""
-    echoOk "Creating Session File" "${SB_SESS_FILE}"
+    _iOk "Creating Session File" "${SB_SESS_FILE}"
 
     # These are the must have varibles for the project
     export SB_PROJECT_ROOT="$SB_SRC_ROOT/.snowblower"
@@ -75,10 +80,10 @@ function doBoot() {
 
       if [ $SB_DOCKER_STATUS -eq 0 ] && [ -n "$SB_DOCKER_PATH" ]; then
         # Command succeeded and returned a path
-        echoOk "Docker found at:" "{$SB_DOCKER_PATH}"
+        _iOk "Docker found at:" "{$SB_DOCKER_PATH}"
         echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >>"$SB_SESS_FILE"
       else
-        echoFail "Docker is not installed or not in PATH. Please install Docker to continue."
+        _iError "Docker is not installed or not in PATH. Please install Docker to continue."
         exit 1
       fi
 
@@ -94,33 +99,33 @@ function doBoot() {
 
       if [ $SB_DOCKER_COMPOSE_STATUS -eq 0 ] && [ -n "$SB_DOCKER_COMPOSE_PATH" ]; then
         # Command succeeded and returned a path
-        echoOk "Docker Compose found at:" "{$SB_DOCKER_COMPOSE_PATH}"
+        _iOk "Docker Compose found at:" "{$SB_DOCKER_COMPOSE_PATH}"
         echo "export SB_DOCKER_COMPOSE_PATH=\"$SB_DOCKER_COMPOSE_PATH\"" >>"$SB_SESS_FILE"
       else
-        echoFail "Docker Compose is not installed or not in PATH. Please install Docker to continue."
+        _iError "Docker Compose is not installed or not in PATH. Please install Docker to continue."
         exit 1
       fi
     fi
 
-    echoOk "SnowBlower root directory set to" "${SB_SRC_ROOT}"
+    _iNote "SnowBlower root directory set to" "${SB_SRC_ROOT}"
 
     # Create directories if they don't exist
     if [ ! -d "$SB_PROJECT_ROOT" ]; then
-      echoOk "Creating project directory" "${SB_PROJECT_ROOT}"
+      _iVerbose "Creating project directory" "${SB_PROJECT_ROOT}"
       mkdir -p "$SB_PROJECT_ROOT"
     fi
     if [ ! -d "$SB_PROJECT_PROFILE" ]; then
-      echoOk "Creating profile directory" "${SB_PROJECT_PROFILE}"
+      _iVerbose "Creating profile directory" "${SB_PROJECT_PROFILE}"
       mkdir -p "$SB_PROJECT_PROFILE"
     fi
 
     if [ ! -d "$SB_PROJECT_STATE" ]; then
-      echoOk "Creating state directory" "${SB_PROJECT_STATE}"
+      _iVerbose "Creating state directory" "${SB_PROJECT_STATE}"
       mkdir -p "$SB_PROJECT_STATE"
     fi
 
     if [ ! -d "$SB_PROJECT_RUNTIME" ]; then
-      echoOk "Creating runtime directory" "${SB_PROJECT_RUNTIME}"
+      _iVerbose "Creating runtime directory" "${SB_PROJECT_RUNTIME}"
       mkdir -p "$SB_PROJECT_RUNTIME"
     fi
 
@@ -129,8 +134,8 @@ function doBoot() {
 
     # the below two function are added via a seperate package in files.nix.
     # But we need to boot it here so we can be sure all directories are created.
-    createDirectories
-    createTouchFiles
+    # createDirectories
+    # createTouchFiles
 
     # Check if we are running in a Nix Shell
     export SB_NIX_PATH=$(which nix 2>/dev/null)
@@ -138,14 +143,13 @@ function doBoot() {
 
     if [ $SB_NIX_STATUS -eq 0 ] && hasNix; then
       # Command succeeded and returned a path
-      echoOk "Nix found at:" "{$SB_NIX_PATH}"
+      _iOk "Nix found at:" "{$SB_NIX_PATH}"
       echo "export SB_NIX_PATH=\"$SB_NIX_PATH\"" >>"$SB_SESS_FILE"
     else
-      echoFail "Nix command not found, some features may be limited"
+      _iError "Nix command not found, some features may be limited"
     fi
 
     echo "export __SB_SESS_BOOTED=1" >>"$SB_SESS_FILE"
-    echo
   }
 
   bootSnowBlowerEnvironment

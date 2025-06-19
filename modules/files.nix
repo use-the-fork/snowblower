@@ -70,7 +70,11 @@ in {
 
     config = {
       snowblower.filesPackage = pkgs.writeScriptBin "snowblower-files" ''
+        ${builtins.readFile ./../lib-bash/head.sh}
         ${builtins.readFile ./../lib-bash/utils.sh}
+        ${builtins.readFile ./../lib-bash/color.sh}
+        ${builtins.readFile ./../lib-bash/output.sh}
+        doSetupColors
 
         function insertFile() {
           local source="$1"
@@ -89,8 +93,11 @@ in {
           if [[ $executable == "1" ]]; then
             chmod +x "./$relTarget"
           fi
-          echoOk "Created file" "$relTarget"
+          _i "Created file" "$relTarget"
+
         }
+
+        _iSnowStart "SnowBlower: Generate Files"
 
         ${lib.concatStrings (
           lib.mapAttrsToList (_n: v: ''
@@ -109,17 +116,23 @@ in {
           cfg
         )}
 
-        ${lib.getExe pkgs.shfmt} -s -w snow
-        echoOk "Format snow package"
-
-        echoOk "Files copied to current directory"
+        _iOk "File Generation Complete"
+        _i "Format snow"
+        if ${lib.getExe pkgs.shfmt} -s -w snow > /dev/null 2>&1; then
+          _inlineOk
+        else
+          _inlineNotOk
+        fi
+        _iBreak
+        _iOk "Files copied to current directory"
+        _iSnowEnd "Operation Complete"
       '';
 
       snowblower.directoriesPackage = pkgs.writeTextFile {
         name = "snowblower-directories";
         text = ''
           function __sb__createDirectories() {
-            echoOk "Creating Directories" "''${SB_PROJECT_ROOT}"
+            _iVerbose "Creating Directories" "''${SB_PROJECT_ROOT}"
             ${lib.concatStrings (
             map (dir: ''
               __sb__createDirectory ${lib.escapeShellArgs [dir]}
@@ -134,7 +147,7 @@ in {
         name = "snowblower-touch-files";
         text = ''
           function __sb__createTouchFiles() {
-            echoOk "Creating Touch Files" "''${SB_PROJECT_ROOT}"
+            _iVerbose "Creating Touch Files" "''${SB_PROJECT_ROOT}"
             ${lib.concatStrings (
             map (file: ''
               __sb__createTouchFile ${lib.escapeShellArgs [file]}

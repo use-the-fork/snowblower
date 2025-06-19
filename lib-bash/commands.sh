@@ -1,8 +1,8 @@
 # Function that outputs SnowBlower is not running...
 function isNotRunning {
   echo
-  echoFail "Environment is not running." >&2
-  echoBlank "To start run" "snow docker up"
+  _iFail "Environment is not running." >&2
+  _i "To start run" "snow docker up"
   exit 1
 }
 
@@ -11,13 +11,13 @@ function doRunChecks {
   if [ -z "$SB_SKIP_CHECKS" ]; then
     # Ensure that Docker is running...
     if ! docker info >/dev/null 2>&1; then
-      echoFail "${BOLD}Docker is not running.${NC}" >&2
+      _iFail "${BOLD}Docker is not running.${NC}" >&2
       exit 1
     fi
 
     # Determine if SnowBlower is currently up...
     if "${SB_DOCKER_COMPOSE_PATH[@]}" ps "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
-      echoWarn "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
+      _iWarn "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
       "${SB_DOCKER_COMPOSE_PATH[@]}" down >/dev/null 2>&1
       isNotRunning
     elif [ -z "$("${SB_DOCKER_COMPOSE_PATH[@]}" ps -q "$SB_APP_SERVICE")" ]; then
@@ -30,7 +30,7 @@ function doRunChecks {
 function doRoutedCommandExecute() {
   # If we are inside of a SnowBlower shell we run the command directly otherwise we need to proxy the command.
   if isInsideSnowblowerShell; then
-    echoDebug "$*"
+    _iVerbose "Running: $*"
     exec "$@"
     return $?
   fi
