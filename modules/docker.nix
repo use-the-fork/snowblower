@@ -105,17 +105,17 @@ in {
       dockerfileDockerContent = ''
         ${builtins.readFile ./../lib-docker/Dockerfile}
 
-        COPY flake.nix /workspace/flake.nix
-        COPY flake.lock /workspace/flake.lock
+        # Copy the whole project to the workspace before build.
+        COPY . /workspace
 
         RUN nix profile install '.#dockerPackage'
 
         # Initialize shell environment variables.
-        RUN /home/''${USERNAME}/.nix-profile/bin/docker-entrypoint init
+        RUN /home/snowblower/.nix-profile/bin/docker-entrypoint init
 
         # Execute everything with the shell environment variables.
-        SHELL /home/''${USERNAME}/.nix-profile/bin/docker-entrypoint exec
-        ENTRYPOINT /home/''${USERNAME}/.nix-profile/bin/docker-entrypoint exec
+        SHELL ["/home/snowblower/.nix-profile/bin/docker-entrypoint", "exec"]
+        ENTRYPOINT ["/home/snowblower/.nix-profile/bin/docker-entrypoint", "exec"]
 
         # Drop into a shell by default.
         CMD bash
@@ -171,7 +171,11 @@ in {
         source = pkgs.writeText "dockerfile" dockerfileDockerContent;
       };
 
-      # TODO: Not sold on this should maybe directly in here.
+      file."docker/with-nix.sh" = {
+        enable = true;
+        text = builtins.readFile ./../lib-docker/with-nix.sh;
+      };
+
       file."docker/nix.conf" = {
         enable = true;
         text = builtins.readFile ./../lib-docker/nix.conf;

@@ -95,7 +95,7 @@ function executeWithSpinner() {
 
 function echoSnow() {
   local message="${1:-}"
-  printf "${WHITE}[ ${GREEN} ❄️💨 ${WHITE} ]  ${BOLD}${WHITE}%s${NC}\n" "${message}"
+  printf "${WHITE}[ ❄️💨 ]  ${BOLD}${WHITE}%s${NC}\n" "${message}"
 }
 function echoOk() {
   local message="${1:-}"
@@ -121,6 +121,14 @@ function echoBlank() {
   local message="${1:-}"
   local detail="${2:-}"
   printf "          ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
+}
+function echoHasVerbose() {
+  local message="${1:-}"
+  local detail="${2:-}"
+
+    if [[ "$VERBOSE" != "no" ]] || [ -z "$VERBOSE" ]; then
+    printf "${WHITE}[ ${YELLOW}ECHO${WHITE} ]  ${NC}${DIM}%s${NC} ${WHITE}%s${NC}\n" "${message}" "${detail}"
+  fi
 }
 function echoDebug() {
   local message="${1:-}"

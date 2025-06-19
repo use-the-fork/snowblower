@@ -41,6 +41,8 @@ fi
 
 export SB_SRC_ROOT
 
+echoOk "Set project root to" "${SB_SRC_ROOT}"
+
 function __sb__bootSnowBlowerEnvironment() {
   # Only source this once.
 

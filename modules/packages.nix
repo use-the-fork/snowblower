@@ -29,6 +29,7 @@ in {
         # From: https://github.com/diamondburned/gotk4/blob/4/flake.nix
         # A intresting way of building a dev shell where it's created using an init of our flakes dev shell and
         # then output to `~/nix-environment'` from which we can then source it when we `exec` (Default entrypoint)
+        # To help with docker-compose skipping the entrypoint we also inject `with-nix` that will source our `~/nix-environment`
         dockerPackage = pkgs.buildEnv {
           name = "snowblower-docker-env";
           paths = with pkgs; [
@@ -47,13 +48,18 @@ in {
               "exec")
                 __user=$USER
                 __home=$HOME
+                __user_uid=$USER_UID
 
                 source ~/nix-environment
+
+                if [ ! -z "$__user_uid" ]; then
+                    usermod -u $__user_uid snowblower
+                fi
 
                 USER=$__user
                 HOME=$__home
 
-                eval "$@"
+                exec "$@"
                 ;;
               esac
             '')

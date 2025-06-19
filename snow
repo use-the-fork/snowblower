@@ -261,6 +261,8 @@ fi
 
 export SB_SRC_ROOT
 
+echoOk "Set project root to" "${SB_SRC_ROOT}"
+
 function __sb__bootSnowBlowerEnvironment() {
   # Only source this once.
 
@@ -415,8 +417,9 @@ function __sb__displayResolvedCommands {
   echo
 
   echo "${YELLOW}Aider Commands:${NC}"
-  echo "  ${GREEN}snow aider ...${NC}          Run a Aider command"
-  echo "  ${GREEN}snow aider start${NC}          w/ linting, watchfiles, and conventions."
+  echo "  ${GREEN}snow ai ...${NC}          Run a Aider command"
+  echo "  ${GREEN}snow ai gem${NC}          using Gemini as base"
+  echo "  ${GREEN}snow ai start${NC}          w/ linting, watchfiles, and conventions."
 
   echo
 
@@ -444,12 +447,15 @@ fi
 
 # Commands that are specific to Docker and Docker Compose.
 function __sb__command__docker__up {
-  if [ $# -le 1 ]; then
-    "${SB_DOCKER_COMPOSE_PATH}" up
-  else
-    "${SB_DOCKER_COMPOSE_PATH}" up "$@"
-  fi
-  return $?
+  cd $SB_SRC_ROOT
+  echo "$@"
+  echo "$#"
+  # if [ $# -le 1 ]; then
+  #   "${SB_DOCKER_COMPOSE_PATH}" up
+  # else
+  #   "${SB_DOCKER_COMPOSE_PATH}" up "$@"
+  # fi
+  # return $?
 }
 
 function __sb__command__docker__down {
@@ -457,6 +463,7 @@ function __sb__command__docker__down {
 }
 
 function __sb__command__docker__stop {
+  cd $SB_SRC_ROOT
   if [ $# -le 1 ]; then
     "${SB_DOCKER_COMPOSE_PATH}" down
   else
@@ -466,6 +473,7 @@ function __sb__command__docker__stop {
 }
 
 function __sb__command__docker__restart {
+  cd $SB_SRC_ROOT
   if [ $# -le 1 ]; then
     "${SB_DOCKER_COMPOSE_PATH}" restart
   else
@@ -479,6 +487,7 @@ function __sb__command__docker__ps {
   return $?
 }
 function __sb__command__docker__build {
+  cd $SB_SRC_ROOT
   if [ $# -le 1 ]; then
     "${SB_DOCKER_COMPOSE_PATH}" build
   else
@@ -489,10 +498,12 @@ function __sb__command__docker__build {
 
 # Commands that are specific to controling SnowBlower.
 function __sb__command__switch {
+  cd $SB_SRC_ROOT
   nix run .#snowblowerFiles
   return 0
 }
 function __sb__command__update {
+  cd $SB_SRC_ROOT
   executeWithSpinner "Updating Flake" "nix flake update"
   __sb__command__switch
   __sb__command__reboot
@@ -500,49 +511,52 @@ function __sb__command__update {
 }
 
 function __sb__command__reboot() {
+  cd $SB_SRC_ROOT
   rm -f "$SB_SESS_FILE"
   __sb__bootSnowBlowerEnvironment
   return 0
 }
 
 function __sb__command__agenix {
-  __sb__RoutedCommandExecute sb-agenix
+  __sb__RoutedCommandExecute sb-agenix "$@"
 }
 
 function __sb__command__agenix__rekey {
-  __sb__RoutedCommandExecute 'sb-agenix --rekey'
+  __sb__RoutedCommandExecute 'sb-agenix --rekey' "$@"
 }
 
-function __sb__command__aider {
-  __sb__RoutedCommandExecute aider
+function __sb__command__ai {
+  __sb__RoutedCommandExecute aider "$@"
 }
 
-function __sb__command__aider__start {
-  __sb__RoutedCommandExecute 'aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "CONVENTIONS.MD" --lint-cmd "snow pre-commit all"'
+function __sb__command__ai__gem {
+  __sb__RoutedCommandExecute 'aider --model gemini --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --lint-cmd "snow pre-commit all"' "$@"
+}
+function __sb__command__ai__start {
+  __sb__RoutedCommandExecute 'aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read "CONVENTIONS.MD" --lint-cmd "snow pre-commit all"' "$@"
 }
 
 function __sb__command__npm {
-  __sb__RoutedCommandExecute npm
+  __sb__RoutedCommandExecute npm "$@"
 }
 
 function __sb__command__npm-dev {
-  __sb__RoutedCommandExecute 'npm run dev'
+  __sb__RoutedCommandExecute 'npm run dev' "$@"
 }
 
 function __sb__command__pre-commit {
-  __sb__RoutedCommandExecute pre-commit
+  __sb__RoutedCommandExecute pre-commit "$@"
 }
 
 function __sb__command__pre-commit__all {
-  __sb__RoutedCommandExecute 'pre-commit run --all-files'
+  __sb__RoutedCommandExecute 'pre-commit run --all-files' "$@"
 }
 
 # Function that outputs SnowBlower is not running...
 function __sb__isNotRunning {
   echo
   echoFail "Environment is not running." >&2
-  echoBlank "If you have Nix installed, you may enter the dev shell by running:" "nix develop"
-  echoBlank "To start in Docker run" "snow docker up"
+  echoBlank "To start run" "snow docker up"
   exit 1
 }
 
@@ -568,16 +582,10 @@ function __sb__runChecks {
 
 # Figures out the type of envirment the command is running in and then routes approriatly.
 function __sb__RoutedCommandExecute() {
-  local cmd="$1"
-  echoDebug "$1"
-
-  # Remove surrounding quotes if present
-  cmd="${cmd//\'/}"
-
-  # If the env has Nix we can run the command directly
+  # If we are inside of a SnowBlower shell we run the command directly otherwise we need to proxy the command.
   if __sb__isInsideSnowblowerShell; then
-    echoDebug "$cmd"
-    eval "$cmd"
+    echoDebug "$*"
+    exec "$@"
     return $?
   fi
 
@@ -590,11 +598,14 @@ function __sb__RoutedCommandExecute() {
   ARGS+=("$SB_APP_SERVICE")
 
   # Execute the command with proper shell evaluation
-  "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" bash -c "$cmd"
+  "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" with-nix "$@"
 }
 
 # Function to run dynamically generated command functions
 function __sb__runCommand {
+  # Shift snow off since we know thats what we are running.
+  shift 1
+
   local command_name="$1"
   local subcommand_name="$2"
 
@@ -621,9 +632,4 @@ function __sb__runCommand {
   fi
 }
 
-# Check if $2 exists before passing it to run_command
-if [ $# -ge 2 ]; then
-  __sb__runCommand "$1" "$2"
-else
-  __sb__runCommand "$1" ""
-fi
+  __sb__runCommand

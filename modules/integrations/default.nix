@@ -2,11 +2,9 @@
   imports = [
     ./agenix.nix
     ./aider
-    # ./convco
-    # ./dotenv
+    ./convco.nix
     ./pre-commit.nix
     ./treefmt.nix
-    # ./git-hooks
-    # ./git-cliff
+    ./git-cliff.nix
   ];
 }

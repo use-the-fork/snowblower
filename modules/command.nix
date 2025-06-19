@@ -93,7 +93,7 @@
           mkSubCommandSection = name: subSection: let
             subSectionName = subSection.name;
           in ''            function __sb__command__${name}__${subSectionName} {
-                            __sb__RoutedCommandExecute ${lib.strings.escapeShellArg subSection.data.exec}
+                            __sb__RoutedCommandExecute ${lib.strings.escapeShellArg subSection.data.exec} "$@"
                            }'';
 
           resolvedSubCommands = lib.sbl.dag.resolveDag {
@@ -108,7 +108,7 @@
           concatLines [
             (optionalString (section.data.exec != null) ''
               function __sb__command__${section.name} {
-                __sb__RoutedCommandExecute ${lib.strings.escapeShellArg section.data.exec}
+                __sb__RoutedCommandExecute ${lib.strings.escapeShellArg section.data.exec} "$@"
               }
             '')
             resolvedSubCommands

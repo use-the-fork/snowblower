@@ -50,7 +50,7 @@
 
     config = lib.mkIf cfg.enable {
       snowblower = {
-        command."aider" = let
+        command."ai" = let
           subCommands = lib.mkMerge (lib.mapAttrsToList (
               name: cmdCfg: {
                 "${name}" = {

@@ -109,6 +109,7 @@ in {
           cfg
         )}
 
+        sleep 3  # Waits 1 second before formatting.
         ${lib.getExe pkgs.shfmt} -s -w snow
         echoOk "Format snow package"
 

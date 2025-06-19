@@ -15,11 +15,10 @@ RUN apt update -y && \
 
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen
 
-ARG USERNAME=${USERNAME:-snowblower}
 ARG USER_UID=${USER_UID:-1000}
 ARG USER_GID=${USER_UID:-1000}
-RUN groupadd --gid ${USER_GID} ${USERNAME} && \
-    useradd --uid ${USER_UID} --gid ${USER_GID} -m ${USERNAME} -s /bin/bash && \
+RUN groupadd --gid ${USER_GID} snowblower && \
+    useradd --uid ${USER_UID} --gid ${USER_GID} -m snowblower -s /bin/bash && \
     echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/devcontainer && \
     chmod 0440 /etc/sudoers.d/devcontainer
 
@@ -34,9 +33,12 @@ RUN curl --proto '=https' --tlsv1.2 -sSf -L ${NIX_INSTALL_SCRIPT} | sh -s -- ins
 ENV PATH="${PATH}:/nix/var/nix/profiles/default/bin"
 
 # Change ownership of nix store to the user
-RUN sudo chown -R ${USERNAME}: /nix
+RUN sudo chown -R snowblower: /nix
 
 WORKDIR /workspace
 RUN chown ${USER_UID}:${USER_UID} /workspace
 
-USER ${USERNAME}
+COPY ./docker/with-nix.sh /usr/local/bin/with-nix
+RUN chmod +x /usr/local/bin/with-nix
+
+USER snowblower

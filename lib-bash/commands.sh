@@ -2,8 +2,7 @@
 function __sb__isNotRunning {
   echo
   echoFail "Environment is not running." >&2
-  echoBlank "If you have Nix installed, you may enter the dev shell by running:" "nix develop"
-  echoBlank "To start in Docker run" "snow docker up"
+  echoBlank "To start run" "snow docker up"
   exit 1
 }
 
@@ -29,16 +28,10 @@ function __sb__runChecks {
 
 # Figures out the type of envirment the command is running in and then routes approriatly.
 function __sb__RoutedCommandExecute() {
-  local cmd="$1"
-  echoDebug "$1"
-
-  # Remove surrounding quotes if present
-  cmd="${cmd//\'/}"
-
-  # If the env has Nix we can run the command directly
+  # If we are inside of a SnowBlower shell we run the command directly otherwise we need to proxy the command.
   if __sb__isInsideSnowblowerShell; then
-    echoDebug "$cmd"
-    eval "$cmd"
+    echoDebug "$*"
+    exec "$@"
     return $?
   fi
 
@@ -51,7 +44,7 @@ function __sb__RoutedCommandExecute() {
   ARGS+=("$SB_APP_SERVICE")
 
   # Execute the command with proper shell evaluation
-  "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" bash -c "$cmd"
+  "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" with-nix "$@" 
 }
 
 # Function to run dynamically generated command functions

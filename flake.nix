@@ -60,6 +60,14 @@
                   readFiles = ["CONVENTIONS.MD"];
                   lintCommands = ["snow pre-commit all"];
                 };
+                gem = {
+                  description = "using Gemini as base";
+                  model = "gemini";
+                  watchFiles = true;
+                  suggestShellCommands = false;
+                  # readFiles = ["CONVENTIONS.MD"];
+                  lintCommands = ["snow pre-commit all"];
+                };
               };
             };
             agenix = {
