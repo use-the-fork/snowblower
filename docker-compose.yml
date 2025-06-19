@@ -17,10 +17,5 @@ x-snowblower-common: &snowblower-common
   - .:/workspace
   working_dir: /workspace
 services:
-  npm-dev:
-    <<: *snowblower-common
-    command: ./snow npm-dev
-    ports:
-    - 5432:5432
   snowblower-dev:
     <<: *snowblower-common

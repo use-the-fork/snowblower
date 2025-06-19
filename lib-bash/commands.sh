@@ -28,9 +28,10 @@ function doRunChecks {
 
 # Figures out the type of envirment the command is running in and then routes approriatly.
 function doRoutedCommandExecute() {
+  _iVerbose "Attempting to run: $*"
   # If we are inside of a SnowBlower shell we run the command directly otherwise we need to proxy the command.
   if isInsideSnowblowerShell; then
-    _iVerbose "Running: $*"
+    _i "Running: $*"
     exec "$@"
     return $?
   fi
@@ -43,6 +44,7 @@ function doRoutedCommandExecute() {
   [ ! -t 0 ] && ARGS+=(-T)
   ARGS+=("$SB_APP_SERVICE")
 
+  _iVerbose "Executing command via docker compose"
   # Execute the command with proper shell evaluation
   "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" with-nix "$@" 
 }

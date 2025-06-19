@@ -91,19 +91,20 @@
             npm.enable = true;
           };
 
-          process."npm-dev" = {
-            enable = true;
-            exec = "npm run dev";
-            port = {
-              container = 5432;
-              host = 5432;
-            };
-          };
+          # process."npm-dev" = {
+          #   enable = true;
+          #   exec = "npm run dev";
+          #   port = {
+          #     container = 5432;
+          #     host = 5432;
+          #   };
+          # };
 
           codeQuality = {
             alejandra.enable = true;
             statix.enable = true;
             shfmt.enable = true;
+            keepSorted.enable = true;
           };
         };
       };

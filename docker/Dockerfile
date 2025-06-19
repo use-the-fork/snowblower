@@ -36,7 +36,7 @@ ENV PATH="${PATH}:/nix/var/nix/profiles/default/bin"
 RUN sudo chown -R snowblower: /nix
 
 WORKDIR /workspace
-RUN chown ${USER_UID}:${USER_UID} /workspace
+RUN chown ${USER_UID}: /workspace
 
 COPY ./docker/with-nix.sh /usr/local/bin/with-nix
 RUN chmod +x /usr/local/bin/with-nix

@@ -9,9 +9,9 @@
   }: let
     inherit (lib) mkCodeQualityTool mkCodeQualityCommand;
 
-    cfg = config.snowblower.codeQuality.keep-sorted;
+    cfg = config.snowblower.codeQuality.keepSorted;
   in {
-    options.snowblower.codeQuality.keep-sorted = mkCodeQualityTool {
+    options.snowblower.codeQuality.keepSorted = mkCodeQualityTool {
       name = "Keep-sorted";
       package = pkgs.keep-sorted;
 
