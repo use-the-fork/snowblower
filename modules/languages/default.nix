@@ -1,9 +1,10 @@
 {
   imports = [
-    # ./java
+    # keep-sorted start
+    ./java
     ./javascript
-    # ./php
+    ./php
     ./python
-    # ./ruby
+    # keep-sorted end
   ];
 }

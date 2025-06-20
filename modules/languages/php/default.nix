@@ -1,6 +1,6 @@
 {flake-parts-lib, ...}: {
   imports = [
-    ./uv.nix
+    ./composer.nix
   ];
 
   options.perSystem = flake-parts-lib.mkPerSystemOption ({
@@ -9,16 +9,57 @@
     config,
     ...
   }: let
-    inherit (lib) mkLanguage;
+    inherit (lib) mkLanguage types mkOption;
+    inherit (types) nullOr lines listOf str;
+
     cfg = config.snowblower.language.php;
+
+    filterDefaultExtensions = ext: builtins.length (builtins.filter (inner: inner == ext.extensionName) cfg.disableExtensions) == 0;
+
+    configurePackage = package:
+      package.buildEnv {
+        extensions = {
+          all,
+          enabled,
+        }:
+          with all; (builtins.filter filterDefaultExtensions (enabled ++ attrValues (getAttrs cfg.extensions package.extensions)));
+        extraConfig = cfg.ini;
+      };
   in {
     options.snowblower.language.php = mkLanguage {
       name = "PHP";
-      package = pkgs.python312;
+      package = pkgs.php83;
+      settings = {
+        ini = mkOption {
+          type = nullOr lines;
+          default = "";
+          description = ''
+            PHP.ini directives. Refer to the "List of php.ini directives" of PHP's
+          '';
+        };
+
+        extensions = mkOption {
+          type = listOf str;
+          default = [];
+          description = ''
+            PHP extensions to enable.
+          '';
+        };
+
+        disableExtensions = mkOption {
+          type = listOf str;
+          default = [];
+          description = ''
+            PHP extensions to disable.
+          '';
+        };
+      };
     };
 
     config.snowblower = lib.mkIf cfg.enable {
-      packages = [
+      packages = let
+        finalPackage = configurePackage cfg.package;
+      in [
         cfg.package
       ];
     };
