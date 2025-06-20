@@ -81,9 +81,7 @@
                 };
               };
             };
-            preCommit = {
-              enable = true;
-            };
+            preCommit.enable = true;
           };
 
           language.javascript = {
@@ -99,6 +97,10 @@
           #     host = 5432;
           #   };
           # };
+
+          service = {
+            dockwatch.enable = true;
+          };
 
           codeQuality = {
             alejandra.enable = true;

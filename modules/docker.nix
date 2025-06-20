@@ -136,6 +136,7 @@ in {
           };
           volumes = [
             ".:/workspace"
+            "/var/run/docker.sock:/var/run/docker.sock:ro"
           ];
           depends_on = config.snowblower.docker.common.dependsOn;
           working_dir = "/workspace";

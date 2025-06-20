@@ -35,6 +35,11 @@ function doCommand__docker__ps {
   return $?
 }
 
+function doCommand__docker__bash {
+  doRoutedCommandExecute bash
+  return $?
+}
+
 function doCommand__docker__build {
   if [ $# -le 0 ]; then
     (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" build) 

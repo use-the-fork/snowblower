@@ -15,7 +15,21 @@ x-snowblower-common: &snowblower-common
   tty: true
   volumes:
   - .:/workspace
+  - /var/run/docker.sock:/var/run/docker.sock:ro
   working_dir: /workspace
 services:
+  dockwatch:
+    container_name: dockwatch
+    environment:
+      PGID: '999'
+      PUID: '1001'
+      TZ: America/New_York
+    image: ghcr.io/notifiarr/dockwatch:main
+    ports:
+    - 9443:80
+    restart: unless-stopped
+    volumes:
+    - ${SB_PROJECT_STATE}/dockwatch:/config
+    - /var/run/docker.sock:/var/run/docker.sock
   snowblower-dev:
     <<: *snowblower-common

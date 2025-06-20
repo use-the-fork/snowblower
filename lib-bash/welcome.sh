@@ -12,6 +12,7 @@ function doHelp {
   echo "  ${GREEN}snow docker up -d${NC}     Start the application in the background"
   echo "  ${GREEN}snow docker down${NC}      Stop the application"
   echo "  ${GREEN}snow docker restart${NC}   Restart the application"
+  echo "  ${GREEN}snow docker bash${NC}      Enter the application CLI"
   echo "  ${GREEN}snow docker build${NC}     Builds all containers in compose file"
   echo "  ${GREEN}snow docker ps${NC}        Display the status of all containers"
   echo

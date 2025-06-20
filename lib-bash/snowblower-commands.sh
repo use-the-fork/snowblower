@@ -4,7 +4,7 @@ function doSwitch {
   return 0
 }
 function doUpdate {
-  executeWithSpinner "Updating Flake" "nix flake update"
+  (cd "$SB_SRC_ROOT" && nix flake update) 
   doSwitch
   doReboot
   return 0

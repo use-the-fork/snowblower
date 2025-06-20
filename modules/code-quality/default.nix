@@ -1,6 +1,6 @@
 {
   imports = [
-    # The Code Quality tools avliable.
+    # keep-sorted start
     ./alejandra.nix
     ./biome.nix
     ./deadnix.nix
@@ -10,5 +10,6 @@
     ./ruff.nix
     ./shfmt.nix
     ./statix.nix
+    # keep-sorted end
   ];
 }

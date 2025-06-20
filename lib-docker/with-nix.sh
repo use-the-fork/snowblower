@@ -1,4 +1,4 @@
 #!/bin/bash
 
 source ~/nix-environment
-exec "$@"
+exec gosu $USER_UID "$@"

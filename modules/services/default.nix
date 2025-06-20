@@ -1,10 +1,14 @@
 {
   imports = [
+    # keep-sorted start
     ./adminer.nix
     ./blackfire.nix
+    ./dockwatch.nix
     ./elasticsearch
-    ./mysql.nix
-    ./redis.nix
     ./memcached.nix
+    ./mysql.nix
+    ./portainer.nix
+    ./redis.nix
+    # keep-sorted end
   ];
 }

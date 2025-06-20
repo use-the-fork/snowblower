@@ -46,7 +46,8 @@ function doRoutedCommandExecute() {
 
   _iVerbose "Executing command via docker compose"
   # Execute the command with proper shell evaluation
-  "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" with-nix "$@" 
+  "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" with-nix "$@"
+  return $?
 }
 
 function hasSubCommand() {

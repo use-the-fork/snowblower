@@ -412,6 +412,7 @@ function setupEnvironmentVariables() {
   if [ -v __SB_SESS_VARS_SOURCED ]; then return; fi
   export __SB_SESS_VARS_SOURCED=1
 
+  export DOCKWATCHDATA="${SB_PROJECT_STATE}/dockwatch"
   export NPM_CONFIG_CACHE="${SB_PROJECT_STATE}/npm"
   export NPM_CONFIG_TMP="${SB_PROJECT_STATE}/npm"
   export NPM_CONFIG_USERCONFIG="${SB_PROJECT_STATE}/npm/config"
@@ -434,6 +435,7 @@ function doHelp {
   echo "  ${GREEN}snow docker up -d${NC}     Start the application in the background"
   echo "  ${GREEN}snow docker down${NC}      Stop the application"
   echo "  ${GREEN}snow docker restart${NC}   Restart the application"
+  echo "  ${GREEN}snow docker bash${NC}      Enter the application CLI"
   echo "  ${GREEN}snow docker build${NC}     Builds all containers in compose file"
   echo "  ${GREEN}snow docker ps${NC}        Display the status of all containers"
   echo
@@ -531,6 +533,11 @@ function doCommand__docker__ps {
   return $?
 }
 
+function doCommand__docker__bash {
+  doRoutedCommandExecute bash
+  return $?
+}
+
 function doCommand__docker__build {
   if [ $# -le 0 ]; then
     (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" build)
@@ -550,7 +557,7 @@ function doSwitch {
   return 0
 }
 function doUpdate {
-  executeWithSpinner "Updating Flake" "nix flake update"
+  (cd "$SB_SRC_ROOT" && nix flake update)
   doSwitch
   doReboot
   return 0
@@ -611,6 +618,7 @@ function doRoutedCommandExecute() {
   _iVerbose "Executing command via docker compose"
   # Execute the command with proper shell evaluation
   "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" with-nix "$@"
+  return $?
 }
 
 function hasSubCommand() {
