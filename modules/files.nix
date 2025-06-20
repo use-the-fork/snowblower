@@ -70,10 +70,14 @@ in {
 
     config = {
       snowblower.filesPackage = pkgs.writeScriptBin "snowblower-files" ''
-        ${builtins.readFile ./../lib-bash/head.sh}
-        ${builtins.readFile ./../lib-bash/utils.sh}
-        ${builtins.readFile ./../lib-bash/color.sh}
-        ${builtins.readFile ./../lib-bash/output.sh}
+        ${builtins.readFile ./../lib-bash/utils/head.sh}
+
+        # keep-sorted start
+        ${builtins.readFile ./../lib-bash/utils/color.sh}
+        ${builtins.readFile ./../lib-bash/utils/file.sh}
+        ${builtins.readFile ./../lib-bash/utils/output.sh}
+        # keep-sorted end
+
         doSetupColors
 
         function insertFile() {

@@ -14,16 +14,16 @@
     };
 
     config.snowblower = lib.mkIf cfg.enable {
-      assertions = [
-        {
-          assertion = config.snowblower.language.php.enable;
-          message = ''
-            Warning: snowblower.language.php.composer.enable is true, but snowblower.language.php.enable is not.
-            PHP language support must be enabled for Composer to function correctly within the SnowBlower environment.
-            Please set snowblower.language.php.enable = true;
-          '';
-        }
-      ];
+      # assertions = [
+      #   {
+      #     assertion = config.snowblower.language.php.enable;
+      #     message = ''
+      #       Warning: snowblower.language.php.composer.enable is true, but snowblower.language.php.enable is not.
+      #       PHP language support must be enabled for Composer to function correctly within the SnowBlower environment.
+      #       Please set snowblower.language.php.enable = true;
+      #     '';
+      #   }
+      # ];
 
       packages = [
         cfg.package

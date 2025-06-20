@@ -107,7 +107,9 @@
 
         # A utility script to quickly be able to edit secrets.
         editSecret = pkgs.writeShellScriptBin "sb-agenix" (''
-            ${builtins.readFile ./../../lib-bash/utils.sh}
+            ${builtins.readFile ./../../lib-bash/utils/head.sh}
+            ${builtins.readFile ./../../lib-bash/utils/color.sh}
+            ${builtins.readFile ./../../lib-bash/utils/output.sh}
 
             # Define the list of options
             options=(''
