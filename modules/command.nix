@@ -177,9 +177,13 @@
           name = "sb-run-commands.sh";
           text = ''
             ${resolvedCommands}
+
+            # keep-sorted start
+            ${builtins.readFile ./../lib-bash/commands.sh}
             ${builtins.readFile ./../lib-bash/docker-commands.sh}
             ${builtins.readFile ./../lib-bash/snowblower-commands.sh}
-            ${builtins.readFile ./../lib-bash/commands.sh}
+            # keep-sorted end
+
             ${snowShellContent}
           '';
         };
