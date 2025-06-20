@@ -17,7 +17,7 @@ set -o pipefail
 
 # Various Check functions
 
-export LEFT_PREFIX="       "
+export LEFT_PREFIX="    "
 # Credits: https://github.com/srid/flake-root/blob/master/flake-module.nix
 # This function is used to find the flake root and set it as a env varible.
 findUp() {
@@ -35,49 +35,62 @@ findUp() {
     cd ..
   done
 function _i() {
-  printf -- "${LEFT_PREFIX}${NC}${DIM}$*${NC}\n"
+  local msgid="$1"
+  shift
+
+  printf "${LEFT_PREFIX}${msgid}\n" "$@"
 function _iBreak() {
   echo "${NC}"
-function _iError() {
+function _iCloud() {
   _i "$@"
-  _inlineError
-  _iBreak
+  _inlineFlake
+  echo "${NC}"
+function _iError() {
+  echo -n "${RED}"
+  _i "$@"
+  echo -n "${NC}"
 function _iFail() {
   _iError "$@"
 function _iNote() {
+  echo -n "${BLUE}"
   _i "$@"
-  _inlineNote
-  _iBreak
+  echo -n "${NC}"
 function _iOk() {
   _i "$@"
-  _inlineOk
+  _inlineCheck
   echo "${NC}"
-function _iSnowEnd() {
-  printf "${BLUE} 💨    ${WHITE}$1${NC}\n"
-function _iSnowStart() {
-  printf "${BLUE} ❄️    ${WHITE}$1${NC}\n"
+function _iSnow() {
+  _i "$@"
+  _inlineFlake
+  echo "${NC}"
 function _iVerbose() {
   if [[ -v VERBOSE ]]; then
     _i "$@"
   fi
 function _iWarn() {
+  echo -n "${YELLOW}"
   _i "$@"
-  _inlineWarning
-  _iBreak
-function _inlineError() {
+  echo -n "${NC}"
+function _inlineCheck() {
   cursorUp 1
-  printf "${RED} ✘    ${NC}"
+  printf "${GREEN} ✔︎ ${NC}"
+function _inlineCloud() {
+  cursorUp 1
+  printf " 💨 ${NC}"
+function _inlineCross() {
+  cursorUp 1
+  printf "${RED} ✘ ${NC}"
+function _inlineFlake() {
+  cursorUp 1
+  printf " ❄️ ${NC}"
 function _inlineNotOk() {
   inlineError
 function _inlineNote() {
   cursorUp 1
   printf "      ${NC}"
-function _inlineOk() {
-  cursorUp 1
-  printf "${GREEN} ✔︎    ${NC}"
 function _inlineWarning() {
   cursorUp 1
-  printf "${YELLOW} ✱    ${NC}"
+  printf "${YELLOW} ✱ ${NC}"
 function cursorDown() {
   cursorDownBy "$@"
 function cursorDownBy() {
@@ -197,7 +210,7 @@ function __sb__createDirectories() {
 }
 
 function __sb__createTouchFiles() {
-  _iVerbose "Creating Touch Files" "${SB_PROJECT_ROOT}"
+  _iVerbose "Creating Touch Files in %s" "${SB_PROJECT_ROOT}"
 
 }
 
@@ -516,7 +529,7 @@ function doRoutedCommandExecute() {
 
   _iVerbose "Executing command via docker compose"
   # Execute the command with proper shell evaluation
-  "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" "snow-entrypoint" "$@"
+  "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" with-nix "$@"
   return $?
 # Function that checks
 function doRunChecks {

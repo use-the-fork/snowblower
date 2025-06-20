@@ -33,6 +33,12 @@ in {
     ];
 
     options.snowblower = {
+      dockerPackage = mkOption {
+        internal = true;
+        type = types.package;
+        description = "The package containing the environment docker uses.";
+      };
+
       docker = {
         common = {
           dependsOn = mkOption {
@@ -64,107 +70,125 @@ in {
       };
     };
 
-    config.snowblower = let
-      # Extract service configurations
-      composeServices =
-        lib.mapAttrs (_name: service: service.outputs.service)
-        config.snowblower.docker.service;
+    config = {
+      snowblower = let
+        # Extract service configurations
+        composeServices =
+          lib.mapAttrs (_name: service: service.outputs.service)
+          config.snowblower.docker.service;
 
-      # Extract networks from services
-      serviceNetworks = lib.unique (lib.flatten (
-        lib.mapAttrsToList (
-          _name: service:
-            if service.enable && service.networks != []
-            then service.networks
-            else []
-        )
-        config.snowblower.docker.service
-      ));
+        # Extract networks from services
+        serviceNetworks = lib.unique (lib.flatten (
+          lib.mapAttrsToList (
+            _name: service:
+              if service.enable && service.networks != []
+              then service.networks
+              else []
+          )
+          config.snowblower.docker.service
+        ));
 
-      # Create networks configuration
-      networksConfig = lib.listToAttrs (map (name: {
-          inherit name;
-          value = {};
-        })
-        serviceNetworks);
+        # Create networks configuration
+        networksConfig = lib.listToAttrs (map (name: {
+            inherit name;
+            value = {};
+          })
+          serviceNetworks);
 
-      # Create the compose configuration
-      composeConfig =
-        {
-          "a-snowblower-common" = config.snowblower.docker.commonService;
-          services = composeServices;
-        }
-        // lib.optionalAttrs (serviceNetworks != []) {
-          networks = networksConfig;
-        };
+        # Create the compose configuration
+        composeConfig =
+          {
+            "a-snowblower-common" = config.snowblower.docker.commonService;
+            services = composeServices;
+          }
+          // lib.optionalAttrs (serviceNetworks != []) {
+            networks = networksConfig;
+          };
 
-      # Create Dockerfile content
+        # Create Dockerfile content
+        # TODO: Should we move this to all be in the `Dockerfile` or add an option to insert commands as part of the docker file.
+        dockerfileDockerContent = ''
+          ${builtins.readFile ./../lib-docker/Dockerfile}
 
-      # Create Dockerfile content
-      # TODO: Should we move this to all be in the `Dockerfile` or add an option to insert commands as part of the docker file.
-      dockerfileDockerContent = ''
-        ${builtins.readFile ./../lib-docker/Dockerfile}
+          # Copy the whole project to the workspace before build.
+          COPY . /workspace
 
-        # Copy the whole project to the workspace before build.
-        COPY . /workspace
+          # Execute everything with the shell environment variables.
+          SHELL ["snow-entrypoint"]
+          ENTRYPOINT ["snow-entrypoint"]
 
-        # Execute everything with the shell environment variables.
-        SHELL ["snow-entrypoint"]
-        ENTRYPOINT ["snow-entrypoint"]
-
-        # Drop into a shell by default.
-        CMD bash
-      '';
-    in {
-      docker = {
-        commonService = {
-          build = {
-            context = ".";
-            dockerfile = "./docker/Dockerfile";
-            args = {
-              USER_UID = "\${SB_USER_UID}";
+          # Drop into a shell by default.
+          CMD bash
+        '';
+      in {
+        docker = {
+          commonService = {
+            build = {
+              context = ".";
+              dockerfile = "./docker/Dockerfile";
+              args = {
+                USER_UID = "\${SB_USER_UID}";
+                USER_GID = "\${SB_USER_GID}";
+                DOCKER_BUILDKIT = "1";
+              };
+            };
+            environment = {
               USER_GID = "\${SB_USER_GID}";
-              DOCKER_BUILDKIT = "1";
+            };
+            volumes = [
+              ".:/workspace"
+            ];
+            depends_on = config.snowblower.docker.common.dependsOn;
+            working_dir = "/workspace";
+            tty = true;
+          };
+
+          service."snowblower-dev" = {
+            enable = true;
+            service = {
+              "a-use-snowblower-common" = "";
             };
           };
-          environment = {
-            USER_GID = "\${SB_USER_GID}";
-          };
-          volumes = [
-            ".:/workspace"
-          ];
-          depends_on = config.snowblower.docker.common.dependsOn;
-          working_dir = "/workspace";
-          tty = true;
         };
 
-        service."snowblower-dev" = {
+        file."docker-compose.yml" = {
           enable = true;
-          service = {
-            "a-use-snowblower-common" = "";
+          text = lib.sbl.strings.modifyFileContent {
+            file = yamlFormat.generate "docker-compose.yml" composeConfig;
+            substitute = {
+              "a-snowblower-common:" = "x-snowblower-common: &snowblower-common";
+              "a-use-snowblower-common: ''" = "<<: *snowblower-common";
+            };
+            prepend = ''
+              # This file is automatically generated by SnowBlower.
+              # Do not edit this file directly as your changes will be overwritten.
+              # Instead, modify your flake.nix configuration to update Docker services.
+            '';
           };
         };
-      };
 
-      file."docker-compose.yml" = {
-        enable = true;
-        text = lib.sbl.strings.modifyFileContent {
-          file = yamlFormat.generate "docker-compose.yml" composeConfig;
-          substitute = {
-            "a-snowblower-common:" = "x-snowblower-common: &snowblower-common";
-            "a-use-snowblower-common: ''" = "<<: *snowblower-common";
-          };
-          prepend = ''
-            # This file is automatically generated by SnowBlower.
-            # Do not edit this file directly as your changes will be overwritten.
-            # Instead, modify your flake.nix configuration to update Docker services.
-          '';
+        file."docker/Dockerfile" = {
+          enable = true;
+          source = pkgs.writeText "dockerfile" dockerfileDockerContent;
+        };
+
+        # this is our Docker environment we include our "sane" defaults as well as packages that snowblower exports.
+        # This way all of out packages are avliable in a `pure` Docker environment.
+        dockerPackage = pkgs.buildEnv {
+          name = "snowblower-docker-env";
+          paths = with pkgs;
+            [
+              stdenv.cc
+              stdenv.shellPackage
+              # include Nix as part of env
+              nix
+              git
+            ]
+            ++ config.snowblower.packages;
         };
       };
-
-      file."docker/Dockerfile" = {
-        enable = true;
-        source = pkgs.writeText "dockerfile" dockerfileDockerContent;
+      packages = {
+        inherit (config.snowblower) dockerPackage;
       };
     };
   });

@@ -97,11 +97,11 @@ in {
           if [[ $executable == "1" ]]; then
             chmod +x "./$relTarget"
           fi
-          _i "Created file" "$relTarget"
+          _iNote "Created %s" "$relTarget"
 
         }
 
-        _iSnowStart "SnowBlower: Generate Files"
+        _iSnow "Generate Files"
 
         ${lib.concatStrings (
           lib.mapAttrsToList (_n: v: ''
@@ -123,13 +123,13 @@ in {
         _iOk "File Generation Complete"
         _i "Format snow"
         if ${lib.getExe pkgs.shfmt} -s -w snow > /dev/null 2>&1; then
-          _inlineOk
+          _inlineCheck
         else
-          _inlineNotOk
+          _inlineCross
         fi
         _iBreak
         _iOk "Files copied to current directory"
-        _iSnowEnd "Operation Complete"
+        _iCloud "Operation Complete"
       '';
 
       snowblower.directoriesPackage = pkgs.writeTextFile {
@@ -151,7 +151,7 @@ in {
         name = "snowblower-touch-files";
         text = ''
           function __sb__createTouchFiles() {
-            _iVerbose "Creating Touch Files" "''${SB_PROJECT_ROOT}"
+            _iVerbose "Creating Touch Files in %s" "''${SB_PROJECT_ROOT}"
             ${lib.concatStrings (
             map (file: ''
               __sb__createTouchFile ${lib.escapeShellArgs [file]}

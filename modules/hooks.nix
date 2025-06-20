@@ -22,6 +22,15 @@ in {
             '';
           };
         };
+        shell = {
+          boot = mkOption {
+            type = lib.sbl.types.dagOf types.str;
+            default = {};
+            description = ''
+              A dag of `bash` strings that run each time a snowblower enters the docker environment.
+            '';
+          };
+        };
       };
     };
 

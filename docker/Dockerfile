@@ -1,4 +1,5 @@
-# Nix builder
+# Stage 1: Nix builder
+# This will build our environment and cach parts for faster rebuilds.
 FROM nixos/nix:latest AS builder
 
 # Copy our source and setup our working dir.
@@ -6,6 +7,7 @@ COPY . /tmp/build
 WORKDIR /tmp/build
 RUN mkdir /tmp/nix-store-closure
 
+# build our env and copy it to nix-store-closure.
 RUN \
     --mount=type=cache,target=/nix,from=nixos/nix:latest,source=/nix \
     --mount=type=cache,target=/root/.cache \
@@ -20,6 +22,10 @@ RUN \
     cp -r /tmp/output/result /tmp/nix-store-closure/env
 
 # Build is done now we build our working env
+FROM debian:stable-slim
+COPY --from=builder /tmp/nix-store-closure /nix/store
+
+# Stage 2: Setup Debian and put our nix closure in the path
 FROM debian:stable-slim
 
 RUN echo "dash dash/sh boolean false" | debconf-set-selections && \
@@ -37,6 +43,7 @@ RUN apt update -y && \
 
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen
 
+# We run this later so that apt gets cached as a layer.
 COPY --from=builder /tmp/nix-store-closure /nix/store
 ENV PATH="/nix/store/env/bin:$PATH"
 
@@ -55,9 +62,9 @@ USER snowblower
 # Copy the whole project to the workspace before build.
 COPY . /workspace
 
-# # Execute everything with the shell environment variables.
-# SHELL ["/home/snowblower/.nix-profile/bin/docker-entrypoint", "exec"]
-# ENTRYPOINT ["/home/snowblower/.nix-profile/bin/docker-entrypoint", "exec"]
+# Execute everything with the shell environment variables.
+SHELL ["snow-entrypoint"]
+ENTRYPOINT ["snow-entrypoint"]
 
 # Drop into a shell by default.
 CMD bash

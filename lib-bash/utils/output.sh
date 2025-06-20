@@ -3,7 +3,7 @@
 # TODO: Add IsTerminal to commands
 #  Note that some function names end with : – this indicates that the function outputs a new-line in the end. 
 
-export LEFT_PREFIX="       "
+export LEFT_PREFIX="    "
 
 function cursorRightBy() {
 #   output.is-terminal && printf "\e[${1}C"
@@ -32,23 +32,33 @@ function cursorDown() {
   cursorDownBy "$@"
 }
 
-function _inlineOk() {
+function _inlineFlake() {
   cursorUp 1
-  printf "${GREEN} ✔︎    ${NC}"
+  printf " ❄️ ${NC}"
+}
+
+function _inlineCloud() {
+  cursorUp 1
+  printf " 💨 ${NC}"
+}
+
+function _inlineCheck() {
+  cursorUp 1
+  printf "${GREEN} ✔︎ ${NC}"
 }
 
 function _inlineNotOk() {
   inlineError
 }
 
-function _inlineError() {
+function _inlineCross() {
   cursorUp 1
-  printf "${RED} ✘    ${NC}"
+  printf "${RED} ✘ ${NC}"
 }
 
 function _inlineWarning() {
   cursorUp 1
-  printf "${YELLOW} ✱    ${NC}"
+  printf "${YELLOW} ✱ ${NC}"
 }
 
 function _inlineNote() {
@@ -60,28 +70,35 @@ function _iBreak() {
     echo "${NC}"
 }
 
-
-function _iSnowStart() {
-  printf "${BLUE} ❄️    ${WHITE}$1${NC}\n"
-}
-function _iSnowEnd() {
-  printf "${BLUE} 💨    ${WHITE}$1${NC}\n"
-}
-
 function _i() {
-    printf -- "${LEFT_PREFIX}${NC}${DIM}$*${NC}\n"
+    local msgid="$1"
+    shift
+
+    printf "${LEFT_PREFIX}${msgid}\n" "$@"
+}
+
+function _iSnow() {
+  _i "$@"
+  _inlineFlake
+  echo "${NC}"
+}
+
+function _iCloud() {
+  _i "$@"
+  _inlineFlake
+  echo "${NC}"
 }
 
 function _iOk() {
     _i "$@"
-    _inlineOk
+    _inlineCheck
     echo "${NC}"
 }
 
 function _iError() {
+    echo -n "${RED}"
     _i "$@"
-    _inlineError
-    _iBreak
+    echo -n "${NC}"
 }
 
 function _iFail() {
@@ -89,15 +106,15 @@ function _iFail() {
 }
 
 function _iWarn() {
+    echo -n "${YELLOW}"
     _i "$@"
-    _inlineWarning
-    _iBreak
+    echo -n "${NC}"
 }
 
 function _iNote() {
+    echo -n "${BLUE}"
     _i "$@"
-    _inlineNote
-    _iBreak
+    echo -n "${NC}"
 }
 
 function _iVerbose() {
@@ -105,3 +122,4 @@ function _iVerbose() {
         _i "$@"
     fi
 }
+
