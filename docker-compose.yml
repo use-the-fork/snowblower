@@ -5,6 +5,7 @@
 x-snowblower-common: &snowblower-common
   build:
     args:
+      DOCKER_BUILDKIT: '1'
       USER_GID: ${SB_USER_GID}
       USER_UID: ${SB_USER_UID}
     context: .
@@ -15,7 +16,6 @@ x-snowblower-common: &snowblower-common
   tty: true
   volumes:
   - .:/workspace
-  - /var/run/docker.sock:/var/run/docker.sock:ro
   working_dir: /workspace
 services:
   dockwatch:

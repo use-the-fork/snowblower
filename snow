@@ -8,6 +8,16 @@
 set -e
 set -o pipefail
 
+# keep-sorted start
+
+# From: https://github.com/kigster/bashmatic/blob/main/lib/output.sh#L94
+
+# TODO: Add IsTerminal to commands
+#  Note that some function names end with : – this indicates that the function outputs a new-line in the end.
+
+# Various Check functions
+
+export LEFT_PREFIX="       "
 # Credits: https://github.com/srid/flake-root/blob/master/flake-module.nix
 # This function is used to find the flake root and set it as a env varible.
 findUp() {
@@ -24,62 +34,65 @@ findUp() {
     fi
     cd ..
   done
-}
-
-function createTouchFile() {
-  local filePath="$1"
-  # Evaluate the path with variables
-  filePath=$(eval echo "$filePath")
-
-  # Check if the path is not already within the project root
-  if [[ $filePath != "$SB_PROJECT_ROOT"* ]]; then
-    filePath="${SB_PROJECT_ROOT}/${filePath}"
+function _i() {
+  printf -- "${LEFT_PREFIX}${NC}${DIM}$*${NC}\n"
+function _iBreak() {
+  echo "${NC}"
+function _iError() {
+  _i "$@"
+  _inlineError
+  _iBreak
+function _iFail() {
+  _iError "$@"
+function _iNote() {
+  _i "$@"
+  _inlineNote
+  _iBreak
+function _iOk() {
+  _i "$@"
+  _inlineOk
+  echo "${NC}"
+function _iSnowEnd() {
+  printf "${BLUE} 💨    ${WHITE}$1${NC}\n"
+function _iSnowStart() {
+  printf "${BLUE} ❄️    ${WHITE}$1${NC}\n"
+function _iVerbose() {
+  if [[ -v VERBOSE ]]; then
+    _i "$@"
   fi
-
-  # Create parent directory if it doesn't exist
-  mkdir -p "$(dirname "$filePath")"
-
-  # Touch the file to create it empty
-  touch "$filePath"
-  echoBlank "Created touch file" "$filePath"
-}
-
-function createDirectory() {
-  local dirPath="$1"
-  # Evaluate the path with variables
-  dirPath=$(eval echo "$dirPath")
-
-  # Check if the path is not already within the project root
-  if [[ $dirPath != "$SB_PROJECT_ROOT"* ]]; then
-    dirPath="${SB_PROJECT_ROOT}/${dirPath}"
-  fi
-
-  mkdir -p "$dirPath"
-  echoBlank "Created directory" "$dirPath"
-}
-
-# Various Check functions
-
-function isInsideDocker() {
-  test -f /.dockerenv
-}
-
-function hasNix() {
-  if [ -n "$SB_NIX_PATH" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-function isInsideSnowblowerShell() {
-  if [ -n "$SB_IN_SHELL" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
+function _iWarn() {
+  _i "$@"
+  _inlineWarning
+  _iBreak
+function _inlineError() {
+  cursorUp 1
+  printf "${RED} ✘    ${NC}"
+function _inlineNotOk() {
+  inlineError
+function _inlineNote() {
+  cursorUp 1
+  printf "      ${NC}"
+function _inlineOk() {
+  cursorUp 1
+  printf "${GREEN} ✔︎    ${NC}"
+function _inlineWarning() {
+  cursorUp 1
+  printf "${YELLOW} ✱    ${NC}"
+function cursorDown() {
+  cursorDownBy "$@"
+function cursorDownBy() {
+  #   output.is-terminal && printf "\e[${1}B"
+  printf "\e[${1:-"1"}B"
+function cursorLeftBy() {
+  #   output.is-terminal && printf "\e[${1}D"
+  printf "\e[${1:-"1"}D"
+function cursorRightBy() {
+  #   output.is-terminal && printf "\e[${1}C"
+  printf "\e[${1:-"1"}C"
+function cursorUp() {
+  cursorUpBy "$@"
+function cursorUpBy() {
+  printf "\e[${1:-"1"}A"
 # Credits to https://github.com/nix-community/home-manager/blob/master/lib/bash/home-manager.sh
 # The setup respects the `NO_COLOR` environment variable.
 function doSetupColors() {
@@ -124,112 +137,53 @@ function doSetupColors() {
       WHITE="$(tput setaf 7)"
     fi
   fi
-}
-# From: https://github.com/kigster/bashmatic/blob/main/lib/output.sh#L94
-
-# TODO: Add IsTerminal to commands
-#  Note that some function names end with : – this indicates that the function outputs a new-line in the end.
-
-export LEFT_PREFIX="       "
-
-function cursorRightBy() {
-  #   output.is-terminal && printf "\e[${1}C"
-  printf "\e[${1:-"1"}C"
-}
-
-function cursorLeftBy() {
-  #   output.is-terminal && printf "\e[${1}D"
-  printf "\e[${1:-"1"}D"
-}
-
-function cursorUpBy() {
-  printf "\e[${1:-"1"}A"
-}
-
-function cursorDownBy() {
-  #   output.is-terminal && printf "\e[${1}B"
-  printf "\e[${1:-"1"}B"
-}
-
-function cursorUp() {
-  cursorUpBy "$@"
-}
-
-function cursorDown() {
-  cursorDownBy "$@"
-}
-
-function _inlineOk() {
-  cursorUp 1
-  printf "${GREEN} ✔︎    ${NC}"
-}
-
-function _inlineNotOk() {
-  inlineError
-}
-
-function _inlineError() {
-  cursorUp 1
-  printf "${RED} ✘    ${NC}"
-}
-
-function _inlineWarning() {
-  cursorUp 1
-  printf "${YELLOW} ✱    ${NC}"
-}
-
-function _inlineNote() {
-  cursorUp 1
-  printf "      ${NC}"
-}
-
-function _iBreak() {
-  echo "${NC}"
-}
-
-function _iSnowStart() {
-  printf "${BLUE} ❄️    ${WHITE}$1${NC}\n"
-}
-function _iSnowEnd() {
-  printf "${BLUE} 💨    ${WHITE}$1${NC}\n"
-}
-
-function _i() {
-  printf -- "${LEFT_PREFIX}${NC}${DIM}$*${NC}\n"
-}
-
-function _iOk() {
-  _i "$@"
-  _inlineOk
-  echo "${NC}"
-}
-
-function _iError() {
-  _i "$@"
-  _inlineError
-  _iBreak
-}
-
-function _iFail() {
-  _iError "$@"
-}
-
-function _iWarn() {
-  _i "$@"
-  _inlineWarning
-  _iBreak
-}
-
-function _iNote() {
-  _i "$@"
-  _inlineNote
-  _iBreak
-}
-
-function _iVerbose() {
-  if [[ -v VERBOSE ]]; then
-    _i "$@"
+function hasNix() {
+  if [ -n "$SB_NIX_PATH" ]; then
+    return 0
+  else
+    return 1
   fi
+function isInsideDocker() {
+  test -f /.dockerenv
+function isInsideSnowblowerShell() {
+  if [ -n "$SB_IN_SHELL" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+# keep-sorted end
+
+function doCreateTouchFile() {
+  local filePath="$1"
+  # Evaluate the path with variables
+  filePath=$(eval echo "$filePath")
+
+  # Check if the path is not already within the project root
+  if [[ $filePath != "$SB_PROJECT_ROOT"* ]]; then
+    filePath="${SB_PROJECT_ROOT}/${filePath}"
+  fi
+
+  # Create parent directory if it doesn't exist
+  mkdir -p "$(dirname "$filePath")"
+
+  # Touch the file to create it empty
+  touch "$filePath"
+  _iOk "Created touch file" "$filePath"
+}
+
+function doCreateDirectory() {
+  local dirPath="$1"
+  # Evaluate the path with variables
+  dirPath=$(eval echo "$dirPath")
+
+  # Check if the path is not already within the project root
+  if [[ $dirPath != "$SB_PROJECT_ROOT"* ]]; then
+    dirPath="${SB_PROJECT_ROOT}/${dirPath}"
+  fi
+
+  mkdir -p "$dirPath"
+  _iOk "Created directory" "$dirPath"
 }
 
 function __sb__createDirectories() {
@@ -496,6 +450,40 @@ function doCommand__pre-commit__all {
   doRoutedCommandExecute "${cmd_args[@]}" "$@"
 }
 
+# keep-sorted start
+
+function doCommand__docker {
+  "${SB_DOCKER_COMPOSE_PATH}" "$@"
+  return $?
+function doCommand__docker__bash {
+  doRoutedCommandExecute bash
+  return $?
+function doCommand__docker__build {
+  if [ $# -le 0 ]; then
+    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" build)
+  else
+    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" build "$@")
+  fi
+  return $?
+function doCommand__docker__down {
+  doCommand__docker__stop
+function doCommand__docker__ps {
+  "${SB_DOCKER_COMPOSE_PATH}" ps
+  return $?
+function doCommand__docker__restart {
+  if [ $# -le 0 ]; then
+    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" restart)
+  else
+    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" restart "$@")
+  fi
+  return $?
+function doCommand__docker__stop {
+  if [ $# -le 0 ]; then
+    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" down)
+  else
+    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" down "$@")
+  fi
+  return $?
 # Commands that are specific to Docker and Docker Compose.
 function doCommand__docker__up {
   if [ $# -le 0 ]; then
@@ -504,99 +492,10 @@ function doCommand__docker__up {
     (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" up "$@")
   fi
   return $?
-}
-
-function doCommand__docker__down {
-  doCommand__docker__stop
-}
-
-function doCommand__docker__stop {
-  if [ $# -le 0 ]; then
-    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" down)
-  else
-    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" down "$@")
-  fi
-  return $?
-}
-
-function doCommand__docker__restart {
-  if [ $# -le 0 ]; then
-    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" restart)
-  else
-    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" restart "$@")
-  fi
-  return $?
-}
-
-function doCommand__docker__ps {
-  "${SB_DOCKER_COMPOSE_PATH}" ps
-  return $?
-}
-
-function doCommand__docker__bash {
-  doRoutedCommandExecute bash
-  return $?
-}
-
-function doCommand__docker__build {
-  if [ $# -le 0 ]; then
-    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" build)
-  else
-    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" build "$@")
-  fi
-  return $?
-}
-
-function doCommand__docker {
-  "${SB_DOCKER_COMPOSE_PATH}" "$@"
-  return $?
-}
-# Commands that are specific to controling SnowBlower.
-function doSwitch {
-  (cd "$SB_SRC_ROOT" && nix run .#snowblowerFiles)
-  return 0
-}
-function doUpdate {
-  (cd "$SB_SRC_ROOT" && nix flake update)
-  doSwitch
-  doReboot
-  return 0
-}
-
 function doReboot() {
   rm -f "$SB_SESS_FILE"
   doBoot
   return 0
-}
-
-# Function that outputs SnowBlower is not running...
-function isNotRunning {
-  echo
-  _iFail "Environment is not running." >&2
-  _i "To start run" "snow docker up"
-  exit 1
-}
-
-# Function that checks
-function doRunChecks {
-  if [ -z "$SB_SKIP_CHECKS" ]; then
-    # Ensure that Docker is running...
-    if ! docker info >/dev/null 2>&1; then
-      _iFail "${BOLD}Docker is not running.${NC}" >&2
-      exit 1
-    fi
-
-    # Determine if SnowBlower is currently up...
-    if "${SB_DOCKER_COMPOSE_PATH[@]}" ps "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
-      _iWarn "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
-      "${SB_DOCKER_COMPOSE_PATH[@]}" down >/dev/null 2>&1
-      isNotRunning
-    elif [ -z "$("${SB_DOCKER_COMPOSE_PATH[@]}" ps -q "$SB_APP_SERVICE")" ]; then
-      isNotRunning
-    fi
-  fi
-}
-
 # Figures out the type of envirment the command is running in and then routes approriatly.
 function doRoutedCommandExecute() {
   _iVerbose "Attempting to run: $*"
@@ -617,10 +516,35 @@ function doRoutedCommandExecute() {
 
   _iVerbose "Executing command via docker compose"
   # Execute the command with proper shell evaluation
-  "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" with-nix "$@"
+  "${SB_DOCKER_COMPOSE_PATH[@]}" "${ARGS[@]}" "snow-entrypoint" "$@"
   return $?
-}
+# Function that checks
+function doRunChecks {
+  if [ -z "$SB_SKIP_CHECKS" ]; then
+    # Ensure that Docker is running...
+    if ! docker info >/dev/null 2>&1; then
+      _iFail "${BOLD}Docker is not running.${NC}" >&2
+      exit 1
+    fi
 
+    # Determine if SnowBlower is currently up...
+    if "${SB_DOCKER_COMPOSE_PATH[@]}" ps "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
+      _iWarn "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
+      "${SB_DOCKER_COMPOSE_PATH[@]}" down >/dev/null 2>&1
+      isNotRunning
+    elif [ -z "$("${SB_DOCKER_COMPOSE_PATH[@]}" ps -q "$SB_APP_SERVICE")" ]; then
+      isNotRunning
+    fi
+  fi
+# Commands that are specific to controling SnowBlower.
+function doSwitch {
+  (cd "$SB_SRC_ROOT" && nix run .#snowblowerFiles)
+  return 0
+function doUpdate {
+  (cd "$SB_SRC_ROOT" && nix flake update)
+  doSwitch
+  doReboot
+  return 0
 function hasSubCommand() {
   local command="$1"
   local subcommand="$2"
@@ -631,7 +555,16 @@ function hasSubCommand() {
   else
     return 1 # Function doesn't exist, so subcommand is invalid
   fi
+# Function that outputs SnowBlower is not running...
+function isNotRunning {
+  echo
+  _iFail "Environment is not running." >&2
+  _i "To start run" "snow docker up"
+  exit 1
 }
+
+# keep-sorted end
+
 doBoot
 
 PASSTHROUGH_OPTS=()

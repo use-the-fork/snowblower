@@ -108,14 +108,9 @@ in {
         # Copy the whole project to the workspace before build.
         COPY . /workspace
 
-        RUN nix profile install '.#dockerPackage'
-
-        # Initialize shell environment variables.
-        RUN /home/snowblower/.nix-profile/bin/docker-entrypoint init
-
         # Execute everything with the shell environment variables.
-        SHELL ["/home/snowblower/.nix-profile/bin/docker-entrypoint", "exec"]
-        ENTRYPOINT ["/home/snowblower/.nix-profile/bin/docker-entrypoint", "exec"]
+        SHELL ["snow-entrypoint"]
+        ENTRYPOINT ["snow-entrypoint"]
 
         # Drop into a shell by default.
         CMD bash
@@ -129,6 +124,7 @@ in {
             args = {
               USER_UID = "\${SB_USER_UID}";
               USER_GID = "\${SB_USER_GID}";
+              DOCKER_BUILDKIT = "1";
             };
           };
           environment = {
@@ -136,7 +132,6 @@ in {
           };
           volumes = [
             ".:/workspace"
-            "/var/run/docker.sock:/var/run/docker.sock:ro"
           ];
           depends_on = config.snowblower.docker.common.dependsOn;
           working_dir = "/workspace";
@@ -170,16 +165,6 @@ in {
       file."docker/Dockerfile" = {
         enable = true;
         source = pkgs.writeText "dockerfile" dockerfileDockerContent;
-      };
-
-      file."docker/with-nix.sh" = {
-        enable = true;
-        text = builtins.readFile ./../lib-docker/with-nix.sh;
-      };
-
-      file."docker/nix.conf" = {
-        enable = true;
-        text = builtins.readFile ./../lib-docker/nix.conf;
       };
     };
   });

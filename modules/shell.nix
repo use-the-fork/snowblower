@@ -16,10 +16,37 @@ in {
         type = types.package;
         description = "The package containing the complete activation script.";
       };
+
+      entrypointPackage = mkOption {
+        internal = true;
+        type = types.package;
+        description = "The package containing the complete activation script.";
+      };
     };
 
     config = {
       snowblower = {
+        entrypointPackage = pkgs.writeShellScriptBin "snow-entrypoint" ''
+          ${builtins.readFile ./../lib-bash/utils/head.sh}
+
+          # keep-sorted start
+          ${builtins.readFile ./../lib-bash/utils/checks.sh}
+          ${builtins.readFile ./../lib-bash/utils/color.sh}
+          ${builtins.readFile ./../lib-bash/utils/file.sh}
+          ${builtins.readFile ./../lib-bash/utils/output.sh}
+          # keep-sorted end
+
+          export SB_IN_SHELL=1
+
+          _iOk "Inside Shell"
+
+          exec "$@"
+        '';
+
+        packages = [
+          config.snowblower.entrypointPackage
+        ];
+
         devShellPackage = pkgs.mkShell {
           name = "snowblower";
           inherit (config.snowblower) packages;

@@ -32,38 +32,42 @@ in {
         # To help with docker-compose skipping the entrypoint we also inject `with-nix` that will source our `~/nix-environment`
         dockerPackage = pkgs.buildEnv {
           name = "snowblower-docker-env";
-          paths = with pkgs; [
-            stdenv.cc
-            stdenv.shellPackage
-            (pkgs.writeShellScriptBin "docker-entrypoint" ''
-              set -e
+          paths = with pkgs;
+            [
+              stdenv.cc
+              stdenv.shellPackage
+              # include Nix as part of env
+              nix
+              (pkgs.writeShellScriptBin "docker-entrypoint" ''
+                set -e
 
-              cmd=$1
-              shift
+                cmd=$1
+                shift
 
-              case "$cmd" in
-              "init")
-                cd /workspace && ${pkgs.nix}/bin/nix develop . --command bash -c 'declare -xp > ~/nix-environment'
-                ;;
-              "exec")
-                __user=$USER
-                __home=$HOME
-                __user_uid=$USER_UID
+                case "$cmd" in
+                "init")
+                  cd /workspace && ${pkgs.nix}/bin/nix develop . --command bash -c 'declare -xp > ~/nix-environment'
+                  ;;
+                "exec")
+                  __user=$USER
+                  __home=$HOME
+                  __user_uid=$USER_UID
 
-                source ~/nix-environment
+                  source ~/nix-environment
 
-                if [ ! -z "$__user_uid" ]; then
-                    usermod -u $__user_uid snowblower
-                fi
+                  if [ ! -z "$__user_uid" ]; then
+                      usermod -u $__user_uid snowblower
+                  fi
 
-                USER=$__user
-                HOME=$__home
+                  USER=$__user
+                  HOME=$__home
 
-                exec "$@"
-                ;;
-              esac
-            '')
-          ];
+                  exec "$@"
+                  ;;
+                esac
+              '')
+            ]
+            ++ config.snowblower.packages;
         };
       };
 
