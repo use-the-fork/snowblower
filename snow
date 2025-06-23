@@ -8,163 +8,19 @@
 set -e
 set -o pipefail
 
-# keep-sorted start
-
-# From: https://github.com/kigster/bashmatic/blob/main/lib/output.sh#L94
-
-# TODO: Add IsTerminal to commands
-
-# Various Check functions
-
-export LEFT_PREFIX="    "
-# Credits: https://github.com/srid/flake-root/blob/master/flake-module.nix
-# This function is used to find the flake root and set it as a env varible.
-findUp() {
-  ancestors=()
-  while true; do
-    if [[ -f $1 ]]; then
-      echo "$PWD"
-      exit 0
-    fi
-    ancestors+=("$PWD")
-    if [[ $PWD == / ]] || [[ $PWD == // ]]; then
-      echo "Unable to locate ${1}"
-      exit 1
-    fi
-    cd ..
-  done
-function _i() {
-  local msgid="$1"
-  shift
-
-  printf "${LEFT_PREFIX}${msgid}\n" "$@"
-function _iBreak() {
-  echo "${NC}"
-function _iCloud() {
-  _i "$@"
-  _inlineFlake
-  echo "${NC}"
-function _iCommandSection() {
-  local command_name="$1"
-  local display_name="$2"
-  shift 2
-  local options=("$@")
-
-  echo "${YELLOW}${display_name} Commands:${NC}"
-  # snow docker restart
-  # First pass: calculate the maximum width of command part
-  local max_width=0
-  local commands=()
-  local descriptions=()
-
-  for option in "${options[@]}"; do
-    if [[ $option == *"|"* ]]; then
-      IFS='|' read -r cmd desc <<<"$option"
-      local cmd_text="snow -- ${command_name} ${cmd}"
-      commands+=("$cmd_text")
-      descriptions+=("$desc")
-    else
-      local cmd_text="snow -- ${command_name} ..."
-      commands+=("$cmd_text")
-      descriptions+=("Run a ${display_name} command")
-    fi
-
-    # Calculate width without color codes
-    local width=${#cmd_text}
-    if ((width > max_width)); then
-      max_width=$width
-    fi
-  done
-
-  # Second pass: print with aligned descriptions
-  for i in "${!commands[@]}"; do
-    local cmd_text="${commands[i]}"
-    local desc="${descriptions[i]}"
-    local padding_needed=$((max_width - ${#cmd_text} + 10))
-    local padding=$(printf "%*s" $padding_needed "")
-
-    echo "  ${GREEN}${cmd_text}${NC}${padding}${desc}"
-  done
-
-  echo
-function _iError() {
-  echo -n "${RED}"
-  _i "$@"
-  echo -n "${NC}"
-function _iFail() {
-  _iError "$@"
-function _iNote() {
-  echo -n "${BLUE}"
-  _i "$@"
-  echo -n "${NC}"
-function _iOk() {
-  _i "$@"
-  _inlineCheck
-  echo "${NC}"
-function _iSnow() {
-  _i "$@"
-  _inlineFlake
-  echo "${NC}"
-function _iVerbose() {
-  if [[ -v VERBOSE ]]; then
-    _i "$@"
+function isSnowBlowerUp {
+  if ! isSnowBlowerDockerContainerUp; then
+    _iError "SnowBlower is not running."
+    _iNote "You must first run 'snow up'."
+    exit 1
   fi
-function _iWarn() {
-  echo -n "${YELLOW}"
-  _i "$@"
-  echo -n "${NC}"
-function _inlineCheck() {
-  cursorUp 1
-  printf "${GREEN} ✔︎ ${NC}"
-function _inlineCloud() {
-  cursorUp 1
-  printf " 💨 ${NC}"
-function _inlineCross() {
-  cursorUp 1
-  printf "${RED} ✘ ${NC}"
-function _inlineFlake() {
-  cursorUp 1
-  printf " ❄️ ${NC}"
-function _inlineNotOk() {
-  inlineError
-function _inlineNote() {
-  cursorUp 1
-  printf "      ${NC}"
-function _inlineWarning() {
-  cursorUp 1
-  printf "${YELLOW} ✱ ${NC}"
-# Function to ask user for confirmation before proceeding
-function confirmAction {
-  local message="$1"
-  local response
+}
 
-  echo -n "${message} (y/N): "
-  read -r response
+function isSnowBlowerDockerContainerUp {
+  # Check if snowblower-dev service container exists and is running
+  [ -n "$("$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" ps -q "$SB_APP_SERVICE" 2>/dev/null)" ]
+}
 
-  case "$response" in
-  [yY] | [yY][eE][sS])
-    return 0
-    ;;
-  *)
-    echo "Operation cancelled."
-    exit 0
-    ;;
-  esac
-function cursorDown() {
-  cursorDownBy "$@"
-function cursorDownBy() {
-  #   output.is-terminal && printf "\e[${1}B"
-  printf "\e[${1:-"1"}B"
-function cursorLeftBy() {
-  #   output.is-terminal && printf "\e[${1}D"
-  printf "\e[${1:-"1"}D"
-function cursorRightBy() {
-  #   output.is-terminal && printf "\e[${1}C"
-  printf "\e[${1:-"1"}C"
-function cursorUp() {
-  cursorUpBy "$@"
-function cursorUpBy() {
-  printf "\e[${1:-"1"}A"
 # Function that checks
 function doRunChecks {
   if [ -z "$SB_SKIP_CHECKS" ]; then
@@ -184,6 +40,40 @@ function doRunChecks {
       isNotRunning
     fi
   fi
+}
+
+# Various Check functions
+
+function isInsideDocker() {
+  test -f /.dockerenv
+}
+
+function hasNix() {
+  if [ -n "$SB_NIX_PATH" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function isInsideSnowblowerShell() {
+  if [ -n "$SB_IN_SHELL" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function shouldExit() {
+  local -r exit_code="${1}"
+  shift
+  local -r expected="${1}"
+  shift
+  if [ "$exit_code" != "${expected:-0}" ]; then
+    exit "${exit_code}"
+  fi
+}
+
 # Credits to https://github.com/nix-community/home-manager/blob/master/lib/bash/home-manager.sh
 # The setup respects the `NO_COLOR` environment variable.
 function doSetupColors() {
@@ -228,37 +118,26 @@ function doSetupColors() {
       WHITE="$(tput setaf 7)"
     fi
   fi
-function hasNix() {
-  if [ -n "$SB_NIX_PATH" ]; then
-    return 0
-  else
-    return 1
-  fi
-function isInsideDocker() {
-  test -f /.dockerenv
-function isInsideSnowblowerShell() {
-  if [ -n "$SB_IN_SHELL" ]; then
-    return 0
-  else
-    return 1
-  fi
-function isSnowBlowerDockerContainerUp {
-  # Check if snowblower-dev service container exists and is running
-  [ -n "$("$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" ps -q "$SB_APP_SERVICE" 2>/dev/null)" ]
-function isSnowBlowerUp {
-  if ! isSnowBlowerDockerContainerUp; then
-    _iError "SnowBlower is not running."
-    _iNote "You must first run 'snow up'."
-    exit 1
-  fi
-function shouldExit() {
-  local -r exit_code="${1}"
-  shift
-  local -r expected="${1}"
-  shift
-  if [ "$exit_code" != "${expected:-0}" ]; then
-    exit "${exit_code}"
-  fi
+}
+
+# Credits: https://github.com/srid/flake-root/blob/master/flake-module.nix
+# This function is used to find the flake root and set it as a env varible.
+findUp() {
+  ancestors=()
+  while true; do
+    if [[ -f $1 ]]; then
+      echo "$PWD"
+      exit 0
+    fi
+    ancestors+=("$PWD")
+    if [[ $PWD == / ]] || [[ $PWD == // ]]; then
+      echo "Unable to locate ${1}"
+      exit 1
+    fi
+    cd ..
+  done
+}
+
 getFileMd5Hash() {
   if [ -f "$1" ]; then
     echo $(echo "$1") | md5sum | cut -d' ' -f1
@@ -268,7 +147,200 @@ getFileMd5Hash() {
   fi
 }
 
-# keep-sorted end
+# Function to ask user for confirmation before proceeding
+function confirmAction {
+  local message="$1"
+  local response
+
+  echo -n "${message} (y/N): "
+  read -r response
+
+  case "$response" in
+  [yY] | [yY][eE][sS])
+    return 0
+    ;;
+  *)
+    echo "Operation cancelled."
+    exit 0
+    ;;
+  esac
+}
+
+# From: https://github.com/kigster/bashmatic/blob/main/lib/output.sh#L94
+
+# TODO: Add IsTerminal to commands
+
+export LEFT_PREFIX="    "
+
+function cursorRightBy() {
+  #   output.is-terminal && printf "\e[${1}C"
+  printf "\e[${1:-"1"}C"
+}
+
+function cursorLeftBy() {
+  #   output.is-terminal && printf "\e[${1}D"
+  printf "\e[${1:-"1"}D"
+}
+
+function cursorUpBy() {
+  printf "\e[${1:-"1"}A"
+}
+
+function cursorDownBy() {
+  #   output.is-terminal && printf "\e[${1}B"
+  printf "\e[${1:-"1"}B"
+}
+
+function cursorUp() {
+  cursorUpBy "$@"
+}
+
+function cursorDown() {
+  cursorDownBy "$@"
+}
+
+function _inlineFlake() {
+  cursorUp 1
+  printf " ❄️ ${NC}"
+}
+
+function _inlineCloud() {
+  cursorUp 1
+  printf " 💨 ${NC}"
+}
+
+function _inlineCheck() {
+  cursorUp 1
+  printf "${GREEN} ✔︎ ${NC}"
+}
+
+function _inlineNotOk() {
+  inlineError
+}
+
+function _inlineCross() {
+  cursorUp 1
+  printf "${RED} ✘ ${NC}"
+}
+
+function _inlineWarning() {
+  cursorUp 1
+  printf "${YELLOW} ✱ ${NC}"
+}
+
+function _inlineNote() {
+  cursorUp 1
+  printf "      ${NC}"
+}
+
+function _iBreak() {
+  echo "${NC}"
+}
+
+function _i() {
+  local msgid="$1"
+  shift
+
+  printf "${LEFT_PREFIX}${msgid}\n" "$@"
+}
+
+function _iSnow() {
+  _i "$@"
+  _inlineFlake
+  echo "${NC}"
+}
+
+function _iCloud() {
+  _i "$@"
+  _inlineFlake
+  echo "${NC}"
+}
+
+function _iOk() {
+  _i "$@"
+  _inlineCheck
+  echo "${NC}"
+}
+
+function _iError() {
+  echo -n "${RED}"
+  _i "$@"
+  echo -n "${NC}"
+}
+
+function _iFail() {
+  _iError "$@"
+}
+
+function _iWarn() {
+  echo -n "${YELLOW}"
+  _i "$@"
+  echo -n "${NC}"
+}
+
+function _iNote() {
+  echo -n "${BLUE}"
+  _i "$@"
+  echo -n "${NC}"
+}
+
+function _iVerbose() {
+  if [[ -v VERBOSE ]]; then
+    _i "$@"
+  fi
+}
+
+function _iCommandSection() {
+  local command_name="$1"
+  local display_name="$2"
+  shift 2
+  local options=("$@")
+
+  echo "${YELLOW}${display_name} Commands:${NC}"
+  # First pass: calculate the maximum width of command part
+  local max_width=0
+  local commands=()
+  local descriptions=()
+
+  for option in "${options[@]}"; do
+    if [[ $option == *"|"* ]]; then
+      IFS='|' read -r cmd desc <<<"$option"
+      if [[ -n $command_name ]]; then
+        local cmd_text="snow -- ${command_name} ${cmd}"
+      else
+        local cmd_text="snow ${cmd}"
+      fi
+      commands+=("$cmd_text")
+      descriptions+=("$desc")
+    else
+      if [[ -n $command_name ]]; then
+        local cmd_text="snow -- ${command_name} ..."
+      else
+        local cmd_text="snow ..."
+      fi
+      commands+=("$cmd_text")
+      descriptions+=("Run a ${display_name} command")
+    fi
+
+    # Calculate width without color codes
+    local width=${#cmd_text}
+    if ((width > max_width)); then
+      max_width=$width
+    fi
+  done
+
+  # Second pass: print with aligned descriptions
+  for i in "${!commands[@]}"; do
+    local cmd_text="${commands[i]}"
+    local desc="${descriptions[i]}"
+    local padding_needed=$((35 - ${#cmd_text}))
+    local padding=$(printf "%*s" $padding_needed "")
+
+    echo "  ${GREEN}${cmd_text}${NC}${padding}${desc}"
+  done
+
+  echo
+}
 
 function doCreateTouchFile() {
   local filePath="$1"
@@ -478,7 +550,7 @@ setupEnvironmentVariables
 
 function doHelp__snow {
   local commands=(
-    # keep-sorted start
+
     "bash|Enter the application CLI"
     "build|Builds all containers in compose file"
     "down|Stop the application"
@@ -488,7 +560,7 @@ function doHelp__snow {
     "up -d|Start the application in the background"
     "update|Update all dependencies by updating the Flake (Nix flake update)"
     "up|Start the application"
-    # keep-sorted end
+
   )
 
   _iCommandSection "" "SnowBlower" "${commands[@]}"
@@ -564,50 +636,14 @@ function doCommand__pre-commit__all {
 
 function doCommand__treefmt { doRoutedCommandExecute treefmt "$@"; }
 
-# keep-sorted start
+# Function that outputs SnowBlower is not running...
+function isNotRunning {
+  echo
+  _iFail "Environment is not running." >&2
+  _i "To start run" "snow up"
+  exit 1
+}
 
-doDestroySession() {
-  rm -f "$SB_SESS_FILE"
-function doCommand__docker {
-  "${SB_DOCKER_COMPOSE_PATH}" "$@"
-  return $?
-function doCommand__docker__bash {
-  doRoutedCommandExecute bash
-  return $?
-function doCommand__docker__build {
-  if [ $# -le 0 ]; then
-    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" build)
-  else
-    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" build "$@")
-  fi
-  return $?
-function doCommand__docker__down {
-  doCommand__docker__stop
-function doCommand__docker__ps {
-  "${SB_DOCKER_COMPOSE_PATH}" ps
-  return $?
-function doCommand__docker__restart {
-  if [ $# -le 0 ]; then
-    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" restart)
-  else
-    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" restart "$@")
-  fi
-  return $?
-function doCommand__docker__stop {
-  if [ $# -le 0 ]; then
-    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" down)
-  else
-    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" down "$@")
-  fi
-  return $?
-# Commands that are specific to Docker and Docker Compose.
-function doCommand__docker__up {
-  if [ $# -le 0 ]; then
-    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" up)
-  else
-    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" up "$@")
-  fi
-  return $?
 # Figures out the type of envirment the command is running in and then routes approriatly.
 function doRoutedCommandExecute() {
 
@@ -631,6 +667,111 @@ function doRoutedCommandExecute() {
   # Execute the command with proper shell evaluation
   "$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" "${ARGS[@]}" "$@"
   return $?
+}
+
+function hasSubCommand() {
+  local command="$1"
+  local subcommand="$2"
+
+  # Check if the function exists for this command/subcommand combination
+  if declare -f "doCommand__${command}__${subcommand}" >/dev/null 2>&1; then
+    return 0 # Function exists, so subcommand is valid
+  else
+    return 1 # Function doesn't exist, so subcommand is invalid
+  fi
+}
+
+function hasHelpCommand() {
+  local command="$1"
+
+  # Check if the function exists for this command/subcommand combination
+  if declare -f "doHelp__${command}" >/dev/null 2>&1; then
+    return 0 # Function exists, so we can display help for it.
+  else
+    return 1 # Function doesn't exist, so no help is invalid
+  fi
+}
+
+# Commands that are specific to Docker and Docker Compose.
+function doCommand__docker__up {
+  if [ $# -le 0 ]; then
+    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" up)
+  else
+    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" up "$@")
+  fi
+  return $?
+}
+
+function doCommand__docker__down {
+  doCommand__docker__stop
+}
+
+function doCommand__docker__stop {
+  if [ $# -le 0 ]; then
+    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" down)
+  else
+    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" down "$@")
+  fi
+  return $?
+}
+
+function doCommand__docker__restart {
+  if [ $# -le 0 ]; then
+    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" restart)
+  else
+    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" restart "$@")
+  fi
+  return $?
+}
+
+function doCommand__docker__ps {
+  "${SB_DOCKER_COMPOSE_PATH}" ps
+  return $?
+}
+
+function doCommand__docker__bash {
+  doRoutedCommandExecute bash
+  return $?
+}
+
+function doCommand__docker__build {
+  if [ $# -le 0 ]; then
+    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" build)
+  else
+    (cd "$SB_SRC_ROOT" && "${SB_DOCKER_COMPOSE_PATH}" build "$@")
+  fi
+  return $?
+}
+
+function doCommand__docker {
+  "${SB_DOCKER_COMPOSE_PATH}" "$@"
+  return $?
+}
+
+# Commands that are specific to controling SnowBlower.
+function doSnowUpdate {
+
+  doRoutedCommandExecute nix flake update --extra-experimental-features nix-command --extra-experimental-features flakes
+  doSnowSwitch
+  return 0
+}
+
+function doSnowReboot() {
+
+  # Check if snowblower is running
+  if isSnowBlowerDockerContainerUp; then
+    confirmAction "A SnowBlower Docker instance is running. This action will shut down the current instance. Continue?"
+  fi
+
+  doSnowDown
+  doSnowUp
+  exit 0
+}
+
+doDestroySession() {
+  rm -f "$SB_SESS_FILE"
+}
+
 function doSnowDown {
 
   # Check if snowblower is running
@@ -648,16 +789,8 @@ function doSnowDown {
 
   _iOk "SnowBlower has been stopped."
   exit 0
-function doSnowReboot() {
+}
 
-  # Check if snowblower is running
-  if isSnowBlowerDockerContainerUp; then
-    confirmAction "A SnowBlower Docker instance is running. This action will shut down the current instance. Continue?"
-  fi
-
-  doSnowDown
-  doSnowUp
-  exit 0
 function doSnowSwitch() {
 
   # Check if snowblower is running
@@ -690,6 +823,8 @@ function doSnowSwitch() {
   doDestroySession
 
   exit 0
+}
+
 function doSnowUp {
 
   # Check if SnowBlower docker container is already running
@@ -708,41 +843,7 @@ function doSnowUp {
   fi
 
   exit 0
-# Commands that are specific to controling SnowBlower.
-function doSnowUpdate {
-
-  doRoutedCommandExecute nix flake update --extra-experimental-features nix-command --extra-experimental-features flakes
-  doSnowSwitch
-  doSnowReboot
-  return 0
-function hasHelpCommand() {
-  local command="$1"
-
-  # Check if the function exists for this command/subcommand combination
-  if declare -f "doHelp__${command}" >/dev/null 2>&1; then
-    return 0 # Function exists, so we can display help for it.
-  else
-    return 1 # Function doesn't exist, so no help is invalid
-  fi
-function hasSubCommand() {
-  local command="$1"
-  local subcommand="$2"
-
-  # Check if the function exists for this command/subcommand combination
-  if declare -f "doCommand__${command}__${subcommand}" >/dev/null 2>&1; then
-    return 0 # Function exists, so subcommand is valid
-  else
-    return 1 # Function doesn't exist, so subcommand is invalid
-  fi
-# Function that outputs SnowBlower is not running...
-function isNotRunning {
-  echo
-  _iFail "Environment is not running." >&2
-  _i "To start run" "snow up"
-  exit 1
 }
-
-# keep-sorted end
 
 PASSTHROUGH_OPTS=()
 

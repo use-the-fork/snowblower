@@ -129,7 +129,6 @@ function _iCommandSection() {
 	local options=("$@")
 
 	echo "${YELLOW}${display_name} Commands:${NC}"
-	# snow docker restart
 	# First pass: calculate the maximum width of command part
 	local max_width=0
 	local commands=()
@@ -138,11 +137,19 @@ function _iCommandSection() {
 	for option in "${options[@]}"; do
 		if [[ $option == *"|"* ]]; then
 			IFS='|' read -r cmd desc <<<"$option"
-			local cmd_text="snow -- ${command_name} ${cmd}"
+			if [[ -n $command_name ]]; then
+				local cmd_text="snow -- ${command_name} ${cmd}"
+			else
+				local cmd_text="snow ${cmd}"
+			fi
 			commands+=("$cmd_text")
 			descriptions+=("$desc")
 		else
-			local cmd_text="snow -- ${command_name} ..."
+			if [[ -n $command_name ]]; then
+				local cmd_text="snow -- ${command_name} ..."
+			else
+				local cmd_text="snow ..."
+			fi
 			commands+=("$cmd_text")
 			descriptions+=("Run a ${display_name} command")
 		fi
@@ -158,7 +165,7 @@ function _iCommandSection() {
 	for i in "${!commands[@]}"; do
 		local cmd_text="${commands[i]}"
 		local desc="${descriptions[i]}"
-		local padding_needed=$((max_width - ${#cmd_text} + 10))
+		local padding_needed=$((35 - ${#cmd_text}))
 		local padding=$(printf "%*s" $padding_needed "")
 
 		echo "  ${GREEN}${cmd_text}${NC}${padding}${desc}"

@@ -83,10 +83,20 @@ in {
               ${builtins.readFile config.snowblower.commandPackage}
             '';
           };
+
+          # we need this to remove keep sorted comments
+          snowPackage = lib.sbl.strings.modifyFileContent {
+            file = activationPackage;
+            substitute = {
+              "# keep-sorted start" = "";
+              "# keep-sorted end" = "";
+              "keep-sorted" = "";
+            };
+          };
         in {
           enable = true;
           executable = true;
-          source = activationPackage;
+          text = snowPackage;
         };
       };
     };
