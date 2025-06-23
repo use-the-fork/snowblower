@@ -48,52 +48,65 @@
 
     config.snowblower = {
       commandHelpPackage = let
-        mkCommandSection = section: let
-          mkSubCommandSection = name: subSection: let
+        mkCommandHelpFunction = section: let
+          mkSubCommandOption = name: subSection: let
             subSectionName = subSection.name;
             subSectionDescription = subSection.data.description;
           in
             if subSection.data.internal
             then ""
-            else ''echo "  ''${GREEN}snow ${name} ${subSectionName}''${NC}          ${subSectionDescription}"'';
+            else "${subSectionName}|${subSectionDescription}";
 
           resolvedSubCommands = lib.sbl.dag.resolveDag {
-            name = "snowblower sub commands for ${section.name} ";
+            name = "snowblower sub commands for ${section.name}";
             dag = section.data.subcommand;
             mapResult = subSectionResult:
-              concatLines [
-                (concatMapStringsSep "\n" (subCmd: mkSubCommandSection section.name subCmd) subSectionResult)
-              ];
+              lib.filter (x: x != "") (map (subCmd: mkSubCommandOption section.name subCmd) subSectionResult);
           };
+
+          # Build the options array for _iCommandSection
+          baseOption = optionalString (section.data.command != null) "...|Run a ${section.data.displayName} command";
+          allOptions = lib.filter (x: x != "") ([baseOption] ++ resolvedSubCommands);
+          optionsArray = "(" + (lib.concatStringsSep " " (map lib.strings.escapeShellArg allOptions)) + ")";
         in
           if section.data.internal
           then ""
-          else
-            concatLines [
-              ''echo "''${YELLOW}${section.data.displayName} Commands:''${NC}"''
-              (
-                optionalString (section.data.command != null)
-                ''echo "  ''${GREEN}snow ${section.name} ...''${NC}          Run a ${section.data.displayName} command"''
-              )
-              resolvedSubCommands
-              ''echo''
-            ];
+          else ''
+            function doHelp__${section.name} {
+              local commands=${optionsArray}
+              _iCommandSection "${section.name}" "${section.data.displayName}" "''${commands[@]}"
+            }
+          '';
 
-        resolvedCommands = lib.sbl.dag.resolveDag {
-          name = "snowblower help commands script";
+        resolvedHelpFunctions = lib.sbl.dag.resolveDag {
+          name = "snowblower help functions";
           dag = config.snowblower.command;
           mapResult = result:
-            concatLines [
-              (concatMapStringsSep "\n" mkCommandSection result)
-            ];
+            concatLines (map mkCommandHelpFunction result);
+        };
+
+        # Generate calls to all help functions for displayAllResolvedCommands
+        callResolvedCommands = lib.sbl.dag.resolveDag {
+          name = "snowblower help function calls";
+          dag = config.snowblower.command;
+          mapResult = result:
+            concatLines (map (
+              section:
+                if section.data.internal
+                then ""
+                else "doHelp__${section.name}"
+            ) (lib.filter (section: !section.data.internal) result));
         };
       in
         pkgs.writeTextFile {
           name = "sb-help-commands.sh";
           # Prints the resolved commands from the nix build.
-          text = ''            function displayResolvedCommands {
-                        ${resolvedCommands}
-                      }
+          text = ''
+            function displayAllResolvedCommands {
+              doHelp__snow
+              ${callResolvedCommands}
+            }
+            ${resolvedHelpFunctions}
           '';
         };
 
@@ -181,7 +194,10 @@
             # keep-sorted start
             ${builtins.readFile ./../lib-bash/commands.sh}
             ${builtins.readFile ./../lib-bash/docker-commands.sh}
-            ${builtins.readFile ./../lib-bash/snowblower-commands.sh}
+            ${builtins.readFile ./../lib-bash/snow-commands.sh}
+            ${builtins.readFile ./../lib-bash/snow-down.sh}
+            ${builtins.readFile ./../lib-bash/snow-switch.sh}
+            ${builtins.readFile ./../lib-bash/snow-up.sh}
             # keep-sorted end
 
             ${snowShellContent}

@@ -53,12 +53,12 @@
             aider = {
               enable = true;
               commands = {
-                start = {
-                  description = "w/ linting, watchfiles, and conventions.";
+                son = {
+                  description = "using Sonet as base";
                   watchFiles = true;
                   suggestShellCommands = false;
                   readFiles = ["CONVENTIONS.MD"];
-                  lintCommands = ["snow pre-commit all"];
+                  lintCommands = ["treefmt"];
                 };
                 gem = {
                   description = "using Gemini as base";
@@ -66,7 +66,7 @@
                   watchFiles = true;
                   suggestShellCommands = false;
                   # readFiles = ["CONVENTIONS.MD"];
-                  lintCommands = ["snow pre-commit all"];
+                  lintCommands = ["treefmt"];
                 };
               };
             };
@@ -82,6 +82,7 @@
               };
             };
             preCommit.enable = true;
+            treefmt.enable = true;
           };
 
           language.javascript = {

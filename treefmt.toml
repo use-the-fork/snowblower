@@ -3,6 +3,17 @@ command = "alejandra"
 includes = ["*.nix"]
 priority = 0
 
+["formatter.keepsorted-format"]
+command = "keep-sorted"
+includes = ["*"]
+priority = 0
+
+["formatter.shfmt-lint"]
+command = "shfmt"
+includes = ["*.sh", "*.bash", "*.envrc", "*.envrc.*"]
+options = ["-s", "-w"]
+priority = 0
+
 ["formatter.statix-lint"]
 command = "statix-fix"
 includes = ["*.nix"]

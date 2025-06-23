@@ -60,9 +60,11 @@ in {
               ${builtins.readFile ./../lib-bash/utils/head.sh}
 
               # keep-sorted start
+              ${builtins.readFile ./../lib-bash/checks.sh}
               ${builtins.readFile ./../lib-bash/utils/checks.sh}
               ${builtins.readFile ./../lib-bash/utils/color.sh}
               ${builtins.readFile ./../lib-bash/utils/file.sh}
+              ${builtins.readFile ./../lib-bash/utils/input.sh}
               ${builtins.readFile ./../lib-bash/utils/output.sh}
               # keep-sorted end
 
@@ -74,8 +76,9 @@ in {
 
               ${builtins.readFile config.snowblower.environmentVariablesPackage}
 
-              ${builtins.readFile ./../lib-bash/welcome.sh}
+              ${builtins.readFile ./../lib-bash/help-extra.sh}
               ${builtins.readFile config.snowblower.commandHelpPackage}
+              ${builtins.readFile ./../lib-bash/welcome.sh}
 
               ${builtins.readFile config.snowblower.commandPackage}
             '';
