@@ -10,13 +10,6 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
 
-    git-hooks = {
-      url = "github:cachix/pre-commit-hooks.nix";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
-    };
-
     agenix.url = "github:ryantm/agenix";
   };
 
@@ -100,7 +93,7 @@
           # };
 
           service = {
-            dockwatch.enable = true;
+            # dockwatch.enable = true;
           };
 
           codeQuality = {

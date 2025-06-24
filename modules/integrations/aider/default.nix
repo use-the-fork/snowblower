@@ -59,6 +59,7 @@
                   command = "aider";
                   args =
                     lib.filter (s: s != "") [
+                      "--no-show-release-notes"
                       "--model"
                       cmdCfg.model
                       (
