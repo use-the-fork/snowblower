@@ -1,6 +1,7 @@
 ## Options
 
 ### scripts
+
 **Location:** *perSystem.snow-blower.scripts*
 
 A set of scripts available when the environment is active.
@@ -10,6 +11,7 @@ A set of scripts available when the environment is active.
 `attribute set of (submodule)`
 
 **Default:**
+
 ```nix
 { }
 ```
@@ -18,9 +20,9 @@ A set of scripts available when the environment is active.
 
 - [scripts, via option flake.flakeModules.scripts](https://github.com/use-the-fork/snow-blower/tree/main/modules/scripts/default.nix)
 
-
 ### description
-**Location:** *perSystem.snow-blower.scripts.\<name\>.description*
+
+**Location:** *perSystem.snow-blower.scripts.\<name>.description*
 
 Description of the script.
 
@@ -29,6 +31,7 @@ Description of the script.
 `string`
 
 **Default:**
+
 ```nix
 ""
 ```
@@ -37,9 +40,9 @@ Description of the script.
 
 - [scripts, via option flake.flakeModules.scripts](https://github.com/use-the-fork/snow-blower/tree/main/modules/scripts/default.nix)
 
-
 ### exec
-**Location:** *perSystem.snow-blower.scripts.\<name\>.exec*
+
+**Location:** *perSystem.snow-blower.scripts.\<name>.exec*
 
 Shell code to execute when the script is run.
 
@@ -51,9 +54,9 @@ Shell code to execute when the script is run.
 
 - [scripts, via option flake.flakeModules.scripts](https://github.com/use-the-fork/snow-blower/tree/main/modules/scripts/default.nix)
 
-
 ### enable
-**Location:** *perSystem.snow-blower.scripts.\<name\>.just.enable*
+
+**Location:** *perSystem.snow-blower.scripts.\<name>.just.enable*
 
 Include this script in just runner.
 
@@ -62,6 +65,7 @@ Include this script in just runner.
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -70,9 +74,9 @@ false
 
 - [scripts, via option flake.flakeModules.scripts](https://github.com/use-the-fork/snow-blower/tree/main/modules/scripts/default.nix)
 
-
 ### package
-**Location:** *perSystem.snow-blower.scripts.\<name\>.package*
+
+**Location:** *perSystem.snow-blower.scripts.\<name>.package*
 
 The package to use to run the script.
 
@@ -81,6 +85,7 @@ The package to use to run the script.
 `package`
 
 **Default:**
+
 ```nix
 pkgs.bash
 ```
@@ -88,4 +93,3 @@ pkgs.bash
 **Declared by:**
 
 - [scripts, via option flake.flakeModules.scripts](https://github.com/use-the-fork/snow-blower/tree/main/modules/scripts/default.nix)
-

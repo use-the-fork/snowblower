@@ -58,6 +58,7 @@ snow-blower.languages.ruby.package = pkgs.ruby_3_2;
 ```
 
 Available Ruby versions in nixpkgs include:
+
 - `pkgs.ruby` (default, currently Ruby 3.1)
 - `pkgs.ruby_3_2` (Ruby 3.2)
 - `pkgs.ruby_3_1` (Ruby 3.1)

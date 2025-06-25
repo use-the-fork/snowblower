@@ -68,6 +68,7 @@ just changelog
 ```
 
 This will:
+
 - Analyze your git history
 - Generate a formatted changelog based on conventional commits
 - Save it to the configured file (default: CHANGELOG.md)

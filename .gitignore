@@ -7,13 +7,14 @@ result
 # we ignore this since snowblower dynmically generates this file.
 secrets.nix
 .aider*
+!.aider.conf.yml
 
 # VitePress build output and cache
 docs/.vitepress/dist
 docs/.vitepress/cache
 .idea
+.snowblower
 
-.pre-commit-config.yaml
 just-flake.just
 
 .direnv

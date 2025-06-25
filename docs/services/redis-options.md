@@ -1,15 +1,17 @@
 ## Options
 
 ### enable
+
 **Location:** *perSystem.snow-blower.services.redis.enable*
 
-Whether to enable Redis  service.
+Whether to enable Redis service.
 
 **Type:**
 
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -24,8 +26,8 @@ true
 
 - [services/redis, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/redis/default.nix)
 
-
 ### package
+
 **Location:** *perSystem.snow-blower.services.redis.package*
 
 The package Redis should use.
@@ -35,6 +37,7 @@ The package Redis should use.
 `package`
 
 **Default:**
+
 ```nix
 <derivation redis-7.2.7>
 ```
@@ -43,8 +46,8 @@ The package Redis should use.
 
 - [services/redis, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/redis/default.nix)
 
-
 ### settings.extraConfig
+
 **Location:** *perSystem.snow-blower.services.redis.settings.extraConfig*
 
 Additional text to be appended to `redis.conf`.
@@ -54,6 +57,7 @@ Additional text to be appended to `redis.conf`.
 `strings concatenated with "\n"`
 
 **Default:**
+
 ```nix
 "locale-collate C"
 ```
@@ -62,8 +66,8 @@ Additional text to be appended to `redis.conf`.
 
 - [services/redis, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/redis/default.nix)
 
-
 ### settings.host
+
 **Location:** *perSystem.snow-blower.services.redis.settings.host*
 
 The host Redis will listen on
@@ -73,6 +77,7 @@ The host Redis will listen on
 `string`
 
 **Default:**
+
 ```nix
 "127.0.0.1"
 ```
@@ -81,8 +86,8 @@ The host Redis will listen on
 
 - [services/redis, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/redis/default.nix)
 
-
 ### settings.port
+
 **Location:** *perSystem.snow-blower.services.redis.settings.port*
 
 The port Redis will listen on
@@ -92,6 +97,7 @@ The port Redis will listen on
 `signed integer or string`
 
 **Default:**
+
 ```nix
 6379
 ```
@@ -99,4 +105,3 @@ The port Redis will listen on
 **Declared by:**
 
 - [services/redis, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/redis/default.nix)
-

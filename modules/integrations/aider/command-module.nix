@@ -28,6 +28,12 @@ in {
       type = types.listOf types.str;
     };
 
+    subtreeOnly = mkOption {
+      description = "Only work on files in the current subtree";
+      default = false;
+      type = types.bool;
+    };
+
     suggestShellCommands = mkOption {
       description = "Enable/disable suggesting shell commands";
       default = false;
@@ -36,6 +42,12 @@ in {
 
     detectUrls = mkOption {
       description = "Enable/disable detection and offering to add URLs to chat";
+      default = false;
+      type = types.bool;
+    };
+
+    separateHistoryFiles = mkOption {
+      description = "Enable separate history files for this aider instance";
       default = false;
       type = types.bool;
     };

@@ -1,0 +1,1 @@
+FROM localhost/snowblower/tools:latest

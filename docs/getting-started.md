@@ -18,22 +18,26 @@ Snow Blower offers the following templates:
 To initialize a new project with one of the templates:
 
 1. Create a new directory for your project:
+
    ```bash
    mkdir my-project
    cd my-project
    ```
 
-2. Initialize with your chosen template:
+1. Initialize with your chosen template:
+
    ```bash
    nix flake init --template github:use-the-fork/snow-blower#laravel
    ```
 
-3. Enter the development shell:
+1. Enter the development shell:
+
    ```bash
    nix develop --impure
    ```
 
    Or if you have direnv installed:
+
    ```bash
    direnv allow
    ```
@@ -43,6 +47,7 @@ To initialize a new project with one of the templates:
 ### Base Template
 
 The base template provides:
+
 - A minimal `flake.nix` with Snow Blower configuration
 - A `.envrc` file for direnv integration
 - A `justfile` for command automation
@@ -52,6 +57,7 @@ This template is ideal for starting new projects where you'll add your own speci
 ### Laravel Template
 
 The Laravel template includes:
+
 - PHP and Composer setup
 - MySQL database
 - Redis for caching
@@ -64,6 +70,7 @@ Perfect for PHP developers working with the Laravel framework.
 ### Ruby Template
 
 The Ruby template provides:
+
 - Ruby language setup
 - Bundler for dependency management
 - Basic Rails configuration
@@ -81,10 +88,10 @@ After initializing with a template, you can customize your development environme
 Key areas to customize:
 
 1. **Integrations**: Enable tools like Git hooks, formatting tools, etc.
-2. **Scripts**: Add custom scripts to automate common tasks
-3. **Packages**: Include additional packages in your environment
-4. **Shell**: Configure shell startup commands
-5. **Processes**: Define background processes for your development environment
+1. **Scripts**: Add custom scripts to automate common tasks
+1. **Packages**: Include additional packages in your environment
+1. **Shell**: Configure shell startup commands
+1. **Processes**: Define background processes for your development environment
 
 Here's an example of a customized `flake.nix` configuration:
 
@@ -139,7 +146,7 @@ Here's an example of a customized `flake.nix` configuration:
 After setting up your project with a template:
 
 1. Review the [Integrations](/integrations/index.md) documentation to add more tools
-2. Explore [Just Commands](/just/index.md) to understand the available automation
-3. Check out [Services](/services/index.md) to add databases and other infrastructure
+1. Explore [Just Commands](/just/index.md) to understand the available automation
+1. Check out [Services](/services/index.md) to add databases and other infrastructure
 
 For more detailed information on specific features, browse the sidebar for relevant documentation pages.

@@ -1,4 +1,5 @@
 # ❄️ 💨 Snow Blower: All flake no fluff.
+
 [![Built with Nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
 
 Have you ever wished you could pull down a repo, enter the shell, and have everything set up for you? Snow Blower makes that possible!
@@ -17,9 +18,9 @@ nix flake init --template github:use-the-fork/snow-blower
 
 This template will create:
 
-* A `flake.nix` file containing a basic development environment configuration
-* A `.envrc` file to optionally set up automatic shell activation
-* A `justfile` to import our dynamically created just files
+- A `flake.nix` file containing a basic development environment configuration
+- A `.envrc` file to optionally set up automatic shell activation
+- A `justfile` to import our dynamically created just files
 
 Open the Snow Blower shell with:
 

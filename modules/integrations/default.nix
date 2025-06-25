@@ -1,12 +1,12 @@
 {
   imports = [
-    ./agenix
+    # keep-sorted start
+    ./agenix.nix
     ./aider
-    ./convco
-    ./dotenv
-    ./snow-blower
-    ./treefmt
-    ./git-hooks
-    ./git-cliff
+    ./convco.nix
+    ./git-cliff.nix
+    ./pre-commit.nix
+    ./treefmt.nix
+    # keep-sorted end
   ];
 }

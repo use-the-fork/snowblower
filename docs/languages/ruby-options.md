@@ -1,6 +1,7 @@
 ## Options
 
 ### bundler.enable
+
 **Location:** *perSystem.snow-blower.languages.ruby.bundler.enable*
 
 Whether to enable bundler.
@@ -10,6 +11,7 @@ Whether to enable bundler.
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -24,8 +26,8 @@ true
 
 - [languages/ruby, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/ruby/default.nix)
 
-
 ### bundler.package
+
 **Location:** *perSystem.snow-blower.languages.ruby.bundler.package*
 
 The bundler package to use.
@@ -35,6 +37,7 @@ The bundler package to use.
 `package`
 
 **Default:**
+
 ```nix
 pkgs.bundler.override { ruby = cfg.package; }
 ```
@@ -43,8 +46,8 @@ pkgs.bundler.override { ruby = cfg.package; }
 
 - [languages/ruby, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/ruby/default.nix)
 
-
 ### enable
+
 **Location:** *perSystem.snow-blower.languages.ruby.enable*
 
 Whether to enable tools for Ruby development.
@@ -54,6 +57,7 @@ Whether to enable tools for Ruby development.
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -68,8 +72,8 @@ true
 
 - [languages/ruby, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/ruby/default.nix)
 
-
 ### package
+
 **Location:** *perSystem.snow-blower.languages.ruby.package*
 
 The Ruby package to use.
@@ -79,6 +83,7 @@ The Ruby package to use.
 `package`
 
 **Default:**
+
 ```nix
 pkgs.ruby
 ```
@@ -86,4 +91,3 @@ pkgs.ruby
 **Declared by:**
 
 - [languages/ruby, via option flake.flakeModules.languages](https://github.com/use-the-fork/snow-blower/tree/main/modules/languages/ruby/default.nix)
-

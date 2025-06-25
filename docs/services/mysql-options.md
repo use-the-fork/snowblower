@@ -1,15 +1,17 @@
 ## Options
 
 ### enable
+
 **Location:** *perSystem.snow-blower.services.mysql.enable*
 
-Whether to enable MySQL  service.
+Whether to enable MySQL service.
 
 **Type:**
 
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -24,8 +26,8 @@ true
 
 - [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
-
 ### package
+
 **Location:** *perSystem.snow-blower.services.mysql.package*
 
 The package MySQL should use.
@@ -35,6 +37,7 @@ The package MySQL should use.
 `package`
 
 **Default:**
+
 ```nix
 <derivation mariadb-server-10.11.11>
 ```
@@ -43,18 +46,18 @@ The package MySQL should use.
 
 - [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
-
 ### settings.configuration
+
 **Location:** *perSystem.snow-blower.services.mysql.settings.configuration*
 
 MySQL configuration.
-
 
 **Type:**
 
 `lazy attribute set of lazy attribute set of anything`
 
 **Default:**
+
 ```nix
 { }
 ```
@@ -81,8 +84,8 @@ MySQL configuration.
 
 - [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
-
 ### settings.ensureUsers
+
 **Location:** *perSystem.snow-blower.services.mysql.settings.ensureUsers*
 
 Ensures that the specified users exist and have at least the ensured permissions.
@@ -92,12 +95,12 @@ This option will never delete existing users or remove permissions, especially n
 option is changed. This means that users created and permissions assigned once through this option or
 otherwise have to be removed manually.
 
-
 **Type:**
 
 `list of (submodule)`
 
 **Default:**
+
 ```nix
 [ ]
 ```
@@ -120,9 +123,9 @@ otherwise have to be removed manually.
 
 - [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
+### settings.ensureUsers.\*.ensurePermissions
 
-### settings.ensureUsers.*.ensurePermissions
-**Location:** *perSystem.snow-blower.services.mysql.settings.ensureUsers.*.ensurePermissions*
+**Location:** *perSystem.snow-blower.services.mysql.settings.ensureUsers.*.ensurePermissions\*
 
 Permissions to ensure for the user, specified as attribute set.
 The attribute names specify the database and tables to grant the permissions for,
@@ -134,12 +137,12 @@ and on which privileges exist, see the
 [GRANT syntax](https://mariadb.com/kb/en/library/grant/).
 The attributes are used as `GRANT ${attrName} ON ${attrValue}`.
 
-
 **Type:**
 
 `attribute set of string`
 
 **Default:**
+
 ```nix
 { }
 ```
@@ -158,12 +161,11 @@ The attributes are used as `GRANT ${attrName} ON ${attrValue}`.
 
 - [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
+### settings.ensureUsers.\*.name
 
-### settings.ensureUsers.*.name
-**Location:** *perSystem.snow-blower.services.mysql.settings.ensureUsers.*.name*
+**Location:** *perSystem.snow-blower.services.mysql.settings.ensureUsers.*.name\*
 
 Name of the user to ensure.
-
 
 **Type:**
 
@@ -173,18 +175,18 @@ Name of the user to ensure.
 
 - [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
+### settings.ensureUsers.\*.password
 
-### settings.ensureUsers.*.password
-**Location:** *perSystem.snow-blower.services.mysql.settings.ensureUsers.*.password*
+**Location:** *perSystem.snow-blower.services.mysql.settings.ensureUsers.*.password\*
 
 Password of the user to ensure.
-
 
 **Type:**
 
 `null or string`
 
 **Default:**
+
 ```nix
 null
 ```
@@ -193,8 +195,8 @@ null
 
 - [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
-
 ### settings.host
+
 **Location:** *perSystem.snow-blower.services.mysql.settings.host*
 
 The host MySQL will listen on
@@ -204,6 +206,7 @@ The host MySQL will listen on
 `string`
 
 **Default:**
+
 ```nix
 "127.0.0.1"
 ```
@@ -212,18 +215,18 @@ The host MySQL will listen on
 
 - [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
-
 ### settings.importTimeZones
+
 **Location:** *perSystem.snow-blower.services.mysql.settings.importTimeZones*
 
 Whether to import tzdata on the first startup of the mysql server
-
 
 **Type:**
 
 `null or boolean`
 
 **Default:**
+
 ```nix
 null
 ```
@@ -232,19 +235,19 @@ null
 
 - [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
-
 ### settings.initialDatabases
+
 **Location:** *perSystem.snow-blower.services.mysql.settings.initialDatabases*
 
 List of database names and their initial schemas that should be used to create databases on the first startup
 of MySQL. The schema attribute is optional: If not specified, an empty database is created.
-
 
 **Type:**
 
 `list of (submodule)`
 
 **Default:**
+
 ```nix
 [ ]
 ```
@@ -263,12 +266,11 @@ of MySQL. The schema attribute is optional: If not specified, an empty database 
 
 - [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
+### settings.initialDatabases.\*.name
 
-### settings.initialDatabases.*.name
-**Location:** *perSystem.snow-blower.services.mysql.settings.initialDatabases.*.name*
+**Location:** *perSystem.snow-blower.services.mysql.settings.initialDatabases.*.name\*
 
 The name of the database to create.
-
 
 **Type:**
 
@@ -278,19 +280,19 @@ The name of the database to create.
 
 - [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
+### settings.initialDatabases.\*.schema
 
-### settings.initialDatabases.*.schema
-**Location:** *perSystem.snow-blower.services.mysql.settings.initialDatabases.*.schema*
+**Location:** *perSystem.snow-blower.services.mysql.settings.initialDatabases.*.schema\*
 
 The initial schema of the database; if null (the default),
 an empty database is created.
-
 
 **Type:**
 
 `null or absolute path`
 
 **Default:**
+
 ```nix
 null
 ```
@@ -299,8 +301,8 @@ null
 
 - [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
-
 ### settings.port
+
 **Location:** *perSystem.snow-blower.services.mysql.settings.port*
 
 The port MySQL will listen on
@@ -310,6 +312,7 @@ The port MySQL will listen on
 `signed integer or string`
 
 **Default:**
+
 ```nix
 3306
 ```
@@ -318,8 +321,8 @@ The port MySQL will listen on
 
 - [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
 
-
 ### settings.useDefaultsExtraFile
+
 **Location:** *perSystem.snow-blower.services.mysql.settings.useDefaultsExtraFile*
 
 Whether to use defaults-exta-file for the mysql command instead of defaults-file.
@@ -327,12 +330,12 @@ This is useful if you want to provide a config file on the command line.
 However this can problematic if you have MySQL installed globaly because its config might leak into your environment.
 This option does not affect the mysqld command.
 
-
 **Type:**
 
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -340,4 +343,3 @@ false
 **Declared by:**
 
 - [services/mysql, via option flake.flakeModules.services](https://github.com/use-the-fork/snow-blower/tree/main/modules/services/mysql/default.nix)
-

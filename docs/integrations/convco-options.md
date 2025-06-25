@@ -1,6 +1,7 @@
 ## Options
 
 ### enable
+
 **Location:** *perSystem.snow-blower.integrations.convco.enable*
 
 Whether to enable Convco just command.
@@ -10,6 +11,7 @@ Whether to enable Convco just command.
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -24,8 +26,8 @@ true
 
 - [integrations/convco, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/convco/default.nix)
 
-
 ### package
+
 **Location:** *perSystem.snow-blower.integrations.convco.package*
 
 The package Convco should use.
@@ -35,6 +37,7 @@ The package Convco should use.
 `package`
 
 **Default:**
+
 ```nix
 <derivation convco-0.6.1>
 ```
@@ -43,8 +46,8 @@ The package Convco should use.
 
 - [integrations/convco, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/convco/default.nix)
 
-
 ### settings.file-name
+
 **Location:** *perSystem.snow-blower.integrations.convco.settings.file-name*
 
 The name of the file to output the chaneglog to.
@@ -54,6 +57,7 @@ The name of the file to output the chaneglog to.
 `string`
 
 **Default:**
+
 ```nix
 "CHANGELOG.md"
 ```
@@ -61,4 +65,3 @@ The name of the file to output the chaneglog to.
 **Declared by:**
 
 - [integrations/convco, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/convco/default.nix)
-

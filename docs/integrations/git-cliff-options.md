@@ -1,6 +1,7 @@
 ## Options
 
 ### enable
+
 **Location:** *perSystem.snow-blower.integrations.git-cliff.enable*
 
 Whether to enable Git-Cliff just command.
@@ -10,6 +11,7 @@ Whether to enable Git-Cliff just command.
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -24,8 +26,8 @@ true
 
 - [integrations/git-cliff, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/git-cliff/default.nix)
 
-
 ### package
+
 **Location:** *perSystem.snow-blower.integrations.git-cliff.package*
 
 The package Git-Cliff should use.
@@ -35,6 +37,7 @@ The package Git-Cliff should use.
 `package`
 
 **Default:**
+
 ```nix
 <derivation git-cliff-2.8.0>
 ```
@@ -43,20 +46,20 @@ The package Git-Cliff should use.
 
 - [integrations/git-cliff, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/git-cliff/default.nix)
 
-
 ### settings.config-file
+
 **Location:** *perSystem.snow-blower.integrations.git-cliff.settings.config-file*
 
 The git-cliff config to use.
 
 See https://git-cliff.org/docs/configuration/
 
-
 **Type:**
 
 `string`
 
 **Default:**
+
 ```nix
 ''
   [changelog]
@@ -117,8 +120,8 @@ See https://git-cliff.org/docs/configuration/
 
 - [integrations/git-cliff, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/git-cliff/default.nix)
 
-
 ### settings.file-name
+
 **Location:** *perSystem.snow-blower.integrations.git-cliff.settings.file-name*
 
 The name of the file to output the chaneglog to.
@@ -128,6 +131,7 @@ The name of the file to output the chaneglog to.
 `string`
 
 **Default:**
+
 ```nix
 "CHANGELOG.md"
 ```
@@ -136,8 +140,8 @@ The name of the file to output the chaneglog to.
 
 - [integrations/git-cliff, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/git-cliff/default.nix)
 
-
 ### settings.integrations.github.enable
+
 **Location:** *perSystem.snow-blower.integrations.git-cliff.settings.integrations.github.enable*
 
 Whether to enable Enable the GitHub integration. See https://git-cliff.org/docs/integration/github.
@@ -147,6 +151,7 @@ Whether to enable Enable the GitHub integration. See https://git-cliff.org/docs/
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -160,4 +165,3 @@ true
 **Declared by:**
 
 - [integrations/git-cliff, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/git-cliff/default.nix)
-

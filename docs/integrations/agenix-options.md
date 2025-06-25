@@ -1,6 +1,7 @@
 ## Options
 
 ### enable
+
 **Location:** *perSystem.snow-blower.integrations.agenix.enable*
 
 Whether to enable Agenix .env Integration.
@@ -10,6 +11,7 @@ Whether to enable Agenix .env Integration.
 `boolean`
 
 **Default:**
+
 ```nix
 false
 ```
@@ -24,8 +26,8 @@ true
 
 - [integrations/agenix, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/agenix/default.nix)
 
-
 ### package
+
 **Location:** *perSystem.snow-blower.integrations.agenix.package*
 
 The package agenix should use.
@@ -35,6 +37,7 @@ The package agenix should use.
 `package`
 
 **Default:**
+
 ```nix
 <derivation agenix-0.15.0>
 ```
@@ -43,8 +46,8 @@ The package agenix should use.
 
 - [integrations/agenix, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/agenix/default.nix)
 
-
 ### secrets
+
 **Location:** *perSystem.snow-blower.integrations.agenix.secrets*
 
 Attrset of secrets.
@@ -68,18 +71,18 @@ Attrset of secrets.
 
 - [integrations/agenix, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/agenix/default.nix)
 
+### secrets.\<name>.file
 
-### secrets.\<name\>.file
-**Location:** *perSystem.snow-blower.integrations.agenix.secrets.\<name\>.file*
+**Location:** *perSystem.snow-blower.integrations.agenix.secrets.\<name>.file*
 
 Age file the secret is loaded from. Relative to flake root.
-
 
 **Type:**
 
 `string`
 
 **Default:**
+
 ```nix
 "secrets/‹name›.age"
 ```
@@ -88,9 +91,9 @@ Age file the secret is loaded from. Relative to flake root.
 
 - [integrations/agenix, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/agenix/default.nix)
 
+### secrets.\<name>.mode
 
-### secrets.\<name\>.mode
-**Location:** *perSystem.snow-blower.integrations.agenix.secrets.\<name\>.mode*
+**Location:** *perSystem.snow-blower.integrations.agenix.secrets.\<name>.mode*
 
 Permissions mode of the decrypted secret in a format understood by chmod.
 
@@ -99,6 +102,7 @@ Permissions mode of the decrypted secret in a format understood by chmod.
 `string`
 
 **Default:**
+
 ```nix
 "0644"
 ```
@@ -107,9 +111,9 @@ Permissions mode of the decrypted secret in a format understood by chmod.
 
 - [integrations/agenix, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/agenix/default.nix)
 
+### secrets.\<name>.name
 
-### secrets.\<name\>.name
-**Location:** *perSystem.snow-blower.integrations.agenix.secrets.\<name\>.name*
+**Location:** *perSystem.snow-blower.integrations.agenix.secrets.\<name>.name*
 
 Name of the Env file containing the secrets.
 
@@ -118,6 +122,7 @@ Name of the Env file containing the secrets.
 `unspecified value`
 
 **Default:**
+
 ```nix
 <name>
 ```
@@ -132,9 +137,9 @@ Name of the Env file containing the secrets.
 
 - [integrations/agenix, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/agenix/default.nix)
 
+### secrets.\<name>.publicKeys
 
-### secrets.\<name\>.publicKeys
-**Location:** *perSystem.snow-blower.integrations.agenix.secrets.\<name\>.publicKeys*
+**Location:** *perSystem.snow-blower.integrations.agenix.secrets.\<name>.publicKeys*
 
 A list of public keys that are used to encrypt the secret.
 
@@ -143,6 +148,7 @@ A list of public keys that are used to encrypt the secret.
 `list of string`
 
 **Default:**
+
 ```nix
 [ ]
 ```
@@ -156,4 +162,3 @@ A list of public keys that are used to encrypt the secret.
 **Declared by:**
 
 - [integrations/agenix, via option flake.flakeModules.integrations](https://github.com/use-the-fork/snow-blower/tree/main/modules/integrations/agenix/default.nix)
-

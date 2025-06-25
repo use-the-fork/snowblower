@@ -1,6 +1,7 @@
 ## Options
 
 ### devShell
+
 **Location:** *perSystem.snow-blower.shell.build.devShell*
 
 The development shell with Snow Blower and its underlying programs
@@ -13,8 +14,8 @@ The development shell with Snow Blower and its underlying programs
 
 - [shell, via option flake.flakeModules.shell](https://github.com/use-the-fork/snow-blower/tree/main/modules/shell/default.nix)
 
-
 ### interactive
+
 **Location:** *perSystem.snow-blower.shell.interactive*
 
 Bash code to execute on interactive startups
@@ -24,6 +25,7 @@ Bash code to execute on interactive startups
 `list of string`
 
 **Default:**
+
 ```nix
 ""
 ```
@@ -32,8 +34,8 @@ Bash code to execute on interactive startups
 
 - [shell, via option flake.flakeModules.shell](https://github.com/use-the-fork/snow-blower/tree/main/modules/shell/default.nix)
 
-
 ### motd
+
 **Location:** *perSystem.snow-blower.shell.motd*
 
 Message Of The Day.
@@ -43,12 +45,12 @@ the shell.
 
 You may use any valid ansi color from the 8-bit ansi color table. For example, to use a green color you would use something like {106}. You may also use {bold}, {italic}, {underline}. Use {reset} to turn off all attributes.
 
-
 **Type:**
 
 `string`
 
 **Default:**
+
 ```nix
 ''
   ❄️ 💨 Snow Blower: All flake no fluff.
@@ -59,8 +61,8 @@ You may use any valid ansi color from the 8-bit ansi color table. For example, t
 
 - [shell, via option flake.flakeModules.shell](https://github.com/use-the-fork/snow-blower/tree/main/modules/shell/default.nix)
 
-
 ### startup
+
 **Location:** *perSystem.snow-blower.shell.startup*
 
 Bash code to execute on startup.
@@ -70,6 +72,7 @@ Bash code to execute on startup.
 `list of string`
 
 **Default:**
+
 ```nix
 ""
 ```
@@ -78,8 +81,8 @@ Bash code to execute on startup.
 
 - [shell, via option flake.flakeModules.shell](https://github.com/use-the-fork/snow-blower/tree/main/modules/shell/default.nix)
 
-
 ### stdenv
+
 **Location:** *perSystem.snow-blower.shell.stdenv*
 
 The stdenv to use for the developer environment.
@@ -89,6 +92,7 @@ The stdenv to use for the developer environment.
 `package`
 
 **Default:**
+
 ```nix
 <derivation stdenv-linux>
 ```
@@ -96,4 +100,3 @@ The stdenv to use for the developer environment.
 **Declared by:**
 
 - [shell, via option flake.flakeModules.shell](https://github.com/use-the-fork/snow-blower/tree/main/modules/shell/default.nix)
-

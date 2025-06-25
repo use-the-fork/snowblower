@@ -110,6 +110,7 @@ snow-blower.processes.api = {
 ```
 
 Available conditions include:
+
 - `process_started`: Wait until the dependency has started
 - `process_completed`: Wait until the dependency has completed
 - `process_completed_successfully`: Wait until the dependency has completed successfully
@@ -142,11 +143,13 @@ just up
 ```
 
 This will:
+
 1. Start all defined processes in the correct order
-2. Open a terminal UI showing the status of each process
-3. Display the logs from all processes in a unified view
+1. Open a terminal UI showing the status of each process
+1. Display the logs from all processes in a unified view
 
 You can navigate the UI with:
+
 - Arrow keys to select different processes
 - Enter to focus on a specific process's logs
 - Ctrl+C to stop all processes and exit

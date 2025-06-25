@@ -16,7 +16,7 @@ jobs:
       - uses: cachix/cachix-action@v14
         with:
           name: snow-blower
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: Update Nix Flake
         run: |
           nix flake --accept-flake-config update

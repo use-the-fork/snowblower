@@ -1,11 +1,14 @@
 {
   imports = [
-    ./adminer
-    ./blackfire
+    # keep-sorted start
+    ./adminer.nix
+    ./blackfire.nix
+    ./dockwatch.nix
     ./elasticsearch
-    ./mysql
-    ./redis
-    ./supervisord
-    ./memcached
+    ./memcached.nix
+    ./mysql.nix
+    ./portainer.nix
+    ./redis.nix
+    # keep-sorted end
   ];
 }

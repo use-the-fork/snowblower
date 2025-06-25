@@ -1,11 +1,38 @@
-# Coding Conventions
+# Development Conventions
+
+## Code Style and Formatting
+
+### Comments
+- Use clear, concise language that explains the "why" not just the "what"
+- Start comments with a capital letter and end with proper punctuation
+- For inline comments, use a single space after the comment delimiter
+- For block comments, align content consistently
+- Use descriptive variable names to reduce need for comments
+- Add comments to explain complex logic or non-obvious decisions
+- Avoid redundant comments that merely restate the code
+
+### Descriptions
+- Begin with a clear, action-oriented statement
+- Use present tense and active voice
+- Include relevant context and constraints
+- Provide examples when helpful for clarity
+- Reference related commands, options, or help text using proper formatting
+- Use proper markup for code references: `{command}`, `{option}`, `{file}`
+- Structure complex descriptions with clear paragraphs
+- End with a period for complete sentences
+
+### Formatting
+- Use consistent indentation and spacing
+- Align related elements vertically when it improves readability
+- Break long lines at logical points
+- Use proper capitalization for technical terms and proper nouns
+- Maintain consistent terminology throughout the codebase
 
 ## General Guidelines
 
-* **Comments**: Add comments to explain complex logic or non-obvious decisions. Avoid redundant comments that merely restate the code.
-* **Documentation**: Document modules, functions, and options using proper Nix documentation format.
 * **Naming**: Use clear, descriptive names for variables, functions, and modules. Follow existing naming patterns in the codebase.
 * **Consistency**: Maintain consistent style with the rest of the codebase.
+* **Documentation**: Document modules, functions, and options using proper Nix documentation format.
 
 ## Nix-Specific Guidelines
 
@@ -21,12 +48,3 @@
 * Include usage examples in markdown documentation.
 * Keep documentation up-to-date when changing module behavior.
 * Follow the existing documentation structure for consistency.
-
-## Project Structure
-
-* Place new modules in the appropriate directory based on their functionality.
-* Follow the established pattern for module organization:
-  * Core modules in `modules/core/`
-  * Language support in `modules/languages/`
-  * Services in `modules/services/`
-  * Integrations in `modules/integrations/`

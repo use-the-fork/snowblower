@@ -1,137 +1,67 @@
-{
-  inputs,
-  flake-parts-lib,
-  ...
-}: {
-  imports = [
-    inputs.flake-parts.flakeModules.flakeModules
-  ];
-  flake.flakeModules.integrations = {
-    options.perSystem = flake-parts-lib.mkPerSystemOption ({
-      pkgs,
-      config,
-      lib,
-      ...
-    }: let
-      inherit (lib) types mkOption;
-      inherit (import ../utils.nix {inherit lib;}) mkIntegration;
-      inherit (import ./utils.nix {inherit lib pkgs;}) commandType;
+{flake-parts-lib, ...}: {
+  options.perSystem = flake-parts-lib.mkPerSystemOption ({
+    pkgs,
+    config,
+    lib,
+    ...
+  }: let
+    inherit (lib) types mkOption optionalString;
+    inherit (lib) mkIntegration;
 
-      cfg = config.snow-blower.integrations.aider;
+    commandModule = {
+      imports = [./command-module.nix];
+      config._module.args = {inherit pkgs;};
+    };
 
-      yamlFormat = pkgs.formats.yaml {};
-    in {
-      imports = [
-        {
-          options.snow-blower.integrations.aider.commands = mkOption {
-            type = types.submoduleWith {
-              modules = [{freeformType = types.attrsOf commandType;}];
-              specialArgs = {inherit pkgs;};
-            };
-            default = {};
-            description = ''
-              The aider start commands that we can run with just.
-            '';
+    commandType = types.submodule commandModule;
+
+    cfg = config.snowblower.integration.aider;
+    execCommand = config.snowblower.command."ai".command;
+
+    yamlFormat = pkgs.formats.yaml {};
+  in {
+    imports = [
+      {
+        options.snowblower.integration.aider.commands = mkOption {
+          type = types.submoduleWith {
+            modules = [{freeformType = types.attrsOf commandType;}];
+            specialArgs = {inherit pkgs;};
           };
-        }
-      ];
-
-      options.snow-blower.integrations.aider = mkIntegration {
-        name = "Aider";
-        package = pkgs.aider-chat;
-
-        settings = {
-          auto-commits = mkOption {
-            description = "Enable/disable auto commit of LLM changes.";
-            default = false;
-            type = types.bool;
-          };
-
-          dirty-commits = mkOption {
-            description = "Enable/disable commits when repo is found dirty";
-            default = true;
-            type = types.bool;
-          };
-
-          auto-lint = mkOption {
-            description = "Enable/disable automatic linting after changes";
-            default = true;
-            type = types.bool;
-          };
-
-          dark-mode = mkOption {
-            description = "Use colors suitable for a dark terminal background.";
-            default = true;
-            type = types.bool;
-          };
-
-          light-mode = mkOption {
-            description = "Use colors suitable for a light terminal background";
-            default = false;
-            type = types.bool;
-          };
-
-          cache-prompts = mkOption {
-            description = "Enable caching of prompts.";
-            default = false;
-            type = types.bool;
-          };
-
-          code-theme = mkOption {
-            description = "Set the markdown code theme";
-            default = "default";
-            type = types.enum ["default" "monokai" "solarized-dark" "solarized-light"];
-          };
-
-          edit-format = mkOption {
-            description = "Set the markdown code theme";
-            default = "diff";
-            type = types.enum ["whole" "diff" "diff-fenced" "udiff"];
-          };
-
-          extraConf = mkOption {
-            type = types.submodule {freeformType = yamlFormat.type;};
-            default = {};
-            description = ''
-              Extra configuration for aider, see
-              <link xlink:href="See settings here: https://aider.chat/docs/config/aider_conf.html"/>
-              for supported values.
-            '';
-          };
+          default = {};
+          description = ''
+            The aider start commands that are added to SnowBlower.
+          '';
         };
+      }
+    ];
+
+    options.snowblower.integration.aider = mkIntegration {
+      name = "Aider";
+      package = pkgs.aider-chat;
+      config = {
+        "auto-commits" = false;
+        "dirty-commits" = true;
+        "auto-lint" = true;
+        "dark-mode" = true;
+        "light-mode" = false;
+        "cache-prompts" = false;
+        "code-theme" = "solarized-dark";
       };
+    };
 
-      config = lib.mkIf cfg.enable {
-        snow-blower = {
-          packages = [
-            cfg.package
-          ];
-
-          shell = {
-            startup = let
-              cfgWithoutExcludedKeys = lib.attrsets.filterAttrs (name: _value: name != "conventions" && name != "extraConf" && name != "port" && name != "host") cfg.settings;
-              cfgWithExtraConf = lib.attrsets.recursiveUpdate cfgWithoutExcludedKeys (cfg.settings.extraConf
-                // {
-                  check-update = false;
-                });
-
-              aiderYml = yamlFormat.generate "aider-conf" cfgWithExtraConf;
-            in [
-              ''
-                ln -sf ${builtins.toString aiderYml} ./.aider.conf.yml
-              ''
-            ];
-          };
-
-          just.recipes = lib.mkMerge (lib.mapAttrsToList (
+    config = lib.mkIf cfg.enable {
+      snowblower = {
+        command."ai" = let
+          subCommands = lib.mkMerge (lib.mapAttrsToList (
               name: cmdCfg: {
-                "ai-${name}" = {
-                  enable = true;
-                  justfile = ''
-                    # ${cmdCfg.description}
-                    @ai-${name}:
-                      ${lib.getExe cfg.package} ${lib.concatStringsSep " " (lib.filter (s: s != "") [
-                      "--model ${cmdCfg.model}"
+                "${name}" = {
+                  inherit (cmdCfg) description;
+                  command = "aider";
+                  args =
+                    lib.filter (s: s != "") [
+                      "--no-show-release-notes"
+                      "--model"
+                      cmdCfg.model
                       (
                         if cmdCfg.watchFiles
                         then "--watch-files"
@@ -152,18 +82,63 @@
                         then "--git-commit-verify"
                         else "--no-git-commit-verify"
                       )
-                      (lib.concatMapStringsSep " " (cmd: "--read \"${cmd}\"") cmdCfg.readFiles)
-                      (lib.concatMapStringsSep " " (cmd: "--lint-cmd \"${cmd}\"") cmdCfg.lintCommands)
-                      (lib.concatMapStringsSep " " (cmd: "--test-cmd \"${cmd}\"") cmdCfg.testCommands)
-                      cmdCfg.extraArgs
-                    ])}
-                  '';
+                      (
+                        optionalString cmdCfg.subtreeOnly
+                        "--subtree-only"
+                      )
+                    ]
+                    ++ (
+                      if cmdCfg.separateHistoryFiles
+                      then [
+                        "--input-history-file"
+                        "\${SB_PROJECT_STATE}/aider/cache/.aider.${name}.input.history"
+                        "--chat-history-file"
+                        "\${SB_PROJECT_STATE}/aider/cache/.aider.${name}.chat.history"
+                        "--llm-history-file"
+                        "\${SB_PROJECT_STATE}/aider/cache/.aider.${name}.llm.history"
+                      ]
+                      else []
+                    )
+                    ++ (lib.concatMap (cmd: ["--read" cmd]) cmdCfg.readFiles)
+                    ++ (lib.concatMap (cmd: ["--lint-cmd" cmd]) cmdCfg.lintCommands)
+                    ++ (lib.concatMap (cmd: ["--test-cmd" cmd]) cmdCfg.testCommands);
                 };
               }
             )
             cfg.commands);
+        in {
+          displayName = "Aider";
+          description = "Aider Code Assitant";
+          command = "aider";
+          subcommand = subCommands;
+        };
+
+        packages.tools = [
+          cfg.package
+        ];
+
+        directories = [
+          "\${SB_PROJECT_STATE}/aider"
+          "\${SB_PROJECT_STATE}/aider/cache"
+        ];
+
+        touchFiles = lib.flatten (lib.mapAttrsToList (
+            name: cmdCfg:
+              if cmdCfg.separateHistoryFiles
+              then [
+                "\${SB_PROJECT_STATE}/aider/cache/.aider.${name}.input.history"
+                "\${SB_PROJECT_STATE}/aider/cache/.aider.${name}.chat.history"
+                "\${SB_PROJECT_STATE}/aider/cache/.aider.${name}.llm.history"
+              ]
+              else []
+          )
+          cfg.commands);
+
+        file.".aider.conf.yml" = {
+          enable = true;
+          source = yamlFormat.generate ".aider.conf.yml" cfg.settings.config;
         };
       };
-    });
-  };
+    };
+  });
 }
