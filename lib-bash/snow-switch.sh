@@ -9,7 +9,22 @@ function doSnowSwitch() {
 		"$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" down
 	fi
 
-	_iNote "Rebuilding Nix via Docker"
+	_iNote "Rebuilding"
+
+	rm ./result
+	_iNote "Building Runtime Docker Image"
+	nix build .#dockerRuntimeImagePackage
+
+	_iNote "Loading Runtime Docker Image"
+	docker load -i ./result
+	rm ./result
+
+	_iNote "Building Tooling Docker Image"
+	nix build .#dockerToolsImagePackage
+
+	_iNote "Loading Tooling Docker Image"
+	docker load -i ./result
+	rm ./result
 	"$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" build
 
 	# Start Docker in detached mode

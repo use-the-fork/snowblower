@@ -537,7 +537,6 @@ function setupEnvironmentVariables() {
   if [ -v __SB_SESS_VARS_SOURCED ]; then return; fi
   export __SB_SESS_VARS_SOURCED=1
 
-  export DOCKWATCHDATA="${SB_PROJECT_STATE}/dockwatch"
   export NPM_CONFIG_CACHE="${SB_PROJECT_STATE}/npm"
   export NPM_CONFIG_TMP="${SB_PROJECT_STATE}/npm"
   export NPM_CONFIG_USERCONFIG="${SB_PROJECT_STATE}/npm/config"
@@ -617,12 +616,12 @@ function doCommand__agenix__rekey {
 
 function doCommand__ai { doRoutedCommandExecute aider "$@"; }
 function doCommand__ai__gem {
-  local cmd_args=(aider --model gemini --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --lint-cmd treefmt)
+  local cmd_args=(aider --no-show-release-notes --model gemini --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --lint-cmd treefmt)
   doRoutedCommandExecute "${cmd_args[@]}" "$@"
 }
 
 function doCommand__ai__son {
-  local cmd_args=(aider --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read CONVENTIONS.MD --lint-cmd treefmt)
+  local cmd_args=(aider --no-show-release-notes --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read CONVENTIONS.MD --lint-cmd treefmt)
   doRoutedCommandExecute "${cmd_args[@]}" "$@"
 }
 
@@ -802,7 +801,22 @@ function doSnowSwitch() {
     "$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" down
   fi
 
-  _iNote "Rebuilding Nix via Docker"
+  _iNote "Rebuilding"
+
+  rm ./result
+  _iNote "Building Runtime Docker Image"
+  nix build .#dockerRuntimeImagePackage
+
+  _iNote "Loading Runtime Docker Image"
+  docker load -i ./result
+  rm ./result
+
+  _iNote "Building Tooling Docker Image"
+  nix build .#dockerToolsImagePackage
+
+  _iNote "Loading Tooling Docker Image"
+  docker load -i ./result
+  rm ./result
   "$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" build
 
   # Start Docker in detached mode

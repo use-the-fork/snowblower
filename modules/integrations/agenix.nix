@@ -203,7 +203,7 @@
             esac
           '');
       in {
-        packages = [cfg.package editSecret];
+        packages.tools = [cfg.package editSecret];
 
         command."agenix" = {
           displayName = "Agenix";

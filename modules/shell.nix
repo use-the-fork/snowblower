@@ -40,10 +40,17 @@ in {
 
           _iOk "Inside Shell"
 
-          exec "$@"
-        '';
+          if [ $# -eq 0 ]; then
+            while :; do sleep 2073600; done
+          else
+            "$@" &
+          fi
+          wait -n
 
-        packages = [
+        '';
+        # exec "$@"
+
+        packages.tools = [
           config.snowblower.entrypointPackage
         ];
 
@@ -51,7 +58,6 @@ in {
           name = "snowblower";
           inherit (config.snowblower) packages;
           shellHook = ''
-            export PATH=$PWD/.snowblower/profile:$PATH
             export SB_IN_SHELL=1
           '';
         };

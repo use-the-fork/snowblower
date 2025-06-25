@@ -57,7 +57,7 @@
     };
 
     config.snowblower = lib.mkIf cfg.enable {
-      packages = let
+      packages.runtime = let
         finalPackage = configurePackage cfg.package;
       in [
         cfg.package

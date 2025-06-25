@@ -1,19 +1,26 @@
 lib: let
-  types = import ./types {inherit lib;};
-  functions = import ./functions.nix {inherit lib;};
+  # keep-sorted start
   command = import ./command.nix {inherit lib;};
   dag = import ./dag.nix {inherit lib;};
+  docker = import ./docker.nix {inherit lib;};
+  functions = import ./functions.nix {inherit lib;};
   shell = import ./shell.nix {inherit lib;};
   strings = import ./strings.nix {inherit lib;};
+  types = import ./types {inherit lib;};
+  # keep-sorted end
 in {
   sbl = {
-    inherit functions;
-    inherit types;
+    # keep-sorted start
     inherit command;
     inherit dag;
+    inherit docker;
+    inherit functions;
     inherit shell;
     inherit strings;
+    inherit types;
+    # keep-sorted end
   };
 
   inherit (functions) mkIntegration mkLanguage mkCodeQualityTool mkCodeQualityCommand mkEnableOption' mkPackageManager mkDockerService mkCodeQualityCommandHook;
+  inherit (docker) mkDockerImage;
 }

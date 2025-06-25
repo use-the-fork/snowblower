@@ -26,7 +26,7 @@
 
     config = lib.mkIf cfg.enable {
       snowblower = {
-        packages = [
+        packages.tools = [
           cfg.package
         ];
       };

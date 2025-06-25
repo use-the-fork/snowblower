@@ -7,10 +7,10 @@ in {
     pkgs,
     ...
   }: let
-    inherit (lib) types mkOption;
+    inherit (lib) types mkOption mkDockerImage;
 
     serviceModule = {
-      imports = [./../lib/types/service-module.nix];
+      imports = [./../../lib/types/service-module.nix];
       config._module.args = {inherit pkgs;};
     };
     serviceType = types.submodule serviceModule;
@@ -33,12 +33,6 @@ in {
     ];
 
     options.snowblower = {
-      dockerPackage = mkOption {
-        internal = true;
-        type = types.package;
-        description = "The package containing the environment docker uses.";
-      };
-
       docker = {
         common = {
           dependsOn = mkOption {
@@ -104,22 +98,6 @@ in {
           // lib.optionalAttrs (serviceNetworks != []) {
             networks = networksConfig;
           };
-
-        # Create Dockerfile content
-        # TODO: Should we move this to all be in the `Dockerfile` or add an option to insert commands as part of the docker file.
-        dockerfileDockerContent = ''
-          ${builtins.readFile ./../lib-docker/Dockerfile}
-
-          # Copy the whole project to the workspace before build.
-          COPY . /workspace
-
-          # Execute everything with the shell environment variables.
-          SHELL ["snow-entrypoint"]
-          ENTRYPOINT ["snow-entrypoint"]
-
-          # Drop into a shell by default.
-          CMD bash
-        '';
       in {
         docker = {
           commonService = {
@@ -127,13 +105,9 @@ in {
               context = ".";
               dockerfile = "./docker/Dockerfile";
               args = {
-                USER_UID = "\${SB_USER_UID}";
-                USER_GID = "\${SB_USER_GID}";
-                DOCKER_BUILDKIT = "1";
+                USER_UID = "\${SB_USER_UID:-1000}";
+                USER_GID = "\${SB_USER_GID:-1000}";
               };
-            };
-            environment = {
-              USER_GID = "\${SB_USER_GID}";
             };
             volumes = [
               ".:/workspace"
@@ -143,10 +117,28 @@ in {
             tty = true;
           };
 
-          service."snowblower-dev" = {
+          service."runtime" = {
             enable = true;
             service = {
               "a-use-snowblower-common" = "";
+            };
+          };
+          service."tools" = {
+            enable = true;
+            service = {
+              build = {
+                context = ".";
+                dockerfile = "./docker/Dockerfile.tools";
+                args = {
+                  USER_UID = "\${SB_USER_UID:-1000}";
+                  USER_GID = "\${SB_USER_GID:-1000}";
+                };
+              };
+              volumes = [
+                ".:/workspace"
+              ];
+              working_dir = "/workspace";
+              tty = true;
             };
           };
         };
@@ -169,26 +161,13 @@ in {
 
         file."docker/Dockerfile" = {
           enable = true;
-          source = pkgs.writeText "dockerfile" dockerfileDockerContent;
+          source = pkgs.writeText "dockerfileRuntime" "FROM ${config.snowblower.docker.image.runtimePackage.imageName}:${config.snowblower.docker.image.runtimePackage.imageTag}";
         };
 
-        # this is our Docker environment we include our "sane" defaults as well as packages that snowblower exports.
-        # This way all of out packages are avliable in a `pure` Docker environment.
-        dockerPackage = pkgs.buildEnv {
-          name = "snowblower-docker-env";
-          paths = with pkgs;
-            [
-              stdenv.cc
-              stdenv.shellPackage
-              # include Nix as part of env
-              nix
-              git
-            ]
-            ++ config.snowblower.packages;
+        file."docker/Dockerfile.tools" = {
+          enable = true;
+          source = pkgs.writeText "dockerfileTools" "FROM ${config.snowblower.docker.image.toolsPackage.imageName}:${config.snowblower.docker.image.toolsPackage.imageTag}";
         };
-      };
-      packages = {
-        inherit (config.snowblower) dockerPackage;
       };
     };
   });

@@ -122,7 +122,7 @@
         };
       };
 
-      packages = [
+      packages.tools = [
         cfg.package
       ];
 

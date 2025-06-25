@@ -56,7 +56,7 @@
           settings.gradle.package = mkDefault (pkgs.gradle.override {java = cfg.package;});
         };
 
-        packages =
+        packages.runtime =
           (optional cfg.enable cfg.package)
           ++ (optional cfg.settings.maven.enable cfg.settings.maven.package)
           ++ (optional cfg.settings.gradle.enable cfg.settings.gradle.package);

@@ -164,7 +164,7 @@ in {
         };
 
         # this have to be here as well otherwise key pkgs are missing from the final build and as a result snow switch dosen't work.
-        packages = [
+        packages.tools = [
           config.snowblower.filesPackage
         ];
       };

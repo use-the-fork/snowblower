@@ -113,7 +113,7 @@
           subcommand = subCommands;
         };
 
-        packages = [
+        packages.tools = [
           cfg.package
         ];
 

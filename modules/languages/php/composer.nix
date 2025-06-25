@@ -25,7 +25,7 @@
       #   }
       # ];
 
-      packages = [
+      packages.runtime = [
         cfg.package
       ];
 

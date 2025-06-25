@@ -45,7 +45,7 @@
             }
           );
       in {
-        packages = [
+        packages.tools = [
           cfg.package
         ];
 

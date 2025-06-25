@@ -11,10 +11,18 @@ in {
     inherit (lib.types) listOf;
   in {
     options.snowblower = {
-      packages = mkOption {
-        type = listOf types.package;
-        description = "Packages to install in the snowblower environment";
-        default = [];
+      packages = {
+        runtime = mkOption {
+          type = listOf types.package;
+          description = "Packages to install in the snowblower environment";
+          default = [];
+        };
+
+        tools = mkOption {
+          type = listOf types.package;
+          description = "Packages to install in the snowblower environment";
+          default = [];
+        };
       };
     };
 

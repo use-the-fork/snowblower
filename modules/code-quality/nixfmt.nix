@@ -62,7 +62,7 @@
           '';
         };
       in {
-        packages = [
+        packages.tools = [
           finalPackage
         ];
       };

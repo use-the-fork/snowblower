@@ -15,6 +15,9 @@
       package = pkgs.treefmt;
       config = {
         "tree-root" = "snow";
+        excludes = [
+          ".snowblower"
+        ];
       };
     };
 
@@ -25,8 +28,8 @@
         command = "treefmt";
       };
 
-      packages = [
-        pkgs.treefmt
+      packages.tools = [
+        cfg.package
       ];
 
       file."treefmt.toml" = let

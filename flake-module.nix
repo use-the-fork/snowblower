@@ -3,7 +3,7 @@ _localFlake: {...}: {
     # keep-sorted start
     ./modules/code-quality
     ./modules/command.nix
-    ./modules/docker.nix
+    ./modules/docker
     ./modules/files.nix
     ./modules/hooks.nix
     ./modules/integrations
