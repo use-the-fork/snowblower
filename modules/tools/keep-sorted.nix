@@ -7,19 +7,21 @@
     pkgs,
     ...
   }: let
-    inherit (lib) mkCodeQualityTool mkCodeQualityCommand;
+    inherit (lib) mkTool mkToolCommand;
 
-    cfg = config.snowblower.codeQuality.keepSorted;
+    cfg = config.snowblower.tool.keepSorted;
   in {
-    options.snowblower.codeQuality.keepSorted = mkCodeQualityTool {
+    options.snowblower.tool.keepSorted = mkTool {
       name = "Keep-sorted";
       package = pkgs.keep-sorted;
 
-      format = mkCodeQualityCommand {
+      format = mkToolCommand {
         enable = true;
         exec = "keep-sorted";
       };
-
+      excludes = [
+        ".snowblower/*"
+      ];
       includes = [
         "*"
       ];

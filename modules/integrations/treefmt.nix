@@ -57,7 +57,7 @@
                   };
               }
           )
-          config.snowblower.codeQuality;
+          config.snowblower.tool;
 
         linters =
           lib.mapAttrs
@@ -83,7 +83,7 @@
                   };
               }
           )
-          config.snowblower.codeQuality;
+          config.snowblower.tool;
 
         finalConfiguration =
           lib.foldl' lib.recursiveUpdate {}

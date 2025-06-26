@@ -1,4 +1,59 @@
 {lib, ...}: let
+  inherit (lib.options) mkOption mkEnableOption;
+
+  inherit
+    (lib.types)
+    oneOf
+    listOf
+    attrsOf
+    str
+    bool
+    int
+    float
+    path
+    either
+    ;
+
+  valueType = oneOf [
+    bool
+    int
+    float
+    str
+    path
+    (attrsOf valueType)
+    (listOf valueType)
+  ];
+
+  # The `mkDockerService` function takes a few arguments to generate
+  # a module for a service without repeating the same options
+  # over and over: every online service needs a host and a port.
+  mkDockerService = {
+    name,
+    image,
+    port ? 0, # default port should be a stub
+    extraOptions ? {}, # used to define additional modules
+  }: {
+    enable = mkEnableOption "${name} docker service";
+    image = mkOption {
+      type = lib.types.str;
+      description = "The image ${name} should use.";
+      default = image;
+    };
+    settings =
+      {
+        port = mkOption {
+          type = either int str;
+          default = port;
+          description = "The port ${name} will listen on";
+          apply = value:
+            if lib.isString value
+            then lib.toInt value
+            else value;
+        };
+      }
+      // extraOptions;
+  };
+
   # From https://github.com/cidverse/container-images/blob/2895fb55bf7836bffd62346bc4e08eeb7268b721/lib/container-support.nix
   # Guy deserves a medal for this.
   mkDockerImage = pkgs: {
@@ -109,5 +164,5 @@
       };
     };
 in {
-  inherit mkDockerImage;
+  inherit mkDockerImage mkDockerService;
 }

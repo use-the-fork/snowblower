@@ -5,12 +5,12 @@
     pkgs,
     ...
   }: let
-    inherit (lib) mkCodeQualityTool mkCodeQualityCommand;
+    inherit (lib) mkTool mkToolCommand;
     jsonFormat = pkgs.formats.json {};
 
-    cfg = config.snowblower.codeQuality.biome;
+    cfg = config.snowblower.tool.biome;
   in {
-    options.snowblower.codeQuality.biome = mkCodeQualityTool {
+    options.snowblower.tool.biome = mkTool {
       name = "Biome";
       package = pkgs.biome;
       includes = [
@@ -34,13 +34,13 @@
         "$schema" = "https://biomejs.dev/schemas/1.9.4/schema.json";
       };
 
-      lint = mkCodeQualityCommand {
+      lint = mkToolCommand {
         enable = true;
         exec = "biome";
         args = ["lint" "--write"];
       };
 
-      format = mkCodeQualityCommand {
+      format = mkToolCommand {
         enable = true;
         exec = "biome";
         args = ["format" "--write"];

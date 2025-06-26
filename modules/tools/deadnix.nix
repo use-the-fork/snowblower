@@ -5,15 +5,15 @@
     pkgs,
     ...
   }: let
-    inherit (lib) mkCodeQualityTool mkCodeQualityCommand;
+    inherit (lib) mkTool mkToolCommand;
 
-    cfg = config.snowblower.codeQuality.deadnix;
+    cfg = config.snowblower.tool.deadnix;
   in {
-    options.snowblower.codeQuality.deadnix = mkCodeQualityTool {
+    options.snowblower.tool.deadnix = mkTool {
       name = "Deadnix";
       package = pkgs.deadnix;
 
-      lint = mkCodeQualityCommand {
+      lint = mkToolCommand {
         enable = true;
         exec = "deadnix";
         args = ["--edit"];

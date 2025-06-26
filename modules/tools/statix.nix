@@ -5,16 +5,16 @@
     pkgs,
     ...
   }: let
-    inherit (lib) mkCodeQualityTool mkCodeQualityCommand;
+    inherit (lib) mkTool mkToolCommand;
     tomlFormat = pkgs.formats.toml {};
 
-    cfg = config.snowblower.codeQuality.statix;
+    cfg = config.snowblower.tool.statix;
   in {
-    options.snowblower.codeQuality.statix = mkCodeQualityTool {
+    options.snowblower.tool.statix = mkTool {
       name = "Statix";
       package = pkgs.statix;
 
-      lint = mkCodeQualityCommand {
+      lint = mkToolCommand {
         enable = true;
         exec = "statix-fix";
       };

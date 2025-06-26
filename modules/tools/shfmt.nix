@@ -5,12 +5,12 @@
     pkgs,
     ...
   }: let
-    inherit (lib) mkCodeQualityTool mkCodeQualityCommand mkCodeQualityCommandHook;
+    inherit (lib) mkTool mkToolCommand mkToolCommandHook;
     tomlFormat = pkgs.formats.toml {};
 
-    cfg = config.snowblower.codeQuality.shfmt;
+    cfg = config.snowblower.tool.shfmt;
   in {
-    options.snowblower.codeQuality.shfmt = mkCodeQualityTool {
+    options.snowblower.tool.shfmt = mkTool {
       name = "shfmt";
       package = pkgs.shfmt;
       includes = [
@@ -20,14 +20,14 @@
         "*.envrc.*"
       ];
 
-      lint = mkCodeQualityCommand {
+      lint = mkToolCommand {
         enable = true;
         exec = "shfmt";
         args = [
           "-s"
           "-w"
         ];
-        hook = mkCodeQualityCommandHook {};
+        hook = mkToolCommandHook {};
       };
     };
 

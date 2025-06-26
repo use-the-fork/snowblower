@@ -5,19 +5,19 @@
     pkgs,
     ...
   }: let
-    inherit (lib) mkCodeQualityTool mkCodeQualityCommand mkCodeQualityCommandHook;
+    inherit (lib) mkTool mkToolCommand mkToolCommandHook;
     tomlFormat = pkgs.formats.toml {};
 
-    cfg = config.snowblower.codeQuality.alejandra;
+    cfg = config.snowblower.tool.alejandra;
   in {
-    options.snowblower.codeQuality.alejandra = mkCodeQualityTool {
+    options.snowblower.tool.alejandra = mkTool {
       name = "Alejandra";
       package = pkgs.alejandra;
 
-      lint = mkCodeQualityCommand {
+      lint = mkToolCommand {
         enable = true;
         exec = "alejandra";
-        hook = mkCodeQualityCommandHook {};
+        hook = mkToolCommandHook {};
       };
 
       includes = [

@@ -5,6 +5,7 @@ priority = 0
 
 ["formatter.keepsorted-format"]
 command = "keep-sorted"
+excludes = [".snowblower/*"]
 includes = ["*"]
 priority = 0
 

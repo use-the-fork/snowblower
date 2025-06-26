@@ -1,7 +1,6 @@
 _localFlake: {...}: {
   imports = [
     # keep-sorted start
-    ./modules/code-quality
     ./modules/command.nix
     ./modules/docker
     ./modules/files.nix
@@ -13,6 +12,7 @@ _localFlake: {...}: {
     ./modules/services
     ./modules/shell.nix
     ./modules/snowblower-environment.nix
+    ./modules/tools
     # keep-sorted end
   ];
 }

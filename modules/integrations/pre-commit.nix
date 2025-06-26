@@ -76,7 +76,7 @@
                     // (tool.settings.format.hook.config or {}))
                 )
             )
-            config.snowblower.codeQuality;
+            config.snowblower.tool;
 
           linters =
             lib.mapAttrsToList
@@ -99,7 +99,7 @@
                     // (tool.settings.lint.hook.config or {}))
                 )
             )
-            config.snowblower.codeQuality;
+            config.snowblower.tool;
 
           finalConfiguration = let
             # Start with user's base config

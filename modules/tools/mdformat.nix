@@ -5,29 +5,28 @@
     pkgs,
     ...
   }: let
-    inherit (lib) mkCodeQualityTool mkCodeQualityCommand;
+    inherit (lib) mkTool mkToolCommand;
     tomlFormat = pkgs.formats.toml {};
 
-    cfg = config.snowblower.codeQuality.ruff;
+    cfg = config.snowblower.tool.mdformat;
   in {
-    options.snowblower.codeQuality.ruff = mkCodeQualityTool {
-      name = "Ruff";
-      package = pkgs.ruff;
+    options.snowblower.tool.mdformat = mkTool {
+      name = "mdformat";
+      package = pkgs.mdformat;
       includes = [
-        "*.py"
-        "*.pyi"
+        "*.md"
       ];
 
-      lint = mkCodeQualityCommand {
-        enable = true;
-        exec = "ruff";
-        args = ["check" "--fix"];
+      config = {
+        wrap = "keep"; # options: {"keep", "no", INTEGER}
+        number = false; # options: {false, true}
+        end_of_line = "lf"; # options: {"lf", "crlf", "keep"}
+        validate = true; # options: {false, true}
       };
 
-      format = mkCodeQualityCommand {
+      format = mkToolCommand {
         enable = true;
-        exec = "ruff";
-        args = ["format"];
+        exec = "mdformat";
         priority = 100;
       };
     };
@@ -49,9 +48,9 @@
           cfg.package
         ];
 
-        file."ruff.toml" = {
+        file.".mdformat.toml" = {
           enable = finalSettings != {};
-          source = tomlFormat.generate "ruff.toml" finalSettings;
+          source = tomlFormat.generate ".mdformat.toml" finalSettings;
         };
       };
     };

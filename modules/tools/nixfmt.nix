@@ -6,11 +6,11 @@
     ...
   }: let
     inherit (lib) types mkOption;
-    inherit (lib) mkCodeQualityTool mkCmdArgs;
+    inherit (lib) mkTool mkCmdArgs;
 
-    cfg = config.snowblower.codeQuality.nixfmt;
+    cfg = config.snowblower.tool.nixfmt;
   in {
-    options.snowblower.codeQuality.nixfmt = mkCodeQualityTool {
+    options.snowblower.tool.nixfmt = mkTool {
       name = "nixfmt";
       package = pkgs.nixfmt-rfc-style;
       includes = [
