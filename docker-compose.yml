@@ -3,28 +3,20 @@
 # Instead, modify your flake.nix configuration to update Docker services.
 
 x-snowblower-common: &snowblower-common
-  build:
-    args:
-      USER_GID: ${SB_USER_GID:-1000}
-      USER_UID: ${SB_USER_UID:-1000}
-    context: .
-    dockerfile: ./docker/Dockerfile
   depends_on: []
+  image: localhost/snowblower/runtime:latest
   tty: true
   volumes:
   - .:/workspace
+  - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/home/snowuser/snowblower/profile
   working_dir: /workspace
 services:
   runtime:
     <<: *snowblower-common
   tools:
-    build:
-      args:
-        USER_GID: ${SB_USER_GID:-1000}
-        USER_UID: ${SB_USER_UID:-1000}
-      context: .
-      dockerfile: ./docker/Dockerfile.tools
+    image: localhost/snowblower/tools:latest
     tty: true
     volumes:
     - .:/workspace
+    - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/home/snowuser/snowblower/profile
     working_dir: /workspace

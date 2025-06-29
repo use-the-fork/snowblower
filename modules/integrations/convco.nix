@@ -26,12 +26,17 @@
     config.snowblower = lib.mkIf cfg.enable {
       command."convco" = {
         displayName = "Convco";
+        env = "tool";
         description = "Conventional commit cli";
         command = "convco";
-        subcommand = {
+        shortcut = {
           "gen" = {
             description = "Generate a changelog";
-            command = "${exec} changelog > ${cfg.settings.fileName}";
+            args = [
+              "changelog"
+              ">"
+              cfg.settings.fileName
+            ];
           };
         };
       };

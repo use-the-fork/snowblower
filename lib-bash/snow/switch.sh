@@ -13,7 +13,7 @@ function doSnowSwitch() {
 
 	rm ./result
 	_iNote "Building Runtime Docker Image"
-	nix build .#dockerRuntimeImagePackage
+	$SB_NIX_PATH build --impure .#dockerRuntimeImagePackage
 
 	_iNote "Loading Runtime Docker Image"
 	docker load -i ./result

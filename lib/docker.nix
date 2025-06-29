@@ -131,21 +131,19 @@
 
       fakeRootCommands = ''
         ${pkgs.dockerTools.shadowSetup}
-        groupadd --gid ''${USER_GID:-1000} snowuser
-        useradd --uid ''${USER_UID:-1000} -r -g snowuser snowuser
+        groupadd --gid ${builtins.getEnv "SB_USER_GID"} snowuser
+        useradd --uid ${builtins.getEnv "SB_USER_UID"} -r -g snowuser snowuser
         mkdir -p /workspace
 
         chown snowuser:snowuser /workspace
         chown -R snowuser:snowuser /home/snowuser
+
+        mkdir -p /home/snowuser/snowblower/profile/
       '';
 
       config = {
         Entrypoint = entrypoint;
         Cmd = defaultCmd;
-        Arg = [
-          "USER_UID=\${USER_UID}"
-          "USER_GID=\${USER_UID}"
-        ];
         Env =
           [
             "HOME=/home/snowuser"

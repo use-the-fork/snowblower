@@ -59,7 +59,7 @@
 
           resolvedSubCommands = lib.sbl.dag.resolveDag {
             name = "snowblower sub commands for ${section.name}";
-            dag = section.data.subcommand;
+            dag = section.data.shortcut;
             mapResult = subSectionResult:
               lib.filter (x: x != "") (map (subCmd: mkSubCommandOption section.name subCmd) subSectionResult);
           };
@@ -145,7 +145,7 @@
           mkSubCommandSection = name: subSection: let
             subSectionName = subSection.name;
             # Generate proper bash array from command and args
-            commandParts = [subSection.data.command] ++ subSection.data.args;
+            commandParts = [section.data.command] ++ subSection.data.args;
             execArray = "(" + (lib.concatStringsSep " " (map lib.strings.escapeShellArg commandParts)) + ")";
           in ''
             function doCommand__${name}__${subSectionName} {
@@ -156,7 +156,7 @@
 
           resolvedSubCommands = lib.sbl.dag.resolveDag {
             name = "snowblower sub commands for ${section.name} ";
-            dag = section.data.subcommand;
+            dag = section.data.shortcut;
             mapResult = subSectionResult:
               concatLines [
                 (concatMapStringsSep "\n" (subCmd: mkSubCommandSection section.name subCmd) subSectionResult)
@@ -196,8 +196,8 @@
             ${builtins.readFile ./../lib-bash/docker-commands.sh}
             ${builtins.readFile ./../lib-bash/snow-commands.sh}
             ${builtins.readFile ./../lib-bash/snow-down.sh}
-            ${builtins.readFile ./../lib-bash/snow-switch.sh}
-            ${builtins.readFile ./../lib-bash/snow-up.sh}
+            ${builtins.readFile ./../lib-bash/snow/switch.sh}
+            ${builtins.readFile ./../lib-bash/snow/up.sh}
             # keep-sorted end
 
             ${snowShellContent}

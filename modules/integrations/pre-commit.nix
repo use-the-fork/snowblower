@@ -28,11 +28,10 @@
         command."pre-commit" = {
           displayName = "Pre-commit";
           description = "pre-commit hooks manager";
-          command = "pre-commit";
-          subcommand = {
+          env = "tool";
+          shortcut = {
             "all" = {
               description = "Run precommit on all files";
-              command = "pre-commit";
               args = ["run" "--all-files"];
             };
           };

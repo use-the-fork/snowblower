@@ -209,9 +209,9 @@
           displayName = "Agenix";
           description = "Secret Management";
           command = "sb-agenix";
-          subcommand = {
+          env = "tool";
+          shortcut = {
             "rekey" = {
-              command = "sb-agenix";
               description = "Rekey secrets";
               args = ["--rekey"];
             };

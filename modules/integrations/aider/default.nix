@@ -52,11 +52,10 @@
     config = lib.mkIf cfg.enable {
       snowblower = {
         command."ai" = let
-          subCommands = lib.mkMerge (lib.mapAttrsToList (
+          shortcuts = lib.mkMerge (lib.mapAttrsToList (
               name: cmdCfg: {
                 "${name}" = {
                   inherit (cmdCfg) description;
-                  command = "aider";
                   args =
                     lib.filter (s: s != "") [
                       "--no-show-release-notes"
@@ -110,7 +109,7 @@
           displayName = "Aider";
           description = "Aider Code Assitant";
           command = "aider";
-          subcommand = subCommands;
+          shortcut = shortcuts;
         };
 
         packages.tools = [

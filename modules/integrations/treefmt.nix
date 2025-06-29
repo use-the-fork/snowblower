@@ -26,6 +26,7 @@
         displayName = "Treefmt";
         description = "formatter multiplexer";
         command = "treefmt";
+        env = "tool";
       };
 
       packages.tools = [

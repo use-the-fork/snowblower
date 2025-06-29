@@ -96,15 +96,6 @@ done
 # Welcome Message
 _iSnow "SnowBlower: All flake no fluff."
 
-# find and set the root early on since we use it in our snow commands
-doSetRoot
-
-# we check the system to make sure we can run `SnowBlower`
-doCheckSystem
-
-# Now we setup our global vars
-doSetupSession
-
 # Lets GOOOO!!!!!
 doBoot
 

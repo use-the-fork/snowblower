@@ -389,8 +389,35 @@ function doCreateTouchFiles() {
 
 }
 
-# at this point we can setup colors etc.
-doSetupColors
+if [[ $SB_DEBUG == "1" ]]; then
+  source "../utils/color.sh"
+  source "../utils/output.sh"
+  source "../utils/input.sh"
+  source "../utils/checks.sh"
+  source "../utils/file.sh"
+fi
+
+function doSetRoot() {
+  # We need to find our project root early on so downstream options can use it.
+  SB_SRC_ROOT="$(findUp $SB_PROJECT_ROOT_FILE)"
+  if [ $? -ne 0 ]; then
+    _iError "Unable to locate project root. Make sure you're in a project directory with a flake.nix file"
+    exit 1
+  fi
+  _iVerbose "Found project root at %s" $SB_SRC_ROOT
+  export SB_SRC_ROOT
+}
+
+function doSetProjectHash() {
+  local base_dir_name
+  name=$(basename "$SB_SRC_ROOT")
+
+  local hash
+  hash=$(echo -n "$SB_SRC_ROOT" | md5sum | awk '{print $1}')
+
+  export SB_PROJECT_HASH="${name}-r${hash}"
+  _iVerbose "Set project hash as $SB_PROJECT_HASH"
+}
 
 doCheckSystem() {
   UNAMEOUT="$(uname -s)"
@@ -410,88 +437,87 @@ doCheckSystem() {
 
 function doBoot() {
 
-  _iVerbose "Set project root to" "${SB_SRC_ROOT}"
+  doSetupColors
+  doCheckSystem
+  doSetupSession
+  doSetRoot
+  doSetProjectHash
 
-  # Only source this once.
+  # Check if our Datapath exsist in the Home Snowblower directory.
+  if [ ! -d "$HOME" ]; then
+    _iError "Unable to locate home folder. Please create or export one to continue."
+    exit 1
+  fi
 
-  if [ -f "$SB_SESS_FILE" ]; then
-    source "$SB_SESS_FILE"
-    _iVerbose "Found session at %s" "${SB_SESS_FILE}"
+  export SB_PROJECT_ROOT="$HOME/snowblower/$SB_PROJECT_HASH"
+  export SB_PROJECT_ENV_FILE="$SB_PROJECT_ROOT/.project_env"
 
-    # Split the SB_DOCKER_COMPOSE string into an array
-    read -ra SB_DOCKER_COMPOSE_COMMAND <<<"$SB_DOCKER_COMPOSE"
+  if [ -f "$SB_PROJECT_ENV_FILE" ]; then
+    _iVerbose "SnowBlower Project Directory and paths file exsist skipping init."
+    source "$SB_PROJECT_ENV_FILE"
+
     return 0
   fi
 
-  _iOk "Creating Session File %s" "${SB_SESS_FILE}"
+  doInit
+}
 
-  # These are the must have varibles for the project
-  export SB_PROJECT_ROOT="$SB_SRC_ROOT/.snowblower"
-  export SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
-  export SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
-  export SB_PROJECT_RUNTIME="$SB_PROJECT_ROOT/runtime"
+function doInit() {
 
-  # Save exports to session file
-  echo "export SB_PROJECT_ROOT=\"$SB_PROJECT_ROOT\"" >>"$SB_SESS_FILE"
-  echo "export SB_PROJECT_PROFILE=\"$SB_PROJECT_PROFILE\"" >>"$SB_SESS_FILE"
-  echo "export SB_PROJECT_STATE=\"$SB_PROJECT_STATE\"" >>"$SB_SESS_FILE"
-  echo "export SB_PROJECT_RUNTIME=\"$SB_PROJECT_RUNTIME\"" >>"$SB_SESS_FILE"
+  if [ ! -d "$SB_PROJECT_ROOT" ]; then
+    _iOk "Initilizing Project at %s." $SB_PROJECT_ROOT
+
+    mkdir -p "$SB_PROJECT_ROOT/profile"
+    mkdir -p "$SB_PROJECT_ROOT/state"
+    _iVerbose "Created profile and state directories."
+  fi
 
   # Check if Docker is installed
-  if SB_DOCKER_PATH=$(command -v docker 2>/dev/null) && [ -n "$SB_DOCKER_PATH" ]; then
-    export SB_DOCKER_PATH
-    _iOk "Docker path set to %s" "${SB_DOCKER_PATH}"
-    echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >>"$SB_SESS_FILE"
+  if SB_NIX_PATH=$(command -v nix 2>/dev/null); then
+    _iOk "Nix path set to %s" "${SB_NIX_PATH}"
   else
-    doDestroySession
+    _iError "Nix is not installed or not in PATH. Please install Nix to continue."
+    # TODO: Add nix Install links here.
+    exit 1
+  fi
+
+  # Check if Docker is installed
+  if SB_DOCKER_PATH=$(command -v docker 2>/dev/null); then
+    _iOk "Docker path set to %s" "${SB_DOCKER_PATH}"
+  else
     _iError "Docker is not installed or not in PATH. Please install Docker to continue."
     exit 1
   fi
 
-  # Check if Docker Compose is available
-  if SB_DOCKER_COMPOSE_PATH=$(command -v docker-compose 2>/dev/null) && [ -n "$SB_DOCKER_COMPOSE_PATH" ]; then
+  # Check if Docker Compose / Podman Compose is available
+  if SB_DOCKER_COMPOSE_PATH=$(command -v docker-compose 2>/dev/null); then
     export SB_DOCKER_COMPOSE_PATH
-    _iOk "Docker Compose path set to %s" "${SB_DOCKER_COMPOSE_PATH}"
-    echo "export SB_DOCKER_COMPOSE_PATH=\"$SB_DOCKER_COMPOSE_PATH\"" >>"$SB_SESS_FILE"
-  elif SB_DOCKER_COMPOSE_PATH=$(command -v podman-compose 2>/dev/null) && [ -n "$SB_DOCKER_COMPOSE_PATH" ]; then
+    _iOk "Compose path set to %s" "${SB_DOCKER_COMPOSE_PATH}"
+  elif SB_DOCKER_COMPOSE_PATH=$(command -v podman-compose 2>/dev/null); then
     export SB_DOCKER_COMPOSE_PATH
-    _iOk "Docker Compose path set to %s" "${SB_DOCKER_COMPOSE_PATH}"
-    echo "export SB_DOCKER_COMPOSE_PATH=\"$SB_DOCKER_COMPOSE_PATH\"" >>"$SB_SESS_FILE"
+    _iOk "Compose path set to %s" "${SB_DOCKER_COMPOSE_PATH}"
   else
-    doDestroySession
-    _iError "Docker Compose is not installed or not in PATH. Please install Docker to continue."
+    _iError "Docker / Podman Compose is not installed or not in PATH. Please install Docker or Podman to continue."
     exit 1
   fi
 
-  _iNote "SnowBlower root directory set to" "${SB_SRC_ROOT}"
+  # All Checks passed we can now create the .project_env file so we dont have to do this every time.
+  echo "export SB_NIX_PATH=\"$SB_NIX_PATH\"" >>"$SB_PROJECT_ENV_FILE"
+  echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >>"$SB_PROJECT_ENV_FILE"
+  echo "export SB_DOCKER_COMPOSE_PATH=\"$SB_DOCKER_COMPOSE_PATH\"" >>"$SB_PROJECT_ENV_FILE"
+  echo "export SB_USER_UID=\"${USER_UID}\"" >>"$SB_PROJECT_ENV_FILE"
+  echo "export SB_USER_GID=\"${USER_GID}\"" >>"$SB_PROJECT_ENV_FILE"
 
-  # Create directories if they don't exist
-  if [ ! -d "$SB_PROJECT_ROOT" ]; then
-    _iVerbose "Creating project directory" "${SB_PROJECT_ROOT}"
-    mkdir -p "$SB_PROJECT_ROOT"
-  fi
-  if [ ! -d "$SB_PROJECT_PROFILE" ]; then
-    _iVerbose "Creating profile directory" "${SB_PROJECT_PROFILE}"
-    mkdir -p "$SB_PROJECT_PROFILE"
-  fi
+  SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
+  echo "export SB_PROJECT_PROFILE=\"$SB_PROJECT_PROFILE\"" >>"$SB_PROJECT_ENV_FILE"
 
-  if [ ! -d "$SB_PROJECT_STATE" ]; then
-    _iVerbose "Creating state directory" "${SB_PROJECT_STATE}"
-    mkdir -p "$SB_PROJECT_STATE"
-  fi
-
-  if [ ! -d "$SB_PROJECT_RUNTIME" ]; then
-    _iVerbose "Creating runtime directory" "${SB_PROJECT_RUNTIME}"
-    mkdir -p "$SB_PROJECT_RUNTIME"
-  fi
-
-  #Symlink SnowBlower to the profile
-  ln -sf "${SB_SRC_ROOT}/snow" "${SB_PROJECT_PROFILE}/snow"
+  SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
+  echo "export SB_PROJECT_STATE=\"$SB_PROJECT_STATE\"" >>"$SB_PROJECT_ENV_FILE"
 
   # the below two function are added via a seperate package in files.nix.
   # But we need to boot it here so we can be sure all directories are created.
-  doCreateDirectories
-  doCreateTouchFiles
+  # doCreateDirectories
+  # doCreateTouchFiles
 
   return 0
 
@@ -510,27 +536,17 @@ function doSetupSession() {
   fi
 
   # Global constants that are used in many parts of the script
-  export SB_APP_SERVICE=${APP_SERVICE:-"snowblower-dev"}
-  export SB_USER_UID=${USER_UID:-$UID}
-  export SB_USER_GID=${USER_GID:-$(id -g)}
-  export SB_SKIP_CHECKS=${SKIP_CHECKS:-}
+  export SB_APP_SERVICE=${APP_SERVICE:-"tools"}
+  export USER_UID=${USER_UID:-$UID}
+  export USER_GID=${USER_GID:-$(id -g)}
   export SB_PROJECT_ROOT_FILE=${PROJECT_ROOT_FILE:-"flake.nix"}
 
-  # Create a session file in tmp dir. this allows us to do the "heavy" lifiting for the snow command one time.
-  export SB_SESS_FILE="${SB_SRC_ROOT:-/tmp}/.snowblower/.sb_session"
-
-  _iVerbose "Set project root to" "${SB_SRC_ROOT}"
+  _iVerbose "Set project root file to %s" "${SB_PROJECT_ROOT_FILE}"
 }
 
-function doSetRoot() {
-  # We need to find our project root early on so downstream options can use it.
-  SB_SRC_ROOT="$(findUp "flake.nix")"
-  if [ $? -ne 0 ]; then
-    _iError "Unable to locate project root. Make sure you're in a project directory with a flake.nix file"
-    exit 1
-  fi
-  export SB_SRC_ROOT
-}
+if [[ $SB_DEBUG == "1" ]]; then
+  doBoot
+fi
 
 function setupEnvironmentVariables() {
   # Only source this once.
@@ -590,7 +606,7 @@ function doHelp__npm {
 }
 
 function doHelp__pre-commit {
-  local commands=('...|Run a Pre-commit command' 'all|Run precommit on all files')
+  local commands=('all|Run precommit on all files')
   _iCommandSection "pre-commit" "Pre-commit" "${commands[@]}"
 }
 
@@ -627,9 +643,8 @@ function doCommand__ai__son {
 
 function doCommand__npm { doRoutedCommandExecute npm "$@"; }
 
-function doCommand__pre-commit { doRoutedCommandExecute pre-commit "$@"; }
 function doCommand__pre-commit__all {
-  local cmd_args=(pre-commit run --all-files)
+  local cmd_args=('' run --all-files)
   doRoutedCommandExecute "${cmd_args[@]}" "$@"
 }
 
@@ -805,7 +820,7 @@ function doSnowSwitch() {
 
   rm ./result
   _iNote "Building Runtime Docker Image"
-  nix build .#dockerRuntimeImagePackage
+  $SB_NIX_PATH build --impure .#dockerRuntimeImagePackage
 
   _iNote "Loading Runtime Docker Image"
   docker load -i ./result
@@ -955,15 +970,6 @@ done
 
 # Welcome Message
 _iSnow "SnowBlower: All flake no fluff."
-
-# find and set the root early on since we use it in our snow commands
-doSetRoot
-
-# we check the system to make sure we can run `SnowBlower`
-doCheckSystem
-
-# Now we setup our global vars
-doSetupSession
 
 # Lets GOOOO!!!!!
 doBoot

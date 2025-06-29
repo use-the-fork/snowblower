@@ -101,16 +101,10 @@ in {
       in {
         docker = {
           commonService = {
-            build = {
-              context = ".";
-              dockerfile = "./docker/Dockerfile";
-              args = {
-                USER_UID = "\${SB_USER_UID:-1000}";
-                USER_GID = "\${SB_USER_GID:-1000}";
-              };
-            };
+            image = "${config.snowblower.docker.image.runtimePackage.imageName}:${config.snowblower.docker.image.runtimePackage.imageTag}";
             volumes = [
               ".:/workspace"
+              "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/home/snowuser/snowblower/profile"
             ];
             depends_on = config.snowblower.docker.common.dependsOn;
             working_dir = "/workspace";
@@ -126,16 +120,10 @@ in {
           service."tools" = {
             enable = true;
             service = {
-              build = {
-                context = ".";
-                dockerfile = "./docker/Dockerfile.tools";
-                args = {
-                  USER_UID = "\${SB_USER_UID:-1000}";
-                  USER_GID = "\${SB_USER_GID:-1000}";
-                };
-              };
+              image = "${config.snowblower.docker.image.toolsPackage.imageName}:${config.snowblower.docker.image.toolsPackage.imageTag}";
               volumes = [
                 ".:/workspace"
+                "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/home/snowuser/snowblower/profile"
               ];
               working_dir = "/workspace";
               tty = true;
@@ -159,15 +147,15 @@ in {
           };
         };
 
-        file."docker/Dockerfile" = {
-          enable = true;
-          source = pkgs.writeText "dockerfileRuntime" "FROM ${config.snowblower.docker.image.runtimePackage.imageName}:${config.snowblower.docker.image.runtimePackage.imageTag}";
-        };
+        # file."docker/Dockerfile" = {
+        #   enable = true;
+        #   source = pkgs.writeText "dockerfileRuntime" "FROM ${config.snowblower.docker.image.runtimePackage.imageName}:${config.snowblower.docker.image.runtimePackage.imageTag}";
+        # };
 
-        file."docker/Dockerfile.tools" = {
-          enable = true;
-          source = pkgs.writeText "dockerfileTools" "FROM ${config.snowblower.docker.image.toolsPackage.imageName}:${config.snowblower.docker.image.toolsPackage.imageTag}";
-        };
+        # file."docker/Dockerfile.tools" = {
+        #   enable = true;
+        #   source = pkgs.writeText "dockerfileTools" "FROM ${config.snowblower.docker.image.toolsPackage.imageName}:${config.snowblower.docker.image.toolsPackage.imageTag}";
+        # };
       };
     };
   });

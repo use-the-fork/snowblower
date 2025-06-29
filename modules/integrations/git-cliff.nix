@@ -110,10 +110,10 @@
         displayName = "Git-Cliff";
         description = "Changelog generator";
         command = "git-cliff";
-        subcommand = {
+        env = "tool";
+        shortcut = {
           "gen" = {
             description = "Generate a changelog";
-            command = exec;
             args = [
               "-o"
               cfg.settings.fileName

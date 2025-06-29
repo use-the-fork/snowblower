@@ -72,7 +72,7 @@ in {
               ${builtins.readFile config.snowblower.directoriesPackage}
               ${builtins.readFile config.snowblower.touchFilesPackage}
 
-              ${builtins.readFile ./../lib-bash/boot.sh}
+              ${builtins.readFile ./../lib-bash/snow/boot.sh}
 
               ${builtins.readFile config.snowblower.environmentVariablesPackage}
 
