@@ -26,7 +26,7 @@
     config.snowblower = lib.mkIf cfg.enable {
       command."convco" = {
         displayName = "Convco";
-        env = "tool";
+        env = "tools";
         description = "Conventional commit cli";
         command = "convco";
         shortcut = {

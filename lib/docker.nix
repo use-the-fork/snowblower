@@ -24,6 +24,20 @@
     (listOf valueType)
   ];
 
+  # Function to generate common flags array based on options
+  mkCommonFlags = {
+    manualStart ? false,
+    autoStart ? false,
+    runtime ? false,
+    network ? true,
+  }:
+    lib.flatten [
+      (lib.optional manualStart "*use-manual-start")
+      (lib.optional autoStart "*use-auto-start")
+      (lib.optional runtime "*use-runtime")
+      (lib.optional network "*use-network")
+    ];
+
   # The `mkDockerService` function takes a few arguments to generate
   # a module for a service without repeating the same options
   # over and over: every online service needs a host and a port.
@@ -192,5 +206,5 @@
       };
     };
 in {
-  inherit mkDockerImage mkDockerService;
+  inherit mkDockerImage mkDockerService mkCommonFlags;
 }

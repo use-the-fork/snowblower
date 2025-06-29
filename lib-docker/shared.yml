@@ -1,0 +1,18 @@
+x-use-manual-start: &use-manual-start
+  profiles:
+    - manual-start
+  restart: "no"
+x-use-auto-start: &use-auto-start
+  profiles:
+    - auto-start
+  restart: "no"
+x-use-runtime: &use-runtime
+  depends_on: []
+  image: localhost/snowblower/runtime:latest
+  volumes:
+    - .:/workspace
+    - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile
+  working_dir: /workspace
+x-use-network: &use-network
+  networks:
+    - snownet

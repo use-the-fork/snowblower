@@ -4,7 +4,8 @@
     config,
     ...
   }: let
-    inherit (lib) mkDockerService;
+    inherit (lib) types mkOption;
+    inherit (lib.sbl.docker) mkDockerService mkCommonFlags;
 
     cfg = config.snowblower.service.redis;
   in {
@@ -24,7 +25,8 @@
             inherit (cfg) image;
             ports = ["${toString cfg.settings.port}:6379"];
             volumes = ["${toString config.snowblower.environmentVariables.REDISDATA}:/data"];
-            restart = "unless-stopped";
+            restart = "no";
+            "sb-common" = mkCommonFlags {autoStart = true;};
             healthcheck = {
               test = ["CMD" "redis-cli" "ping"];
               interval = "10s";

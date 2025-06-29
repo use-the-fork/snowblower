@@ -110,7 +110,7 @@
         displayName = "Git-Cliff";
         description = "Changelog generator";
         command = "git-cliff";
-        env = "tool";
+        env = "tools";
         shortcut = {
           "gen" = {
             description = "Generate a changelog";

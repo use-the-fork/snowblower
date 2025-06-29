@@ -4,7 +4,8 @@
     config,
     ...
   }: let
-    inherit (lib) types mkOption mkDockerService;
+    inherit (lib) types mkOption;
+    inherit (lib.sbl.docker) mkDockerService mkCommonFlags;
 
     cfg = config.snowblower.service.oxker;
   in {
@@ -13,7 +14,7 @@
       image = "ghcr.io/mrjackwills/oxker:latest";
     };
 
-    config = lib.mkIf cfg.enable {
+    config = {
       snowblower = {
         command."oxker" = {
           displayName = "Oxker";
@@ -22,6 +23,7 @@
           env = "service";
         };
 
+        # This service is auto included as it's auto started with snow.
         docker.service.oxker = {
           enable = true;
           service = {
@@ -30,10 +32,7 @@
             volumes = [
               "/var/run/docker.sock:/var/run/docker.sock:ro"
             ];
-            restart = "no";
-            profiles = [
-              "no-start"
-            ];
+            "sb-common" = mkCommonFlags {manualStart = true;};
           };
         };
       };

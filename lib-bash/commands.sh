@@ -21,7 +21,7 @@ function doRoutedCommandExecute() {
 		exec "$@"
 		return $?
 		;;
-	tool | runtime)
+	tools | runtime)
 		doRunChecks
 
 		ARGS=()

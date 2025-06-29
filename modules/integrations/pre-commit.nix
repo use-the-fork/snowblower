@@ -28,7 +28,7 @@
         command."pre-commit" = {
           displayName = "Pre-commit";
           description = "pre-commit hooks manager";
-          env = "tool";
+          env = "tools";
           shortcut = {
             "all" = {
               description = "Run precommit on all files";

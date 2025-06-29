@@ -8,6 +8,7 @@ in {
     ...
   }: let
     inherit (lib) types mkOption;
+    inherit (lib.sbl.hooks) mkHook;
   in {
     imports = [
     ];
@@ -22,28 +23,23 @@ in {
             '';
           };
         };
-        shell = {
-          activation = mkOption {
-            type = lib.sbl.types.dagOf types.str;
-            default = {};
-            description = ''
 
-            '';
-          };
+        tools = mkHook {
+          name = "Docker Compose Tools Container";
         };
-      };
 
-      hookSwitchActivationPackage = mkOption {
-        type = types.package;
-        internal = true;
-        description = ''
-          Foo
-        '';
+        package = mkOption {
+          type = types.package;
+          internal = true;
+          description = ''
+            Foo
+          '';
+        };
       };
     };
 
     config.snowblower = {
-      hookSwitchActivationPackage = let
+      hook.package = let
         resolvedHooks = lib.concatStringsSep "\n" (
           map (section: section.name)
           (lib.sbl.dag.resolveDag {
@@ -53,12 +49,25 @@ in {
           })
         );
       in
-        pkgs.writeTextFile {
-          name = "hook-switch-activation.sh";
-          text = ''
-            ${resolvedHooks}
-          '';
-        };
+        pkgs.writeScriptBin "with-snowblower" ''
+          #!/bin/bash
+
+          export SB_CONTAINER_NAME="$CONTAINER_NAME"
+          export SB_SERVICE_NAME="$SERVICE_NAME"
+
+          # Save the first argument
+          command="$1"
+          shift
+
+          case "$command" in
+            exec)
+              exec "$@"
+              ;;
+            *)
+              sleep inf
+              ;;
+          esac
+        '';
     };
   });
 }

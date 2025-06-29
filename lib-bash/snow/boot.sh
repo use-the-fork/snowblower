@@ -120,8 +120,8 @@ function doInit() {
 
 	# the below two function are added via a seperate package in files.nix.
 	# But we need to boot it here so we can be sure all directories are created.
-	# doCreateDirectories
-	# doCreateTouchFiles
+	doCreateDirectories
+	doCreateTouchFiles
 
 	return 0
 

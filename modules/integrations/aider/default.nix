@@ -109,6 +109,7 @@
           displayName = "Aider";
           description = "Aider Code Assitant";
           command = "aider";
+          env = "tools";
           shortcut = shortcuts;
         };
 

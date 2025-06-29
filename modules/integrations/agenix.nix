@@ -209,7 +209,7 @@
           displayName = "Agenix";
           description = "Secret Management";
           command = "sb-agenix";
-          env = "tool";
+          env = "tools";
           shortcut = {
             "rekey" = {
               description = "Rekey secrets";

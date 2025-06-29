@@ -4,7 +4,8 @@
     config,
     ...
   }: let
-    inherit (lib) types mkOption mkDockerService;
+    inherit (lib) types mkOption;
+    inherit (lib.sbl.docker) mkDockerService mkCommonFlags;
 
     cfg = config.snowblower.service.adminer;
   in {
@@ -35,6 +36,7 @@
               ADMINER_DEFAULT_SERVER = cfg.settings.defaultServer;
             };
             depends_on = lib.optional config.snowblower.service.mysql.enable "mysql";
+            "sb-common" = mkCommonFlags {autoStart = true;};
           };
         };
       };

@@ -15,7 +15,7 @@
       };
 
       env = mkOption {
-        type = types.nullOr (types.enum ["native" "tool" "runtime" "service"]);
+        type = types.nullOr (types.enum ["native" "tools" "runtime" "service"]);
         default = null;
         description = "Environment context for the command execution";
       };
@@ -41,7 +41,7 @@ in {
     };
 
     env = mkOption {
-      type = types.enum ["native" "tool" "runtime" "service"];
+      type = types.enum ["native" "tools" "runtime" "service"];
       default = "native";
       description = "Environment context for the command execution";
     };

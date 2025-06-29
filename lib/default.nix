@@ -4,6 +4,7 @@ lib: let
   dag = import ./dag.nix {inherit lib;};
   docker = import ./docker.nix {inherit lib;};
   functions = import ./functions.nix {inherit lib;};
+  hooks = import ./hooks.nix {inherit lib;};
   shell = import ./shell.nix {inherit lib;};
   strings = import ./strings.nix {inherit lib;};
   tool = import ./tool.nix {inherit lib;};
@@ -16,6 +17,7 @@ in {
     inherit dag;
     inherit docker;
     inherit functions;
+    inherit hooks;
     inherit shell;
     inherit strings;
     inherit tool;
