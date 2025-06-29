@@ -104,7 +104,7 @@ in {
             image = "${config.snowblower.docker.image.runtimePackage.imageName}:${config.snowblower.docker.image.runtimePackage.imageTag}";
             volumes = [
               ".:/workspace"
-              "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/home/snowuser/snowblower/profile"
+              "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile"
             ];
             depends_on = config.snowblower.docker.common.dependsOn;
             working_dir = "/workspace";
@@ -123,7 +123,7 @@ in {
               image = "${config.snowblower.docker.image.toolsPackage.imageName}:${config.snowblower.docker.image.toolsPackage.imageTag}";
               volumes = [
                 ".:/workspace"
-                "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/home/snowuser/snowblower/profile"
+                "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile"
               ];
               working_dir = "/workspace";
               tty = true;

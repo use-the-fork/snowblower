@@ -796,7 +796,7 @@ function doSnowDown {
 
   # If it's running, run docker compose down and wait for it to finish then run doDestroySession
   _iOk "Stopping SnowBlower services..."
-  "$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" down
+  $SB_DOCKER_COMPOSE_PATH -f "$SB_SRC_ROOT/docker-compose.yml" down
 
   # Wait for docker compose to finish, then destroy session
   doDestroySession
@@ -818,24 +818,10 @@ function doSnowSwitch() {
 
   _iNote "Rebuilding"
 
-  rm ./result
-  _iNote "Building Runtime Docker Image"
-  $SB_NIX_PATH build --impure .#dockerRuntimeImagePackage
-
-  _iNote "Loading Runtime Docker Image"
-  docker load -i ./result
-  rm ./result
-
-  _iNote "Building Tooling Docker Image"
-  nix build .#dockerToolsImagePackage
-
-  _iNote "Loading Tooling Docker Image"
-  docker load -i ./result
-  rm ./result
-  "$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" build
+  doSnowBuild
 
   # Start Docker in detached mode
-  "$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" up -d &
+  $SB_DOCKER_COMPOSE_PATH -f "$SB_SRC_ROOT/docker-compose.yml" up -d &
   DOCKER_COMPOSE_PID=$!
 
   wait $DOCKER_COMPOSE_PID
@@ -870,6 +856,27 @@ function doSnowUp {
   if [[ ! $* =~ -d|--detach ]]; then
     wait $DOCKER_COMPOSE_PID
   fi
+
+  exit 0
+}
+
+function doSnowBuild() {
+
+  _iNote "Rebuilding"
+
+  rm -f ./result
+  _iNote "Building Runtime Docker Image"
+  $SB_NIX_PATH build --impure .#dockerRuntimeImagePackage
+
+  _iNote "Loading Runtime Docker Image"
+  $SB_DOCKER_PATH load -i ./result
+  rm ./result
+
+  _iNote "Building Tooling Docker Image"
+  $SB_NIX_PATH build --impure .#dockerToolsImagePackage
+
+  _iNote "Loading Tooling Docker Image"
+  $SB_DOCKER_PATH load -i ./result
 
   exit 0
 }
@@ -919,12 +926,12 @@ while [[ $i -lt ${#BEFORE_SEPARATOR[@]} ]]; do
     echo 25.11-pre
     exit 0
     ;;
-  switch | up | down | update | reboot | help)
+  switch | up | down | update | reboot | build | help)
     SNOW_COMMAND="$opt"
     ;;
   *)
     case $SNOW_COMMAND in
-    switch | update | reboot | up | down | help)
+    switch | update | reboot | up | down | build | help)
       SNOW_COMMAND_ARGS+=("$opt")
       ;;
     *)
@@ -1003,6 +1010,9 @@ if [[ -n $SNOW_COMMAND ]]; then
   case $SNOW_COMMAND in
   switch)
     doSnowSwitch "${SNOW_COMMAND_ARGS[@]}"
+    ;;
+  build)
+    doSnowBuild "${SNOW_COMMAND_ARGS[@]}"
     ;;
   up)
     doSnowUp "${SNOW_COMMAND_ARGS[@]}"

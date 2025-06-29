@@ -36,14 +36,6 @@
           The package containing the wrapped commands section of snowblower.
         '';
       };
-
-      subCommandPackage = mkOption {
-        type = types.package;
-        internal = true;
-        description = ''
-          The package containing the wrapped commands section of snowblower.
-        '';
-      };
     };
 
     config.snowblower = {
@@ -179,7 +171,7 @@
 
         # Read snow.sh and perform replacements
         snowShellContent = lib.sbl.strings.modifyFileContent {
-          file = ./../lib-bash/snow.sh;
+          file = ./../lib-bash/snow/main.sh;
           substitute = {
             "@command_options@" = commandOptions;
             "@command_functions@" = commandFunctions;
@@ -195,7 +187,8 @@
             ${builtins.readFile ./../lib-bash/commands.sh}
             ${builtins.readFile ./../lib-bash/docker-commands.sh}
             ${builtins.readFile ./../lib-bash/snow-commands.sh}
-            ${builtins.readFile ./../lib-bash/snow-down.sh}
+            ${builtins.readFile ./../lib-bash/snow/build.sh}
+            ${builtins.readFile ./../lib-bash/snow/down.sh}
             ${builtins.readFile ./../lib-bash/snow/switch.sh}
             ${builtins.readFile ./../lib-bash/snow/up.sh}
             # keep-sorted end

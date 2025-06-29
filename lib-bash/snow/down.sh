@@ -8,7 +8,7 @@ function doSnowDown {
 
 	# If it's running, run docker compose down and wait for it to finish then run doDestroySession
 	_iOk "Stopping SnowBlower services..."
-	"$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" down
+	$SB_DOCKER_COMPOSE_PATH -f "$SB_SRC_ROOT/docker-compose.yml" down
 
 	# Wait for docker compose to finish, then destroy session
 	doDestroySession

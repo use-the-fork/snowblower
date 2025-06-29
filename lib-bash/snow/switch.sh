@@ -11,24 +11,10 @@ function doSnowSwitch() {
 
 	_iNote "Rebuilding"
 
-	rm ./result
-	_iNote "Building Runtime Docker Image"
-	$SB_NIX_PATH build --impure .#dockerRuntimeImagePackage
-
-	_iNote "Loading Runtime Docker Image"
-	docker load -i ./result
-	rm ./result
-
-	_iNote "Building Tooling Docker Image"
-	nix build .#dockerToolsImagePackage
-
-	_iNote "Loading Tooling Docker Image"
-	docker load -i ./result
-	rm ./result
-	"$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" build
+	doSnowBuild
 
 	# Start Docker in detached mode
-	"$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" up -d &
+	$SB_DOCKER_COMPOSE_PATH -f "$SB_SRC_ROOT/docker-compose.yml" up -d &
 	DOCKER_COMPOSE_PID=$!
 
 	wait $DOCKER_COMPOSE_PID

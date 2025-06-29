@@ -44,12 +44,12 @@ while [[ $i -lt ${#BEFORE_SEPARATOR[@]} ]]; do
             echo 25.11-pre
             exit 0
             ;;
-        switch|up|down|update|reboot|help)
+        switch|up|down|update|reboot|build|help)
             SNOW_COMMAND="$opt"
             ;;
         *)
             case $SNOW_COMMAND in
-                switch|update|reboot|up|down|help)
+                switch|update|reboot|up|down|build|help)
                     SNOW_COMMAND_ARGS+=("$opt")
                     ;;
                 *)
@@ -128,6 +128,9 @@ if [[ -n $SNOW_COMMAND ]]; then
     case $SNOW_COMMAND in
         switch)
             doSnowSwitch "${SNOW_COMMAND_ARGS[@]}"
+            ;;
+        build)
+            doSnowBuild "${SNOW_COMMAND_ARGS[@]}"
             ;;
         up)
             doSnowUp "${SNOW_COMMAND_ARGS[@]}"

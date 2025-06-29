@@ -8,7 +8,7 @@ x-snowblower-common: &snowblower-common
   tty: true
   volumes:
   - .:/workspace
-  - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/home/snowuser/snowblower/profile
+  - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile
   working_dir: /workspace
 services:
   runtime:
@@ -18,5 +18,5 @@ services:
     tty: true
     volumes:
     - .:/workspace
-    - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/home/snowuser/snowblower/profile
+    - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile
     working_dir: /workspace

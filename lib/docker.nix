@@ -83,6 +83,9 @@
       pkgs.dockerTools.usrBinEnv # /usr/bin/env
       pkgs.dockerTools.caCertificates # SSL/TLS certificates
 
+      pkgs.bashInteractive # None Interactive bash shell
+      pkgs.uutils-coreutils-noprefix # Core utilities like ls, cat, etc but in rust
+
       pkgs.iana-etc # /etc/services and related files
       pkgs.tzdata # Timezone data
 
@@ -91,20 +94,19 @@
       createDirs
     ];
     minimalBasePackages = [
-      pkgs.uutils-coreutils-noprefix # Core utilities like ls, cat, etc but in rust
       pkgs.glibc # Standard C library
-      pkgs.bashInteractive # Interactive bash shell
     ];
 
     basePackageSets = {
       "micro" = microBasePackages;
       "minimal" = microBasePackages ++ minimalBasePackages;
     };
+
     basePackageDefaultCmds = {
       "micro" = [
         "dumb-init"
         "/usr/bin/env"
-        "sh"
+        "bash"
       ];
       "minimal" = [
         "dumb-init"
@@ -113,9 +115,35 @@
       ];
     };
 
+    basePackageDefaultEntrypoint = {
+      "micro" =
+        [
+          "dumb-init"
+          "with-snowblower"
+        ]
+        ++ (
+          if entrypoint != null
+          then ["exec" entrypoint]
+          else []
+        );
+      "minimal" =
+        [
+          "dumb-init"
+          "with-snowblower"
+        ]
+        ++ (
+          if entrypoint != null
+          then ["exec" entrypoint]
+          else []
+        );
+    };
+
     basePackages = basePackageSets.${basePackageSet};
     contents = basePackages ++ packages;
     defaultCmd = basePackageDefaultCmds.${basePackageSet};
+
+    defaultEntrypoint = basePackageDefaultEntrypoint.${basePackageSet};
+
     defaultPath = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
   in
     pkgs.dockerTools.buildLayeredImage {
@@ -123,6 +151,7 @@
       tag = version;
       inherit fromImage;
       inherit maxLayers;
+      inherit compressor;
 
       enableFakechroot = true;
 
@@ -138,11 +167,12 @@
         chown snowuser:snowuser /workspace
         chown -R snowuser:snowuser /home/snowuser
 
-        mkdir -p /home/snowuser/snowblower/profile/
+        mkdir -p /snowblower/profile
+        chown -R snowuser:snowuser /snowblower/profile
       '';
 
       config = {
-        Entrypoint = entrypoint;
+        Entrypoint = defaultEntrypoint;
         Cmd = defaultCmd;
         Env =
           [
