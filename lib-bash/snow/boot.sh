@@ -1,11 +1,3 @@
-if [[ "$SB_DEBUG" == "1" ]]; then
-	source "../utils/color.sh"
-	source "../utils/output.sh"
-	source "../utils/input.sh"
-	source "../utils/checks.sh"
-	source "../utils/file.sh"
-fi
-
 function doSetRoot() {
 	# We need to find our project root early on so downstream options can use it.
 	SB_SRC_ROOT="$(findUp $SB_PROJECT_ROOT_FILE)"
@@ -155,7 +147,3 @@ function doSetupSession() {
 
 	_iVerbose "Set project root file to %s" "${SB_PROJECT_ROOT_FILE}"
 }
-
-if [[ "$SB_DEBUG" == "1" ]]; then
-doBoot
-fi

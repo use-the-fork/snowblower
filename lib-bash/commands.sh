@@ -10,25 +10,49 @@ function isNotRunning {
 function doRoutedCommandExecute() {
 
 	_iVerbose "Attempting to run: $*"
-	# If we are inside of a SnowBlower shell we run the command directly otherwise we need to proxy the command.
-	if isInsideSnowblowerShell; then
-		_i "Running: $*"
+
+	# Save the first argument (environment type) and shift it
+	local env_type="$1"
+	shift
+
+	case "$env_type" in
+	native)
+		_iVerbose "Executing command natively"
 		exec "$@"
 		return $?
-	fi
+		;;
+	tool | runtime)
+		doRunChecks
 
-	doRunChecks
+		ARGS=()
+		ARGS+=(exec -u "$SB_USER_UID")
+		[ ! -t 0 ] && ARGS+=(-T)
+		ARGS+=("$env_type")
 
-	ARGS=()
-	ARGS+=(exec -u "$SB_USER_UID")
-	[ ! -t 0 ] && ARGS+=(-T)
-	ARGS+=("$SB_APP_SERVICE")
+		_iVerbose "Executing command via docker compose in %s service" $env_type
 
-	_iVerbose "Executing command via docker compose"
+		# Execute the command with proper shell evaluation
+		$SB_DOCKER_COMPOSE_PATH -f "$SB_SRC_ROOT/docker-compose.yml" "${ARGS[@]}" "with-snowblower" "exec" "$@"
+		return $?
+		;;
+	service)
+		doRunChecks
 
-	# Execute the command with proper shell evaluation
-	"$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" "${ARGS[@]}" "with-snowblower" "exec" "$@"
-	return $?
+		# Extract the service name from the first argument
+		local service_name="$1"
+		shift
+
+		_iVerbose "Executing command via docker compose run in %s service" "$service_name"
+
+		# Execute the command using docker compose run
+		$SB_DOCKER_COMPOSE_PATH -f "$SB_SRC_ROOT/docker-compose.yml" run --rm "$service_name" "$@"
+		return $?
+		;;
+	*)
+		_iFail "Unknown environment type: $env_type" >&2
+		return 1
+		;;
+	esac
 }
 
 function hasSubCommand() {

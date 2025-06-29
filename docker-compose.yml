@@ -11,6 +11,14 @@ x-snowblower-common: &snowblower-common
   - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile
   working_dir: /workspace
 services:
+  oxker:
+    container_name: oxker
+    image: ghcr.io/mrjackwills/oxker:latest
+    profiles:
+    - no-start
+    restart: 'no'
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
   runtime:
     <<: *snowblower-common
   tools:

@@ -94,6 +94,7 @@
 
           service = {
             # dockwatch.enable = true;
+            oxker.enable = true;
           };
 
           tool = {

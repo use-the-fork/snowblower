@@ -7,6 +7,7 @@
     ./elasticsearch
     ./memcached.nix
     ./mysql.nix
+    ./oxker.nix
     ./portainer.nix
     ./redis.nix
     # keep-sorted end

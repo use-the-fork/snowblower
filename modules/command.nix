@@ -139,10 +139,15 @@
             # Generate proper bash array from command and args
             commandParts = [section.data.command] ++ subSection.data.args;
             execArray = "(" + (lib.concatStringsSep " " (map lib.strings.escapeShellArg commandParts)) + ")";
+            # Use shortcut's env if specified, otherwise fall back to section's env
+            envType =
+              if subSection.data.env != null
+              then subSection.data.env
+              else section.data.env;
           in ''
             function doCommand__${name}__${subSectionName} {
               local cmd_args=${execArray}
-              doRoutedCommandExecute "''${cmd_args[@]}" "$@"
+              doRoutedCommandExecute "${envType}" "''${cmd_args[@]}" "$@"
             }
           '';
 
@@ -156,7 +161,7 @@
           };
         in
           concatLines [
-            (optionalString (section.data.command != null) ''function doCommand__${section.name} { doRoutedCommandExecute ${lib.strings.escapeShellArg section.data.command} "$@"; }'')
+            (optionalString (section.data.command != null) ''function doCommand__${section.name} { doRoutedCommandExecute "${section.data.env}" ${lib.strings.escapeShellArg section.data.command} "$@"; }'')
             resolvedSubCommands
           ];
 
@@ -189,6 +194,7 @@
             ${builtins.readFile ./../lib-bash/snow-commands.sh}
             ${builtins.readFile ./../lib-bash/snow/build.sh}
             ${builtins.readFile ./../lib-bash/snow/down.sh}
+            ${builtins.readFile ./../lib-bash/snow/ps.sh}
             ${builtins.readFile ./../lib-bash/snow/switch.sh}
             ${builtins.readFile ./../lib-bash/snow/up.sh}
             # keep-sorted end

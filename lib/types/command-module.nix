@@ -14,6 +14,12 @@
         description = "Description of the shortcut";
       };
 
+      env = mkOption {
+        type = types.nullOr (types.enum ["native" "tool" "runtime" "service"]);
+        default = null;
+        description = "Environment context for the command execution";
+      };
+
       args = mkOption {
         type = types.listOf types.str;
         description = "Arguments to pass to the command";
@@ -35,7 +41,7 @@ in {
     };
 
     env = mkOption {
-      type = types.enum ["native" "tool" "runtime"];
+      type = types.enum ["native" "tool" "runtime" "service"];
       default = "native";
       description = "Environment context for the command execution";
     };

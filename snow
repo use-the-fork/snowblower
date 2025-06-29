@@ -389,14 +389,6 @@ function doCreateTouchFiles() {
 
 }
 
-if [[ $SB_DEBUG == "1" ]]; then
-  source "../utils/color.sh"
-  source "../utils/output.sh"
-  source "../utils/input.sh"
-  source "../utils/checks.sh"
-  source "../utils/file.sh"
-fi
-
 function doSetRoot() {
   # We need to find our project root early on so downstream options can use it.
   SB_SRC_ROOT="$(findUp $SB_PROJECT_ROOT_FILE)"
@@ -544,10 +536,6 @@ function doSetupSession() {
   _iVerbose "Set project root file to %s" "${SB_PROJECT_ROOT_FILE}"
 }
 
-if [[ $SB_DEBUG == "1" ]]; then
-  doBoot
-fi
-
 function setupEnvironmentVariables() {
   # Only source this once.
   if [ -v __SB_SESS_VARS_SOURCED ]; then return; fi
@@ -586,6 +574,7 @@ function displayAllResolvedCommands {
   doHelp__agenix
   doHelp__ai
   doHelp__npm
+  doHelp__oxker
   doHelp__pre-commit
   doHelp__treefmt
 
@@ -603,6 +592,11 @@ function doHelp__ai {
 function doHelp__npm {
   local commands=('...|Run a NPM command')
   _iCommandSection "npm" "NPM" "${commands[@]}"
+}
+
+function doHelp__oxker {
+  local commands=('...|Run a Oxker command')
+  _iCommandSection "oxker" "Oxker" "${commands[@]}"
 }
 
 function doHelp__pre-commit {
@@ -624,31 +618,33 @@ function doHelp {
   exit 1
 }
 
-function doCommand__agenix { doRoutedCommandExecute sb-agenix "$@"; }
+function doCommand__agenix { doRoutedCommandExecute "tool" sb-agenix "$@"; }
 function doCommand__agenix__rekey {
   local cmd_args=(sb-agenix --rekey)
-  doRoutedCommandExecute "${cmd_args[@]}" "$@"
+  doRoutedCommandExecute "tool" "${cmd_args[@]}" "$@"
 }
 
-function doCommand__ai { doRoutedCommandExecute aider "$@"; }
+function doCommand__ai { doRoutedCommandExecute "native" aider "$@"; }
 function doCommand__ai__gem {
   local cmd_args=(aider --no-show-release-notes --model gemini --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --lint-cmd treefmt)
-  doRoutedCommandExecute "${cmd_args[@]}" "$@"
+  doRoutedCommandExecute "native" "${cmd_args[@]}" "$@"
 }
 
 function doCommand__ai__son {
   local cmd_args=(aider --no-show-release-notes --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read CONVENTIONS.MD --lint-cmd treefmt)
-  doRoutedCommandExecute "${cmd_args[@]}" "$@"
+  doRoutedCommandExecute "native" "${cmd_args[@]}" "$@"
 }
 
-function doCommand__npm { doRoutedCommandExecute npm "$@"; }
+function doCommand__npm { doRoutedCommandExecute "native" npm "$@"; }
+
+function doCommand__oxker { doRoutedCommandExecute "service" oxker "$@"; }
 
 function doCommand__pre-commit__all {
   local cmd_args=('' run --all-files)
-  doRoutedCommandExecute "${cmd_args[@]}" "$@"
+  doRoutedCommandExecute "tool" "${cmd_args[@]}" "$@"
 }
 
-function doCommand__treefmt { doRoutedCommandExecute treefmt "$@"; }
+function doCommand__treefmt { doRoutedCommandExecute "tool" treefmt "$@"; }
 
 # Function that outputs SnowBlower is not running...
 function isNotRunning {
@@ -662,25 +658,49 @@ function isNotRunning {
 function doRoutedCommandExecute() {
 
   _iVerbose "Attempting to run: $*"
-  # If we are inside of a SnowBlower shell we run the command directly otherwise we need to proxy the command.
-  if isInsideSnowblowerShell; then
-    _i "Running: $*"
+
+  # Save the first argument (environment type) and shift it
+  local env_type="$1"
+  shift
+
+  case "$env_type" in
+  native)
+    _iVerbose "Executing command natively"
     exec "$@"
     return $?
-  fi
+    ;;
+  tool | runtime)
+    doRunChecks
 
-  doRunChecks
+    ARGS=()
+    ARGS+=(exec -u "$SB_USER_UID")
+    [ ! -t 0 ] && ARGS+=(-T)
+    ARGS+=("$env_type")
 
-  ARGS=()
-  ARGS+=(exec -u "$SB_USER_UID")
-  [ ! -t 0 ] && ARGS+=(-T)
-  ARGS+=("$SB_APP_SERVICE")
+    _iVerbose "Executing command via docker compose in %s service" $env_type
 
-  _iVerbose "Executing command via docker compose"
+    # Execute the command with proper shell evaluation
+    $SB_DOCKER_COMPOSE_PATH -f "$SB_SRC_ROOT/docker-compose.yml" "${ARGS[@]}" "with-snowblower" "exec" "$@"
+    return $?
+    ;;
+  service)
+    doRunChecks
 
-  # Execute the command with proper shell evaluation
-  "$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" "${ARGS[@]}" "$@"
-  return $?
+    # Extract the service name from the first argument
+    local service_name="$1"
+    shift
+
+    _iVerbose "Executing command via docker compose run in %s service" "$service_name"
+
+    # Execute the command using docker compose run
+    $SB_DOCKER_COMPOSE_PATH -f "$SB_SRC_ROOT/docker-compose.yml" run --rm "$service_name" "$@"
+    return $?
+    ;;
+  *)
+    _iFail "Unknown environment type: $env_type" >&2
+    return 1
+    ;;
+  esac
 }
 
 function hasSubCommand() {
@@ -786,6 +806,27 @@ doDestroySession() {
   rm -f "$SB_SESS_FILE"
 }
 
+function doSnowBuild() {
+
+  _iNote "Rebuilding"
+
+  rm -f ./result
+  _iNote "Building Runtime Docker Image"
+  $SB_NIX_PATH build --impure .#dockerRuntimeImagePackage
+
+  _iNote "Loading Runtime Docker Image"
+  $SB_DOCKER_PATH load -i ./result
+  rm ./result
+
+  _iNote "Building Tooling Docker Image"
+  $SB_NIX_PATH build --impure .#dockerToolsImagePackage
+
+  _iNote "Loading Tooling Docker Image"
+  $SB_DOCKER_PATH load -i ./result
+
+  exit 0
+}
+
 function doSnowDown {
 
   # Check if snowblower is running
@@ -860,23 +901,17 @@ function doSnowUp {
   exit 0
 }
 
-function doSnowBuild() {
+function doSnowPs {
 
-  _iNote "Rebuilding"
+  # Check if snowblower is running
+  if ! isSnowBlowerDockerContainerUp; then
+    _iExit "SnowBlower is already down."
+    exit 0
+  fi
 
-  rm -f ./result
-  _iNote "Building Runtime Docker Image"
-  $SB_NIX_PATH build --impure .#dockerRuntimeImagePackage
-
-  _iNote "Loading Runtime Docker Image"
-  $SB_DOCKER_PATH load -i ./result
-  rm ./result
-
-  _iNote "Building Tooling Docker Image"
-  $SB_NIX_PATH build --impure .#dockerToolsImagePackage
-
-  _iNote "Loading Tooling Docker Image"
-  $SB_DOCKER_PATH load -i ./result
+  # If it's running, run docker compose down and wait for it to finish then run doDestroySession
+  _iOk "Stopping SnowBlower services..."
+  $SB_DOCKER_COMPOSE_PATH -f "$SB_SRC_ROOT/docker-compose.yml" ps
 
   exit 0
 }
@@ -926,12 +961,12 @@ while [[ $i -lt ${#BEFORE_SEPARATOR[@]} ]]; do
     echo 25.11-pre
     exit 0
     ;;
-  switch | up | down | update | reboot | build | help)
+  switch | up | down | update | reboot | build | ps | help)
     SNOW_COMMAND="$opt"
     ;;
   *)
     case $SNOW_COMMAND in
-    switch | update | reboot | up | down | build | help)
+    switch | update | reboot | up | down | build | ps | help)
       SNOW_COMMAND_ARGS+=("$opt")
       ;;
     *)
@@ -953,12 +988,12 @@ while [[ $i -lt ${#AFTER_SEPARATOR[@]} ]]; do
   opt="${AFTER_SEPARATOR[$i]}"
   i=$((i + 1))
   case $opt in
-  agenix | ai | npm | pre-commit | treefmt)
+  agenix | ai | npm | oxker | pre-commit | treefmt)
     export COMMAND="$opt"
     ;;
   *)
     case $COMMAND in
-    agenix | ai | npm | pre-commit | treefmt)
+    agenix | ai | npm | oxker | pre-commit | treefmt)
       export COMMAND_ARGS+=("$opt")
       ;;
     *)
@@ -1008,11 +1043,15 @@ fi
 # Handle snow-specific commands first
 if [[ -n $SNOW_COMMAND ]]; then
   case $SNOW_COMMAND in
+
   switch)
     doSnowSwitch "${SNOW_COMMAND_ARGS[@]}"
     ;;
   build)
     doSnowBuild "${SNOW_COMMAND_ARGS[@]}"
+    ;;
+  ps)
+    doSnowPs "${SNOW_COMMAND_ARGS[@]}"
     ;;
   up)
     doSnowUp "${SNOW_COMMAND_ARGS[@]}"
@@ -1026,6 +1065,7 @@ if [[ -n $SNOW_COMMAND ]]; then
   reboot)
     doSnowReboot "${SNOW_COMMAND_ARGS[@]}"
     ;;
+
   help)
     doHelp "${SNOW_COMMAND_ARGS[@]}"
     ;;
@@ -1078,6 +1118,17 @@ npm)
     fi
   else
     doCommand__npm "${COMMAND_ARGS[@]}"
+  fi
+  ;;
+oxker)
+  if [[ -n $SUBCOMMAND ]]; then
+    if hasSubCommand "oxker" "$SUBCOMMAND"; then
+      doCommand__oxker__$SUBCOMMAND "${COMMAND_ARGS[@]}"
+    else
+      doCommand__oxker "${COMMAND_ARGS[@]}"
+    fi
+  else
+    doCommand__oxker "${COMMAND_ARGS[@]}"
   fi
   ;;
 pre-commit)
