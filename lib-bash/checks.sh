@@ -22,11 +22,11 @@ function doRunChecks {
 		fi
 
 		# Determine if SnowBlower is currently up...
-		if "${SB_DOCKER_COMPOSE_PATH[@]}" ps "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
+		if $SB_DOCKER_COMPOSE_PATH ps "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
 			_iWarn "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
-			"${SB_DOCKER_COMPOSE_PATH[@]}" down >/dev/null 2>&1
+			$SB_DOCKER_COMPOSE_PATH down >/dev/null 2>&1
 			isNotRunning
-		elif [ -z "$("${SB_DOCKER_COMPOSE_PATH[@]}" ps -q "$SB_APP_SERVICE")" ]; then
+		elif [ -z "$($SB_DOCKER_COMPOSE_PATH ps -q "$SB_APP_SERVICE")" ]; then
 			isNotRunning
 		fi
 	fi

@@ -1,4 +1,4 @@
-function doSnowBuild() {
+function doSnowBuildLogic() {
 
 	_iNote "Rebuilding"
 
@@ -16,5 +16,10 @@ function doSnowBuild() {
 	_iNote "Loading Tooling Docker Image"
 	$SB_DOCKER_PATH load -i ./result
 
+	return 0
+}
+
+function doSnowBuild() {
+	doSnowBuildLogic
 	exit 0
 }

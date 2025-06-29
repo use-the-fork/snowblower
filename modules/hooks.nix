@@ -49,7 +49,7 @@ in {
           })
         );
       in
-        pkgs.writeScriptBin "with-snowblower" ''
+        pkgs.writeScriptBin "snowblower-hooks" ''
           #!/bin/bash
 
           export SB_CONTAINER_NAME="$CONTAINER_NAME"

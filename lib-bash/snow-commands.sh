@@ -17,7 +17,3 @@ function doSnowReboot() {
 	doSnowUp
 	exit 0
 }
-
-doDestroySession() {
-	rm -f "$SB_SESS_FILE"
-}

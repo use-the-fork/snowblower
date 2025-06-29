@@ -190,7 +190,6 @@
 
             # keep-sorted start
             ${builtins.readFile ./../lib-bash/commands.sh}
-            ${builtins.readFile ./../lib-bash/docker-commands.sh}
             ${builtins.readFile ./../lib-bash/snow-commands.sh}
             ${builtins.readFile ./../lib-bash/snow/build.sh}
             ${builtins.readFile ./../lib-bash/snow/down.sh}
