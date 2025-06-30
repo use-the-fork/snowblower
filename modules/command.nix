@@ -190,12 +190,13 @@
 
             # keep-sorted start
             ${builtins.readFile ./../lib-bash/commands.sh}
-            ${builtins.readFile ./../lib-bash/snow-commands.sh}
+            ${builtins.readFile ./../lib-bash/snow/boot.sh}
             ${builtins.readFile ./../lib-bash/snow/build.sh}
             ${builtins.readFile ./../lib-bash/snow/down.sh}
             ${builtins.readFile ./../lib-bash/snow/ps.sh}
             ${builtins.readFile ./../lib-bash/snow/switch.sh}
             ${builtins.readFile ./../lib-bash/snow/up.sh}
+            ${builtins.readFile ./../lib-bash/snow/update.sh}
             # keep-sorted end
 
             ${snowShellContent}
