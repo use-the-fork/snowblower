@@ -10,15 +10,13 @@ function doSnowSwitch() {
 		doSnowDownLogic
 	fi
 
-	_iNote "Rebuilding"
-
 	doSnowBuildLogic
 
 	# Start Docker
 	doSnowUpLogic
 
 	_iNote "Running file generator..."
-	doRoutedCommandExecute snowblower-files
+	doRoutedCommandExecute tools snowblower-files
 
 	# Take it back down
 	doSnowDownLogic

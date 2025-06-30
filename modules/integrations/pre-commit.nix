@@ -142,7 +142,9 @@
         ];
 
         # When we do a switch we need to make sure that pre-commit is installed if its not.
-        hook.switch.activation."pre-commit" = ''pre-commit uninstall && pre-commit install'';
+        hook.tools.pre."pre-commit" = ''
+          pre-commit uninstall
+          pre-commit install'';
       };
     };
   });

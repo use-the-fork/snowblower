@@ -15,15 +15,6 @@ in {
 
     options.snowblower = {
       hook = {
-        switch = {
-          activation = mkOption {
-            type = lib.sbl.types.dagOf types.str;
-            default = {};
-            description = ''
-            '';
-          };
-        };
-
         tools = mkHook {
           name = "Docker Compose Tools Container";
         };
@@ -40,34 +31,55 @@ in {
 
     config.snowblower = {
       hook.package = let
-        resolvedHooks = lib.concatStringsSep "\n" (
-          map (section: section.name)
-          (lib.sbl.dag.resolveDag {
-            name = "snowblower command options";
-            dag = config.snowblower.command;
-            mapResult = lib.id;
-          })
-        );
+        # Generate hook functions for tools.pre
+        toolsPreHooks = lib.sbl.dag.resolveDag {
+          name = "snowblower tools pre hooks";
+          dag = config.snowblower.hook.tools.pre;
+          mapResult = result:
+            lib.concatLines (map (entry: entry.data) result);
+        };
+
+        # Generate hook functions for tools.post
+        toolsPostHooks = lib.sbl.dag.resolveDag {
+          name = "snowblower tools post hooks";
+          dag = config.snowblower.hook.tools.post;
+          mapResult = result:
+            lib.concatLines (map (entry: entry.data) result);
+        };
       in
         pkgs.writeScriptBin "snowblower-hooks" ''
           #!/bin/bash
 
-          export SB_CONTAINER_NAME="$CONTAINER_NAME"
-          export SB_SERVICE_NAME="$SERVICE_NAME"
+          function doHook__tools__pre {
+            echo
+            ${toolsPreHooks}
+          }
 
-          # Save the first argument
-          command="$1"
+          function doHook__tools__post {
+            echo
+            ${toolsPostHooks}
+          }
+          hook_name="$1"
           shift
 
-          case "$command" in
-            exec)
-              exec "$@"
+          case "$hook_name" in
+            tools_pre)
+              doHook__tools__pre "$@"
+              exit 0
+              ;;
+            tools_post)
+              doHook__tools__post "$@"
               ;;
             *)
-              sleep inf
+              echo "Unknown hook: $hook_name" >&2
+              exit 1
               ;;
           esac
         '';
+
+      packages.runtime = [
+        config.snowblower.hook.package
+      ];
     };
   });
 }

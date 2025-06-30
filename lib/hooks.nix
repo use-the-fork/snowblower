@@ -14,16 +14,6 @@
     lines
     ;
 
-  valueType = oneOf [
-    bool
-    int
-    float
-    str
-    path
-    (attrsOf valueType)
-    (listOf valueType)
-  ];
-
   mkHook = {name}: {
     pre = mkOption {
       type = lib.sbl.types.dagOf lines;

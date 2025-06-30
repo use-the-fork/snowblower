@@ -1,6 +1,6 @@
 function doSnowBuildLogic() {
 
-	_iNote "Rebuilding"
+	_iSnow "Rebuilding"
 
 	rm -f ./result
 	_iNote "Building Runtime Docker Image"

@@ -7,15 +7,21 @@ function doSnowUpLogic() {
 
 	# Start docker-compose detached
 	$SB_DOCKER_COMPOSE_PATH -f "$SB_SRC_ROOT/docker-compose.yml" --profile auto-start up --detach --remove-orphans "$@"
+	doRoutedCommandExecute "tools" "snowblower-hooks" "tools_pre"
 
 	return 0
 }
 
 function doSnowUp {
 	doSnowUpLogic "$@"
+	if [ $? -eq 1 ]; then
+		exit 1
+	fi
 
+# AI: Do
 	doRoutedCommandExecute "service" oxker
 
+	doRoutedCommandExecute "tools" "snowblower-hooks" "tools_post"
 	doSnowDownLogic
 
 	exit 0
