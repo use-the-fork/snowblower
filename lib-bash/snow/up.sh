@@ -1,4 +1,7 @@
 function doSnowUpLogic() {
+	# Execute pre-up hooks
+	doHook__up__pre
+
 	# Check if SnowBlower docker container is already running
 	if isSnowBlowerDockerContainerUp; then
 		_iError "SnowBlower container is already running. Use 'snow down' to stop it first."
@@ -13,12 +16,12 @@ function doSnowUpLogic() {
 }
 
 function doSnowUp {
+
 	doSnowUpLogic "$@"
 	if [ $? -eq 1 ]; then
 		exit 1
 	fi
 
-# AI: Do
 	doRoutedCommandExecute "service" oxker
 
 	doRoutedCommandExecute "tools" "snowblower-hooks" "tools_post"

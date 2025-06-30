@@ -15,6 +15,10 @@ in {
 
     options.snowblower = {
       hook = {
+        up = mkHook {
+          name = "Environment Startup";
+        };
+
         tools = mkHook {
           name = "Docker Compose Tools Container";
         };
@@ -23,7 +27,7 @@ in {
           type = types.package;
           internal = true;
           description = ''
-            Foo
+            Package containing the snowblower-hooks script that executes all configured hooks.
           '';
         };
       };
@@ -31,6 +35,14 @@ in {
 
     config.snowblower = {
       hook.package = let
+        # Generate hook functions for up.pre
+        upPreHooks = lib.sbl.dag.resolveDag {
+          name = "snowblower up pre hooks";
+          dag = config.snowblower.hook.up.pre;
+          mapResult = result:
+            lib.concatLines (map (entry: entry.data) result);
+        };
+
         # Generate hook functions for tools.pre
         toolsPreHooks = lib.sbl.dag.resolveDag {
           name = "snowblower tools pre hooks";
@@ -50,6 +62,11 @@ in {
         pkgs.writeScriptBin "snowblower-hooks" ''
           #!/bin/bash
 
+          function doHook__up__pre {
+            echo
+            ${upPreHooks}
+          }
+
           function doHook__tools__pre {
             echo
             ${toolsPreHooks}
@@ -63,6 +80,10 @@ in {
           shift
 
           case "$hook_name" in
+            up_pre)
+              doHook__up__pre "$@"
+              exit 0
+              ;;
             tools_pre)
               doHook__tools__pre "$@"
               exit 0

@@ -41,7 +41,7 @@ in {
         environmentVariablesPackage = pkgs.writeTextFile {
           name = "sb-session-vars.sh";
           text = ''
-            function setupEnvironmentVariables() {
+            function doSetupEnvironmentVariables() {
               # Only source this once.
               if [ -v __SB_SESS_VARS_SOURCED ]; then return; fi
               export __SB_SESS_VARS_SOURCED=1
@@ -49,11 +49,18 @@ in {
               ${lib.sbl.shell.exportAll cfg.environmentVariables}
             }
 
-            setupEnvironmentVariables
+            doSetupEnvironmentVariables
           '';
         };
 
         file."snow" = let
+          upPreHooks = lib.sbl.dag.resolveDag {
+            name = "snowblower up pre hooks";
+            dag = config.snowblower.hook.up.pre;
+            mapResult = result:
+              lib.concatLines (map (entry: entry.data) result);
+          };
+
           activationPackage = pkgs.writeTextFile {
             name = "sb-activation-package";
             text = ''
@@ -73,6 +80,11 @@ in {
               ${builtins.readFile config.snowblower.touchFilesPackage}
 
               ${builtins.readFile ./../lib-bash/snow/boot.sh}
+
+              function doHook__up__pre {
+                echo -n
+                ${upPreHooks}
+              }
 
               ${builtins.readFile config.snowblower.environmentVariablesPackage}
 

@@ -5,7 +5,7 @@
     config,
     ...
   }: let
-    inherit (lib) mkIntegration;
+    inherit (lib) mkIntegration mkForce;
 
     yamlFormat = pkgs.formats.yaml {};
     cfg = config.snowblower.integration.preCommit;
@@ -25,6 +25,9 @@
 
     config = lib.mkIf cfg.enable {
       snowblower = {
+        # Git is required for this integration.
+        integration.git.enable = mkForce true;
+
         command."pre-commit" = {
           displayName = "Pre-commit";
           description = "pre-commit hooks manager";
