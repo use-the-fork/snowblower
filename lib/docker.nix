@@ -24,19 +24,34 @@
     (listOf valueType)
   ];
 
-  # Function to generate common flags array based on options
-  mkCommonFlags = {
+  # Function to generate common flags object based on options
+  mkDockerServiceConfig = {
     manualStart ? false,
     autoStart ? false,
     runtime ? false,
     network ? true,
-  }:
-    lib.flatten [
-      (lib.optional manualStart "*use-manual-start")
-      (lib.optional autoStart "*use-auto-start")
-      (lib.optional runtime "*use-runtime")
-      (lib.optional network "*use-network")
+  }: let
+    profiles = lib.flatten [
+      (lib.optional manualStart "manual-start")
+      (lib.optional autoStart "auto-start")
     ];
+  in
+    {
+      inherit profiles;
+      restart = "no";
+    }
+    // (lib.optionalAttrs network {
+      networks = ["snownet"];
+    })
+    // (lib.optionalAttrs runtime {
+      depends_on = [];
+      image = "localhost/snowblower/runtime:latest";
+      volumes = [
+        ".:/workspace"
+        "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile"
+      ];
+      working_dir = "/workspace";
+    });
 
   # The `mkDockerService` function takes a few arguments to generate
   # a module for a service without repeating the same options
@@ -206,5 +221,5 @@
       };
     };
 in {
-  inherit mkDockerImage mkDockerService mkCommonFlags;
+  inherit mkDockerImage mkDockerService mkDockerServiceConfig;
 }

@@ -4,7 +4,7 @@
     config,
     ...
   }: let
-    inherit (lib) types mkOption mkDockerService;
+    inherit (lib) types mkOption mkDockerService mkDockerServiceConfig;
 
     cfg = config.snowblower.service.blackfire;
   in {
@@ -59,22 +59,23 @@
       snowblower = {
         docker.service.blackfire = {
           enable = true;
-          service = {
-            inherit (cfg) image;
-            ports = ["${toString cfg.settings.port}:8307"];
-            restart = "unless-stopped";
-            environment = {
-              BLACKFIRE_CLIENT_ID = cfg.settings.clientId;
-              BLACKFIRE_CLIENT_TOKEN = cfg.settings.clientToken;
-              BLACKFIRE_SERVER_ID = cfg.settings.serverId;
-              BLACKFIRE_SERVER_TOKEN = cfg.settings.serverToken;
-              BLACKFIRE_LOG_LEVEL = "4";
-              BLACKFIRE_APM_ENABLED =
-                if cfg.settings.enableApm
-                then "1"
-                else "0";
-            };
-          };
+          service =
+            {
+              inherit (cfg) image;
+              ports = ["${toString cfg.settings.port}:8307"];
+              environment = {
+                BLACKFIRE_CLIENT_ID = cfg.settings.clientId;
+                BLACKFIRE_CLIENT_TOKEN = cfg.settings.clientToken;
+                BLACKFIRE_SERVER_ID = cfg.settings.serverId;
+                BLACKFIRE_SERVER_TOKEN = cfg.settings.serverToken;
+                BLACKFIRE_LOG_LEVEL = "4";
+                BLACKFIRE_APM_ENABLED =
+                  if cfg.settings.enableApm
+                  then "1"
+                  else "0";
+              };
+            }
+            // mkDockerServiceConfig {autoStart = true;};
         };
 
         environmentVariables = {

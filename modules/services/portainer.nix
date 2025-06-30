@@ -4,7 +4,7 @@
     config,
     ...
   }: let
-    inherit (lib) types mkOption mkDockerService;
+    inherit (lib) types mkOption mkDockerService mkDockerServiceConfig;
 
     cfg = config.snowblower.service.portainer;
   in {
@@ -18,15 +18,16 @@
       snowblower = {
         docker.service.portainer = {
           enable = true;
-          service = {
-            inherit (cfg) image;
-            ports = ["${toString cfg.settings.port}:9443"];
-            volumes = [
-              "${toString config.snowblower.environmentVariables.PORTAINERDATA}:/data"
-              "/var/run/docker.sock:/var/run/docker.sock"
-            ];
-            restart = "unless-stopped";
-          };
+          service =
+            {
+              inherit (cfg) image;
+              ports = ["${toString cfg.settings.port}:9443"];
+              volumes = [
+                "${toString config.snowblower.environmentVariables.PORTAINERDATA}:/data"
+                "/var/run/docker.sock:/var/run/docker.sock"
+              ];
+            }
+            // mkDockerServiceConfig {autoStart = true;};
         };
 
         environmentVariables.PORTAINERDATA = "\${SB_PROJECT_STATE}/portainer";

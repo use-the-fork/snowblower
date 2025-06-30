@@ -8,7 +8,8 @@
     config,
     ...
   }: let
-    inherit (lib) types mkOption mkDockerService;
+    inherit (lib) types mkOption;
+    inherit (lib.sbl.docker) mkDockerService mkDockerServiceConfig;
 
     cfg = config.snowblower.service.elasticsearch;
   in {
@@ -55,38 +56,39 @@
       snowblower = {
         docker.service.elasticsearch = {
           enable = true;
-          service = {
-            inherit (cfg) image;
-            ports = [
-              "${toString cfg.settings.port}:9200"
-              "${toString cfg.settings.tcpPort}:9300"
-            ];
-            volumes = ["${toString config.snowblower.environmentVariables.ELASTICSEARCH_DATA}:/usr/share/elasticsearch/data"];
-            restart = "unless-stopped";
-            environment = {
-              "discovery.type" = lib.mkIf cfg.settings.singleNode "single-node";
-              "ES_JAVA_OPTS" = "-Xms${cfg.settings.memoryLimit} -Xmx${cfg.settings.memoryLimit}";
-              "cluster.name" = cfg.settings.clusterName;
-              "xpack.security.enabled" = "false";
-              "xpack.security.enrollment.enabled" = "false";
-            };
-            healthcheck = {
-              test = ["CMD-SHELL" "curl -s http://localhost:9200 >/dev/null || exit 1"];
-              interval = "30s";
-              timeout = "10s";
-              retries = 3;
-            };
-            ulimits = {
-              memlock = {
-                soft = -1;
-                hard = -1;
+          service =
+            {
+              inherit (cfg) image;
+              ports = [
+                "${toString cfg.settings.port}:9200"
+                "${toString cfg.settings.tcpPort}:9300"
+              ];
+              volumes = ["${toString config.snowblower.environmentVariables.ELASTICSEARCH_DATA}:/usr/share/elasticsearch/data"];
+              environment = {
+                "discovery.type" = lib.mkIf cfg.settings.singleNode "single-node";
+                "ES_JAVA_OPTS" = "-Xms${cfg.settings.memoryLimit} -Xmx${cfg.settings.memoryLimit}";
+                "cluster.name" = cfg.settings.clusterName;
+                "xpack.security.enabled" = "false";
+                "xpack.security.enrollment.enabled" = "false";
               };
-              nofile = {
-                soft = 65536;
-                hard = 65536;
+              healthcheck = {
+                test = ["CMD-SHELL" "curl -s http://localhost:9200 >/dev/null || exit 1"];
+                interval = "30s";
+                timeout = "10s";
+                retries = 3;
               };
-            };
-          };
+              ulimits = {
+                memlock = {
+                  soft = -1;
+                  hard = -1;
+                };
+                nofile = {
+                  soft = 65536;
+                  hard = 65536;
+                };
+              };
+            }
+            // mkDockerServiceConfig {autoStart = true;};
         };
 
         environmentVariables.ELASTICSEARCH_DATA = "\${PROJECT_STATE}/elasticsearch";

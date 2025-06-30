@@ -4,7 +4,7 @@
     config,
     ...
   }: let
-    inherit (lib) types mkOption mkDockerService;
+    inherit (lib) types mkOption mkDockerService mkDockerServiceConfig;
 
     cfg = config.snowblower.service.dockwatch;
   in {
@@ -18,21 +18,22 @@
       snowblower = {
         docker.service.dockwatch = {
           enable = true;
-          service = {
-            inherit (cfg) image;
-            container_name = "dockwatch";
-            ports = ["${toString cfg.settings.port}:80"];
-            volumes = [
-              "${toString config.snowblower.environmentVariables.DOCKWATCHDATA}:/config"
-              "/var/run/docker.sock:/var/run/docker.sock"
-            ];
-            environment = {
-              PUID = "1001";
-              PGID = "999";
-              TZ = "America/New_York";
-            };
-            restart = "unless-stopped";
-          };
+          service =
+            {
+              inherit (cfg) image;
+              container_name = "dockwatch";
+              ports = ["${toString cfg.settings.port}:80"];
+              volumes = [
+                "${toString config.snowblower.environmentVariables.DOCKWATCHDATA}:/config"
+                "/var/run/docker.sock:/var/run/docker.sock"
+              ];
+              environment = {
+                PUID = "1001";
+                PGID = "999";
+                TZ = "America/New_York";
+              };
+            }
+            // mkDockerServiceConfig {autoStart = true;};
         };
 
         environmentVariables.DOCKWATCHDATA = "\${SB_PROJECT_STATE}/dockwatch";

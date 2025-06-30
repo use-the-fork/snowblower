@@ -5,7 +5,7 @@
     ...
   }: let
     inherit (lib) types mkOption;
-    inherit (lib) mkDockerService;
+    inherit (lib) mkDockerService mkDockerServiceConfig;
 
     cfg = config.snowblower.service.mysql;
   in {
@@ -53,31 +53,32 @@
         docker.common.dependsOn = ["mysql"];
         docker.service.mysql = {
           enable = true;
-          service = {
-            inherit (cfg) image;
-            ports = ["${toString cfg.settings.port}:3306"];
-            volumes = ["${toString config.snowblower.env.MYSQLDATA}:/var/lib/mysql"];
-            restart = "unless-stopped";
-            environment =
-              {
-                MYSQL_ROOT_PASSWORD = cfg.settings.rootPassword;
-              }
-              // lib.optionalAttrs (cfg.settings.database != null) {
-                MYSQL_DATABASE = cfg.settings.database;
-              }
-              // lib.optionalAttrs (cfg.settings.user != null) {
-                MYSQL_USER = cfg.settings.user;
-              }
-              // lib.optionalAttrs (cfg.settings.password != null) {
-                MYSQL_PASSWORD = cfg.settings.password;
+          service =
+            {
+              inherit (cfg) image;
+              ports = ["${toString cfg.settings.port}:3306"];
+              volumes = ["${toString config.snowblower.env.MYSQLDATA}:/var/lib/mysql"];
+              environment =
+                {
+                  MYSQL_ROOT_PASSWORD = cfg.settings.rootPassword;
+                }
+                // lib.optionalAttrs (cfg.settings.database != null) {
+                  MYSQL_DATABASE = cfg.settings.database;
+                }
+                // lib.optionalAttrs (cfg.settings.user != null) {
+                  MYSQL_USER = cfg.settings.user;
+                }
+                // lib.optionalAttrs (cfg.settings.password != null) {
+                  MYSQL_PASSWORD = cfg.settings.password;
+                };
+              healthcheck = {
+                test = ["CMD" "mysqladmin" "ping" "-h" "localhost" "-u" "root" "--password=\$MYSQL_ROOT_PASSWORD"];
+                interval = "10s";
+                timeout = "5s";
+                retries = 3;
               };
-            healthcheck = {
-              test = ["CMD" "mysqladmin" "ping" "-h" "localhost" "-u" "root" "--password=\$MYSQL_ROOT_PASSWORD"];
-              interval = "10s";
-              timeout = "5s";
-              retries = 3;
-            };
-          };
+            }
+            // mkDockerServiceConfig {autoStart = true;};
         };
 
         environmentVariables.REDISDATA = "\${SB_PROJECT_STATE}/mysql";

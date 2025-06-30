@@ -5,7 +5,7 @@
     ...
   }: let
     inherit (lib) types mkOption;
-    inherit (lib.sbl.docker) mkDockerService mkCommonFlags;
+    inherit (lib.sbl.docker) mkDockerService mkDockerServiceConfig;
 
     cfg = config.snowblower.service.adminer;
   in {
@@ -28,16 +28,16 @@
       snowblower = {
         docker.service.adminer = {
           enable = true;
-          service = {
-            inherit (cfg) image;
-            ports = ["${toString cfg.settings.port}:8080"];
-            restart = "unless-stopped";
-            environment = {
-              ADMINER_DEFAULT_SERVER = cfg.settings.defaultServer;
-            };
-            depends_on = lib.optional config.snowblower.service.mysql.enable "mysql";
-            "sb-common" = mkCommonFlags {autoStart = true;};
-          };
+          service =
+            {
+              inherit (cfg) image;
+              ports = ["${toString cfg.settings.port}:8080"];
+              environment = {
+                ADMINER_DEFAULT_SERVER = cfg.settings.defaultServer;
+              };
+              depends_on = lib.optional config.snowblower.service.mysql.enable "mysql";
+            }
+            // mkDockerServiceConfig {autoStart = true;};
         };
       };
     };
