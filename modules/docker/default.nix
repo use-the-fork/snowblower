@@ -27,19 +27,11 @@ in {
     config = {
       snowblower = {
         docker.entrypointPackage = pkgs.writeScriptBin "with-snowblower" ''
-          ${builtins.readFile ./../../lib-bash/utils/head.sh}
-
-          # keep-sorted start
-          ${builtins.readFile ./../../lib-bash/checks.sh}
-          ${builtins.readFile ./../../lib-bash/utils/checks.sh}
-          ${builtins.readFile ./../../lib-bash/utils/color.sh}
-          ${builtins.readFile ./../../lib-bash/utils/file.sh}
-          ${builtins.readFile ./../../lib-bash/utils/input.sh}
-          ${builtins.readFile ./../../lib-bash/utils/output.sh}
-          # keep-sorted end
+          ${builtins.readFile config.snowblower.utilitiesPackage}
 
           doSetupColors
 
+          ${builtins.readFile config.snowblower.environmentVariablesPackage}
           export SB_CONTAINER_NAME="$CONTAINER_NAME"
           export SB_SERVICE_NAME="$SERVICE_NAME"
 

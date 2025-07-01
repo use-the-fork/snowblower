@@ -7,7 +7,7 @@ in {
     pkgs,
     ...
   }: let
-    inherit (lib) literalExpression mkOption types;
+    inherit (lib) mkOption types;
 
     cfg = config.snowblower;
   in {
@@ -64,16 +64,7 @@ in {
           activationPackage = pkgs.writeTextFile {
             name = "sb-activation-package";
             text = ''
-              ${builtins.readFile ./../lib-bash/utils/head.sh}
-
-              # keep-sorted start
-              ${builtins.readFile ./../lib-bash/checks.sh}
-              ${builtins.readFile ./../lib-bash/utils/checks.sh}
-              ${builtins.readFile ./../lib-bash/utils/color.sh}
-              ${builtins.readFile ./../lib-bash/utils/file.sh}
-              ${builtins.readFile ./../lib-bash/utils/input.sh}
-              ${builtins.readFile ./../lib-bash/utils/output.sh}
-              # keep-sorted end
+              ${builtins.readFile config.snowblower.utilitiesPackage}
 
               ${builtins.readFile ./../lib-bash/file-creation.sh}
               ${builtins.readFile config.snowblower.directoriesPackage}
