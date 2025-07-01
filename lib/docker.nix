@@ -33,8 +33,13 @@
       volumes = [
         ".:/workspace"
         "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile"
+        "\${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state"
       ];
       working_dir = "/workspace";
+      environment = {
+        "SB_PROJECT_PROFILE" = "/snowblower/profile";
+        "SB_PROJECT_STATE" = "/snowblower/state";
+      };
     });
 
   # The `mkDockerService` function takes a few arguments to generate
@@ -101,8 +106,7 @@
       pkgs.iana-etc # /etc/services and related files
       pkgs.tzdata # Timezone data
 
-      # pkgs.dumb-init # Default process supervisor (https://github.com/Yelp/dumb-init)
-      pkgs.tini
+      pkgs.tini # Default process supervisor (https://github.com/krallin/tini)
 
       createDirs
     ];
@@ -159,7 +163,6 @@
 
     defaultPath = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
   in
-    # AI: This is where the image gets built
     pkgs.dockerTools.buildLayeredImage {
       name = "localhost/snowblower/" + name;
       tag = version;

@@ -16,3 +16,9 @@ function confirmAction {
 		;;
 	esac
 }
+
+expand_vars() {
+    local arg="$1"
+	# Use eval to expand variables, but escape special characters first
+    eval "echo \"$arg\""
+}

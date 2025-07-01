@@ -15,6 +15,7 @@ function doSnowBuildLogic() {
 
 	_iNote "Loading Tooling Docker Image"
 	$SB_DOCKER_PATH load -i ./result
+	rm ./result
 
 	return 0
 }

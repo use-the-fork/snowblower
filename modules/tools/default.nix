@@ -9,6 +9,7 @@
     ./nixfmt.nix
     ./ruff.nix
     ./shfmt.nix
+    ./sqlfluff.nix
     ./statix.nix
     # keep-sorted end
   ];

@@ -9,6 +9,9 @@ services:
   npm-dev:
     command: with-snowblower exec snow-npm-dev
     depends_on: []
+    environment:
+      SB_PROJECT_PROFILE: /snowblower/profile
+      SB_PROJECT_STATE: /snowblower/state
     image: localhost/snowblower/runtime:latest
     networks:
     - snownet
@@ -20,6 +23,7 @@ services:
     volumes:
     - .:/workspace
     - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile
+    - ${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state
     working_dir: /workspace
   oxker:
     container_name: oxker
@@ -33,6 +37,9 @@ services:
     - /var/run/docker.sock:/var/run/docker.sock:ro
   runtime:
     depends_on: []
+    environment:
+      SB_PROJECT_PROFILE: /snowblower/profile
+      SB_PROJECT_STATE: /snowblower/state
     image: localhost/snowblower/runtime:latest
     networks:
     - snownet
@@ -42,8 +49,12 @@ services:
     volumes:
     - .:/workspace
     - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile
+    - ${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state
     working_dir: /workspace
   tools:
+    environment:
+      SB_PROJECT_PROFILE: /snowblower/profile
+      SB_PROJECT_STATE: /snowblower/state
     image: localhost/snowblower/tools:latest
     networks:
     - snownet
@@ -53,4 +64,5 @@ services:
     volumes:
     - .:/workspace
     - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile
+    - ${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state
     working_dir: /workspace

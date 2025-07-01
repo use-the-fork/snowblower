@@ -121,8 +121,13 @@ in {
                 volumes = [
                   ".:/workspace"
                   "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile"
+                  "\${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state"
                 ];
                 working_dir = "/workspace";
+                environment = {
+                  "SB_PROJECT_PROFILE" = "/snowblower/profile";
+                  "SB_PROJECT_STATE" = "/snowblower/state";
+                };
               }
               // mkDockerServiceConfig {
                 autoStart = true;

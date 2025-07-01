@@ -28,10 +28,12 @@
       snowblower = let
         # from https://github.com/numtide/treefmt-nix/blob/main/programs/statix.nix
         # Thanks again treefmt :)
-        multipleTargetsCommand = pkgs.writeShellScriptBin "statix-fix" ''
-          for file in "$@"; do
-            statix fix "$file"
-          done
+        multipleTargetsCommand = pkgs.writeScriptBin "statix-fix" ''
+          ${builtins.readFile ./../../lib-bash/utils/head.sh}
+
+            for file in "$@"; do
+              ${lib.getExe cfg.package} fix "$file"
+            done
         '';
       in {
         packages.tools = [

@@ -166,6 +166,11 @@ function confirmAction {
 	esac
 }
 
+expand_vars() {
+	local arg="$1"
+	# Use eval to expand variables, but escape special characters first
+	eval "echo \"$arg\""
+}
 # From: https://github.com/kigster/bashmatic/blob/main/lib/output.sh#L94
 
 # TODO: Add IsTerminal to commands
@@ -900,6 +905,7 @@ function doSnowBuildLogic() {
 
 	_iNote "Loading Tooling Docker Image"
 	$SB_DOCKER_PATH load -i ./result
+	rm ./result
 
 	return 0
 }

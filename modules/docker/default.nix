@@ -27,7 +27,18 @@ in {
     config = {
       snowblower = {
         docker.entrypointPackage = pkgs.writeScriptBin "with-snowblower" ''
-          #!/bin/bash
+          ${builtins.readFile ./../../lib-bash/utils/head.sh}
+
+          # keep-sorted start
+          ${builtins.readFile ./../../lib-bash/checks.sh}
+          ${builtins.readFile ./../../lib-bash/utils/checks.sh}
+          ${builtins.readFile ./../../lib-bash/utils/color.sh}
+          ${builtins.readFile ./../../lib-bash/utils/file.sh}
+          ${builtins.readFile ./../../lib-bash/utils/input.sh}
+          ${builtins.readFile ./../../lib-bash/utils/output.sh}
+          # keep-sorted end
+
+          doSetupColors
 
           export SB_CONTAINER_NAME="$CONTAINER_NAME"
           export SB_SERVICE_NAME="$SERVICE_NAME"
@@ -38,7 +49,12 @@ in {
 
           case "$command" in
             exec)
-              exec "$@" 2>&1
+              _iNote "Executing: %s" "$*"
+              expanded_args=()
+              for arg in "$@"; do
+                  expanded_args+=("$(expand_vars "$arg")")
+              done
+              exec "''${expanded_args[@]}" 2>&1
               ;;
             *)
               sleep inf
