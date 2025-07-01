@@ -44,12 +44,12 @@ while [[ $i -lt ${#BEFORE_SEPARATOR[@]} ]]; do
             echo 25.11-pre
             exit 0
             ;;
-        switch|up|down|update|reboot|build|ps|help)
+        switch|up|down|update|reboot|build|ps|bash|help)
             SNOW_COMMAND="$opt"
             ;;
         *)
             case $SNOW_COMMAND in
-                switch|update|reboot|up|down|build|ps|help)
+                switch|update|reboot|up|down|build|ps|bash|help)
                     SNOW_COMMAND_ARGS+=("$opt")
                     ;;
                 *)
@@ -144,6 +144,9 @@ if [[ -n $SNOW_COMMAND ]]; then
             ;;
         update)
             doSnowUpdate "${SNOW_COMMAND_ARGS[@]}"
+            ;;
+        bash)
+            doSnowBash "${SNOW_COMMAND_ARGS[@]}"
             ;;
         reboot)
             doSnowReboot "${SNOW_COMMAND_ARGS[@]}"

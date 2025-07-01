@@ -190,6 +190,7 @@
 
             # keep-sorted start
             ${builtins.readFile ./../lib-bash/commands.sh}
+            ${builtins.readFile ./../lib-bash/snow/bash.sh}
             ${builtins.readFile ./../lib-bash/snow/boot.sh}
             ${builtins.readFile ./../lib-bash/snow/build.sh}
             ${builtins.readFile ./../lib-bash/snow/down.sh}

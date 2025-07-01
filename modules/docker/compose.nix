@@ -8,7 +8,7 @@ in {
     ...
   }: let
     inherit (lib) types mkOption;
-    inherit (lib.sbl.docker) mkDockerService mkDockerServiceConfig;
+    inherit (lib.sbl.docker) mkDockerServiceConfig;
 
     serviceModule = {
       imports = [./../../lib/types/service-module.nix];
@@ -123,7 +123,6 @@ in {
                   "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile"
                 ];
                 working_dir = "/workspace";
-                tty = true;
               }
               // mkDockerServiceConfig {
                 autoStart = true;

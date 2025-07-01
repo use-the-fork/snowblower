@@ -83,23 +83,23 @@
             npm.enable = true;
           };
 
-          # process."npm-dev" = {
-          #   enable = true;
-          #   exec = "npm run dev";
-          #   port = {
-          #     container = 5432;
-          #     host = 5432;
-          #   };
-          # };
+          process."npm-dev" = {
+            enable = true;
+            exec = "npm run docs:dev";
+            port = {
+              container = 5432;
+              host = 5432;
+            };
+          };
 
           service = {
-            # dockwatch.enable = true;
             oxker.enable = true;
           };
 
           tool = {
             alejandra.enable = true;
             statix.enable = true;
+            deadnix.enable = true;
             shfmt.enable = true;
             keepSorted.enable = true;
           };

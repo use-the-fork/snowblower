@@ -38,7 +38,7 @@ in {
 
           case "$command" in
             exec)
-              exec "$@"
+              exec "$@" 2>&1
               ;;
             *)
               sleep inf

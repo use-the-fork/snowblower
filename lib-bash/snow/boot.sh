@@ -96,11 +96,8 @@ function doInit() {
 	if SB_DOCKER_COMPOSE_PATH=$(command -v docker-compose 2>/dev/null); then
 		export SB_DOCKER_COMPOSE_PATH
 		_iOk "Compose path set to %s" "${SB_DOCKER_COMPOSE_PATH}"
-	elif SB_DOCKER_COMPOSE_PATH=$(command -v podman-compose 2>/dev/null); then
-		export SB_DOCKER_COMPOSE_PATH
-		_iOk "Compose path set to %s" "${SB_DOCKER_COMPOSE_PATH}"
 	else
-		_iError "Docker / Podman Compose is not installed or not in PATH. Please install Docker or Podman to continue."
+		_iError "Docker Compose is not installed or not in PATH. Please install Docker Compose to continue."
 		exit 1
 	fi
 

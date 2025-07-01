@@ -3,26 +3,10 @@
 
   inherit
     (lib.types)
-    oneOf
-    listOf
-    attrsOf
     str
-    bool
     int
-    float
-    path
     either
     ;
-
-  valueType = oneOf [
-    bool
-    int
-    float
-    str
-    path
-    (attrsOf valueType)
-    (listOf valueType)
-  ];
 
   # Function to generate common flags object based on options
   mkDockerServiceConfig = {
@@ -95,7 +79,6 @@
     maxLayers ? 120,
     compressor ? "none", # "none", "gz","zstd"
     entrypoint ? null,
-    volumes ? {},
     env ? [],
     extendPath ? [],
   }: let
@@ -118,7 +101,8 @@
       pkgs.iana-etc # /etc/services and related files
       pkgs.tzdata # Timezone data
 
-      pkgs.dumb-init # Default process supervisor (https://github.com/Yelp/dumb-init)
+      # pkgs.dumb-init # Default process supervisor (https://github.com/Yelp/dumb-init)
+      pkgs.tini
 
       createDirs
     ];
@@ -133,12 +117,10 @@
 
     basePackageDefaultCmds = {
       "micro" = [
-        "dumb-init"
         "/usr/bin/env"
         "bash"
       ];
       "minimal" = [
-        "dumb-init"
         "/usr/bin/env"
         "bash"
       ];
@@ -147,7 +129,8 @@
     basePackageDefaultEntrypoint = {
       "micro" =
         [
-          "dumb-init"
+          "tini"
+          "--"
           "with-snowblower"
         ]
         ++ (
@@ -157,7 +140,8 @@
         );
       "minimal" =
         [
-          "dumb-init"
+          "tini"
+          "--"
           "with-snowblower"
         ]
         ++ (
@@ -175,6 +159,7 @@
 
     defaultPath = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
   in
+    # AI: This is where the image gets built
     pkgs.dockerTools.buildLayeredImage {
       name = "localhost/snowblower/" + name;
       tag = version;
