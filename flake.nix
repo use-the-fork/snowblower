@@ -87,8 +87,8 @@
             enable = true;
             exec = "npm run docs:dev";
             port = {
-              container = 5432;
-              host = 5432;
+              container = 5173;
+              host = 5173;
             };
           };
 

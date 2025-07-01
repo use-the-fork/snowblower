@@ -46,7 +46,7 @@ in {
               for arg in "$@"; do
                   expanded_args+=("$(expand_vars "$arg")")
               done
-              exec "''${expanded_args[@]}" 2>&1
+              exec "''${expanded_args[@]}"
               ;;
             *)
               sleep inf

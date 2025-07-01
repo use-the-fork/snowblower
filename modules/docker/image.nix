@@ -8,8 +8,6 @@ in {
     ...
   }: let
     inherit (lib) types mkOption mkDockerImage;
-
-    yamlFormat = pkgs.formats.yaml {};
   in {
     options.snowblower = {
       docker = {
@@ -39,8 +37,8 @@ in {
             };
             toolsPackage = mkDockerImage pkgs {
               name = "tools";
-              fromImage = config.snowblower.docker.image.runtimePackage;
-              packages = config.snowblower.packages.tools;
+              basePackageSet = "minimal";
+              packages = config.snowblower.packages.tools ++ config.snowblower.packages.runtime;
             };
           };
         };

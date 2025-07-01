@@ -26,6 +26,7 @@
         displayName = "NPM";
         description = "NPM Package Manager";
         command = "npm";
+        env = "tools";
       };
 
       environmentVariables = {

@@ -79,36 +79,34 @@
     version ? "latest",
     packages ? [],
     fromImage ? null,
-    basePackageSet ? "minimal",
-    extraCommands ? "",
-    maxLayers ? 120,
-    compressor ? "none", # "none", "gz","zstd"
+    basePackageSet ? "minimal", # "none", "gz","zstd"
     entrypoint ? null,
     env ? [],
-    extendPath ? [],
   }: let
-    createDirs = pkgs.runCommand "tmp" {} ''
-      mkdir $out
-      mkdir -m 0770 $out/tmp
-      mkdir -m 0770 $out/var
-      mkdir -m 0770 -p $out/usr/local/bin
-      mkdir -m 0770 -p $out/home/snowuser
-    '';
+    # Pulling the debian:stable-slim base image
+    debianBaseImage = pkgs.dockerTools.pullImage {
+      imageName = "debian";
+      imageDigest = "sha256:6fe30b9cb71d604a872557be086c74f95451fecd939d72afe3cffca3d9e60607";
+      sha256 = "fMCsw+uDtIgjp7v7woohAeaks6e1RYsE4/PIsnZ/9QQ=";
+      finalImageName = "debian";
+      finalImageTag = "stable-slim";
+    };
 
     microBasePackages = [
-      pkgs.dockerTools.binSh # /bin/sh
-      pkgs.dockerTools.usrBinEnv # /usr/bin/env
-      pkgs.dockerTools.caCertificates # SSL/TLS certificates
+      # pkgs.dockerTools.binSh # /bin/sh
+      # pkgs.dockerTools.usrBinEnv # /usr/bin/env
+      # pkgs.dockerTools.caCertificates # SSL/TLS certificates
 
       pkgs.bashInteractive # None Interactive bash shell
       pkgs.uutils-coreutils-noprefix # Core utilities like ls, cat, etc but in rust
 
-      pkgs.iana-etc # /etc/services and related files
-      pkgs.tzdata # Timezone data
+      # pkgs.iana-etc # /etc/services and related files
+      # pkgs.tzdata # Timezone data
 
+      # pkgs.cacert
       pkgs.tini # Default process supervisor (https://github.com/krallin/tini)
 
-      createDirs
+      # createDirs
     ];
     minimalBasePackages = [
       pkgs.glibc # Standard C library
@@ -156,30 +154,35 @@
     };
 
     basePackages = basePackageSets.${basePackageSet};
-    contents = basePackages ++ packages;
     defaultCmd = basePackageDefaultCmds.${basePackageSet};
 
     defaultEntrypoint = basePackageDefaultEntrypoint.${basePackageSet};
-
-    defaultPath = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
   in
-    pkgs.dockerTools.buildLayeredImage {
+    pkgs.dockerTools.buildImage {
       name = "localhost/snowblower/" + name;
       tag = version;
-      inherit fromImage;
-      inherit maxLayers;
-      inherit compressor;
+      fromImage = debianBaseImage;
 
-      enableFakechroot = true;
+      copyToRoot = pkgs.buildEnv {
+        name = "image-root";
+        pathsToLink = ["/bin"];
+        paths =
+          [
+            pkgs.shadow
+            pkgs.tini
+          ]
+          ++ basePackages ++ packages;
+      };
 
-      inherit contents;
-      inherit extraCommands;
+      runAsRoot = ''
+        #!${pkgs.runtimeShell}
+        mkdir -p /etc
 
-      fakeRootCommands = ''
-        ${pkgs.dockerTools.shadowSetup}
-        groupadd --gid ${builtins.getEnv "SB_USER_GID"} snowuser
+        groupadd --gid ${builtins.getEnv "SB_USER_UID"} snowuser
         useradd --uid ${builtins.getEnv "SB_USER_UID"} -r -g snowuser snowuser
+
         mkdir -p /workspace
+        mkdir -p /home/snowuser
 
         chown snowuser:snowuser /workspace
         chown -R snowuser:snowuser /home/snowuser
@@ -188,6 +191,26 @@
         chown -R snowuser:snowuser /snowblower/profile
       '';
 
+      # inherit compressor;
+
+      # enableFakechroot = true;
+
+      # inherit contents;
+      # inherit extraCommands;
+
+      # fakeRootCommands = ''
+      #   ${pkgs.dockerTools.shadowSetup}
+      #   groupadd --gid ${builtins.getEnv "SB_USER_GID"} snowuser
+      #   useradd --uid ${builtins.getEnv "SB_USER_UID"} -r -g snowuser snowuser
+      #   mkdir -p /workspace
+
+      #   chown snowuser:snowuser /workspace
+      #   chown -R snowuser:snowuser /home/snowuser
+
+      #   mkdir -p /snowblower/profile
+      #   chown -R snowuser:snowuser /snowblower/profile
+      # '';
+
       config = {
         Entrypoint = defaultEntrypoint;
         Cmd = defaultCmd;
@@ -195,15 +218,10 @@
           [
             "HOME=/home/snowuser"
             "DISPLAY=:0"
+            # "SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
+            # "SSL_CERT_DIR=${pkgs.cacert}/etc/ssl/certs/"
           ]
-          ++ env
-          ++ (
-            if builtins.length extendPath > 0
-            then [
-              "PATH=${builtins.concatStringsSep ":" extendPath}:${defaultPath}"
-            ]
-            else []
-          );
+          ++ env;
         User = "snowuser";
         WorkingDir = "/workspace";
       };

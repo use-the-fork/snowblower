@@ -649,7 +649,7 @@ function doCommand__ai__son {
 	doRoutedCommandExecute "tools" "${cmd_args[@]}" "$@"
 }
 
-function doCommand__npm { doRoutedCommandExecute "native" npm "$@"; }
+function doCommand__npm { doRoutedCommandExecute "tools" npm "$@"; }
 
 function doCommand__oxker { doRoutedCommandExecute "service" oxker "$@"; }
 
