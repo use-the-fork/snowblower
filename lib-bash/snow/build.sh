@@ -1,4 +1,4 @@
-function doSnowBuildLogic() {
+function doSnowBuildImagesLogic() {
 
 	_iSnow "Rebuilding Images"
 
@@ -59,7 +59,7 @@ function doSnowBuild() {
 
 	# Then build images if requested
 	if [[ $build_images == true ]]; then
-		doSnowBuildLogic
+		doSnowBuildImagesLogic
 	fi
 
 	exit 0

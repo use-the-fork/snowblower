@@ -1,7 +1,0 @@
-auto-commits: false
-auto-lint: true
-cache-prompts: false
-code-theme: solarized-dark
-dark-mode: true
-dirty-commits: true
-light-mode: false

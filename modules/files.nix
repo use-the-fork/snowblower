@@ -85,17 +85,17 @@ in {
               relTarget="''${SB_SRC_ROOT}/''${relTarget}"
             fi
 
-            mkdir -p "$(dirname "./$relTarget")"
+            mkdir -p "$(dirname "$relTarget")"
 
             # Check if source is a directory and use -r flag if needed
             if [ -d "$source" ]; then
-              cp -rf "$source" "./$relTarget"
+              cp -rf "$source" "$relTarget"
             else
-              cp -f "$source" "./$relTarget"
+              cp -f "$source" "$relTarget"
             fi
 
             if [[ $executable == "1" ]]; then
-              chmod +x "./$relTarget"
+              chmod +x "$relTarget"
             fi
             _iNote "Created %s" "$relTarget"
 
