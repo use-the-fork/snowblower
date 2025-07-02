@@ -92,14 +92,6 @@
     maxLayers ? 120,
     compressor ? "none", # "none", "gz","zstd"
   }: let
-    createDirs = pkgs.runCommand "tmp" {} ''
-      mkdir $out
-      mkdir -m 0770 $out/tmp
-      mkdir -m 0770 $out/var
-      mkdir -m 0770 -p $out/usr/local/bin
-      mkdir -m 0770 -p $out/home/snowuser
-    '';
-
     defaultPath = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin:/snowblower/profile/bin";
   in
     pkgs.dockerTools.buildLayeredImage {
@@ -122,8 +114,6 @@
           pkgs.tini # Default process supervisor (https://github.com/krallin/tini)
 
           pkgs.glibc # Standard C library
-
-          createDirs
         ]
         ++ packages;
 
@@ -136,6 +126,15 @@
 
         mkdir -p /workspace
         chown snowuser:snowuser /workspace
+
+        mkdir -p /tmp
+        chown -R snowuser:snowuser /tmp
+
+        mkdir -p /var
+        chown -R snowuser:snowuser /var
+
+        mkdir -p /usr/local/bin
+        chown -R snowuser:snowuser /usr/local/bin
 
         chown -R snowuser:snowuser /home/snowuser
 
