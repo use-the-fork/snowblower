@@ -1,26 +1,37 @@
 # From: https://github.com/kigster/bashmatic/blob/main/lib/output.sh#L94
 
-# TODO: Add IsTerminal to commands
-
 export LEFT_PREFIX="    "
 
+function cursorSave() {
+	isTerminal && printf "\e[s"
+}
+
+function cursorRestore() {
+	isTerminal && printf "\e[u"
+}
+
+function cursorHide() {
+	isTerminal && printf "\033[?25l"
+}
+
+function cursorShow() {
+	isTerminal && printf "\033[?25h"
+}
+
 function cursorRightBy() {
-	#   output.is-terminal && printf "\e[${1}C"
-	printf "\e[${1:-"1"}C"
+	isTerminal && printf "\e[${1:-"1"}C"
 }
 
 function cursorLeftBy() {
-	#   output.is-terminal && printf "\e[${1}D"
-	printf "\e[${1:-"1"}D"
+	isTerminal && printf "\e[${1:-"1"}D"
 }
 
 function cursorUpBy() {
-	printf "\e[${1:-"1"}A"
+	isTerminal && printf "\e[${1:-"1"}A"
 }
 
 function cursorDownBy() {
-	#   output.is-terminal && printf "\e[${1}B"
-	printf "\e[${1:-"1"}B"
+	isTerminal && printf "\e[${1:-"1"}B"
 }
 
 function cursorUp() {
@@ -32,17 +43,14 @@ function cursorDown() {
 }
 
 function _inlineFlake() {
-	cursorUp 1
-	printf " ❄️ ${NC}"
+	printf "${CYAN} ❆ ${NC}"
 }
 
-function _inlineCloud() {
-	cursorUp 1
-	printf " 💨 ${NC}"
+function _inlineHeart() {
+	printf "${RED} ❤ ${NC}"
 }
 
 function _inlineCheck() {
-	cursorUp 1
 	printf "${GREEN} ✔︎ ${NC}"
 }
 
@@ -51,22 +59,23 @@ function _inlineNotOk() {
 }
 
 function _inlineCross() {
-	cursorUp 1
 	printf "${RED} ✘ ${NC}"
 }
 
 function _inlineWarning() {
-	cursorUp 1
 	printf "${YELLOW} ✱ ${NC}"
 }
 
 function _inlineNote() {
-	cursorUp 1
 	printf "      ${NC}"
 }
 
 function _iBreak() {
 	echo "${NC}"
+}
+
+function _iClear() {
+	printf "\033[0J"
 }
 
 function _i() {
@@ -78,19 +87,29 @@ function _i() {
 
 function _iSnow() {
 	_i "$@"
+	cursorUp 1
 	_inlineFlake
 	echo "${NC}"
 }
 
-function _iCloud() {
+function _iHeart() {
 	_i "$@"
-	_inlineFlake
+	cursorUp 1
+	_inlineHeart
 	echo "${NC}"
 }
 
 function _iOk() {
 	_i "$@"
+	cursorUp 1
 	_inlineCheck
+	echo "${NC}"
+}
+
+function _iNotOk() {
+	_i "$@"
+	cursorUp 1
+	_inlineCross
 	echo "${NC}"
 }
 
@@ -120,6 +139,78 @@ function _iVerbose() {
 	if [[ -v VERBOSE ]]; then
 		_i "$@"
 	fi
+}
+
+function _iWithSpinner() {
+	local message="$1"
+	shift
+
+	local command="$@"
+
+	local spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+	local temp_file=$(mktemp)
+
+   # Cleanup function for trap
+    function cleanup() {
+        cursorShow
+        rm -f "$temp_file"
+        kill $cmd_pid 2>/dev/null || true
+    }
+
+	# Set trap to cleanup on exit/interrupt
+    trap cleanup EXIT INT TERM
+
+	# Start command in background
+	eval "$command" >"$temp_file" 2>&1 &
+	local cmd_pid=$!
+
+	# Save cursor position and hide it
+	cursorSave
+	cursorHide
+
+	# Show spinner while command runs
+	local i=0
+	while kill -0 $cmd_pid 2>/dev/null; do
+
+		# Move up to spinner line and update it
+		printf " ${NC}${CYAN}%s  ${NC}${WHITE}%s${NC}" "${spinner:i:1}" "$message"
+
+		# Show last 4 lines of output if file exists and has content
+		if [[ -s $temp_file ]]; then
+			local last_output=$(tail -n 5 "$temp_file" 2>/dev/null)
+			if [[ -n $last_output ]]; then
+				printf "\n"
+				echo "$last_output" | sed 's/^/    /'
+			fi
+		fi
+
+		# Restore cursor position
+		cursorRestore
+
+		i=$(((i + 1) % ${#spinner}))
+		sleep 0.1
+	done
+
+	cursorShow
+	cursorRestore
+	_iClear
+	
+
+	# Wait for command to finish and get exit code
+	wait $cmd_pid
+	local exit_code=$?
+
+	# Clear the spinner line and show final status
+	if [ $exit_code -eq 0 ]; then
+		_iOk "$message"
+	else
+		_iNotOk "$message"
+		# TODO: Make this print better?
+		cat "$temp_file"
+	fi
+
+	rm -f "$temp_file"
+	return $exit_code
 }
 
 function _iCommandSection() {
@@ -172,4 +263,24 @@ function _iCommandSection() {
 	done
 
 	echo
+}
+
+function isTerminal() {
+	isTty || isRedirect || isPipe || isSsh
+}
+
+function isTty() {
+	[[ -t 1 ]]
+}
+
+function isRedirect() {
+	[[ ! -t 1 && ! -p /dev/stdout ]]
+}
+
+function isPipe() {
+	[[ -p /dev/stdout ]]
+}
+
+function isSsh() {
+	[[ -n ${SSH_CLIENT} || -n ${SSH_CONNECTION} ]]
 }

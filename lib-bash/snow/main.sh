@@ -93,9 +93,6 @@ while [[ $i -lt ${#AFTER_SEPARATOR[@]} ]]; do
         esac
 done
 
-# Welcome Message
-_iSnow "SnowBlower: All flake no fluff."
-
 # Lets GOOOO!!!!!
 doBoot
 

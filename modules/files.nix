@@ -71,13 +71,7 @@ in {
     config = {
       snowblower = {
         filesPackage = pkgs.writeScriptBin "snowblower-files" ''
-          ${builtins.readFile ./../lib-bash/utils/head.sh}
-
-          # keep-sorted start
-          ${builtins.readFile ./../lib-bash/utils/color.sh}
-          ${builtins.readFile ./../lib-bash/utils/file.sh}
-          ${builtins.readFile ./../lib-bash/utils/output.sh}
-          # keep-sorted end
+          ${builtins.readFile config.snowblower.utilitiesPackage}
 
           doSetupColors
 
@@ -122,15 +116,12 @@ in {
           )}
 
           _iOk "File Generation Complete"
-          _i "Format snow"
-          if ${lib.getExe pkgs.shfmt} -s -w snow > /dev/null 2>&1; then
-            _inlineCheck
-          else
-            _inlineCross
-          fi
-          _iBreak
+
+          _iWithSpinner "Format snow" ${lib.getExe pkgs.shfmt} -s -w snow
+
           _iOk "Files copied to current directory"
-          _iCloud "Operation Complete"
+
+          _iHeart "Operation Complete"
         '';
 
         directoriesPackage = pkgs.writeTextFile {

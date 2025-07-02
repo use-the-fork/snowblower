@@ -78,9 +78,13 @@
   mkDockerImage = pkgs: {
     name,
     version ? "latest",
-    packages ? [], # "none", "gz","zstd"
+    packages ? [],
+    fromImage ? null,
+    extraCommands ? "",
     env ? [],
     extendPath ? [],
+    maxLayers ? 120,
+    compressor ? "none", # "none", "gz","zstd"
   }: let
     createDirs = pkgs.runCommand "tmp" {} ''
       mkdir $out
@@ -90,71 +94,49 @@
       mkdir -m 0770 -p $out/home/snowuser
     '';
 
-    basePackages = [
-      pkgs.bashInteractive # None Interactive bash shell
-      pkgs.dockerTools.usrBinEnv # /usr/bin/env
-      pkgs.dockerTools.caCertificates # SSL/TLS certificates
-
-      pkgs.uutils-coreutils-noprefix # Core utilities like ls, cat, etc but in rust
-
-      pkgs.tini # Default process supervisor (https://github.com/krallin/tini)
-
-      pkgs.glibc # Standard C library
-
-      createDirs
-    ];
-
-    defaultPath = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin";
+    defaultPath = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin:/snowblower/profile/bin";
   in
-    pkgs.dockerTools.buildImage {
+    pkgs.dockerTools.buildLayeredImage {
       name = "localhost/snowblower/" + name;
       tag = version;
+      inherit fromImage;
+      inherit maxLayers;
+      inherit compressor;
+      inherit extraCommands;
 
-      copyToRoot = pkgs.buildEnv {
-        name = "image-root";
-        pathsToLink = ["/bin"];
-        paths =
-          [
-            pkgs.shadow
-            pkgs.tini
-          ]
-          ++ basePackages ++ packages;
-      };
+      contents =
+        [
+          pkgs.bashInteractive # None Interactive bash shell
+          pkgs.dockerTools.usrBinEnv # /usr/bin/env
+          pkgs.dockerTools.caCertificates # SSL/TLS certificates
+          pkgs.shadow
 
-      runAsRoot = ''
-        #!${pkgs.runtimeShell}
+          pkgs.uutils-coreutils-noprefix # Core utilities like ls, cat, etc but in rust
+
+          pkgs.tini # Default process supervisor (https://github.com/krallin/tini)
+
+          pkgs.glibc # Standard C library
+
+          createDirs
+        ]
+        ++ packages;
+
+      enableFakechroot = true;
+      fakeRootCommands = ''
 
         ${pkgs.dockerTools.shadowSetup}
         groupadd --gid ${builtins.getEnv "SB_USER_GID"} snowuser
         useradd --uid ${builtins.getEnv "SB_USER_UID"} -r -g snowuser snowuser
-        mkdir -p /workspace
 
+        mkdir -p /workspace
         chown snowuser:snowuser /workspace
+
         chown -R snowuser:snowuser /home/snowuser
 
         mkdir -p /snowblower/profile
+        mkdir -p /snowblower/profile/bin
         chown -R snowuser:snowuser /snowblower/profile
       '';
-
-      # inherit compressor;
-
-      # enableFakechroot = true;
-
-      # inherit contents;
-      # inherit extraCommands;
-
-      # fakeRootCommands = ''
-      #   ${pkgs.dockerTools.shadowSetup}
-      #   groupadd --gid ${builtins.getEnv "SB_USER_GID"} snowuser
-      #   useradd --uid ${builtins.getEnv "SB_USER_UID"} -r -g snowuser snowuser
-      #   mkdir -p /workspace
-
-      #   chown snowuser:snowuser /workspace
-      #   chown -R snowuser:snowuser /home/snowuser
-
-      #   mkdir -p /snowblower/profile
-      #   chown -R snowuser:snowuser /snowblower/profile
-      # '';
 
       config = {
         Entrypoint = ["${lib.getExe pkgs.tini}" "--"];
@@ -174,6 +156,13 @@
           );
         User = "snowuser";
         WorkingDir = "/workspace";
+
+        Labels = {
+          "org.snowblower.project" = "snowblower";
+          "org.snowblower.image.name" = name;
+          "org.snowblower.image.version" = version;
+          "org.snowblower.project.hash" = builtins.getEnv "SB_PROJECT_HASH";
+        };
       };
     };
 in {

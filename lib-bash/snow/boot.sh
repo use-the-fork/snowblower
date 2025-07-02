@@ -39,6 +39,10 @@ doCheckSystem() {
 function doBoot() {
 
 	doSetupColors
+
+	# Welcome Message
+	_iSnow "SnowBlower: All flake no fluff."
+
 	doCheckSystem
 	doSetupSession
 	doSetRoot

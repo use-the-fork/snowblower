@@ -32,13 +32,12 @@ in {
           image = {
             runtimePackage = mkDockerImage pkgs {
               name = "runtime";
-              basePackageSet = "micro";
               packages = config.snowblower.packages.runtime;
             };
             toolsPackage = mkDockerImage pkgs {
               name = "tools";
-              basePackageSet = "minimal";
-              packages = config.snowblower.packages.tools ++ config.snowblower.packages.runtime;
+              fromImage = config.snowblower.docker.image.runtimePackage;
+              packages = config.snowblower.packages.tools;
             };
           };
         };
