@@ -4,8 +4,7 @@
     config,
     ...
   }: let
-    inherit (lib) types mkOption;
-    inherit (lib.sbl.docker) mkDockerService mkDockerServiceConfig;
+    inherit (lib.sbl.docker) mkDockerService mkDockerComposeService;
 
     cfg = config.snowblower.service.oxker;
   in {
@@ -26,15 +25,16 @@
         # This service is auto included as it's auto started with snow.
         docker.service.oxker = {
           enable = true;
-          service =
-            {
+          service = mkDockerComposeService {
+            service = {
               inherit (cfg) image;
               container_name = "oxker";
               volumes = [
                 "/var/run/docker.sock:/var/run/docker.sock:ro"
               ];
-            }
-            // mkDockerServiceConfig {manualStart = true;};
+            };
+            manualStart = true;
+          };
         };
       };
     };

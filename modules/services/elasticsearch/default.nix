@@ -9,7 +9,7 @@
     ...
   }: let
     inherit (lib) types mkOption;
-    inherit (lib.sbl.docker) mkDockerService mkDockerServiceConfig;
+    inherit (lib.sbl.docker) mkDockerService mkDockerComposeService;
 
     cfg = config.snowblower.service.elasticsearch;
   in {
@@ -56,8 +56,8 @@
       snowblower = {
         docker.service.elasticsearch = {
           enable = true;
-          service =
-            {
+          service = mkDockerComposeService {
+            service = {
               inherit (cfg) image;
               ports = [
                 "${toString cfg.settings.port}:9200"
@@ -87,8 +87,9 @@
                   hard = 65536;
                 };
               };
-            }
-            // mkDockerServiceConfig {autoStart = true;};
+            };
+            autoStart = true;
+          };
         };
 
         environmentVariables.ELASTICSEARCH_DATA = "\${PROJECT_STATE}/elasticsearch";

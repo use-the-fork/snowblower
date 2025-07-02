@@ -4,7 +4,7 @@
     config,
     ...
   }: let
-    inherit (lib) types mkOption mkDockerService mkDockerServiceConfig;
+    inherit (lib) types mkOption mkDockerService mkDockerComposeService;
 
     cfg = config.snowblower.service.blackfire;
   in {
@@ -59,8 +59,8 @@
       snowblower = {
         docker.service.blackfire = {
           enable = true;
-          service =
-            {
+          service = mkDockerComposeService {
+            service = {
               inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:8307"];
               environment = {
@@ -74,8 +74,9 @@
                   then "1"
                   else "0";
               };
-            }
-            // mkDockerServiceConfig {autoStart = true;};
+            };
+            autoStart = true;
+          };
         };
 
         environmentVariables = {

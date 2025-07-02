@@ -8,7 +8,7 @@ in {
     ...
   }: let
     inherit (lib) types mkOption;
-    inherit (lib.sbl.docker) mkDockerServiceConfig;
+    inherit (lib.sbl.docker) mkDockerComposeService;
 
     serviceModule = {
       imports = [./../../lib/types/service-module.nix];
@@ -107,7 +107,7 @@ in {
         docker = {
           service."runtime" = {
             enable = true;
-            service = mkDockerServiceConfig {
+            service = mkDockerComposeService {
               autoStart = true;
               runtime = true;
             };
@@ -115,8 +115,8 @@ in {
 
           service."tools" = {
             enable = true;
-            service =
-              {
+            service = mkDockerComposeService {
+              service = {
                 image = "${config.snowblower.docker.image.toolsPackage.imageName}:${config.snowblower.docker.image.toolsPackage.imageTag}";
                 volumes = [
                   ".:/workspace"
@@ -129,10 +129,9 @@ in {
                   "SB_PROJECT_STATE" = "/snowblower/state";
                 };
                 tty = true;
-              }
-              // mkDockerServiceConfig {
-                autoStart = true;
               };
+              autoStart = true;
+            };
           };
         };
 

@@ -5,7 +5,7 @@
     ...
   }: let
     inherit (lib) types mkOption;
-    inherit (lib) mkDockerService mkDockerServiceConfig;
+    inherit (lib) mkDockerService mkDockerComposeService;
 
     cfg = config.snowblower.service.memcached;
   in {
@@ -30,8 +30,8 @@
         docker.common.dependsOn = ["memcached"];
         docker.service.memcached = {
           enable = true;
-          service =
-            {
+          service = mkDockerComposeService {
+            service = {
               inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:11211"];
               command = ["-m" "${cfg.settings.memoryLimit}"];
@@ -41,8 +41,9 @@
                 timeout = "5s";
                 retries = 3;
               };
-            }
-            // mkDockerServiceConfig {autoStart = true;};
+            };
+            autoStart = true;
+          };
         };
       };
     };

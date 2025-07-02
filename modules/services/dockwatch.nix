@@ -4,7 +4,7 @@
     config,
     ...
   }: let
-    inherit (lib) types mkOption mkDockerService mkDockerServiceConfig;
+    inherit (lib) mkDockerService mkDockerComposeService;
 
     cfg = config.snowblower.service.dockwatch;
   in {
@@ -18,8 +18,8 @@
       snowblower = {
         docker.service.dockwatch = {
           enable = true;
-          service =
-            {
+          service = mkDockerComposeService {
+            service = {
               inherit (cfg) image;
               container_name = "dockwatch";
               ports = ["${toString cfg.settings.port}:80"];
@@ -32,8 +32,9 @@
                 PGID = "999";
                 TZ = "America/New_York";
               };
-            }
-            // mkDockerServiceConfig {autoStart = true;};
+            };
+            autoStart = true;
+          };
         };
 
         environmentVariables.DOCKWATCHDATA = "\${SB_PROJECT_STATE}/dockwatch";

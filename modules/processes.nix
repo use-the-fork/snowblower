@@ -7,8 +7,7 @@ in {
     pkgs,
     ...
   }: let
-    inherit (lib) types mkOption;
-    inherit (lib) mkDockerServiceConfig;
+    inherit (lib) types mkOption mkDockerComposeService;
 
     cfg = lib.filterAttrs (_n: f: f.enable) config.snowblower.process;
 
@@ -43,17 +42,16 @@ in {
       snowblower.docker.service =
         lib.mapAttrs (name: process: {
           enable = true;
-          service =
-            {
+          service = mkDockerComposeService {
+            service = {
               ports =
                 lib.optional (process.port.container != null && process.port.host != null)
                 "${toString process.port.host}:${toString process.port.container}";
               command = "with-snowblower snow-${name}";
-            }
-            // mkDockerServiceConfig {
-              autoStart = true;
-              runtime = true;
             };
+            autoStart = true;
+            runtime = true;
+          };
         })
         cfg;
     };

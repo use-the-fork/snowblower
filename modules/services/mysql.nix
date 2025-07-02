@@ -5,7 +5,7 @@
     ...
   }: let
     inherit (lib) types mkOption;
-    inherit (lib) mkDockerService mkDockerServiceConfig;
+    inherit (lib) mkDockerService mkDockerComposeService;
 
     cfg = config.snowblower.service.mysql;
   in {
@@ -53,8 +53,8 @@
         docker.common.dependsOn = ["mysql"];
         docker.service.mysql = {
           enable = true;
-          service =
-            {
+          service = mkDockerComposeService {
+            service = {
               inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:3306"];
               volumes = ["${toString config.snowblower.env.MYSQLDATA}:/var/lib/mysql"];
@@ -77,8 +77,9 @@
                 timeout = "5s";
                 retries = 3;
               };
-            }
-            // mkDockerServiceConfig {autoStart = true;};
+            };
+            autoStart = true;
+          };
         };
 
         environmentVariables.REDISDATA = "\${SB_PROJECT_STATE}/mysql";

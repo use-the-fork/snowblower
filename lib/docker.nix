@@ -9,7 +9,8 @@
     ;
 
   # Function to generate common flags object based on options
-  mkDockerServiceConfig = {
+  mkDockerComposeService = {
+    service ? {},
     manualStart ? false,
     autoStart ? false,
     runtime ? false,
@@ -19,29 +20,34 @@
       (lib.optional manualStart "manual-start")
       (lib.optional autoStart "auto-start")
     ];
+
+    finalCombinedService = lib.fold lib.recursiveUpdate {} [
+      {
+        inherit profiles;
+        restart = "no";
+      }
+      (lib.optionalAttrs network {
+        networks = ["snownet"];
+      })
+      (lib.optionalAttrs runtime {
+        depends_on = [];
+        image = "localhost/snowblower/runtime:latest";
+        volumes = [
+          ".:/workspace"
+          "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile"
+          "\${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state"
+        ];
+        working_dir = "/workspace";
+        environment = {
+          "SB_PROJECT_PROFILE" = "/snowblower/profile";
+          "SB_PROJECT_STATE" = "/snowblower/state";
+        };
+        tty = true;
+      })
+      service
+    ];
   in
-    {
-      inherit profiles;
-      restart = "no";
-    }
-    // (lib.optionalAttrs network {
-      networks = ["snownet"];
-    })
-    // (lib.optionalAttrs runtime {
-      depends_on = [];
-      image = "localhost/snowblower/runtime:latest";
-      volumes = [
-        ".:/workspace"
-        "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile"
-        "\${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state"
-      ];
-      working_dir = "/workspace";
-      environment = {
-        "SB_PROJECT_PROFILE" = "/snowblower/profile";
-        "SB_PROJECT_STATE" = "/snowblower/state";
-      };
-      tty = true;
-    });
+    finalCombinedService;
 
   # The `mkDockerService` function takes a few arguments to generate
   # a module for a service without repeating the same options
@@ -166,5 +172,5 @@
       };
     };
 in {
-  inherit mkDockerImage mkDockerService mkDockerServiceConfig;
+  inherit mkDockerImage mkDockerService mkDockerComposeService;
 }

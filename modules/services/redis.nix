@@ -4,8 +4,7 @@
     config,
     ...
   }: let
-    inherit (lib) types mkOption;
-    inherit (lib.sbl.docker) mkDockerService mkDockerServiceConfig;
+    inherit (lib.sbl.docker) mkDockerService mkDockerComposeService;
 
     cfg = config.snowblower.service.redis;
   in {
@@ -21,8 +20,8 @@
         docker.common.dependsOn = ["redis"];
         docker.service.redis = {
           enable = true;
-          service =
-            {
+          service = mkDockerComposeService {
+            service = {
               inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:6379"];
               volumes = ["${toString config.snowblower.environmentVariables.REDISDATA}:/data"];
@@ -32,8 +31,9 @@
                 timeout = "5s";
                 retries = 3;
               };
-            }
-            // mkDockerServiceConfig {autoStart = true;};
+            };
+            autoStart = true;
+          };
         };
 
         environmentVariables.REDISDATA = "\${SB_PROJECT_STATE}/redis";

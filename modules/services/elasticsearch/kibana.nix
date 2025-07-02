@@ -5,7 +5,7 @@
     ...
   }: let
     inherit (lib) types mkOption;
-    inherit (lib.sbl.docker) mkDockerService mkDockerServiceConfig;
+    inherit (lib.sbl.docker) mkDockerService mkDockerComposeService;
 
     cfg = config.snowblower.service.elasticsearch.kibana;
   in {
@@ -26,9 +26,9 @@
 
     config = lib.mkIf cfg.enable {
       snowblower = {
-        docker.services.kibana =
-          {
-            enable = true;
+        docker.services.kibana = {
+          enable = true;
+          service = mkDockerComposeService {
             service = {
               inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:5601"];
@@ -46,8 +46,9 @@
                 retries = 5;
               };
             };
-          }
-          // mkDockerServiceConfig {autoStart = true;};
+          };
+          autoStart = true;
+        };
 
         environmentVariables.KIBANA_DATA = "\${PROJECT_STATE}/kibana";
       };
