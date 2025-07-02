@@ -3,9 +3,9 @@ function doCreateTouchFile() {
 	# Evaluate the path with variables
 	filePath=$(eval echo "$filePath")
 
-	# Check if the path is not already within the project root
-	if [[ $filePath != "$SB_PROJECT_ROOT"* ]]; then
-		filePath="${SB_PROJECT_ROOT}/${filePath}"
+	# Check if the path is not already within the project root or src root
+	if [[ $filePath != "$SB_PROJECT_ROOT"* && $filePath != "$SB_SRC_ROOT"* ]]; then
+		filePath="${SB_SRC_ROOT}/${dirPath}"
 	fi
 
 	# Create parent directory if it doesn't exist
@@ -13,7 +13,7 @@ function doCreateTouchFile() {
 
 	# Touch the file to create it empty
 	touch "$filePath"
-	_iOk "Created touch file" "$filePath"
+	_iNote "Created %s" "$filePath"
 }
 
 function doCreateDirectory() {
@@ -21,11 +21,11 @@ function doCreateDirectory() {
 	# Evaluate the path with variables
 	dirPath=$(eval echo "$dirPath")
 
-	# Check if the path is not already within the project root
-	if [[ $dirPath != "$SB_PROJECT_ROOT"* ]]; then
-		dirPath="${SB_PROJECT_ROOT}/${dirPath}"
+	# Check if the path is not already within the project root or src root
+	if [[ $dirPath != "$SB_PROJECT_ROOT"* && $dirPath != "$SB_SRC_ROOT"* ]]; then
+		dirPath="${SB_SRC_ROOT}/${dirPath}"
 	fi
 
 	mkdir -p "$dirPath"
-	_iOk "Created directory" "$dirPath"
+	_iNote "Created %s" "$dirPath"
 }

@@ -109,11 +109,6 @@ function doInit() {
 	SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
 	echo "export SB_PROJECT_STATE=\"$SB_PROJECT_STATE\"" >>"$SB_PROJECT_ENV_FILE"
 
-	# the below two function are added via a seperate package in files.nix.
-	# But we need to boot it here so we can be sure all directories are created.
-	doCreateDirectories
-	doCreateTouchFiles
-
 	return 0
 
 }

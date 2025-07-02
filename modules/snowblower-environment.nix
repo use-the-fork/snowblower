@@ -66,10 +66,6 @@ in {
             text = ''
               ${builtins.readFile config.snowblower.utilitiesPackage}
 
-              ${builtins.readFile ./../lib-bash/file-creation.sh}
-              ${builtins.readFile config.snowblower.directoriesPackage}
-              ${builtins.readFile config.snowblower.touchFilesPackage}
-
               ${builtins.readFile ./../lib-bash/snow/boot.sh}
 
               function doHook__up__pre {

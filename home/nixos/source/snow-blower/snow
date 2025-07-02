@@ -1,0 +1,1386 @@
+#!/usr/bin/env bash
+###############################################################################################
+#
+#  SnowBlower: All Flake No Fluff
+#  https://github.com/use-the-fork/snowblower
+#
+
+set -e
+set -o pipefail
+
+
+
+function isSnowBlowerUp {
+	if ! isSnowBlowerDockerContainerUp; then
+		_iError "SnowBlower is not running."
+		_iNote "You must first run 'snow up'."
+		exit 1
+	fi
+}
+
+function isSnowBlowerDockerContainerUp {
+	# Check if snowblower-dev service container exists and is running
+	[ -n "$($SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" ps -q "$SB_APP_SERVICE" 2>/dev/null)" ]
+}
+
+# Function that checks
+function doRunChecks {
+	if [ -z "$SB_SKIP_CHECKS" ]; then
+		# Ensure that SnowBlower is running...
+		if ! isSnowBlowerDockerContainerUp; then
+			_iFail "${BOLD}SnowBlower is not running.${NC}" >&2
+			_iNote "Run 'snow up' to start SnowBlower."
+			exit 1
+		fi
+
+		# Determine if SnowBlower is currently up...
+		# if $SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" ps -q "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
+		# 	_iWarn "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
+		# 	$SB_DOCKER_PATH down >/dev/null 2>&1
+		# 	isNotRunning
+		# elif [ -z "$($SB_DOCKER_PATH ps -q "$SB_APP_SERVICE")" ]; then
+		# 	isNotRunning
+		# fi
+	fi
+}
+
+# Various Check functions
+
+function isInsideDocker() {
+	test -f /.dockerenv
+}
+
+function hasNix() {
+	if [ -n "$SB_NIX_PATH" ]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+function isInsideSnowblowerShell() {
+	if [ -n "$SB_IN_SHELL" ]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+function shouldExit() {
+	local -r exit_code="${1}"
+	shift
+	local -r expected="${1}"
+	shift
+	if [ "$exit_code" != "${expected:-0}" ]; then
+		exit "${exit_code}"
+	fi
+}
+
+# Credits to https://github.com/nix-community/home-manager/blob/master/lib/bash/home-manager.sh
+# The setup respects the `NO_COLOR` environment variable.
+function doSetupColors() {
+	BOLD=""
+	DIM=""
+	UNDERLINE=""
+	BLINK=""
+	REVERSE=""
+	NC=""
+	BLACK=""
+	RED=""
+	GREEN=""
+	YELLOW=""
+	BLUE=""
+	MAGENTA=""
+	CYAN=""
+	WHITE=""
+
+	# Enable colors for terminals, and allow opting out.
+	if [[ ! -v NO_COLOR && -t 1 ]]; then
+		# See if it supports colors.
+		local ncolors
+		ncolors=$(tput colors 2>/dev/null || echo 0)
+
+		if [[ -n $ncolors && $ncolors -ge 8 ]]; then
+			# Text attributes
+			BOLD="$(tput bold)"
+			DIM="$(tput dim)"
+			UNDERLINE="$(tput smul)"
+			BLINK="$(tput blink)"
+			REVERSE="$(tput rev)"
+			NC="$(tput sgr0)" # No Color
+
+			# Regular colors
+			BLACK="$(tput setaf 0)"
+			RED="$(tput setaf 1)"
+			GREEN="$(tput setaf 2)"
+			YELLOW="$(tput setaf 3)"
+			BLUE="$(tput setaf 4)"
+			MAGENTA="$(tput setaf 5)"
+			CYAN="$(tput setaf 6)"
+			WHITE="$(tput setaf 7)"
+		fi
+	fi
+}
+
+# Credits: https://github.com/srid/flake-root/blob/master/flake-module.nix
+# This function is used to find the flake root and set it as a env varible.
+findUp() {
+	ancestors=()
+	while true; do
+		if [[ -f $1 ]]; then
+			echo "$PWD"
+			exit 0
+		fi
+		ancestors+=("$PWD")
+		if [[ $PWD == / ]] || [[ $PWD == // ]]; then
+			echo "Unable to locate ${1}"
+			exit 1
+		fi
+		cd ..
+	done
+}
+
+getFileMd5Hash() {
+	if [ -f "$1" ]; then
+		echo $(echo "$1") | md5sum | cut -d' ' -f1
+		return 0
+	else
+		return 1
+	fi
+}
+
+# Function to ask user for confirmation before proceeding
+function confirmAction {
+	local message="$1"
+	local response
+
+	echo -n "${message} (y/N): "
+	read -r response
+
+	case "$response" in
+	[yY] | [yY][eE][sS])
+		return 0
+		;;
+	*)
+		echo "Operation cancelled."
+		exit 0
+		;;
+	esac
+}
+
+expand_vars() {
+    local arg="$1"
+	# Use eval to expand variables, but escape special characters first
+    eval "echo \"$arg\""
+}
+# From: https://github.com/kigster/bashmatic/blob/main/lib/output.sh#L94
+
+export LEFT_PREFIX="    "
+
+function cursorSave() {
+	isTerminal && printf "\e[s"
+}
+
+function cursorRestore() {
+	isTerminal && printf "\e[u"
+}
+
+function cursorHide() {
+	isTerminal && printf "\033[?25l"
+}
+
+function cursorShow() {
+	isTerminal && printf "\033[?25h"
+}
+
+function cursorRightBy() {
+	isTerminal && printf "\e[${1:-"1"}C"
+}
+
+function cursorLeftBy() {
+	isTerminal && printf "\e[${1:-"1"}D"
+}
+
+function cursorUpBy() {
+	isTerminal && printf "\e[${1:-"1"}A"
+}
+
+function cursorDownBy() {
+	isTerminal && printf "\e[${1:-"1"}B"
+}
+
+function cursorUp() {
+	cursorUpBy "$@"
+}
+
+function cursorDown() {
+	cursorDownBy "$@"
+}
+
+function _inlineFlake() {
+	printf "${CYAN} ❆ ${NC}"
+}
+
+function _inlineHeart() {
+	printf "${RED} ❤ ${NC}"
+}
+
+function _inlineCheck() {
+	printf "${GREEN} ✔︎ ${NC}"
+}
+
+function _inlineNotOk() {
+	inlineError
+}
+
+function _inlineCross() {
+	printf "${RED} ✘ ${NC}"
+}
+
+function _inlineWarning() {
+	printf "${YELLOW} ✱ ${NC}"
+}
+
+function _inlineNote() {
+	printf "      ${NC}"
+}
+
+function _iBreak() {
+	echo "${NC}"
+}
+
+function _iClear() {
+	printf "\033[0J"
+}
+
+function _i() {
+	local msgid="$1"
+	shift
+
+	printf "${LEFT_PREFIX}${msgid}\n" "$@"
+}
+
+function _iSnow() {
+	_i "$@"
+	cursorUp 1
+	_inlineFlake
+	echo "${NC}"
+}
+
+function _iHeart() {
+	_i "$@"
+	cursorUp 1
+	_inlineHeart
+	echo "${NC}"
+}
+
+function _iOk() {
+	_i "$@"
+	cursorUp 1
+	_inlineCheck
+	echo "${NC}"
+}
+
+function _iNotOk() {
+	_i "$@"
+	cursorUp 1
+	_inlineCross
+	echo "${NC}"
+}
+
+function _iError() {
+	echo -n "${RED}"
+	_i "$@"
+	echo -n "${NC}"
+}
+
+function _iFail() {
+	_iError "$@"
+}
+
+function _iWarn() {
+	echo -n "${YELLOW}"
+	_i "$@"
+	echo -n "${NC}"
+}
+
+function _iNote() {
+	echo -n "${BLUE}"
+	_i "$@"
+	echo -n "${NC}"
+}
+
+function _iVerbose() {
+	if [[ -v VERBOSE ]]; then
+		_i "$@"
+	fi
+}
+
+function _iWithSpinner() {
+	local message="$1"
+	shift
+
+	local command="$@"
+
+	local spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+	local temp_file=$(mktemp)
+
+   # Cleanup function for trap
+    function cleanup() {
+        cursorShow
+        rm -f "$temp_file"
+        kill $cmd_pid 2>/dev/null || true
+    }
+
+	# Set trap to cleanup on exit/interrupt
+    trap cleanup EXIT INT TERM
+
+	# Start command in background
+	eval "$command" >"$temp_file" 2>&1 &
+	local cmd_pid=$!
+
+	# Save cursor position and hide it
+	cursorSave
+	cursorHide
+
+	# Show spinner while command runs
+	local i=0
+	while kill -0 $cmd_pid 2>/dev/null; do
+
+		# Move up to spinner line and update it
+		printf " ${NC}${CYAN}%s  ${NC}${WHITE}%s${NC}" "${spinner:i:1}" "$message"
+
+		# Show last 4 lines of output if file exists and has content
+		if [[ -s $temp_file ]]; then
+			local last_output=$(tail -n 5 "$temp_file" 2>/dev/null)
+			if [[ -n $last_output ]]; then
+				printf "\n"
+				echo "$last_output" | sed 's/^/    /'
+			fi
+		fi
+
+		# Restore cursor position
+		cursorRestore
+
+		i=$(((i + 1) % ${#spinner}))
+		sleep 0.1
+	done
+
+	cursorShow
+	cursorRestore
+	_iClear
+	
+
+	# Wait for command to finish and get exit code
+	wait $cmd_pid
+	local exit_code=$?
+
+	# Clear the spinner line and show final status
+	if [ $exit_code -eq 0 ]; then
+		_iOk "$message"
+	else
+		_iNotOk "$message"
+		# TODO: Make this print better?
+		cat "$temp_file"
+	fi
+
+	rm -f "$temp_file"
+	return $exit_code
+}
+
+function _iCommandSection() {
+	local command_name="$1"
+	local display_name="$2"
+	shift 2
+	local options=("$@")
+
+	echo "${YELLOW}${display_name} Commands:${NC}"
+	# First pass: calculate the maximum width of command part
+	local max_width=0
+	local commands=()
+	local descriptions=()
+
+	for option in "${options[@]}"; do
+		if [[ $option == *"|"* ]]; then
+			IFS='|' read -r cmd desc <<<"$option"
+			if [[ -n $command_name ]]; then
+				local cmd_text="snow -- ${command_name} ${cmd}"
+			else
+				local cmd_text="snow ${cmd}"
+			fi
+			commands+=("$cmd_text")
+			descriptions+=("$desc")
+		else
+			if [[ -n $command_name ]]; then
+				local cmd_text="snow -- ${command_name} ..."
+			else
+				local cmd_text="snow ..."
+			fi
+			commands+=("$cmd_text")
+			descriptions+=("Run a ${display_name} command")
+		fi
+
+		# Calculate width without color codes
+		local width=${#cmd_text}
+		if ((width > max_width)); then
+			max_width=$width
+		fi
+	done
+
+	# Second pass: print with aligned descriptions
+	for i in "${!commands[@]}"; do
+		local cmd_text="${commands[i]}"
+		local desc="${descriptions[i]}"
+		local padding_needed=$((35 - ${#cmd_text}))
+		local padding=$(printf "%*s" $padding_needed "")
+
+		echo "  ${GREEN}${cmd_text}${NC}${padding}${desc}"
+	done
+
+	echo
+}
+
+function isTerminal() {
+	isTty || isRedirect || isPipe || isSsh
+}
+
+function isTty() {
+	[[ -t 1 ]]
+}
+
+function isRedirect() {
+	[[ ! -t 1 && ! -p /dev/stdout ]]
+}
+
+function isPipe() {
+	[[ -p /dev/stdout ]]
+}
+
+function isSsh() {
+	[[ -n ${SSH_CLIENT} || -n ${SSH_CONNECTION} ]]
+}
+
+
+
+
+function doSetRoot() {
+	# We need to find our project root early on so downstream options can use it.
+	SB_SRC_ROOT="$(findUp $SB_PROJECT_ROOT_FILE)"
+	if [ $? -ne 0 ]; then
+		_iError "Unable to locate project root. Make sure you're in a project directory with a flake.nix file"
+		exit 1
+	fi
+	_iVerbose "Found project root at %s" $SB_SRC_ROOT
+	export SB_SRC_ROOT
+}
+
+function doSetProjectHash() {
+	local base_dir_name
+	name=$(basename "$SB_SRC_ROOT")
+
+	local hash
+	hash=$(echo -n "$SB_SRC_ROOT" | md5sum | awk '{print $1}')
+
+	export SB_PROJECT_HASH="${name}-r${hash}"
+	_iVerbose "Set project hash as $SB_PROJECT_HASH"
+}
+
+doCheckSystem() {
+	UNAMEOUT="$(uname -s)"
+
+	# Verify operating system is supported...
+	case "${UNAMEOUT}" in
+	Linux*) MACHINE=linux ;;
+	Darwin*) MACHINE=mac ;;
+	*) MACHINE="UNKNOWN" ;;
+	esac
+
+	if [ "$MACHINE" == "UNKNOWN" ]; then
+		_iError "Unsupported operating system [$(uname -s)]." "SnowBlower supports macOS, Linux, and Windows (WSL2)." >&2
+		exit 1
+	fi
+}
+
+function doBoot() {
+
+	doSetupColors
+
+	# Welcome Message
+	_iSnow "SnowBlower: All flake no fluff."
+
+	doCheckSystem
+	doSetupSession
+	doSetRoot
+	doSetProjectHash
+
+	# Check if our Datapath exsist in the Home Snowblower directory.
+	if [ ! -d "$HOME" ]; then
+		_iError "Unable to locate home folder. Please create or export one to continue."
+		exit 1
+	fi
+
+	export SB_PROJECT_ROOT="$HOME/snowblower/$SB_PROJECT_HASH"
+	export SB_PROJECT_ENV_FILE="$SB_PROJECT_ROOT/.project_env"
+
+	if [ -f "$SB_PROJECT_ENV_FILE" ]; then
+		_iVerbose "SnowBlower Project Directory and paths file exsist skipping init."
+		source "$SB_PROJECT_ENV_FILE"
+
+		return 0
+	fi
+
+	doInit
+}
+
+
+function doInit() {
+
+
+	if [ ! -d "$SB_PROJECT_ROOT" ]; then
+		_iOk "Initilizing Project at %s." $SB_PROJECT_ROOT
+
+		mkdir -p "$SB_PROJECT_ROOT/profile"
+		mkdir -p "$SB_PROJECT_ROOT/state"
+		_iVerbose "Created profile and state directories."
+	fi
+
+	# Check if Docker is installed
+	if SB_NIX_PATH=$(command -v nix 2>/dev/null) ; then
+		_iOk "Nix path set to %s" "${SB_NIX_PATH}"
+	else
+		_iError "Nix is not installed or not in PATH. Please install Nix to continue."
+		# TODO: Add nix Install links here.
+		exit 1
+	fi
+
+	# Check if Docker is installed
+	if SB_DOCKER_PATH=$(command -v docker 2>/dev/null) ; then
+		_iOk "Docker path set to %s" "${SB_DOCKER_PATH}"
+	else
+		_iError "Docker is not installed or not in PATH. Please install Docker to continue."
+		exit 1
+	fi
+
+	# All Checks passed we can now create the .project_env file so we dont have to do this every time.
+	echo "export SB_NIX_PATH=\"$SB_NIX_PATH\"" >>"$SB_PROJECT_ENV_FILE"
+	echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >>"$SB_PROJECT_ENV_FILE"
+	echo "export SB_USER_UID=\"${USER_UID}\"" >>"$SB_PROJECT_ENV_FILE"
+	echo "export SB_USER_GID=\"${USER_GID}\"" >>"$SB_PROJECT_ENV_FILE"
+
+
+	SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
+	echo "export SB_PROJECT_PROFILE=\"$SB_PROJECT_PROFILE\"" >>"$SB_PROJECT_ENV_FILE"
+
+	SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
+	echo "export SB_PROJECT_STATE=\"$SB_PROJECT_STATE\"" >>"$SB_PROJECT_ENV_FILE"
+
+	return 0
+
+}
+
+function doSetupSession() {
+
+	# Source the ".env" file so environment variables are available...
+	# shellcheck source=/dev/null
+	if [ -n "${APP_ENV+x}" ] && [ -n "$APP_ENV" ] && [ -f ./.env."$APP_ENV" ]; then
+		source ./.env."$APP_ENV"
+		_iNote "Found and sourced %s" ".env.{$APP_ENV}"
+	elif [ -f ./.env ]; then
+		source ./.env
+		_iNote "Found and sourced %s" ".env"
+	fi
+
+	# Global constants that are used in many parts of the script
+	export SB_APP_SERVICE=${APP_SERVICE:-"tools"}
+	export USER_UID=${USER_UID:-$UID}
+	export USER_GID=${USER_GID:-$(id -g)}
+	export SB_PROJECT_ROOT_FILE=${PROJECT_ROOT_FILE:-"flake.nix"}
+
+	_iVerbose "Set project root file to %s" "${SB_PROJECT_ROOT_FILE}"
+}
+
+function doHook__up__pre {
+  echo -n
+  # Set local git config from global if global exists and local doesn't
+if git config --global user.name >/dev/null 2>&1 && ! git config user.name >/dev/null 2>&1; then
+  git config user.name "$(git config --global user.name)"
+  _iNote "Set local git user.name to: $(git config user.name)"
+fi
+if git config --global user.email >/dev/null 2>&1 && ! git config user.email >/dev/null 2>&1; then
+  git config user.email "$(git config --global user.email)"
+  _iNote "Set local git user.email to: $(git config user.email)"
+fi
+
+
+}
+
+function doSetupEnvironmentVariables() {
+  # Only source this once.
+  if [ -v __SB_SESS_VARS_SOURCED ]; then return; fi
+  export __SB_SESS_VARS_SOURCED=1
+
+  export NPM_CONFIG_CACHE="${SB_PROJECT_STATE}/npm"
+export NPM_CONFIG_TMP="${SB_PROJECT_STATE}/npm"
+export NPM_CONFIG_USERCONFIG="${SB_PROJECT_STATE}/npm/config"
+export PRE_COMMIT_HOME="${SB_PROJECT_STATE}/pre_commit"
+}
+
+doSetupEnvironmentVariables
+
+
+# Additional help functions for internal Commands
+
+function doHelp__snow {
+	local commands=(
+		
+		"build|Builds all containers in compose file"
+		"down|Stop the application"
+		"ps|Display the status of all containers"
+		"reboot|Erase current session and reset vars"
+		"switch|Regenerate all config files"
+		"update|Update all dependencies by updating the Flake (Nix flake update)"
+		"up|Start the application"
+		
+	)
+
+	_iCommandSection "" "SnowBlower" "${commands[@]}"
+}
+
+function displayAllResolvedCommands {
+  doHelp__snow
+  doHelp__agenix
+doHelp__ai
+doHelp__npm
+doHelp__oxker
+doHelp__pre-commit
+doHelp__treefmt
+
+}
+function doHelp__agenix {
+  local commands=('...|Run a Agenix command' 'rekey|Rekey secrets')
+  _iCommandSection "agenix" "Agenix" "${commands[@]}"
+}
+
+function doHelp__ai {
+  local commands=('...|Run a Aider command' 'gem|using Gemini as base' 'son|using Sonet as base')
+  _iCommandSection "ai" "Aider" "${commands[@]}"
+}
+
+function doHelp__npm {
+  local commands=('...|Run a NPM command')
+  _iCommandSection "npm" "NPM" "${commands[@]}"
+}
+
+function doHelp__oxker {
+  local commands=('...|Run a Oxker command')
+  _iCommandSection "oxker" "Oxker" "${commands[@]}"
+}
+
+function doHelp__pre-commit {
+  local commands=('all|Run precommit on all files')
+  _iCommandSection "pre-commit" "Pre-commit" "${commands[@]}"
+}
+
+function doHelp__treefmt {
+  local commands=('...|Run a Treefmt command')
+  _iCommandSection "treefmt" "Treefmt" "${commands[@]}"
+}
+
+
+
+function doHelp {
+	echo "${YELLOW}Usage:${NC}" >&2
+	echo "  snow [options] COMMAND SUBCOMMAND [arguments]"
+	echo
+	displayAllResolvedCommands
+	echo
+	exit 1
+}
+
+
+function doCommand__agenix { doRoutedCommandExecute "tools" sb-agenix "$@"; }
+function doCommand__agenix__rekey {
+  local cmd_args=(sb-agenix --rekey)
+  doRoutedCommandExecute "tools" "${cmd_args[@]}" "$@"
+}
+
+
+
+function doCommand__ai { doRoutedCommandExecute "tools" aider "$@"; }
+function doCommand__ai__gem {
+  local cmd_args=(aider --no-show-release-notes --model gemini --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --lint-cmd treefmt)
+  doRoutedCommandExecute "tools" "${cmd_args[@]}" "$@"
+}
+
+function doCommand__ai__son {
+  local cmd_args=(aider --no-show-release-notes --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read CONVENTIONS.MD --lint-cmd treefmt)
+  doRoutedCommandExecute "tools" "${cmd_args[@]}" "$@"
+}
+
+
+
+function doCommand__npm { doRoutedCommandExecute "tools" npm "$@"; }
+
+
+
+function doCommand__oxker { doRoutedCommandExecute "service" oxker "$@"; }
+
+
+
+
+function doCommand__pre-commit__all {
+  local cmd_args=('' run --all-files)
+  doRoutedCommandExecute "tools" "${cmd_args[@]}" "$@"
+}
+
+
+
+function doCommand__treefmt { doRoutedCommandExecute "tools" treefmt "$@"; }
+
+
+
+
+
+
+# Function that outputs SnowBlower is not running...
+function isNotRunning {
+	echo
+	_iFail "Environment is not running." >&2
+	_iNote "To start run %s" "snow up"
+	exit 1
+}
+
+# Figures out the type of envirment the command is running in and then routes approriatly.
+function doRoutedCommandExecute() {
+
+	_iVerbose "Attempting to run: $*"
+
+	# Save the first argument (environment type) and shift it
+	local env_type="$1"
+	shift
+
+	case "$env_type" in
+	native)
+		_iVerbose "Executing command natively"
+		exec "$@"
+		return $?
+		;;
+	tools | runtime)
+		doRunChecks
+
+		ARGS=()
+		ARGS+=(exec -u "$SB_USER_UID")
+		[ ! -t 0 ] && ARGS+=(-T)
+		ARGS+=("$env_type")
+
+		_iVerbose "Executing command via docker compose in %s service" $env_type
+
+		# Execute the command with proper shell evaluation
+		$SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" "${ARGS[@]}" "with-snowblower" "$@"
+		return $?
+		;;
+	service)
+		doRunChecks
+
+		# Extract the service name from the first argument
+		local service_name="$1"
+		shift
+
+		_iVerbose "Executing command via docker compose run in %s service" "$service_name"
+
+		# Execute the command using docker compose run
+		$SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" run --rm "$service_name" "$@"
+		return $?
+		;;
+	*)
+		_iFail "Unknown environment type: $env_type" >&2
+		return 1
+		;;
+	esac
+}
+
+function hasSubCommand() {
+	local command="$1"
+	local subcommand="$2"
+
+	# Check if the function exists for this command/subcommand combination
+	if declare -f "doCommand__${command}__${subcommand}" >/dev/null 2>&1; then
+		return 0 # Function exists, so subcommand is valid
+	else
+		return 1 # Function doesn't exist, so subcommand is invalid
+	fi
+}
+
+function hasHelpCommand() {
+	local command="$1"
+
+	# Check if the function exists for this command/subcommand combination
+	if declare -f "doHelp__${command}" >/dev/null 2>&1; then
+		return 0 # Function exists, so we can display help for it.
+	else
+		return 1 # Function doesn't exist, so no help is invalid
+	fi
+}
+
+function doSnowBash {
+	doRoutedCommandExecute tools bash
+	exit 0
+}
+
+function doSetRoot() {
+	# We need to find our project root early on so downstream options can use it.
+	SB_SRC_ROOT="$(findUp $SB_PROJECT_ROOT_FILE)"
+	if [ $? -ne 0 ]; then
+		_iError "Unable to locate project root. Make sure you're in a project directory with a flake.nix file"
+		exit 1
+	fi
+	_iVerbose "Found project root at %s" $SB_SRC_ROOT
+	export SB_SRC_ROOT
+}
+
+function doSetProjectHash() {
+	local base_dir_name
+	name=$(basename "$SB_SRC_ROOT")
+
+	local hash
+	hash=$(echo -n "$SB_SRC_ROOT" | md5sum | awk '{print $1}')
+
+	export SB_PROJECT_HASH="${name}-r${hash}"
+	_iVerbose "Set project hash as $SB_PROJECT_HASH"
+}
+
+doCheckSystem() {
+	UNAMEOUT="$(uname -s)"
+
+	# Verify operating system is supported...
+	case "${UNAMEOUT}" in
+	Linux*) MACHINE=linux ;;
+	Darwin*) MACHINE=mac ;;
+	*) MACHINE="UNKNOWN" ;;
+	esac
+
+	if [ "$MACHINE" == "UNKNOWN" ]; then
+		_iError "Unsupported operating system [$(uname -s)]." "SnowBlower supports macOS, Linux, and Windows (WSL2)." >&2
+		exit 1
+	fi
+}
+
+function doBoot() {
+
+	doSetupColors
+
+	# Welcome Message
+	_iSnow "SnowBlower: All flake no fluff."
+
+	doCheckSystem
+	doSetupSession
+	doSetRoot
+	doSetProjectHash
+
+	# Check if our Datapath exsist in the Home Snowblower directory.
+	if [ ! -d "$HOME" ]; then
+		_iError "Unable to locate home folder. Please create or export one to continue."
+		exit 1
+	fi
+
+	export SB_PROJECT_ROOT="$HOME/snowblower/$SB_PROJECT_HASH"
+	export SB_PROJECT_ENV_FILE="$SB_PROJECT_ROOT/.project_env"
+
+	if [ -f "$SB_PROJECT_ENV_FILE" ]; then
+		_iVerbose "SnowBlower Project Directory and paths file exsist skipping init."
+		source "$SB_PROJECT_ENV_FILE"
+
+		return 0
+	fi
+
+	doInit
+}
+
+
+function doInit() {
+
+
+	if [ ! -d "$SB_PROJECT_ROOT" ]; then
+		_iOk "Initilizing Project at %s." $SB_PROJECT_ROOT
+
+		mkdir -p "$SB_PROJECT_ROOT/profile"
+		mkdir -p "$SB_PROJECT_ROOT/state"
+		_iVerbose "Created profile and state directories."
+	fi
+
+	# Check if Docker is installed
+	if SB_NIX_PATH=$(command -v nix 2>/dev/null) ; then
+		_iOk "Nix path set to %s" "${SB_NIX_PATH}"
+	else
+		_iError "Nix is not installed or not in PATH. Please install Nix to continue."
+		# TODO: Add nix Install links here.
+		exit 1
+	fi
+
+	# Check if Docker is installed
+	if SB_DOCKER_PATH=$(command -v docker 2>/dev/null) ; then
+		_iOk "Docker path set to %s" "${SB_DOCKER_PATH}"
+	else
+		_iError "Docker is not installed or not in PATH. Please install Docker to continue."
+		exit 1
+	fi
+
+	# All Checks passed we can now create the .project_env file so we dont have to do this every time.
+	echo "export SB_NIX_PATH=\"$SB_NIX_PATH\"" >>"$SB_PROJECT_ENV_FILE"
+	echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >>"$SB_PROJECT_ENV_FILE"
+	echo "export SB_USER_UID=\"${USER_UID}\"" >>"$SB_PROJECT_ENV_FILE"
+	echo "export SB_USER_GID=\"${USER_GID}\"" >>"$SB_PROJECT_ENV_FILE"
+
+
+	SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
+	echo "export SB_PROJECT_PROFILE=\"$SB_PROJECT_PROFILE\"" >>"$SB_PROJECT_ENV_FILE"
+
+	SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
+	echo "export SB_PROJECT_STATE=\"$SB_PROJECT_STATE\"" >>"$SB_PROJECT_ENV_FILE"
+
+	return 0
+
+}
+
+function doSetupSession() {
+
+	# Source the ".env" file so environment variables are available...
+	# shellcheck source=/dev/null
+	if [ -n "${APP_ENV+x}" ] && [ -n "$APP_ENV" ] && [ -f ./.env."$APP_ENV" ]; then
+		source ./.env."$APP_ENV"
+		_iNote "Found and sourced %s" ".env.{$APP_ENV}"
+	elif [ -f ./.env ]; then
+		source ./.env
+		_iNote "Found and sourced %s" ".env"
+	fi
+
+	# Global constants that are used in many parts of the script
+	export SB_APP_SERVICE=${APP_SERVICE:-"tools"}
+	export USER_UID=${USER_UID:-$UID}
+	export USER_GID=${USER_GID:-$(id -g)}
+	export SB_PROJECT_ROOT_FILE=${PROJECT_ROOT_FILE:-"flake.nix"}
+
+	_iVerbose "Set project root file to %s" "${SB_PROJECT_ROOT_FILE}"
+}
+function doSnowBuildLogic() {
+
+	_iSnow "Rebuilding Images"
+
+	_iWithSpinner "Pruning Old Images" $SB_DOCKER_PATH image prune -f --filter "label=org.snowblower.project=$SB_PROJECT_HASH"
+
+	rm -f "$SB_PROJECT_ROOT/result"
+
+	_iWithSpinner "Building Runtime Docker Image" $SB_NIX_PATH build --impure --out-link "$SB_PROJECT_ROOT/result" .#dockerRuntimeImagePackage
+	_iWithSpinner "Loading Runtime Docker Image" $SB_DOCKER_PATH load -i "$SB_PROJECT_ROOT/result"
+
+	rm -f "$SB_PROJECT_ROOT/result"
+
+	_iWithSpinner "Building Tooling Docker Image" $SB_NIX_PATH build --impure --out-link "$SB_PROJECT_ROOT/result" .#dockerToolsImagePackage
+	_iWithSpinner "Loading Tooling Docker Image" $SB_DOCKER_PATH load -i "$SB_PROJECT_ROOT/result"
+
+	rm -f "$SB_PROJECT_ROOT/result"
+
+	_iHeart "Build Complete"
+
+	return 0
+}
+
+function doSnowBuildFilesLogic() {
+	$SB_NIX_PATH run --impure .#snowblowerFiles -L
+	return 0
+}
+
+function doSnowBuild() {
+
+	local build_files=false
+	local build_images=false
+
+	# If no arguments are passed, run both
+	if [[ $# -eq 0 ]]; then
+		build_files=true
+		build_images=true
+	else
+		# Check arguments
+		for arg in "$@"; do
+			if [[ $arg == "-f" || $arg == "--files" ]]; then
+				build_files=true
+			elif [[ $arg == "-i" || $arg == "--images" ]]; then
+				build_images=true
+			fi
+		done
+
+		# If no recognized arguments, default to both
+		if [[ $build_files == false && $build_images == false ]]; then
+			build_files=true
+			build_images=true
+		fi
+	fi
+
+	# Always build files first if requested
+	if [[ $build_files == true ]]; then
+		doSnowBuildFilesLogic
+	fi
+
+	# Then build images if requested
+	if [[ $build_images == true ]]; then
+		doSnowBuildLogic
+	fi
+
+	exit 0
+}
+
+function doSnowDownLogic() {
+	# Check if snowblower is running
+	if ! isSnowBlowerDockerContainerUp; then
+		_iError "SnowBlower is already down."
+		return 1
+	fi
+
+	# If it's running, run docker compose down and wait for it to finish then run doDestroySession
+	_iOk "Stopping SnowBlower services..."
+	$SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" --profile auto-start down --remove-orphans
+
+	_iCloud "SnowBlower has been stopped."
+	return 0
+}
+
+function doSnowDown {
+	doSnowDownLogic
+	exit 0
+}
+
+function doSnowPsLogic() {
+
+	# Check if snowblower is running
+	if ! isSnowBlowerDockerContainerUp; then
+		_iError "SnowBlower is already down."
+		return 1
+	fi
+
+	$SB_DOCKER_PATH -f "$SB_SRC_ROOT/docker-compose.yml" ps
+
+	return 0
+}
+
+function doSnowPs {
+	doSnowPsLogic
+	exit 0
+}
+
+function doSnowSwitch() {
+
+	# Check if snowblower is running
+	if isSnowBlowerDockerContainerUp; then
+		confirmAction "A SnowBlower Docker instance is running. This action will shut down the current instance. Continue?"
+
+		# If it's running, run docker compose down and wait for it to finish.
+		_iOk "Stopping SnowBlower services..."
+
+		doSnowDownLogic
+	fi
+
+	doSnowBuildLogic
+
+	# Start Docker
+	doSnowUpLogic
+
+	_iNote "Running file generator..."
+	doRoutedCommandExecute tools snowblower-files
+
+	# Take it back down
+	doSnowDownLogic
+
+	_iCloud "Switch Complete"
+
+	exit 0
+}
+
+function doSnowUpLogic() {
+	# Execute pre-up hooks
+	doHook__up__pre
+
+	# Check if SnowBlower docker container is already running
+	if isSnowBlowerDockerContainerUp; then
+		_iError "SnowBlower container is already running. Use 'snow down' to stop it first."
+		return 1
+	fi
+
+	# Start docker-compose detached
+	$SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" --profile auto-start up --detach --remove-orphans "$@"
+	doRoutedCommandExecute "tools" "snowblower-hooks" "tools_pre"
+
+	return 0
+}
+
+function doSnowUp {
+
+	doSnowUpLogic "$@"
+	if [ $? -eq 1 ]; then
+		exit 1
+	fi
+
+	doRoutedCommandExecute "service" oxker
+
+	doRoutedCommandExecute "tools" "snowblower-hooks" "tools_post"
+	doSnowDownLogic
+
+	exit 0
+}
+
+function doSnowUpdate {
+
+    $SB_NIX_PATH flake update
+	doSnowSwitch
+	
+	exit 0
+}
+
+
+
+PASSTHROUGH_OPTS=()
+
+SNOW_COMMAND=""
+SNOW_COMMAND_ARGS=()
+
+COMMAND=""
+SUBCOMMAND=""
+COMMAND_ARGS=()
+
+# Split arguments at the `--` separator
+BEFORE_SEPARATOR=()
+AFTER_SEPARATOR=()
+
+# Used here to split the function in to anything before '--' and after.
+FOUND_SEPARATOR=false
+for arg in "$@"; do
+    if [[ "$arg" == "--" ]]; then
+        FOUND_SEPARATOR=true
+        continue
+    fi
+    
+    if [[ "$FOUND_SEPARATOR" == true ]]; then
+        AFTER_SEPARATOR+=("$arg")
+    else
+        BEFORE_SEPARATOR+=("$arg")
+    fi
+done
+
+
+# Process snow-specific options and commands before `--`
+i=0
+while [[ $i -lt ${#BEFORE_SEPARATOR[@]} ]]; do
+    opt="${BEFORE_SEPARATOR[$i]}"
+    i=$((i+1))
+    
+    case $opt in
+        -v|--verbose)
+            export VERBOSE=1
+            ;;
+        -h|--help)
+            export HELP=1
+            ;;
+        --version)
+            echo 25.11-pre
+            exit 0
+            ;;
+        switch|up|down|update|reboot|build|ps|bash|help)
+            SNOW_COMMAND="$opt"
+            ;;
+        *)
+            case $SNOW_COMMAND in
+                switch|update|reboot|up|down|build|ps|bash|help)
+                    SNOW_COMMAND_ARGS+=("$opt")
+                    ;;
+                *)
+                    if [[ -z $SNOW_COMMAND ]]; then
+                        _iError "%s: unknown snow option '%s'. Use format: snow [options] -- command [args]" "$0" "$opt" >&2
+                        exit 1
+                    else
+                        SNOW_COMMAND_ARGS+=("$opt")
+                    fi
+                    ;;
+            esac
+            ;;
+    esac
+done
+
+# Process environment commands and subcommands from after `--`
+i=0
+while [[ $i -lt ${#AFTER_SEPARATOR[@]} ]]; do
+    opt="${AFTER_SEPARATOR[$i]}"
+    i=$((i+1))    
+            case $opt in
+            agenix|ai|npm|oxker|pre-commit|treefmt)
+                export COMMAND="$opt"
+                ;;
+            *)
+                case $COMMAND in
+                    agenix|ai|npm|oxker|pre-commit|treefmt)
+                        export COMMAND_ARGS+=("$opt")
+                        ;;
+                    *)
+                        if [[ -z $COMMAND ]]; then
+                            _iError "%s: unknown command '%s'" "$0" "$opt" >&2
+                            _i "Run '%s --help' for usage help" "$0" >&2
+                            exit 1
+                        else
+                            export COMMAND_ARGS+=("$opt")
+                        fi
+                        ;;
+                esac
+                ;;
+        esac
+done
+
+# Lets GOOOO!!!!!
+doBoot
+
+# Parse subcommand from COMMAND_ARGS if needed
+# This works becuase a sub command must come after a command
+if [[ -n $COMMAND && ${#COMMAND_ARGS[@]} -gt 0 ]]; then
+    potential_subcommand="${COMMAND_ARGS[0]}"
+    
+    if hasSubCommand "$COMMAND" "$potential_subcommand"; then
+        export SUBCOMMAND="$potential_subcommand"
+        export COMMAND_ARGS=("${COMMAND_ARGS[@]:1}")
+    fi
+fi
+
+# Check if no `--` was found and no snow command was specified
+if [[ "$found_separator" == false && -z $SNOW_COMMAND ]]; then
+    doHelp >&2
+    exit 1
+fi
+
+if [[ -n $HELP && -n $COMMAND ]]; then
+  if hasHelpCommand "$COMMAND"; then
+      doHelp__$COMMAND
+      exit 1
+  fi
+fi
+
+# Handle snow-specific commands first
+if [[ -n $SNOW_COMMAND ]]; then
+    case $SNOW_COMMAND in
+        
+        switch)
+            doSnowSwitch "${SNOW_COMMAND_ARGS[@]}"
+            ;;
+        build)
+            doSnowBuild "${SNOW_COMMAND_ARGS[@]}"
+            ;;
+        ps)
+            doSnowPs "${SNOW_COMMAND_ARGS[@]}"
+            ;;
+        up)
+            doSnowUp "${SNOW_COMMAND_ARGS[@]}"
+            ;;
+        down)
+            doSnowDown "${SNOW_COMMAND_ARGS[@]}"
+            ;;
+        update)
+            doSnowUpdate "${SNOW_COMMAND_ARGS[@]}"
+            ;;
+        bash)
+            doSnowBash "${SNOW_COMMAND_ARGS[@]}"
+            ;;
+        reboot)
+            doSnowReboot "${SNOW_COMMAND_ARGS[@]}"
+            ;;
+        
+        help)
+            doHelp "${SNOW_COMMAND_ARGS[@]}"
+            ;;
+        *)
+            _iError 'Unknown snow command: %s' "$SNOW_COMMAND" >&2
+            exit 1
+            ;;
+    esac
+    exit 0
+fi
+
+# Handle environment commands
+if [[ -z $COMMAND ]]; then
+    doHelp >&2
+    exit 1
+fi
+
+# None of the below should be run if SnowBlower is not up.
+isSnowBlowerUp
+
+case $COMMAND in
+    agenix)
+    if [[ -n $SUBCOMMAND ]]; then
+        if hasSubCommand "agenix" "$SUBCOMMAND"; then
+            doCommand__agenix__$SUBCOMMAND "${COMMAND_ARGS[@]}"
+        else
+            doCommand__agenix "${COMMAND_ARGS[@]}"
+        fi
+    else
+        doCommand__agenix "${COMMAND_ARGS[@]}"
+    fi
+    ;;
+ai)
+    if [[ -n $SUBCOMMAND ]]; then
+        if hasSubCommand "ai" "$SUBCOMMAND"; then
+            doCommand__ai__$SUBCOMMAND "${COMMAND_ARGS[@]}"
+        else
+            doCommand__ai "${COMMAND_ARGS[@]}"
+        fi
+    else
+        doCommand__ai "${COMMAND_ARGS[@]}"
+    fi
+    ;;
+npm)
+    if [[ -n $SUBCOMMAND ]]; then
+        if hasSubCommand "npm" "$SUBCOMMAND"; then
+            doCommand__npm__$SUBCOMMAND "${COMMAND_ARGS[@]}"
+        else
+            doCommand__npm "${COMMAND_ARGS[@]}"
+        fi
+    else
+        doCommand__npm "${COMMAND_ARGS[@]}"
+    fi
+    ;;
+oxker)
+    if [[ -n $SUBCOMMAND ]]; then
+        if hasSubCommand "oxker" "$SUBCOMMAND"; then
+            doCommand__oxker__$SUBCOMMAND "${COMMAND_ARGS[@]}"
+        else
+            doCommand__oxker "${COMMAND_ARGS[@]}"
+        fi
+    else
+        doCommand__oxker "${COMMAND_ARGS[@]}"
+    fi
+    ;;
+pre-commit)
+    if [[ -n $SUBCOMMAND ]]; then
+        if hasSubCommand "pre-commit" "$SUBCOMMAND"; then
+            doCommand__pre-commit__$SUBCOMMAND "${COMMAND_ARGS[@]}"
+        else
+            doCommand__pre-commit "${COMMAND_ARGS[@]}"
+        fi
+    else
+        doCommand__pre-commit "${COMMAND_ARGS[@]}"
+    fi
+    ;;
+treefmt)
+    if [[ -n $SUBCOMMAND ]]; then
+        if hasSubCommand "treefmt" "$SUBCOMMAND"; then
+            doCommand__treefmt__$SUBCOMMAND "${COMMAND_ARGS[@]}"
+        else
+            doCommand__treefmt "${COMMAND_ARGS[@]}"
+        fi
+    else
+        doCommand__treefmt "${COMMAND_ARGS[@]}"
+    fi
+    ;;
+
+    *)
+        _iError 'Unknown command: %s' "$COMMAND" >&2
+        _i >&2
+        exit 1
+        ;;
+esac
+
+

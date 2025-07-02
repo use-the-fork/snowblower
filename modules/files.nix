@@ -80,6 +80,11 @@ in {
             local relTarget="$2"
             local executable="$3"
 
+            # Check if the path is not already within the project root or src root
+            if [[ $relTarget != "$SB_PROJECT_ROOT"* && $relTarget != "$SB_SRC_ROOT"* ]]; then
+              relTarget="''${SB_SRC_ROOT}/''${relTarget}"
+            fi
+
             mkdir -p "$(dirname "./$relTarget")"
 
             # Check if source is a directory and use -r flag if needed
@@ -121,36 +126,36 @@ in {
 
           _iOk "Files copied to current directory"
 
+          ${builtins.readFile ./../lib-bash/file-creation.sh}
+          ${builtins.readFile config.snowblower.directoriesPackage}
+          ${builtins.readFile config.snowblower.touchFilesPackage}
+
           _iHeart "Operation Complete"
         '';
 
         directoriesPackage = pkgs.writeTextFile {
           name = "snowblower-directories";
           text = ''
-            function doCreateDirectories() {
-              _iVerbose "Creating Directories" "''${SB_PROJECT_ROOT}"
-              ${lib.concatStrings (
+            _iSnow "Creating Directories"
+            ${lib.concatStrings (
               map (dir: ''
                 doCreateDirectory ${lib.escapeShellArgs [dir]}
               '')
               config.snowblower.directories
             )}
-            }
           '';
         };
 
         touchFilesPackage = pkgs.writeTextFile {
           name = "snowblower-touch-files";
           text = ''
-            function doCreateTouchFiles() {
-              _iVerbose "Creating Touch Files in %s" "''${SB_PROJECT_ROOT}"
-              ${lib.concatStrings (
+            _iSnow "Creating Touch Files"
+            ${lib.concatStrings (
               map (file: ''
                 doCreateTouchFile ${lib.escapeShellArgs [file]}
               '')
               config.snowblower.touchFiles
             )}
-            }
           '';
         };
 
