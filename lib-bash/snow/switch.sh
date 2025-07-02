@@ -21,7 +21,7 @@ function doSnowSwitch() {
 	# Take it back down
 	doSnowDownLogic
 
-	_iCloud "Switch Complete"
+	_iHeart "Switch Complete"
 
 	exit 0
 }

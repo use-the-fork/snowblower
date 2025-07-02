@@ -136,6 +136,7 @@
         mkdir -p /usr/local/bin
         chown -R snowuser:snowuser /usr/local/bin
 
+        mkdir -p /home/snowuser
         chown -R snowuser:snowuser /home/snowuser
 
         mkdir -p /snowblower/profile
