@@ -40,6 +40,7 @@
         "SB_PROJECT_PROFILE" = "/snowblower/profile";
         "SB_PROJECT_STATE" = "/snowblower/state";
       };
+      tty = true;
     });
 
   # The `mkDockerService` function takes a few arguments to generate
@@ -80,7 +81,6 @@
     packages ? [],
     fromImage ? null,
     basePackageSet ? "minimal", # "none", "gz","zstd"
-    entrypoint ? null,
     env ? [],
   }: let
     # Pulling the debian:stable-slim base image
@@ -117,46 +117,7 @@
       "minimal" = microBasePackages ++ minimalBasePackages;
     };
 
-    basePackageDefaultCmds = {
-      "micro" = [
-        "/usr/bin/env"
-        "bash"
-      ];
-      "minimal" = [
-        "/usr/bin/env"
-        "bash"
-      ];
-    };
-
-    basePackageDefaultEntrypoint = {
-      "micro" =
-        [
-          "tini"
-          "--"
-          "with-snowblower"
-        ]
-        ++ (
-          if entrypoint != null
-          then ["exec" entrypoint]
-          else []
-        );
-      "minimal" =
-        [
-          "tini"
-          "--"
-          "with-snowblower"
-        ]
-        ++ (
-          if entrypoint != null
-          then ["exec" entrypoint]
-          else []
-        );
-    };
-
     basePackages = basePackageSets.${basePackageSet};
-    defaultCmd = basePackageDefaultCmds.${basePackageSet};
-
-    defaultEntrypoint = basePackageDefaultEntrypoint.${basePackageSet};
   in
     pkgs.dockerTools.buildImage {
       name = "localhost/snowblower/" + name;
@@ -212,14 +173,12 @@
       # '';
 
       config = {
-        Entrypoint = defaultEntrypoint;
-        Cmd = defaultCmd;
+        Entrypoint = ["${lib.getExe pkgs.tini}" "--"];
+        Cmd = "bash";
         Env =
           [
             "HOME=/home/snowuser"
             "DISPLAY=:0"
-            # "SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
-            # "SSL_CERT_DIR=${pkgs.cacert}/etc/ssl/certs/"
           ]
           ++ env;
         User = "snowuser";

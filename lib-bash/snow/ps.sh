@@ -6,7 +6,7 @@ function doSnowPsLogic() {
 		return 1
 	fi
 
-	$SB_DOCKER_COMPOSE_PATH -f "$SB_SRC_ROOT/docker-compose.yml" ps
+	$SB_DOCKER_PATH -f "$SB_SRC_ROOT/docker-compose.yml" ps
 
 	return 0
 }

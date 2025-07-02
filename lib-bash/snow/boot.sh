@@ -92,19 +92,9 @@ function doInit() {
 		exit 1
 	fi
 
-	# Check if Docker Compose / Podman Compose is available
-	if SB_DOCKER_COMPOSE_PATH=$(command -v docker-compose 2>/dev/null); then
-		export SB_DOCKER_COMPOSE_PATH
-		_iOk "Compose path set to %s" "${SB_DOCKER_COMPOSE_PATH}"
-	else
-		_iError "Docker Compose is not installed or not in PATH. Please install Docker Compose to continue."
-		exit 1
-	fi
-
 	# All Checks passed we can now create the .project_env file so we dont have to do this every time.
 	echo "export SB_NIX_PATH=\"$SB_NIX_PATH\"" >>"$SB_PROJECT_ENV_FILE"
 	echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >>"$SB_PROJECT_ENV_FILE"
-	echo "export SB_DOCKER_COMPOSE_PATH=\"$SB_DOCKER_COMPOSE_PATH\"" >>"$SB_PROJECT_ENV_FILE"
 	echo "export SB_USER_UID=\"${USER_UID}\"" >>"$SB_PROJECT_ENV_FILE"
 	echo "export SB_USER_GID=\"${USER_GID}\"" >>"$SB_PROJECT_ENV_FILE"
 

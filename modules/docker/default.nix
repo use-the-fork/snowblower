@@ -35,23 +35,12 @@ in {
           export SB_CONTAINER_NAME="$CONTAINER_NAME"
           export SB_SERVICE_NAME="$SERVICE_NAME"
 
-          # Save the first argument
-          command="$1"
-          shift
-
-          case "$command" in
-            exec)
-              _iNote "Executing: %s" "$*"
-              expanded_args=()
-              for arg in "$@"; do
-                  expanded_args+=("$(expand_vars "$arg")")
-              done
-              exec "''${expanded_args[@]}"
-              ;;
-            *)
-              sleep inf
-              ;;
-          esac
+          _iNote "Executing: %s" "$*"
+          expanded_args=()
+          for arg in "$@"; do
+              expanded_args+=("$(expand_vars "$arg")")
+          done
+          exec "''${expanded_args[@]}"
         '';
 
         packages.runtime = [

@@ -2,7 +2,7 @@
 function isNotRunning {
 	echo
 	_iFail "Environment is not running." >&2
-	_i "To start run" "snow up"
+	_iNote "To start run %s" "snow up"
 	exit 1
 }
 
@@ -32,7 +32,7 @@ function doRoutedCommandExecute() {
 		_iVerbose "Executing command via docker compose in %s service" $env_type
 
 		# Execute the command with proper shell evaluation
-		$SB_DOCKER_COMPOSE_PATH -f "$SB_SRC_ROOT/docker-compose.yml" "${ARGS[@]}" "with-snowblower" "exec" "$@"
+		$SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" "${ARGS[@]}" "with-snowblower" "$@"
 		return $?
 		;;
 	service)
@@ -45,7 +45,7 @@ function doRoutedCommandExecute() {
 		_iVerbose "Executing command via docker compose run in %s service" "$service_name"
 
 		# Execute the command using docker compose run
-		$SB_DOCKER_COMPOSE_PATH -f "$SB_SRC_ROOT/docker-compose.yml" run --rm "$service_name" "$@"
+		$SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" run --rm "$service_name" "$@"
 		return $?
 		;;
 	*)

@@ -8,7 +8,7 @@ function isSnowBlowerUp {
 
 function isSnowBlowerDockerContainerUp {
 	# Check if snowblower-dev service container exists and is running
-	[ -n "$("$SB_DOCKER_COMPOSE_PATH" -f "$SB_SRC_ROOT/docker-compose.yml" ps -q "$SB_APP_SERVICE" 2>/dev/null)" ]
+	[ -n "$($SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" ps -q "$SB_APP_SERVICE" 2>/dev/null)" ]
 }
 
 # Function that checks
@@ -22,12 +22,12 @@ function doRunChecks {
 		fi
 
 		# Determine if SnowBlower is currently up...
-		if $SB_DOCKER_COMPOSE_PATH ps "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
-			_iWarn "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
-			$SB_DOCKER_COMPOSE_PATH down >/dev/null 2>&1
-			isNotRunning
-		elif [ -z "$($SB_DOCKER_COMPOSE_PATH ps -q "$SB_APP_SERVICE")" ]; then
-			isNotRunning
-		fi
+		# if $SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" ps -q "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
+		# 	_iWarn "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
+		# 	$SB_DOCKER_PATH down >/dev/null 2>&1
+		# 	isNotRunning
+		# elif [ -z "$($SB_DOCKER_PATH ps -q "$SB_APP_SERVICE")" ]; then
+		# 	isNotRunning
+		# fi
 	fi
 }

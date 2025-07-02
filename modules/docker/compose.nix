@@ -128,6 +128,7 @@ in {
                   "SB_PROJECT_PROFILE" = "/snowblower/profile";
                   "SB_PROJECT_STATE" = "/snowblower/state";
                 };
+                tty = true;
               }
               // mkDockerServiceConfig {
                 autoStart = true;
