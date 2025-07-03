@@ -10,16 +10,10 @@ function doSnowSwitch() {
 		doSnowDownLogic
 	fi
 
-	doSnowBuildLogic
-
-	# Start Docker
-	doSnowUpLogic
+	doSnowBuildImagesLogic
 
 	_iNote "Running file generator..."
-	doRoutedCommandExecute tools snowblower-files
-
-	# Take it back down
-	doSnowDownLogic
+	doSnowBuildFilesLogic
 
 	_iHeart "Switch Complete"
 

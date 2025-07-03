@@ -1,6 +1,6 @@
 function doSnowUpdate {
 
-    $SB_NIX_PATH flake update
+    runNix flake update
 	doSnowSwitch
 	
 	exit 0

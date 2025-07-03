@@ -9,7 +9,7 @@ function doSnowUpLogic() {
 	fi
 
 	# Start docker-compose detached
-	$SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" --profile auto-start up --detach --remove-orphans "$@"
+	runDockerCompose --profile auto-start up --detach --remove-orphans "$@"
 	doRoutedCommandExecute "tools" "snowblower-hooks" "tools_pre"
 
 	return 0
@@ -35,7 +35,7 @@ function doSnowUpWithMenu() {
 		echo "────────────────────────────────────────"
 
 		# Show last 20 lines of logs
-		$SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" --profile auto-start logs --tail=20 2>/dev/null || echo "No logs available yet..."
+		runDockerCompose logs --tail=20 2>/dev/null || echo "No logs available yet..."
 
 		echo "────────────────────────────────────────"
 		echo -n "Press 'q' to quit or any other key to refresh: "

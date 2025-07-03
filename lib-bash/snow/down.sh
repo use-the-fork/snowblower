@@ -7,7 +7,7 @@ function doSnowDownLogic() {
 
 	# If it's running, run docker compose down and wait for it to finish then run doDestroySession
 	_iOk "Stopping SnowBlower services..."
-	$SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" --profile auto-start down --remove-orphans
+	runDockerCompose --profile auto-start down --remove-orphans
 
 	_iHeart "SnowBlower has been stopped."
 	return 0

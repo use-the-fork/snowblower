@@ -4,7 +4,7 @@ function doSnowBuildImagesLogic() {
 
 	cursorSave
 	_iNote "Pruning Old Images" 
-	$SB_DOCKER_PATH image prune -f --filter "label=org.snowblower.project=$SB_PROJECT_HASH"
+	runDocker image prune -f --filter "label=org.snowblower.project=$SB_PROJECT_HASH"
 	checkLastCommand "Pruned Old Images" "Prune Failed" 1
 
 	rm -f "$SB_PROJECT_ROOT/result"
@@ -14,9 +14,9 @@ function doSnowBuildImagesLogic() {
 	runBuilder bash -c "nix build --impure --out-link "/tmp/result" .#dockerRuntimeImagePackage  && cp -rL /tmp/result /snowblower/result"
 	checkLastCommand "Building Runtime Docker Image" "Build Failed" 1
 
-	_iNote "Loading Runtime Docker Image"
 	cursorSave
-	$SB_DOCKER_PATH load -i "$SB_PROJECT_ROOT/result"
+	_iNote "Loading Runtime Docker Image"
+	runDocker load -i "$SB_PROJECT_ROOT/result"
 	checkLastCommand "Loading Runtime Docker Image" "Load Failed" 1
 
 	rm -f "$SB_PROJECT_ROOT/result"
@@ -28,7 +28,7 @@ function doSnowBuildImagesLogic() {
 
 	cursorSave
 	_iNote "Loading Tooling Docker Image" 
-	$SB_DOCKER_PATH load -i "$SB_PROJECT_ROOT/result"
+	runDocker load -i "$SB_PROJECT_ROOT/result"
 	checkLastCommand "Loading Tooling Docker Image" "Load Failed" 1
 	
 	rm -f "$SB_PROJECT_ROOT/result"
@@ -39,7 +39,7 @@ function doSnowBuildImagesLogic() {
 }
 
 function doSnowBuildFilesLogic() {
-	$SB_NIX_PATH run --impure .#snowblowerFiles -L
+	runBuilder bash -c "nix run --impure .#snowblowerFiles -L"
 	return 0
 }
 

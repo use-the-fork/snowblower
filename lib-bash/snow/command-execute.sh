@@ -32,7 +32,7 @@ function doRoutedCommandExecute() {
 		_iVerbose "Executing command via docker compose in %s service" $env_type
 
 		# Execute the command with proper shell evaluation
-		$SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" "${ARGS[@]}" "with-snowblower" "$@"
+		runDockerCompose "${ARGS[@]}" "with-snowblower" "$@"
 		return $?
 		;;
 	service)
@@ -45,7 +45,7 @@ function doRoutedCommandExecute() {
 		_iVerbose "Executing command via docker compose run in %s service" "$service_name"
 
 		# Execute the command using docker compose run
-		$SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" run --rm "$service_name" "$@"
+		runDockerCompose run --rm "$service_name" "$@"
 		return $?
 		;;
 	*)
