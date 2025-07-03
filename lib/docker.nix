@@ -40,6 +40,9 @@
           "\${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state"
           "\${SB_PROJECT_ROOT:-/tmp/snowblower}:/snowblower"
         ];
+        environment = {
+          "SB_SERVICE_TYPE" = "runtime";
+        };
         working_dir = "/workspace";
         tty = true;
       })

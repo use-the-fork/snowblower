@@ -354,11 +354,11 @@ function _iVerbose() {
 }
 
 function runNix() {
-	$SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" run --build --rm builder nix "$@"
+	$SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" run --rm builder nix "$@"
 }
 
 function runBuilder() {
-	$SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" run --build --rm builder "$@"
+	$SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" run --rm builder "$@"
 }
 
 function runDockerCompose() {
@@ -498,41 +498,6 @@ function doSetupSession() {
 	fi
 
 	_iVerbose "Set project root file to %s" "${SB_WORKSPACE_ROOT_FILE}"
-}
-
-function doHook__up__pre {
-	echo -n
-	# Set local git config from global if global exists and local doesn't
-	if git config --global user.name >/dev/null 2>&1 && ! git config user.name >/dev/null 2>&1; then
-		git config user.name "$(git config --global user.name)"
-		_iNote "Set local git user.name to: $(git config user.name)"
-	fi
-	if git config --global user.email >/dev/null 2>&1 && ! git config user.email >/dev/null 2>&1; then
-		git config user.email "$(git config --global user.email)"
-		_iNote "Set local git user.email to: $(git config user.email)"
-	fi
-
-}
-
-function doSetupEnvironmentVariables() {
-	# Only source this once.
-	if [ -v __SB_SESS_VARS_SOURCED ]; then return; fi
-	export __SB_SESS_VARS_SOURCED=1
-
-	export NPM_CONFIG_CACHE="${SB_PROJECT_STATE}/npm"
-	export NPM_CONFIG_TMP="${SB_PROJECT_STATE}/npm"
-	export NPM_CONFIG_USERCONFIG="${SB_PROJECT_STATE}/npm/config"
-	export PRE_COMMIT_HOME="${SB_PROJECT_STATE}/pre_commit"
-}
-
-doSetupEnvironmentVariables
-
-function doHelp {
-	echo "${YELLOW}Usage:${NC}" >&2
-	echo "  snow [options] COMMAND SUBCOMMAND [arguments]"
-	echo
-	echo
-	exit 1
 }
 
 function doSnowBash {
@@ -790,7 +755,7 @@ function doRoutedCommandExecute() {
 		_iVerbose "Executing command via docker compose in %s service" $env_type
 
 		# Execute the command with proper shell evaluation
-		$SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" "${ARGS[@]}" "with-snowblower" "$@"
+		runDockerCompose "${ARGS[@]}" "with-snowblower" "$@"
 		return $?
 		;;
 	service)
@@ -803,7 +768,7 @@ function doRoutedCommandExecute() {
 		_iVerbose "Executing command via docker compose run in %s service" "$service_name"
 
 		# Execute the command using docker compose run
-		$SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" run --rm "$service_name" "$@"
+		runDockerCompose run --rm "$service_name" "$@"
 		return $?
 		;;
 	*)
@@ -818,6 +783,9 @@ function doSnowDownLogic() {
 		_iError "SnowBlower is already down."
 		return 1
 	fi
+
+	# Execute down hooks
+	doHook__up__post
 
 	# If it's running, run docker compose down and wait for it to finish then run doDestroySession
 	_iOk "Stopping SnowBlower services..."
@@ -938,6 +906,33 @@ function doSnowUpdate {
 	doSnowSwitch
 
 	exit 0
+}
+
+function doHook__up__pre {
+	echo -n
+	# Set local git config from global if global exists and local doesn't
+	if git config --global user.name >/dev/null 2>&1 && ! git config user.name >/dev/null 2>&1; then
+		git config user.name "$(git config --global user.name)"
+		_iNote "Set local git user.name to: $(git config user.name)"
+	fi
+	if git config --global user.email >/dev/null 2>&1 && ! git config user.email >/dev/null 2>&1; then
+		git config user.email "$(git config --global user.email)"
+		_iNote "Set local git user.email to: $(git config user.email)"
+	fi
+
+}
+
+function doHook__up__post {
+	echo -n
+
+}
+
+function doHelp {
+	echo "${YELLOW}Usage:${NC}" >&2
+	echo "  snow [options] COMMAND SUBCOMMAND [arguments]"
+	echo
+	echo
+	exit 1
 }
 
 PASSTHROUGH_OPTS=()

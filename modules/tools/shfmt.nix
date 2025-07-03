@@ -6,7 +6,6 @@
     ...
   }: let
     inherit (lib) mkTool mkToolCommand mkToolCommandHook;
-    tomlFormat = pkgs.formats.toml {};
 
     cfg = config.snowblower.tool.shfmt;
   in {
@@ -17,7 +16,6 @@
         "*.sh"
         "*.bash"
         "*.envrc"
-        "*.envrc.*"
       ];
 
       lint = mkToolCommand {

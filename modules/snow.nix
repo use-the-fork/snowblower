@@ -8,8 +8,6 @@ in {
     ...
   }: let
     inherit (lib) mkOption types;
-
-    cfg = config.snowblower;
   in {
     options.snowblower = {
       # The projectHash has to be
@@ -20,52 +18,21 @@ in {
         internal = true;
         default = builtins.getEnv "SB_PROJECT_HASH";
       };
-
-      environmentVariables = mkOption {
-        default = {};
-        type = with types;
-          lazyAttrsOf (oneOf [
-            str
-            path
-            int
-            float
-          ]);
-        example = {
-          EDITOR = "emacs";
-        };
-        description = ''
-          Environment variables to always set.
-        '';
-      };
-
-      environmentVariablesPackage = mkOption {
-        type = types.package;
-        internal = true;
-      };
     };
 
     config = {
       snowblower = {
-        # Provide a file holding all session variables.
-        environmentVariablesPackage = pkgs.writeTextFile {
-          name = "sb-session-vars.sh";
-          text = ''
-            function doSetupEnvironmentVariables() {
-              # Only source this once.
-              if [ -v __SB_SESS_VARS_SOURCED ]; then return; fi
-              export __SB_SESS_VARS_SOURCED=1
-
-              ${lib.sbl.shell.exportAll cfg.environmentVariables}
-            }
-
-            doSetupEnvironmentVariables
-          '';
-        };
-
         file."snow" = let
           upPreHooks = lib.sbl.dag.resolveDag {
             name = "snowblower up pre hooks";
             dag = config.snowblower.hook.up.pre;
+            mapResult = result:
+              lib.concatLines (map (entry: entry.data) result);
+          };
+
+          upPostHooks = lib.sbl.dag.resolveDag {
+            name = "snowblower up post hooks";
+            dag = config.snowblower.hook.up.post;
             mapResult = result:
               lib.concatLines (map (entry: entry.data) result);
           };
@@ -75,18 +42,6 @@ in {
             text = ''
               ${builtins.readFile config.snowblower.utilitiesPackage}
 
-              ${builtins.readFile ./../lib-bash/snow/utils.sh}
-              ${builtins.readFile ./../lib-bash/snow/boot.sh}
-
-              function doHook__up__pre {
-                echo -n
-                ${upPreHooks}
-              }
-
-              ${builtins.readFile config.snowblower.environmentVariablesPackage}
-
-              ${builtins.readFile ./../lib-bash/welcome.sh}
-
               # keep-sorted start
               ${builtins.readFile ./../lib-bash/snow/bash.sh}
               ${builtins.readFile ./../lib-bash/snow/boot.sh}
@@ -94,11 +49,23 @@ in {
               ${builtins.readFile ./../lib-bash/snow/command-execute.sh}
               ${builtins.readFile ./../lib-bash/snow/down.sh}
               ${builtins.readFile ./../lib-bash/snow/ps.sh}
+              ${builtins.readFile ./../lib-bash/snow/run.sh}
               ${builtins.readFile ./../lib-bash/snow/switch.sh}
               ${builtins.readFile ./../lib-bash/snow/up.sh}
               ${builtins.readFile ./../lib-bash/snow/update.sh}
               # keep-sorted end
 
+              function doHook__up__pre {
+                echo -n
+                ${upPreHooks}
+              }
+
+              function doHook__up__post {
+                echo -n
+                ${upPostHooks}
+              }
+
+              ${builtins.readFile ./../lib-bash/welcome.sh}
               ${builtins.readFile ./../lib-bash/snow/main.sh}
 
             '';

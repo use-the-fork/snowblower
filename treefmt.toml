@@ -17,7 +17,7 @@ priority = 0
 
 ["formatter.shfmt-lint"]
 command = "shfmt"
-includes = ["*.sh", "*.bash", "*.envrc", "*.envrc.*"]
+includes = ["*.sh", "*.bash", "*.envrc"]
 options = ["-s", "-w"]
 priority = 0
 

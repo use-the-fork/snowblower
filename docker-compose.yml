@@ -18,6 +18,7 @@ services:
       SB_PROJECT_PROFILE: /snowblower/profile
       SB_PROJECT_ROOT: /snowblower
       SB_PROJECT_STATE: /snowblower/state
+      SB_SERVICE_TYPE: builder
       SB_USER_GID: ${SB_USER_GID}
       SB_USER_UID: ${SB_USER_UID}
       SB_WORKSPACE_ROOT: /workspace
@@ -40,6 +41,7 @@ services:
       SB_PROJECT_PROFILE: /snowblower/profile
       SB_PROJECT_ROOT: /snowblower
       SB_PROJECT_STATE: /snowblower/state
+      SB_SERVICE_TYPE: runtime
       SB_USER_GID: ${SB_USER_GID}
       SB_USER_UID: ${SB_USER_UID}
       SB_WORKSPACE_ROOT: /workspace
@@ -63,6 +65,7 @@ services:
       SB_PROJECT_PROFILE: /snowblower/profile
       SB_PROJECT_ROOT: /snowblower
       SB_PROJECT_STATE: /snowblower/state
+      SB_SERVICE_TYPE: tools
       SB_USER_GID: ${SB_USER_GID}
       SB_USER_UID: ${SB_USER_UID}
       SB_WORKSPACE_ROOT: /workspace

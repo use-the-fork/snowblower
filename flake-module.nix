@@ -3,6 +3,7 @@ _localFlake: {...}: {
     # keep-sorted start
     ./modules/command.nix
     ./modules/docker
+    ./modules/environment-variables.nix
     ./modules/files.nix
     ./modules/hooks.nix
     ./modules/integrations
@@ -11,7 +12,7 @@ _localFlake: {...}: {
     ./modules/processes.nix
     ./modules/services
     ./modules/shell.nix
-    ./modules/snowblower-environment.nix
+    ./modules/snow.nix
     ./modules/tools
     # keep-sorted end
   ];

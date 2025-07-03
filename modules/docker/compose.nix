@@ -132,6 +132,7 @@ in {
                 ];
                 working_dir = "/workspace";
                 environment = {
+                  "SB_SERVICE_TYPE" = "tools";
                   "SB_PROJECT_PROFILE" = "/snowblower/profile";
                   "SB_PROJECT_STATE" = "/snowblower/state";
                 };
@@ -160,6 +161,9 @@ in {
                   "\${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state"
                   "\${SB_PROJECT_ROOT:-/tmp/snowblower}:/snowblower"
                 ];
+                environment = {
+                  "SB_SERVICE_TYPE" = "builder";
+                };
               };
               manualStart = true;
             };
