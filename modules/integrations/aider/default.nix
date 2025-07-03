@@ -16,7 +16,6 @@
     commandType = types.submodule commandModule;
 
     cfg = config.snowblower.integration.aider;
-    execCommand = config.snowblower.command."ai".command;
 
     yamlFormat = pkgs.formats.yaml {};
   in {
@@ -51,11 +50,12 @@
 
     config = lib.mkIf cfg.enable {
       snowblower = {
-        command."ai" = let
-          shortcuts = lib.mkMerge (lib.mapAttrsToList (
-              name: cmdCfg: {
-                "${name}" = {
-                  inherit (cmdCfg) description;
+        integration.just.recipe = lib.mkMerge (lib.mapAttrsToList (
+            name: cmdCfg: {
+              "ai-${name}" = {
+                enable = true;
+                inherit (cmdCfg) description;
+                exec = let
                   args =
                     lib.filter (s: s != "") [
                       "--no-show-release-notes"
@@ -100,18 +100,13 @@
                     )
                     ++ (lib.concatMap (cmd: ["--read" cmd]) cmdCfg.readFiles)
                     ++ (lib.concatMap (cmd: ["--lint-cmd" cmd]) cmdCfg.lintCommands)
-                    ++ (lib.concatMap (cmd: ["--test-cmd" cmd]) cmdCfg.testCommands);
-                };
-              }
-            )
-            cfg.commands);
-        in {
-          displayName = "Aider";
-          description = "Aider Code Assitant";
-          command = "aider";
-          env = "tools";
-          shortcut = shortcuts;
-        };
+                    ++ (lib.concatMap (cmd: ["--test-cmd" cmd]) cmdCfg.testCommands)
+                    ++ (lib.optionals (cmdCfg.extraArgs != "") [cmdCfg.extraArgs]);
+                in "aider ${lib.concatStringsSep " " args}";
+              };
+            }
+          )
+          cfg.commands);
 
         packages.tools = [
           cfg.package

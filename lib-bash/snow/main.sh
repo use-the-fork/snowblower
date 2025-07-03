@@ -65,59 +65,14 @@ while [[ $i -lt ${#BEFORE_SEPARATOR[@]} ]]; do
     esac
 done
 
-# Process environment commands and subcommands from after `--`
-i=0
-while [[ $i -lt ${#AFTER_SEPARATOR[@]} ]]; do
-    opt="${AFTER_SEPARATOR[$i]}"
-    i=$((i+1))    
-            case $opt in
-            @command_options@)
-                export COMMAND="$opt"
-                ;;
-            *)
-                case $COMMAND in
-                    @command_options@)
-                        export COMMAND_ARGS+=("$opt")
-                        ;;
-                    *)
-                        if [[ -z $COMMAND ]]; then
-                            _iError "%s: unknown command '%s'" "$0" "$opt" >&2
-                            _i "Run '%s --help' for usage help" "$0" >&2
-                            exit 1
-                        else
-                            export COMMAND_ARGS+=("$opt")
-                        fi
-                        ;;
-                esac
-                ;;
-        esac
-done
 
 # Lets GOOOO!!!!!
 doBoot
-
-# Parse subcommand from COMMAND_ARGS if needed
-# This works becuase a sub command must come after a command
-if [[ -n $COMMAND && ${#COMMAND_ARGS[@]} -gt 0 ]]; then
-    potential_subcommand="${COMMAND_ARGS[0]}"
-    
-    if hasSubCommand "$COMMAND" "$potential_subcommand"; then
-        export SUBCOMMAND="$potential_subcommand"
-        export COMMAND_ARGS=("${COMMAND_ARGS[@]:1}")
-    fi
-fi
 
 # Check if no `--` was found and no snow command was specified
 if [[ "$found_separator" == false && -z $SNOW_COMMAND ]]; then
     doHelp >&2
     exit 1
-fi
-
-if [[ -n $HELP && -n $COMMAND ]]; then
-  if hasHelpCommand "$COMMAND"; then
-      doHelp__$COMMAND
-      exit 1
-  fi
 fi
 
 # Handle snow-specific commands first
@@ -160,20 +115,9 @@ if [[ -n $SNOW_COMMAND ]]; then
     exit 0
 fi
 
-# Handle environment commands
-if [[ -z $COMMAND ]]; then
-    doHelp >&2
-    exit 1
-fi
-
 # None of the below should be run if SnowBlower is not up.
 isSnowBlowerUp
 
-case $COMMAND in
-    @command_functions@
-    *)
-        _iError 'Unknown command: %s' "$COMMAND" >&2
-        _i >&2
-        exit 1
-        ;;
-esac
+doRoutedCommandExecute tools "${AFTER_SEPARATOR[@]}"
+
+

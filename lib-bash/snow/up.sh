@@ -16,16 +16,44 @@ function doSnowUpLogic() {
 }
 
 function doSnowUp {
+	doSnowUpWithMenu "$@"
+}
 
+function doSnowUpWithMenu() {
 	doSnowUpLogic "$@"
 	if [ $? -eq 1 ]; then
 		exit 1
 	fi
 
-	doRoutedCommandExecute "service" oxker
+	# Clear screen and show persistent menu with logs
+	while true; do
+		clear
+		echo "${YELLOW}SnowBlower Menu:${NC}"
+		echo "  ${GREEN}q${NC} - Quit and stop containers"
+		echo
+		echo "${YELLOW}Logs (last 20 lines):${NC}"
+		echo "────────────────────────────────────────"
 
-	doRoutedCommandExecute "tools" "snowblower-hooks" "tools_post"
-	doSnowDownLogic
+		# Show last 20 lines of logs
+		$SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" --profile auto-start logs --tail=20 2>/dev/null || echo "No logs available yet..."
 
-	exit 0
+		echo "────────────────────────────────────────"
+		echo -n "Press 'q' to quit or any other key to refresh: "
+
+		# Read single character without timeout
+		read -n 1 choice
+		case "$choice" in
+		q | Q)
+			echo
+			echo "Shutting down..."
+			doRoutedCommandExecute "tools" "snowblower-hooks" "tools_post"
+			doSnowDownLogic
+			exit 0
+			;;
+		*)
+			# Any other key refreshes the display
+			continue
+			;;
+		esac
+	done
 }

@@ -85,11 +85,22 @@ in {
 
               ${builtins.readFile config.snowblower.environmentVariablesPackage}
 
-              ${builtins.readFile ./../lib-bash/help-extra.sh}
-              ${builtins.readFile config.snowblower.commandHelpPackage}
               ${builtins.readFile ./../lib-bash/welcome.sh}
 
-              ${builtins.readFile config.snowblower.commandPackage}
+              # keep-sorted start
+              ${builtins.readFile ./../lib-bash/snow/bash.sh}
+              ${builtins.readFile ./../lib-bash/snow/boot.sh}
+              ${builtins.readFile ./../lib-bash/snow/build.sh}
+              ${builtins.readFile ./../lib-bash/snow/command-execute.sh}
+              ${builtins.readFile ./../lib-bash/snow/down.sh}
+              ${builtins.readFile ./../lib-bash/snow/ps.sh}
+              ${builtins.readFile ./../lib-bash/snow/switch.sh}
+              ${builtins.readFile ./../lib-bash/snow/up.sh}
+              ${builtins.readFile ./../lib-bash/snow/update.sh}
+              # keep-sorted end
+
+              ${builtins.readFile ./../lib-bash/snow/main.sh}
+
             '';
           };
 

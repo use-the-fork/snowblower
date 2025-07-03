@@ -41,3 +41,26 @@ function isPipe() {
 function isSsh() {
 	[[ -n ${SSH_CLIENT} || -n ${SSH_CONNECTION} ]]
 }
+
+function checkLastCommand() {
+	local -r exit_code=$?
+	local -r success_message="${1}"
+	local -r fail_message="${2}"
+	local -r should_restore="${3}"
+
+	if [ $exit_code -eq 0 ]; then
+		if [ -n "$should_restore" ]; then
+			cursorRestore
+			_iClear
+		fi
+
+		if [ -n "$success_message" ]; then
+			_iOk "$success_message"
+		fi
+	else
+		if [ -n "$fail_message" ]; then
+			_iError "$fail_message"
+		fi
+		exit $exit_code
+	fi
+}

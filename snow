@@ -52,14 +52,6 @@ function isInsideDocker() {
   test -f /.dockerenv
 }
 
-function hasNix() {
-  if [ -n "$SB_NIX_PATH" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
 function isInsideSnowblowerShell() {
   if [ -n "$SB_IN_SHELL" ]; then
     return 0
@@ -75,6 +67,49 @@ function shouldExit() {
   shift
   if [ "$exit_code" != "${expected:-0}" ]; then
     exit "${exit_code}"
+  fi
+}
+
+function isTerminal() {
+  isTty || isRedirect || isPipe || isSsh
+}
+
+function isTty() {
+  [[ -t 1 ]]
+}
+
+function isRedirect() {
+  [[ ! -t 1 && ! -p /dev/stdout ]]
+}
+
+function isPipe() {
+  [[ -p /dev/stdout ]]
+}
+
+function isSsh() {
+  [[ -n ${SSH_CLIENT} || -n ${SSH_CONNECTION} ]]
+}
+
+function checkLastCommand() {
+  local -r exit_code=$?
+  local -r success_message="${1}"
+  local -r fail_message="${2}"
+  local -r should_restore="${3}"
+
+  if [ $exit_code -eq 0 ]; then
+    if [ -n "$should_restore" ]; then
+      cursorRestore
+      _iClear
+    fi
+
+    if [ -n "$success_message" ]; then
+      _iOk "$success_message"
+    fi
+  else
+    if [ -n "$fail_message" ]; then
+      _iError "$fail_message"
+    fi
+    exit $exit_code
   fi
 }
 
@@ -370,26 +405,6 @@ function _iCommandSection() {
   echo
 }
 
-function isTerminal() {
-  isTty || isRedirect || isPipe || isSsh
-}
-
-function isTty() {
-  [[ -t 1 ]]
-}
-
-function isRedirect() {
-  [[ ! -t 1 && ! -p /dev/stdout ]]
-}
-
-function isPipe() {
-  [[ -p /dev/stdout ]]
-}
-
-function isSsh() {
-  [[ -n ${SSH_CLIENT} || -n ${SSH_CONNECTION} ]]
-}
-
 function runNix() {
   $SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" run --build --rm builder nix "$@"
 }
@@ -489,10 +504,7 @@ function doInit() {
   fi
 
   # All Checks passed we can now create the .project_env file so we dont have to do this every time.
-  echo "export SB_NIX_PATH=\"$SB_NIX_PATH\"" >>"$SB_PROJECT_ENV_FILE"
   echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >>"$SB_PROJECT_ENV_FILE"
-  echo "export SB_USER_UID=\"${SB_USER_UID}\"" >>"$SB_PROJECT_ENV_FILE"
-  echo "export SB_USER_GID=\"${SB_USER_GID}\"" >>"$SB_PROJECT_ENV_FILE"
 
   SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
   echo "export SB_PROJECT_PROFILE=\"$SB_PROJECT_PROFILE\"" >>"$SB_PROJECT_ENV_FILE"
@@ -527,6 +539,12 @@ function doSetupSession() {
   export SB_USER_GID="$(id -g)"
   export SB_WORKSPACE_ROOT_FILE=${PROJECT_ROOT_FILE:-"flake.nix"}
 
+  if isTerminal; then
+    export SB_TERM_TYPE="terminal"
+  else
+    export SB_TERM_TYPE="dumb"
+  fi
+
   _iVerbose "Set project root file to %s" "${SB_WORKSPACE_ROOT_FILE}"
 }
 
@@ -557,179 +575,12 @@ function doSetupEnvironmentVariables() {
 
 doSetupEnvironmentVariables
 
-# Additional help functions for internal Commands
-
-function doHelp__snow {
-  local commands=(
-
-    "build|Builds all containers in compose file"
-    "down|Stop the application"
-    "ps|Display the status of all containers"
-    "reboot|Erase current session and reset vars"
-    "switch|Regenerate all config files"
-    "update|Update all dependencies by updating the Flake (Nix flake update)"
-    "up|Start the application"
-
-  )
-
-  _iCommandSection "" "SnowBlower" "${commands[@]}"
-}
-
-function displayAllResolvedCommands {
-  doHelp__snow
-  doHelp__agenix
-  doHelp__ai
-  doHelp__npm
-  doHelp__oxker
-  doHelp__pre-commit
-  doHelp__treefmt
-
-}
-function doHelp__agenix {
-  local commands=('...|Run a Agenix command' 'rekey|Rekey secrets')
-  _iCommandSection "agenix" "Agenix" "${commands[@]}"
-}
-
-function doHelp__ai {
-  local commands=('...|Run a Aider command' 'gem|using Gemini as base' 'son|using Sonet as base')
-  _iCommandSection "ai" "Aider" "${commands[@]}"
-}
-
-function doHelp__npm {
-  local commands=('...|Run a NPM command')
-  _iCommandSection "npm" "NPM" "${commands[@]}"
-}
-
-function doHelp__oxker {
-  local commands=('...|Run a Oxker command')
-  _iCommandSection "oxker" "Oxker" "${commands[@]}"
-}
-
-function doHelp__pre-commit {
-  local commands=('all|Run precommit on all files')
-  _iCommandSection "pre-commit" "Pre-commit" "${commands[@]}"
-}
-
-function doHelp__treefmt {
-  local commands=('...|Run a Treefmt command')
-  _iCommandSection "treefmt" "Treefmt" "${commands[@]}"
-}
-
 function doHelp {
   echo "${YELLOW}Usage:${NC}" >&2
   echo "  snow [options] COMMAND SUBCOMMAND [arguments]"
   echo
-  displayAllResolvedCommands
   echo
   exit 1
-}
-
-function doCommand__agenix { doRoutedCommandExecute "tools" sb-agenix "$@"; }
-function doCommand__agenix__rekey {
-  local cmd_args=(sb-agenix --rekey)
-  doRoutedCommandExecute "tools" "${cmd_args[@]}" "$@"
-}
-
-function doCommand__ai { doRoutedCommandExecute "tools" aider "$@"; }
-function doCommand__ai__gem {
-  local cmd_args=(aider --no-show-release-notes --model gemini --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --lint-cmd treefmt)
-  doRoutedCommandExecute "tools" "${cmd_args[@]}" "$@"
-}
-
-function doCommand__ai__son {
-  local cmd_args=(aider --no-show-release-notes --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read CONVENTIONS.MD --lint-cmd treefmt)
-  doRoutedCommandExecute "tools" "${cmd_args[@]}" "$@"
-}
-
-function doCommand__npm { doRoutedCommandExecute "tools" npm "$@"; }
-
-function doCommand__oxker { doRoutedCommandExecute "service" oxker "$@"; }
-
-function doCommand__pre-commit__all {
-  local cmd_args=('' run --all-files)
-  doRoutedCommandExecute "tools" "${cmd_args[@]}" "$@"
-}
-
-function doCommand__treefmt { doRoutedCommandExecute "tools" treefmt "$@"; }
-
-# Function that outputs SnowBlower is not running...
-function isNotRunning {
-  echo
-  _iFail "Environment is not running." >&2
-  _iNote "To start run %s" "snow up"
-  exit 1
-}
-
-# Figures out the type of envirment the command is running in and then routes approriatly.
-function doRoutedCommandExecute() {
-
-  _iVerbose "Attempting to run: $*"
-
-  # Save the first argument (environment type) and shift it
-  local env_type="$1"
-  shift
-
-  case "$env_type" in
-  native)
-    _iVerbose "Executing command natively"
-    exec "$@"
-    return $?
-    ;;
-  tools | runtime)
-    doRunChecks
-
-    ARGS=()
-    ARGS+=(exec -u "$SB_USER_UID")
-    [ ! -t 0 ] && ARGS+=(-T)
-    ARGS+=("$env_type")
-
-    _iVerbose "Executing command via docker compose in %s service" $env_type
-
-    # Execute the command with proper shell evaluation
-    $SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" "${ARGS[@]}" "with-snowblower" "$@"
-    return $?
-    ;;
-  service)
-    doRunChecks
-
-    # Extract the service name from the first argument
-    local service_name="$1"
-    shift
-
-    _iVerbose "Executing command via docker compose run in %s service" "$service_name"
-
-    # Execute the command using docker compose run
-    $SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" run --rm "$service_name" "$@"
-    return $?
-    ;;
-  *)
-    _iFail "Unknown environment type: $env_type" >&2
-    return 1
-    ;;
-  esac
-}
-
-function hasSubCommand() {
-  local command="$1"
-  local subcommand="$2"
-
-  # Check if the function exists for this command/subcommand combination
-  if declare -f "doCommand__${command}__${subcommand}" >/dev/null 2>&1; then
-    return 0 # Function exists, so subcommand is valid
-  else
-    return 1 # Function doesn't exist, so subcommand is invalid
-  fi
-}
-
-function hasHelpCommand() {
-  local command="$1"
-
-  # Check if the function exists for this command/subcommand combination
-  if declare -f "doHelp__${command}" >/dev/null 2>&1; then
-    return 0 # Function exists, so we can display help for it.
-  else
-    return 1 # Function doesn't exist, so no help is invalid
-  fi
 }
 
 function doSnowBash {
@@ -825,10 +676,7 @@ function doInit() {
   fi
 
   # All Checks passed we can now create the .project_env file so we dont have to do this every time.
-  echo "export SB_NIX_PATH=\"$SB_NIX_PATH\"" >>"$SB_PROJECT_ENV_FILE"
   echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >>"$SB_PROJECT_ENV_FILE"
-  echo "export SB_USER_UID=\"${SB_USER_UID}\"" >>"$SB_PROJECT_ENV_FILE"
-  echo "export SB_USER_GID=\"${SB_USER_GID}\"" >>"$SB_PROJECT_ENV_FILE"
 
   SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
   echo "export SB_PROJECT_PROFILE=\"$SB_PROJECT_PROFILE\"" >>"$SB_PROJECT_ENV_FILE"
@@ -863,8 +711,15 @@ function doSetupSession() {
   export SB_USER_GID="$(id -g)"
   export SB_WORKSPACE_ROOT_FILE=${PROJECT_ROOT_FILE:-"flake.nix"}
 
+  if isTerminal; then
+    export SB_TERM_TYPE="terminal"
+  else
+    export SB_TERM_TYPE="dumb"
+  fi
+
   _iVerbose "Set project root file to %s" "${SB_WORKSPACE_ROOT_FILE}"
 }
+
 function doSnowBuildImagesLogic() {
 
   _iSnow "Rebuilding Images"
@@ -872,41 +727,31 @@ function doSnowBuildImagesLogic() {
   cursorSave
   _iNote "Pruning Old Images"
   $SB_DOCKER_PATH image prune -f --filter "label=org.snowblower.project=$SB_PROJECT_HASH"
-  cursorRestore
-  _iClear
-  _iOk "Pruning Old Images"
+  checkLastCommand "Pruned Old Images" "Prune Failed" 1
 
   rm -f "$SB_PROJECT_ROOT/result"
 
   cursorSave
   _iNote "Building Runtime Docker Image"
   runBuilder bash -c "nix build --impure --out-link "/tmp/result" .#dockerRuntimeImagePackage  && cp -rL /tmp/result /snowblower/result"
-  cursorRestore
-  _iClear
-  _iOk "Building Runtime Docker Image"
+  checkLastCommand "Building Runtime Docker Image" "Build Failed" 1
 
-  cursorSave
   _iNote "Loading Runtime Docker Image"
+  cursorSave
   $SB_DOCKER_PATH load -i "$SB_PROJECT_ROOT/result"
-  cursorRestore
-  _iClear
-  _iOk "Loading Runtime Docker Image"
+  checkLastCommand "Loading Runtime Docker Image" "Load Failed" 1
 
   rm -f "$SB_PROJECT_ROOT/result"
 
   cursorSave
   _iNote "Building Tooling Docker Image"
   runBuilder bash -c "nix build --impure --out-link "/tmp/result" .#dockerToolsImagePackage  && cp -rL /tmp/result /snowblower/result"
-  cursorRestore
-  _iClear
-  _iOk "Building Tooling Docker Image"
+  checkLastCommand "Building Tooling Docker Image" "Build Failed" 1
 
   cursorSave
   _iNote "Loading Tooling Docker Image"
   $SB_DOCKER_PATH load -i "$SB_PROJECT_ROOT/result"
-  cursorRestore
-  _iClear
-  _iOk "Loading Tooling Docker Image"
+  checkLastCommand "Loading Tooling Docker Image" "Load Failed" 1
 
   rm -f "$SB_PROJECT_ROOT/result"
 
@@ -1043,18 +888,46 @@ function doSnowUpLogic() {
 }
 
 function doSnowUp {
+  doSnowUpWithMenu "$@"
+}
 
+function doSnowUpWithMenu() {
   doSnowUpLogic "$@"
   if [ $? -eq 1 ]; then
     exit 1
   fi
 
-  doRoutedCommandExecute "service" oxker
+  # Clear screen and show persistent menu with logs
+  while true; do
+    clear
+    echo "${YELLOW}SnowBlower Menu:${NC}"
+    echo "  ${GREEN}q${NC} - Quit and stop containers"
+    echo
+    echo "${YELLOW}Logs (last 20 lines):${NC}"
+    echo "────────────────────────────────────────"
 
-  doRoutedCommandExecute "tools" "snowblower-hooks" "tools_post"
-  doSnowDownLogic
+    # Show last 20 lines of logs
+    $SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" --profile auto-start logs --tail=20 2>/dev/null || echo "No logs available yet..."
 
-  exit 0
+    echo "────────────────────────────────────────"
+    echo -n "Press 'q' to quit or any other key to refresh: "
+
+    # Read single character without timeout
+    read -n 1 choice
+    case "$choice" in
+    q | Q)
+      echo
+      echo "Shutting down..."
+      doRoutedCommandExecute "tools" "snowblower-hooks" "tools_post"
+      doSnowDownLogic
+      exit 0
+      ;;
+    *)
+      # Any other key refreshes the display
+      continue
+      ;;
+    esac
+  done
 }
 
 function doSnowUpdate {
@@ -1063,6 +936,63 @@ function doSnowUpdate {
   doSnowSwitch
 
   exit 0
+}
+
+# Function that outputs SnowBlower is not running...
+function isNotRunning {
+  echo
+  _iFail "Environment is not running." >&2
+  _iNote "To start run %s" "snow up"
+  exit 1
+}
+
+# Figures out the type of envirment the command is running in and then routes approriatly.
+function doRoutedCommandExecute() {
+
+  _iVerbose "Attempting to run: $*"
+
+  # Save the first argument (environment type) and shift it
+  local env_type="$1"
+  shift
+
+  case "$env_type" in
+  native)
+    _iVerbose "Executing command natively"
+    exec "$@"
+    return $?
+    ;;
+  tools)
+    doRunChecks
+
+    ARGS=()
+    ARGS+=(exec -u "$SB_USER_UID")
+    [ ! -t 0 ] && ARGS+=(-T)
+    ARGS+=("$env_type")
+
+    _iVerbose "Executing command via docker compose in %s service" $env_type
+
+    # Execute the command with proper shell evaluation
+    $SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" "${ARGS[@]}" "with-snowblower" "$@"
+    return $?
+    ;;
+  service)
+    doRunChecks
+
+    # Extract the service name from the first argument
+    local service_name="$1"
+    shift
+
+    _iVerbose "Executing command via docker compose run in %s service" "$service_name"
+
+    # Execute the command using docker compose run
+    $SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" run --rm "$service_name" "$@"
+    return $?
+    ;;
+  *)
+    _iFail "Unknown environment type: $env_type" >&2
+    return 1
+    ;;
+  esac
 }
 
 PASSTHROUGH_OPTS=()
@@ -1131,59 +1061,13 @@ while [[ $i -lt ${#BEFORE_SEPARATOR[@]} ]]; do
   esac
 done
 
-# Process environment commands and subcommands from after `--`
-i=0
-while [[ $i -lt ${#AFTER_SEPARATOR[@]} ]]; do
-  opt="${AFTER_SEPARATOR[$i]}"
-  i=$((i + 1))
-  case $opt in
-  agenix | ai | npm | oxker | pre-commit | treefmt)
-    export COMMAND="$opt"
-    ;;
-  *)
-    case $COMMAND in
-    agenix | ai | npm | oxker | pre-commit | treefmt)
-      export COMMAND_ARGS+=("$opt")
-      ;;
-    *)
-      if [[ -z $COMMAND ]]; then
-        _iError "%s: unknown command '%s'" "$0" "$opt" >&2
-        _i "Run '%s --help' for usage help" "$0" >&2
-        exit 1
-      else
-        export COMMAND_ARGS+=("$opt")
-      fi
-      ;;
-    esac
-    ;;
-  esac
-done
-
 # Lets GOOOO!!!!!
 doBoot
-
-# Parse subcommand from COMMAND_ARGS if needed
-# This works becuase a sub command must come after a command
-if [[ -n $COMMAND && ${#COMMAND_ARGS[@]} -gt 0 ]]; then
-  potential_subcommand="${COMMAND_ARGS[0]}"
-
-  if hasSubCommand "$COMMAND" "$potential_subcommand"; then
-    export SUBCOMMAND="$potential_subcommand"
-    export COMMAND_ARGS=("${COMMAND_ARGS[@]:1}")
-  fi
-fi
 
 # Check if no `--` was found and no snow command was specified
 if [[ $found_separator == false && -z $SNOW_COMMAND ]]; then
   doHelp >&2
   exit 1
-fi
-
-if [[ -n $HELP && -n $COMMAND ]]; then
-  if hasHelpCommand "$COMMAND"; then
-    doHelp__$COMMAND
-    exit 1
-  fi
 fi
 
 # Handle snow-specific commands first
@@ -1226,86 +1110,7 @@ if [[ -n $SNOW_COMMAND ]]; then
   exit 0
 fi
 
-# Handle environment commands
-if [[ -z $COMMAND ]]; then
-  doHelp >&2
-  exit 1
-fi
-
 # None of the below should be run if SnowBlower is not up.
 isSnowBlowerUp
 
-case $COMMAND in
-agenix)
-  if [[ -n $SUBCOMMAND ]]; then
-    if hasSubCommand "agenix" "$SUBCOMMAND"; then
-      doCommand__agenix__$SUBCOMMAND "${COMMAND_ARGS[@]}"
-    else
-      doCommand__agenix "${COMMAND_ARGS[@]}"
-    fi
-  else
-    doCommand__agenix "${COMMAND_ARGS[@]}"
-  fi
-  ;;
-ai)
-  if [[ -n $SUBCOMMAND ]]; then
-    if hasSubCommand "ai" "$SUBCOMMAND"; then
-      doCommand__ai__$SUBCOMMAND "${COMMAND_ARGS[@]}"
-    else
-      doCommand__ai "${COMMAND_ARGS[@]}"
-    fi
-  else
-    doCommand__ai "${COMMAND_ARGS[@]}"
-  fi
-  ;;
-npm)
-  if [[ -n $SUBCOMMAND ]]; then
-    if hasSubCommand "npm" "$SUBCOMMAND"; then
-      doCommand__npm__$SUBCOMMAND "${COMMAND_ARGS[@]}"
-    else
-      doCommand__npm "${COMMAND_ARGS[@]}"
-    fi
-  else
-    doCommand__npm "${COMMAND_ARGS[@]}"
-  fi
-  ;;
-oxker)
-  if [[ -n $SUBCOMMAND ]]; then
-    if hasSubCommand "oxker" "$SUBCOMMAND"; then
-      doCommand__oxker__$SUBCOMMAND "${COMMAND_ARGS[@]}"
-    else
-      doCommand__oxker "${COMMAND_ARGS[@]}"
-    fi
-  else
-    doCommand__oxker "${COMMAND_ARGS[@]}"
-  fi
-  ;;
-pre-commit)
-  if [[ -n $SUBCOMMAND ]]; then
-    if hasSubCommand "pre-commit" "$SUBCOMMAND"; then
-      doCommand__pre-commit__$SUBCOMMAND "${COMMAND_ARGS[@]}"
-    else
-      doCommand__pre-commit "${COMMAND_ARGS[@]}"
-    fi
-  else
-    doCommand__pre-commit "${COMMAND_ARGS[@]}"
-  fi
-  ;;
-treefmt)
-  if [[ -n $SUBCOMMAND ]]; then
-    if hasSubCommand "treefmt" "$SUBCOMMAND"; then
-      doCommand__treefmt__$SUBCOMMAND "${COMMAND_ARGS[@]}"
-    else
-      doCommand__treefmt "${COMMAND_ARGS[@]}"
-    fi
-  else
-    doCommand__treefmt "${COMMAND_ARGS[@]}"
-  fi
-  ;;
-
-*)
-  _iError 'Unknown command: %s' "$COMMAND" >&2
-  _i >&2
-  exit 1
-  ;;
-esac
+doRoutedCommandExecute tools "${AFTER_SEPARATOR[@]}"

@@ -21,7 +21,7 @@ function doRoutedCommandExecute() {
 		exec "$@"
 		return $?
 		;;
-	tools | runtime)
+	tools)
 		doRunChecks
 
 		ARGS=()
@@ -53,27 +53,4 @@ function doRoutedCommandExecute() {
 		return 1
 		;;
 	esac
-}
-
-function hasSubCommand() {
-	local command="$1"
-	local subcommand="$2"
-
-	# Check if the function exists for this command/subcommand combination
-	if declare -f "doCommand__${command}__${subcommand}" >/dev/null 2>&1; then
-		return 0 # Function exists, so subcommand is valid
-	else
-		return 1 # Function doesn't exist, so subcommand is invalid
-	fi
-}
-
-function hasHelpCommand() {
-	local command="$1"
-
-	# Check if the function exists for this command/subcommand combination
-	if declare -f "doHelp__${command}" >/dev/null 2>&1; then
-		return 0 # Function exists, so we can display help for it.
-	else
-		return 1 # Function doesn't exist, so no help is invalid
-	fi
 }

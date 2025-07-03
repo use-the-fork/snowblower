@@ -33,25 +33,6 @@ services:
     - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile
     - ${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state
     - ${SB_PROJECT_ROOT:-/tmp/snowblower}:/snowblower
-  oxker:
-    container_name: oxker
-    environment:
-      SB_PROJECT_HASH: ${SB_PROJECT_HASH}
-      SB_PROJECT_PROFILE: /snowblower/profile
-      SB_PROJECT_ROOT: /snowblower
-      SB_PROJECT_STATE: /snowblower/state
-      SB_USER_GID: ${SB_USER_GID}
-      SB_USER_UID: ${SB_USER_UID}
-      SB_WORKSPACE_ROOT: /workspace
-    image: ghcr.io/mrjackwills/oxker:latest
-    networks:
-    - snownet
-    profiles:
-    - manual-start
-    restart: 'no'
-    user: ${SB_USER_UID}:${SB_USER_GID}
-    volumes:
-    - /var/run/docker.sock:/var/run/docker.sock:ro
   runtime:
     depends_on: []
     environment:

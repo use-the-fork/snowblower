@@ -93,7 +93,6 @@
           # };
 
           service = {
-            oxker.enable = true;
           };
 
           tool = {
