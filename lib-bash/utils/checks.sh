@@ -4,14 +4,6 @@ function isInsideDocker() {
 	test -f /.dockerenv
 }
 
-function hasNix() {
-	if [ -n "$SB_NIX_PATH" ]; then
-		return 0
-	else
-		return 1
-	fi
-}
-
 function isInsideSnowblowerShell() {
 	if [ -n "$SB_IN_SHELL" ]; then
 		return 0
@@ -28,4 +20,24 @@ function shouldExit() {
 	if [ "$exit_code" != "${expected:-0}" ]; then
 		exit "${exit_code}"
 	fi
+}
+
+function isTerminal() {
+	isTty || isRedirect || isPipe || isSsh
+}
+
+function isTty() {
+	[[ -t 1 ]]
+}
+
+function isRedirect() {
+	[[ ! -t 1 && ! -p /dev/stdout ]]
+}
+
+function isPipe() {
+	[[ -p /dev/stdout ]]
+}
+
+function isSsh() {
+	[[ -n ${SSH_CLIENT} || -n ${SSH_CONNECTION} ]]
 }

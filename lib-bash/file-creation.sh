@@ -4,8 +4,8 @@ function doCreateTouchFile() {
 	filePath=$(eval echo "$filePath")
 
 	# Check if the path is not already within the project root or src root
-	if [[ $filePath != "$SB_PROJECT_ROOT"* && $filePath != "$SB_SRC_ROOT"* ]]; then
-		filePath="${SB_SRC_ROOT}/${dirPath}"
+	if [[ $filePath != "$SB_PROJECT_ROOT"* && $filePath != "$SB_WORKSPACE_ROOT"* ]]; then
+		filePath="${SB_WORKSPACE_ROOT}/${dirPath}"
 	fi
 
 	# Create parent directory if it doesn't exist
@@ -22,8 +22,8 @@ function doCreateDirectory() {
 	dirPath=$(eval echo "$dirPath")
 
 	# Check if the path is not already within the project root or src root
-	if [[ $dirPath != "$SB_PROJECT_ROOT"* && $dirPath != "$SB_SRC_ROOT"* ]]; then
-		dirPath="${SB_SRC_ROOT}/${dirPath}"
+	if [[ $dirPath != "$SB_PROJECT_ROOT"* && $dirPath != "$SB_WORKSPACE_ROOT"* ]]; then
+		dirPath="${SB_WORKSPACE_ROOT}/${dirPath}"
 	fi
 
 	mkdir -p "$dirPath"

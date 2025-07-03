@@ -15,6 +15,7 @@
     autoStart ? false,
     runtime ? false,
     network ? true,
+    environment ? true,
   }: let
     profiles = lib.flatten [
       (lib.optional manualStart "manual-start")
@@ -25,6 +26,7 @@
       {
         inherit profiles;
         restart = "no";
+        user = "$\{SB_USER_UID}:\${SB_USER_GID}";
       }
       (lib.optionalAttrs network {
         networks = ["snownet"];
@@ -36,13 +38,21 @@
           ".:/workspace"
           "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile"
           "\${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state"
+          "\${SB_PROJECT_ROOT:-/tmp/snowblower}:/snowblower"
         ];
         working_dir = "/workspace";
+        tty = true;
+      })
+      (lib.optionalAttrs environment {
         environment = {
+          "SB_USER_UID" = "\${SB_USER_UID}";
+          "SB_USER_GID" = "\${SB_USER_GID}";
+          "SB_WORKSPACE_ROOT" = "/workspace";
+          "SB_PROJECT_ROOT" = "/snowblower";
           "SB_PROJECT_PROFILE" = "/snowblower/profile";
           "SB_PROJECT_STATE" = "/snowblower/state";
+          "SB_PROJECT_HASH" = "\${SB_PROJECT_HASH}";
         };
-        tty = true;
       })
       service
     ];
@@ -78,99 +88,6 @@
       }
       // extraOptions;
   };
-
-  # From https://github.com/cidverse/container-images/blob/2895fb55bf7836bffd62346bc4e08eeb7268b721/lib/container-support.nix
-  # Guy deserves a medal for this.
-  mkDockerImage = pkgs: {
-    name,
-    version ? "latest",
-    packages ? [],
-    fromImage ? null,
-    extraCommands ? "",
-    env ? [],
-    extendPath ? [],
-    maxLayers ? 120,
-    compressor ? "none", # "none", "gz","zstd"
-  }: let
-    defaultPath = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin:/snowblower/profile/bin";
-  in
-    pkgs.dockerTools.buildLayeredImage {
-      name = "localhost/snowblower/" + name;
-      tag = version;
-      inherit fromImage;
-      inherit maxLayers;
-      inherit compressor;
-      inherit extraCommands;
-
-      contents =
-        [
-          pkgs.bashInteractive # None Interactive bash shell
-          pkgs.dockerTools.usrBinEnv # /usr/bin/env
-          pkgs.dockerTools.caCertificates # SSL/TLS certificates
-          pkgs.shadow
-
-          pkgs.uutils-coreutils-noprefix # Core utilities like ls, cat, etc but in rust
-
-          pkgs.tini # Default process supervisor (https://github.com/krallin/tini)
-
-          pkgs.glibc # Standard C library
-        ]
-        ++ packages;
-
-      enableFakechroot = true;
-      fakeRootCommands = ''
-
-        ${pkgs.dockerTools.shadowSetup}
-        groupadd --gid ${builtins.getEnv "SB_USER_GID"} snowuser
-        useradd --uid ${builtins.getEnv "SB_USER_UID"} -r -g snowuser snowuser
-
-        mkdir -p /workspace
-        chown snowuser:snowuser /workspace
-
-        mkdir -p /tmp
-        chown -R snowuser:snowuser /tmp
-
-        mkdir -p /var
-        chown -R snowuser:snowuser /var
-
-        mkdir -p /usr/local/bin
-        chown -R snowuser:snowuser /usr/local/bin
-
-        mkdir -p /home/snowuser
-        chown -R snowuser:snowuser /home/snowuser
-
-        mkdir -p /snowblower/profile
-        mkdir -p /snowblower/profile/bin
-        chown -R snowuser:snowuser /snowblower/profile
-      '';
-
-      config = {
-        Entrypoint = ["${lib.getExe pkgs.tini}" "--"];
-        Cmd = "bash";
-        Env =
-          [
-            "HOME=/home/snowuser"
-            "DISPLAY=:0"
-          ]
-          ++ env
-          ++ (
-            if builtins.length extendPath > 0
-            then [
-              "PATH=${builtins.concatStringsSep ":" extendPath}:${defaultPath}"
-            ]
-            else []
-          );
-        User = "snowuser";
-        WorkingDir = "/workspace";
-
-        Labels = {
-          "org.snowblower.project" = "snowblower";
-          "org.snowblower.image.name" = name;
-          "org.snowblower.image.version" = version;
-          "org.snowblower.project.hash" = builtins.getEnv "SB_PROJECT_HASH";
-        };
-      };
-    };
 in {
-  inherit mkDockerImage mkDockerService mkDockerComposeService;
+  inherit mkDockerService mkDockerComposeService;
 }

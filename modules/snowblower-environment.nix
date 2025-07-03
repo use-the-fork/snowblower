@@ -12,6 +12,15 @@ in {
     cfg = config.snowblower;
   in {
     options.snowblower = {
+      # The projectHash has to be
+      # - unique to each PROJECT to let multiple snowblower images coexist
+      # - deterministic so that it won't change constantly
+      projectHash = mkOption {
+        type = types.str;
+        internal = true;
+        default = builtins.getEnv "SB_PROJECT_HASH";
+      };
+
       environmentVariables = mkOption {
         default = {};
         type = with types;
@@ -66,6 +75,7 @@ in {
             text = ''
               ${builtins.readFile config.snowblower.utilitiesPackage}
 
+              ${builtins.readFile ./../lib-bash/snow/utils.sh}
               ${builtins.readFile ./../lib-bash/snow/boot.sh}
 
               function doHook__up__pre {

@@ -81,8 +81,8 @@ in {
             local executable="$3"
 
             # Check if the path is not already within the project root or src root
-            if [[ $relTarget != "$SB_PROJECT_ROOT"* && $relTarget != "$SB_SRC_ROOT"* ]]; then
-              relTarget="''${SB_SRC_ROOT}/''${relTarget}"
+            if [[ $relTarget != "$SB_PROJECT_ROOT"* && $relTarget != "$SB_WORKSPACE_ROOT"* ]]; then
+              relTarget="''${SB_WORKSPACE_ROOT}/''${relTarget}"
             fi
 
             mkdir -p "$(dirname "$relTarget")"
@@ -122,7 +122,9 @@ in {
 
           _iOk "File Generation Complete"
 
-          _iWithSpinner "Format snow" ${lib.getExe pkgs.shfmt} -s -w snow
+          # TODO: make this update and clear.
+          _iNote "Format snow"
+          ${lib.getExe pkgs.shfmt} -s -w snow
 
           _iOk "Files copied to current directory"
 

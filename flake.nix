@@ -83,14 +83,14 @@
             npm.enable = true;
           };
 
-          process."npm-dev" = {
-            enable = true;
-            exec = "npm run docs:dev";
-            port = {
-              container = 5173;
-              host = 5173;
-            };
-          };
+          # process."npm-dev" = {
+          #   enable = true;
+          #   exec = "npm install && npm run docs:dev";
+          #   port = {
+          #     container = 5173;
+          #     host = 5173;
+          #   };
+          # };
 
           service = {
             oxker.enable = true;

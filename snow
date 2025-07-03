@@ -18,7 +18,11 @@ function isSnowBlowerUp {
 
 function isSnowBlowerDockerContainerUp {
   # Check if snowblower-dev service container exists and is running
-  [ -n "$($SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" ps -q "$SB_APP_SERVICE" 2>/dev/null)" ]
+  [ -n "$($SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" ps -q "$SB_APP_SERVICE" 2>/dev/null)" ]
+}
+
+function isSnowBlowerNixVolumeCreated {
+  [ -n "$($SB_DOCKER_PATH volume inspect snowblower-nix 2>/dev/null)" ]
 }
 
 # Function that checks
@@ -32,7 +36,7 @@ function doRunChecks {
     fi
 
     # Determine if SnowBlower is currently up...
-    # if $SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" ps -q "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
+    # if $SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" ps -q "$SB_APP_SERVICE" 2>&1 | grep 'Exit\|exited'; then
     # 	_iWarn "${BOLD}Shutting down old SnowBlower processes...${NC}" >&2
     # 	$SB_DOCKER_PATH down >/dev/null 2>&1
     # 	isNotRunning
@@ -314,77 +318,6 @@ function _iVerbose() {
   fi
 }
 
-function _iWithSpinner() {
-  local message="$1"
-  shift
-
-  local command="$@"
-
-  local spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
-  local temp_file=$(mktemp)
-
-  # Cleanup function for trap
-  function cleanup() {
-    cursorShow
-    rm -f "$temp_file"
-    kill $cmd_pid 2>/dev/null || true
-  }
-
-  # Set trap to cleanup on exit/interrupt
-  trap cleanup EXIT INT TERM
-
-  # Start command in background
-  eval "$command" >"$temp_file" 2>&1 &
-  local cmd_pid=$!
-
-  # Save cursor position and hide it
-  cursorSave
-  cursorHide
-
-  # Show spinner while command runs
-  local i=0
-  while kill -0 $cmd_pid 2>/dev/null; do
-
-    # Move up to spinner line and update it
-    printf " ${NC}${CYAN}%s  ${NC}${WHITE}%s${NC}" "${spinner:i:1}" "$message"
-
-    # Show last 4 lines of output if file exists and has content
-    if [[ -s $temp_file ]]; then
-      local last_output=$(tail -n 5 "$temp_file" 2>/dev/null)
-      if [[ -n $last_output ]]; then
-        printf "\n"
-        echo "$last_output" | sed 's/^/    /'
-      fi
-    fi
-
-    # Restore cursor position
-    cursorRestore
-
-    i=$(((i + 1) % ${#spinner}))
-    sleep 0.1
-  done
-
-  cursorShow
-  cursorRestore
-  _iClear
-
-  # Wait for command to finish and get exit code
-  wait $cmd_pid
-  local exit_code=$?
-
-  # Clear the spinner line and show final status
-  if [ $exit_code -eq 0 ]; then
-    _iOk "$message"
-  else
-    _iNotOk "$message"
-    # TODO: Make this print better?
-    cat "$temp_file"
-  fi
-
-  rm -f "$temp_file"
-  return $exit_code
-}
-
 function _iCommandSection() {
   local command_name="$1"
   local display_name="$2"
@@ -457,23 +390,34 @@ function isSsh() {
   [[ -n ${SSH_CLIENT} || -n ${SSH_CONNECTION} ]]
 }
 
+function runNix() {
+  $SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" run --build --rm builder nix "$@"
+}
+
+function runBuilder() {
+  $SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" run --build --rm builder "$@"
+}
+
+function runDockerCompose() {
+  $SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" "$@"
+}
 function doSetRoot() {
   # We need to find our project root early on so downstream options can use it.
-  SB_SRC_ROOT="$(findUp $SB_PROJECT_ROOT_FILE)"
+  SB_WORKSPACE_ROOT="$(findUp $SB_WORKSPACE_ROOT_FILE)"
   if [ $? -ne 0 ]; then
     _iError "Unable to locate project root. Make sure you're in a project directory with a flake.nix file"
     exit 1
   fi
-  _iVerbose "Found project root at %s" $SB_SRC_ROOT
-  export SB_SRC_ROOT
+  _iVerbose "Found project root at %s" $SB_WORKSPACE_ROOT
+  export SB_WORKSPACE_ROOT
 }
 
 function doSetProjectHash() {
   local base_dir_name
-  name=$(basename "$SB_SRC_ROOT")
+  name=$(basename "$SB_WORKSPACE_ROOT")
 
   local hash
-  hash=$(echo -n "$SB_SRC_ROOT" | md5sum | awk '{print $1}')
+  hash=$(echo -n "$SB_WORKSPACE_ROOT" | md5sum | awk '{print $1}')
 
   export SB_PROJECT_HASH="${name}-r${hash}"
   _iVerbose "Set project hash as $SB_PROJECT_HASH"
@@ -537,15 +481,6 @@ function doInit() {
   fi
 
   # Check if Docker is installed
-  if SB_NIX_PATH=$(command -v nix 2>/dev/null); then
-    _iOk "Nix path set to %s" "${SB_NIX_PATH}"
-  else
-    _iError "Nix is not installed or not in PATH. Please install Nix to continue."
-    # TODO: Add nix Install links here.
-    exit 1
-  fi
-
-  # Check if Docker is installed
   if SB_DOCKER_PATH=$(command -v docker 2>/dev/null); then
     _iOk "Docker path set to %s" "${SB_DOCKER_PATH}"
   else
@@ -556,14 +491,19 @@ function doInit() {
   # All Checks passed we can now create the .project_env file so we dont have to do this every time.
   echo "export SB_NIX_PATH=\"$SB_NIX_PATH\"" >>"$SB_PROJECT_ENV_FILE"
   echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >>"$SB_PROJECT_ENV_FILE"
-  echo "export SB_USER_UID=\"${USER_UID}\"" >>"$SB_PROJECT_ENV_FILE"
-  echo "export SB_USER_GID=\"${USER_GID}\"" >>"$SB_PROJECT_ENV_FILE"
+  echo "export SB_USER_UID=\"${SB_USER_UID}\"" >>"$SB_PROJECT_ENV_FILE"
+  echo "export SB_USER_GID=\"${SB_USER_GID}\"" >>"$SB_PROJECT_ENV_FILE"
 
   SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
   echo "export SB_PROJECT_PROFILE=\"$SB_PROJECT_PROFILE\"" >>"$SB_PROJECT_ENV_FILE"
 
   SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
   echo "export SB_PROJECT_STATE=\"$SB_PROJECT_STATE\"" >>"$SB_PROJECT_ENV_FILE"
+
+  if ! isSnowBlowerNixVolumeCreated; then
+    _iOk "Creating snowblower-nix Docker Volume."
+    $SB_DOCKER_PATH volume create snowblower-nix
+  fi
 
   return 0
 
@@ -583,11 +523,11 @@ function doSetupSession() {
 
   # Global constants that are used in many parts of the script
   export SB_APP_SERVICE=${APP_SERVICE:-"tools"}
-  export USER_UID=${USER_UID:-$UID}
-  export USER_GID=${USER_GID:-$(id -g)}
-  export SB_PROJECT_ROOT_FILE=${PROJECT_ROOT_FILE:-"flake.nix"}
+  export SB_USER_UID="$(id -u)"
+  export SB_USER_GID="$(id -g)"
+  export SB_WORKSPACE_ROOT_FILE=${PROJECT_ROOT_FILE:-"flake.nix"}
 
-  _iVerbose "Set project root file to %s" "${SB_PROJECT_ROOT_FILE}"
+  _iVerbose "Set project root file to %s" "${SB_WORKSPACE_ROOT_FILE}"
 }
 
 function doHook__up__pre {
@@ -746,7 +686,7 @@ function doRoutedCommandExecute() {
     _iVerbose "Executing command via docker compose in %s service" $env_type
 
     # Execute the command with proper shell evaluation
-    $SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" "${ARGS[@]}" "with-snowblower" "$@"
+    $SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" "${ARGS[@]}" "with-snowblower" "$@"
     return $?
     ;;
   service)
@@ -759,7 +699,7 @@ function doRoutedCommandExecute() {
     _iVerbose "Executing command via docker compose run in %s service" "$service_name"
 
     # Execute the command using docker compose run
-    $SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" run --rm "$service_name" "$@"
+    $SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" run --rm "$service_name" "$@"
     return $?
     ;;
   *)
@@ -793,27 +733,27 @@ function hasHelpCommand() {
 }
 
 function doSnowBash {
-  doRoutedCommandExecute tools bash
+  doRoutedCommandExecute tools zsh
   exit 0
 }
 
 function doSetRoot() {
   # We need to find our project root early on so downstream options can use it.
-  SB_SRC_ROOT="$(findUp $SB_PROJECT_ROOT_FILE)"
+  SB_WORKSPACE_ROOT="$(findUp $SB_WORKSPACE_ROOT_FILE)"
   if [ $? -ne 0 ]; then
     _iError "Unable to locate project root. Make sure you're in a project directory with a flake.nix file"
     exit 1
   fi
-  _iVerbose "Found project root at %s" $SB_SRC_ROOT
-  export SB_SRC_ROOT
+  _iVerbose "Found project root at %s" $SB_WORKSPACE_ROOT
+  export SB_WORKSPACE_ROOT
 }
 
 function doSetProjectHash() {
   local base_dir_name
-  name=$(basename "$SB_SRC_ROOT")
+  name=$(basename "$SB_WORKSPACE_ROOT")
 
   local hash
-  hash=$(echo -n "$SB_SRC_ROOT" | md5sum | awk '{print $1}')
+  hash=$(echo -n "$SB_WORKSPACE_ROOT" | md5sum | awk '{print $1}')
 
   export SB_PROJECT_HASH="${name}-r${hash}"
   _iVerbose "Set project hash as $SB_PROJECT_HASH"
@@ -877,15 +817,6 @@ function doInit() {
   fi
 
   # Check if Docker is installed
-  if SB_NIX_PATH=$(command -v nix 2>/dev/null); then
-    _iOk "Nix path set to %s" "${SB_NIX_PATH}"
-  else
-    _iError "Nix is not installed or not in PATH. Please install Nix to continue."
-    # TODO: Add nix Install links here.
-    exit 1
-  fi
-
-  # Check if Docker is installed
   if SB_DOCKER_PATH=$(command -v docker 2>/dev/null); then
     _iOk "Docker path set to %s" "${SB_DOCKER_PATH}"
   else
@@ -896,14 +827,19 @@ function doInit() {
   # All Checks passed we can now create the .project_env file so we dont have to do this every time.
   echo "export SB_NIX_PATH=\"$SB_NIX_PATH\"" >>"$SB_PROJECT_ENV_FILE"
   echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >>"$SB_PROJECT_ENV_FILE"
-  echo "export SB_USER_UID=\"${USER_UID}\"" >>"$SB_PROJECT_ENV_FILE"
-  echo "export SB_USER_GID=\"${USER_GID}\"" >>"$SB_PROJECT_ENV_FILE"
+  echo "export SB_USER_UID=\"${SB_USER_UID}\"" >>"$SB_PROJECT_ENV_FILE"
+  echo "export SB_USER_GID=\"${SB_USER_GID}\"" >>"$SB_PROJECT_ENV_FILE"
 
   SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
   echo "export SB_PROJECT_PROFILE=\"$SB_PROJECT_PROFILE\"" >>"$SB_PROJECT_ENV_FILE"
 
   SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
   echo "export SB_PROJECT_STATE=\"$SB_PROJECT_STATE\"" >>"$SB_PROJECT_ENV_FILE"
+
+  if ! isSnowBlowerNixVolumeCreated; then
+    _iOk "Creating snowblower-nix Docker Volume."
+    $SB_DOCKER_PATH volume create snowblower-nix
+  fi
 
   return 0
 
@@ -923,29 +859,56 @@ function doSetupSession() {
 
   # Global constants that are used in many parts of the script
   export SB_APP_SERVICE=${APP_SERVICE:-"tools"}
-  export USER_UID=${USER_UID:-$UID}
-  export USER_GID=${USER_GID:-$(id -g)}
-  export SB_PROJECT_ROOT_FILE=${PROJECT_ROOT_FILE:-"flake.nix"}
+  export SB_USER_UID="$(id -u)"
+  export SB_USER_GID="$(id -g)"
+  export SB_WORKSPACE_ROOT_FILE=${PROJECT_ROOT_FILE:-"flake.nix"}
 
-  _iVerbose "Set project root file to %s" "${SB_PROJECT_ROOT_FILE}"
+  _iVerbose "Set project root file to %s" "${SB_WORKSPACE_ROOT_FILE}"
 }
 function doSnowBuildImagesLogic() {
 
   _iSnow "Rebuilding Images"
 
-  _iWithSpinner "Pruning Old Images" $SB_DOCKER_PATH image prune -f --filter "label=org.snowblower.project=$SB_PROJECT_HASH"
+  cursorSave
+  _iNote "Pruning Old Images"
+  $SB_DOCKER_PATH image prune -f --filter "label=org.snowblower.project=$SB_PROJECT_HASH"
+  cursorRestore
+  _iClear
+  _iOk "Pruning Old Images"
 
-  rm -f "./result"
+  rm -f "$SB_PROJECT_ROOT/result"
 
-  _iWithSpinner "Building Runtime Docker Image" $SB_NIX_PATH build --impure .#dockerRuntimeImagePackage
-  _iWithSpinner "Loading Runtime Docker Image" $SB_DOCKER_PATH load -i ./result
+  cursorSave
+  _iNote "Building Runtime Docker Image"
+  runBuilder bash -c "nix build --impure --out-link "/tmp/result" .#dockerRuntimeImagePackage  && cp -rL /tmp/result /snowblower/result"
+  cursorRestore
+  _iClear
+  _iOk "Building Runtime Docker Image"
 
-  rm -f "./result"
+  cursorSave
+  _iNote "Loading Runtime Docker Image"
+  $SB_DOCKER_PATH load -i "$SB_PROJECT_ROOT/result"
+  cursorRestore
+  _iClear
+  _iOk "Loading Runtime Docker Image"
 
-  _iWithSpinner "Building Tooling Docker Image" $SB_NIX_PATH build --impure .#dockerToolsImagePackage
-  _iWithSpinner "Loading Tooling Docker Image" $SB_DOCKER_PATH load -i ./result
+  rm -f "$SB_PROJECT_ROOT/result"
 
-  rm -f "./result"
+  cursorSave
+  _iNote "Building Tooling Docker Image"
+  runBuilder bash -c "nix build --impure --out-link "/tmp/result" .#dockerToolsImagePackage  && cp -rL /tmp/result /snowblower/result"
+  cursorRestore
+  _iClear
+  _iOk "Building Tooling Docker Image"
+
+  cursorSave
+  _iNote "Loading Tooling Docker Image"
+  $SB_DOCKER_PATH load -i "$SB_PROJECT_ROOT/result"
+  cursorRestore
+  _iClear
+  _iOk "Loading Tooling Docker Image"
+
+  rm -f "$SB_PROJECT_ROOT/result"
 
   _iHeart "Build Complete"
 
@@ -1005,7 +968,7 @@ function doSnowDownLogic() {
 
   # If it's running, run docker compose down and wait for it to finish then run doDestroySession
   _iOk "Stopping SnowBlower services..."
-  $SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" --profile auto-start down --remove-orphans
+  $SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" --profile auto-start down --remove-orphans
 
   _iHeart "SnowBlower has been stopped."
   return 0
@@ -1024,7 +987,7 @@ function doSnowPsLogic() {
     return 1
   fi
 
-  $SB_DOCKER_PATH -f "$SB_SRC_ROOT/docker-compose.yml" ps
+  $SB_DOCKER_PATH -f "$SB_WORKSPACE_ROOT/docker-compose.yml" ps
 
   return 0
 }
@@ -1073,7 +1036,7 @@ function doSnowUpLogic() {
   fi
 
   # Start docker-compose detached
-  $SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" --profile auto-start up --detach --remove-orphans "$@"
+  $SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" --profile auto-start up --detach --remove-orphans "$@"
   doRoutedCommandExecute "tools" "snowblower-hooks" "tools_pre"
 
   return 0

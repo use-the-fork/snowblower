@@ -1,1 +1,0 @@
-FROM localhost/snowblower/runtime:latest

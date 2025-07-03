@@ -2,18 +2,46 @@ function doSnowBuildImagesLogic() {
 
 	_iSnow "Rebuilding Images"
 
-	_iWithSpinner "Pruning Old Images" $SB_DOCKER_PATH image prune -f --filter "label=org.snowblower.project=$SB_PROJECT_HASH"
+	cursorSave
+	_iNote "Pruning Old Images" 
+	$SB_DOCKER_PATH image prune -f --filter "label=org.snowblower.project=$SB_PROJECT_HASH"
+	cursorRestore
+	_iClear
+	_iOk "Pruning Old Images" 
 
 	rm -f "$SB_PROJECT_ROOT/result"
 
-	_iWithSpinner "Building Runtime Docker Image" $SB_NIX_PATH build --impure --out-link "$SB_PROJECT_ROOT/result" .#dockerRuntimeImagePackage
-	_iWithSpinner "Loading Runtime Docker Image" $SB_DOCKER_PATH load -i "$SB_PROJECT_ROOT/result"
+	cursorSave
+	_iNote "Building Runtime Docker Image" 
+	runBuilder bash -c "nix build --impure --out-link "/tmp/result" .#dockerRuntimeImagePackage  && cp -rL /tmp/result /snowblower/result"
+	cursorRestore
+	_iClear
+	_iOk "Building Runtime Docker Image"
+
+	cursorSave
+	_iNote "Loading Runtime Docker Image" 
+	$SB_DOCKER_PATH load -i "$SB_PROJECT_ROOT/result"
+	cursorRestore
+	_iClear
+	_iOk "Loading Runtime Docker Image"
 
 	rm -f "$SB_PROJECT_ROOT/result"
 
-	_iWithSpinner "Building Tooling Docker Image" $SB_NIX_PATH build --impure --out-link "$SB_PROJECT_ROOT/result" .#dockerToolsImagePackage
-	_iWithSpinner "Loading Tooling Docker Image" $SB_DOCKER_PATH load -i "$SB_PROJECT_ROOT/result"
 
+	cursorSave
+	_iNote "Building Tooling Docker Image"
+	runBuilder bash -c "nix build --impure --out-link "/tmp/result" .#dockerToolsImagePackage  && cp -rL /tmp/result /snowblower/result"
+	cursorRestore
+	_iClear
+	_iOk "Building Tooling Docker Image"
+
+	cursorSave
+	_iNote "Loading Tooling Docker Image" 
+	$SB_DOCKER_PATH load -i "$SB_PROJECT_ROOT/result"
+	cursorRestore
+	_iClear
+	_iOk "Loading Tooling Docker Image"
+	
 	rm -f "$SB_PROJECT_ROOT/result"
 
 	_iHeart "Build Complete"

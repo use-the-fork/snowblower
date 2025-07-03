@@ -9,7 +9,7 @@ function doSnowUpLogic() {
 	fi
 
 	# Start docker-compose detached
-	$SB_DOCKER_PATH compose -f "$SB_SRC_ROOT/docker-compose.yml" --profile auto-start up --detach --remove-orphans "$@"
+	$SB_DOCKER_PATH compose -f "$SB_WORKSPACE_ROOT/docker-compose.yml" --profile auto-start up --detach --remove-orphans "$@"
 	doRoutedCommandExecute "tools" "snowblower-hooks" "tools_pre"
 
 	return 0

@@ -1,4 +1,4 @@
 function doSnowBash {
-	doRoutedCommandExecute tools bash
+	doRoutedCommandExecute tools zsh
 	exit 0
 }

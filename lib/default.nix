@@ -27,5 +27,5 @@ in {
 
   inherit (functions) mkIntegration mkLanguage mkEnableOption' mkPackageManager;
   inherit (tool) mkTool mkToolCommand mkToolCommandHook;
-  inherit (docker) mkDockerImage mkDockerService mkDockerComposeService;
+  inherit (docker) mkDockerService mkDockerComposeService;
 }

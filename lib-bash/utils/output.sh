@@ -141,78 +141,6 @@ function _iVerbose() {
 	fi
 }
 
-function _iWithSpinner() {
-	local message="$1"
-	shift
-
-	local command="$@"
-
-	local spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
-	local temp_file=$(mktemp)
-
-   # Cleanup function for trap
-    function cleanup() {
-        cursorShow
-        rm -f "$temp_file"
-        kill $cmd_pid 2>/dev/null || true
-    }
-
-	# Set trap to cleanup on exit/interrupt
-    trap cleanup EXIT INT TERM
-
-	# Start command in background
-	eval "$command" >"$temp_file" 2>&1 &
-	local cmd_pid=$!
-
-	# Save cursor position and hide it
-	cursorSave
-	cursorHide
-
-	# Show spinner while command runs
-	local i=0
-	while kill -0 $cmd_pid 2>/dev/null; do
-
-		# Move up to spinner line and update it
-		printf " ${NC}${CYAN}%s  ${NC}${WHITE}%s${NC}" "${spinner:i:1}" "$message"
-
-		# Show last 4 lines of output if file exists and has content
-		if [[ -s $temp_file ]]; then
-			local last_output=$(tail -n 5 "$temp_file" 2>/dev/null)
-			if [[ -n $last_output ]]; then
-				printf "\n"
-				echo "$last_output" | sed 's/^/    /'
-			fi
-		fi
-
-		# Restore cursor position
-		cursorRestore
-
-		i=$(((i + 1) % ${#spinner}))
-		sleep 0.1
-	done
-
-	cursorShow
-	cursorRestore
-	_iClear
-	
-
-	# Wait for command to finish and get exit code
-	wait $cmd_pid
-	local exit_code=$?
-
-	# Clear the spinner line and show final status
-	if [ $exit_code -eq 0 ]; then
-		_iOk "$message"
-	else
-		_iNotOk "$message"
-		# TODO: Make this print better?
-		cat "$temp_file"
-	fi
-
-	rm -f "$temp_file"
-	return $exit_code
-}
-
 function _iCommandSection() {
 	local command_name="$1"
 	local display_name="$2"
@@ -263,24 +191,4 @@ function _iCommandSection() {
 	done
 
 	echo
-}
-
-function isTerminal() {
-	isTty || isRedirect || isPipe || isSsh
-}
-
-function isTty() {
-	[[ -t 1 ]]
-}
-
-function isRedirect() {
-	[[ ! -t 1 && ! -p /dev/stdout ]]
-}
-
-function isPipe() {
-	[[ -p /dev/stdout ]]
-}
-
-function isSsh() {
-	[[ -n ${SSH_CLIENT} || -n ${SSH_CONNECTION} ]]
 }

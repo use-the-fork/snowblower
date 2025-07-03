@@ -1,20 +1,20 @@
 function doSetRoot() {
 	# We need to find our project root early on so downstream options can use it.
-	SB_SRC_ROOT="$(findUp $SB_PROJECT_ROOT_FILE)"
+	SB_WORKSPACE_ROOT="$(findUp $SB_WORKSPACE_ROOT_FILE)"
 	if [ $? -ne 0 ]; then
 		_iError "Unable to locate project root. Make sure you're in a project directory with a flake.nix file"
 		exit 1
 	fi
-	_iVerbose "Found project root at %s" $SB_SRC_ROOT
-	export SB_SRC_ROOT
+	_iVerbose "Found project root at %s" $SB_WORKSPACE_ROOT
+	export SB_WORKSPACE_ROOT
 }
 
 function doSetProjectHash() {
 	local base_dir_name
-	name=$(basename "$SB_SRC_ROOT")
+	name=$(basename "$SB_WORKSPACE_ROOT")
 
 	local hash
-	hash=$(echo -n "$SB_SRC_ROOT" | md5sum | awk '{print $1}')
+	hash=$(echo -n "$SB_WORKSPACE_ROOT" | md5sum | awk '{print $1}')
 
 	export SB_PROJECT_HASH="${name}-r${hash}"
 	_iVerbose "Set project hash as $SB_PROJECT_HASH"
@@ -80,15 +80,6 @@ function doInit() {
 	fi
 
 	# Check if Docker is installed
-	if SB_NIX_PATH=$(command -v nix 2>/dev/null) ; then
-		_iOk "Nix path set to %s" "${SB_NIX_PATH}"
-	else
-		_iError "Nix is not installed or not in PATH. Please install Nix to continue."
-		# TODO: Add nix Install links here.
-		exit 1
-	fi
-
-	# Check if Docker is installed
 	if SB_DOCKER_PATH=$(command -v docker 2>/dev/null) ; then
 		_iOk "Docker path set to %s" "${SB_DOCKER_PATH}"
 	else
@@ -97,10 +88,7 @@ function doInit() {
 	fi
 
 	# All Checks passed we can now create the .project_env file so we dont have to do this every time.
-	echo "export SB_NIX_PATH=\"$SB_NIX_PATH\"" >>"$SB_PROJECT_ENV_FILE"
 	echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >>"$SB_PROJECT_ENV_FILE"
-	echo "export SB_USER_UID=\"${USER_UID}\"" >>"$SB_PROJECT_ENV_FILE"
-	echo "export SB_USER_GID=\"${USER_GID}\"" >>"$SB_PROJECT_ENV_FILE"
 
 
 	SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
@@ -108,6 +96,12 @@ function doInit() {
 
 	SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
 	echo "export SB_PROJECT_STATE=\"$SB_PROJECT_STATE\"" >>"$SB_PROJECT_ENV_FILE"
+
+
+	if ! isSnowBlowerNixVolumeCreated; then
+		_iOk "Creating snowblower-nix Docker Volume."
+		$SB_DOCKER_PATH volume create snowblower-nix
+	fi
 
 	return 0
 
@@ -127,9 +121,15 @@ function doSetupSession() {
 
 	# Global constants that are used in many parts of the script
 	export SB_APP_SERVICE=${APP_SERVICE:-"tools"}
-	export USER_UID=${USER_UID:-$UID}
-	export USER_GID=${USER_GID:-$(id -g)}
-	export SB_PROJECT_ROOT_FILE=${PROJECT_ROOT_FILE:-"flake.nix"}
+	export SB_USER_UID="$(id -u)"
+	export SB_USER_GID="$(id -g)"
+	export SB_WORKSPACE_ROOT_FILE=${PROJECT_ROOT_FILE:-"flake.nix"}
 
-	_iVerbose "Set project root file to %s" "${SB_PROJECT_ROOT_FILE}"
+	if isTerminal; then
+		export SB_TERM_TYPE="terminal"
+	else
+		export SB_TERM_TYPE="dumb"
+	fi
+
+	_iVerbose "Set project root file to %s" "${SB_WORKSPACE_ROOT_FILE}"
 }
