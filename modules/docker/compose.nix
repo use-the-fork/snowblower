@@ -112,14 +112,6 @@ in {
           };
       in {
         docker = {
-          service."runtime" = {
-            enable = true;
-            service = mkDockerComposeService {
-              autoStart = true;
-              runtime = true;
-            };
-          };
-
           service."tools" = {
             enable = true;
             service = mkDockerComposeService {

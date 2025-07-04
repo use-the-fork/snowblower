@@ -34,31 +34,6 @@ services:
     - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile
     - ${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state
     - ${SB_PROJECT_ROOT:-/tmp/snowblower}:/snowblower
-  runtime:
-    depends_on: []
-    environment:
-      SB_PROJECT_HASH: ${SB_PROJECT_HASH}
-      SB_PROJECT_PROFILE: /snowblower/profile
-      SB_PROJECT_ROOT: /snowblower
-      SB_PROJECT_STATE: /snowblower/state
-      SB_SERVICE_TYPE: runtime
-      SB_USER_GID: ${SB_USER_GID}
-      SB_USER_UID: ${SB_USER_UID}
-      SB_WORKSPACE_ROOT: /workspace
-    image: localhost/snowblower/runtime:latest
-    networks:
-    - snownet
-    profiles:
-    - auto-start
-    restart: 'no'
-    tty: true
-    user: ${SB_USER_UID}:${SB_USER_GID}
-    volumes:
-    - .:/workspace
-    - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile
-    - ${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state
-    - ${SB_PROJECT_ROOT:-/tmp/snowblower}:/snowblower
-    working_dir: /workspace
   tools:
     environment:
       SB_PROJECT_HASH: ${SB_PROJECT_HASH}
