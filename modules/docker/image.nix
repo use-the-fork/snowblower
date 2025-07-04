@@ -99,51 +99,38 @@ in {
               };
             };
 
-            toolsPackage = let
-              zshrcFile = pkgs.writeText "zshrc" ''
-                # Snowblower zsh configuration
-                if [[ $TERM != "dumb" ]]; then
-                  eval "$(${lib.getExe pkgs.starship} init zsh)"
-                fi
-              '';
-            in
-              pkgs.dockerTools.buildLayeredImage {
-                name = "snowblower/${config.snowblower.projectHash}/tools";
-                tag = "latest";
-                contents =
-                  [
-                    pkgs.zsh
-                    pkgs.starship
-                  ]
-                  ++ basePackages ++ config.snowblower.packages.tools ++ config.snowblower.packages.runtime;
+            toolsPackage = pkgs.dockerTools.buildLayeredImage {
+              name = "snowblower/${config.snowblower.projectHash}/tools";
+              tag = "latest";
+              contents = basePackages ++ config.snowblower.packages.tools ++ config.snowblower.packages.runtime;
 
-                inherit enableFakechroot;
-                fakeRootCommands = concatStringsSep "\n" [
-                  fakeRootCommands
-                  ''
-                    cp ${zshrcFile} /home/snowuser/.zshrc
-                    chown snowuser:snowuser /home/snowuser/.zshrc
-                  ''
+              inherit enableFakechroot;
+              fakeRootCommands = concatStringsSep "\n" [
+                fakeRootCommands
+                ''
+                  cp ${config.snowblower.shell.zsh.zshrcFile} /home/snowuser/.zshrc
+                  chown snowuser:snowuser /home/snowuser/.zshrc
+                ''
+              ];
+
+              config = {
+                Entrypoint = ["${lib.getExe pkgs.tini}" "--"];
+                Cmd = "zsh";
+                Env = [
+                  "HOME=/home/snowuser"
+                  "DISPLAY=:0"
                 ];
+                User = "snowuser";
+                WorkingDir = "/workspace";
 
-                config = {
-                  Entrypoint = ["${lib.getExe pkgs.tini}" "--"];
-                  Cmd = "zsh";
-                  Env = [
-                    "HOME=/home/snowuser"
-                    "DISPLAY=:0"
-                  ];
-                  User = "snowuser";
-                  WorkingDir = "/workspace";
-
-                  Labels = {
-                    "org.snowblower.project" = "snowblower";
-                    "org.snowblower.image.name" = "tools";
-                    "org.snowblower.image.version" = "latest";
-                    "org.snowblower.project.hash" = config.snowblower.projectHash;
-                  };
+                Labels = {
+                  "org.snowblower.project" = "snowblower";
+                  "org.snowblower.image.name" = "tools";
+                  "org.snowblower.image.version" = "latest";
+                  "org.snowblower.project.hash" = config.snowblower.projectHash;
                 };
               };
+            };
           };
         };
       };

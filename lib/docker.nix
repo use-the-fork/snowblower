@@ -54,7 +54,6 @@
     service ? {},
     manualStart ? false,
     autoStart ? false,
-    runtime ? false,
     network ? true,
     environment ? true,
   }: let
@@ -71,21 +70,6 @@
       }
       (lib.optionalAttrs network {
         networks = ["snownet"];
-      })
-      (lib.optionalAttrs runtime {
-        depends_on = [];
-        image = "localhost/snowblower/runtime:latest";
-        volumes = [
-          ".:/workspace"
-          "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile"
-          "\${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state"
-          "\${SB_PROJECT_ROOT:-/tmp/snowblower}:/snowblower"
-        ];
-        environment = {
-          "SB_SERVICE_TYPE" = "runtime";
-        };
-        working_dir = "/workspace";
-        tty = true;
       })
       (lib.optionalAttrs environment {
         environment = {

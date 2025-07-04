@@ -10,7 +10,7 @@ _localFlake: {...}: {
     ./modules/packages.nix
     ./modules/processes.nix
     ./modules/services
-    ./modules/shell.nix
+    ./modules/shell
     ./modules/snow.nix
     ./modules/tools
     # keep-sorted end

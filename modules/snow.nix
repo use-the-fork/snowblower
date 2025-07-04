@@ -47,6 +47,7 @@ in {
               ${builtins.readFile ./../lib-bash/snow/boot.sh}
               ${builtins.readFile ./../lib-bash/snow/build.sh}
               ${builtins.readFile ./../lib-bash/snow/command-execute.sh}
+              ${builtins.readFile ./../lib-bash/snow/dev.sh}
               ${builtins.readFile ./../lib-bash/snow/down.sh}
               ${builtins.readFile ./../lib-bash/snow/ps.sh}
               ${builtins.readFile ./../lib-bash/snow/run.sh}
