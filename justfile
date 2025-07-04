@@ -16,3 +16,8 @@ ai-gem:
 [doc('using Sonet as base')]
 ai-son:
 		aider --no-show-release-notes --model sonnet --watch-files --no-suggest-shell-commands --no-detect-urls --git-commit-verify --read CONVENTIONS.MD --lint-cmd treefmt
+
+[group('Pre-commit')]
+[doc('Run precommit on all files')]
+pre-commit-all:
+		pre-commit run --all-files

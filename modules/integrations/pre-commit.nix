@@ -28,16 +28,11 @@
         # Git is required for this integration.
         integration.git.enable = mkForce true;
 
-        command."pre-commit" = {
-          displayName = "Pre-commit";
-          description = "pre-commit hooks manager";
-          env = "tools";
-          shortcut = {
-            "all" = {
-              description = "Run precommit on all files";
-              args = ["run" "--all-files"];
-            };
-          };
+        integration.just.recipe."pre-commit-all" = {
+          enable = true;
+          group = "Pre-commit";
+          description = "Run precommit on all files";
+          exec = "pre-commit run --all-files";
         };
 
         packages.tools = [
