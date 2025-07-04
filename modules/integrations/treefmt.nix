@@ -22,11 +22,11 @@
     };
 
     config.snowblower = lib.mkIf cfg.enable {
-      command."treefmt" = {
-        displayName = "Treefmt";
-        description = "formatter multiplexer";
-        command = "treefmt";
-        env = "tools";
+      integration.just.recipe."treefmt" = {
+        enable = true;
+        group = "Treefmt";
+        description = "Formatter multiplexer";
+        exec = "treefmt";
       };
 
       packages.tools = [

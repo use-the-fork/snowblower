@@ -1,5 +1,6 @@
 # Credits to https://github.com/nix-community/home-manager/blob/master/lib/bash/home-manager.sh
 # The setup respects the `NO_COLOR` environment variable.
+
 function doSetupColors() {
 	BOLD=""
 	DIM=""
@@ -17,7 +18,7 @@ function doSetupColors() {
 	WHITE=""
 
 	# Enable colors for terminals, and allow opting out.
-	if [[ ! -v NO_COLOR && -t 1 ]]; then
+	if [[ ! -v NO_COLOR ]] && ([[ -t 1 ]] || [[ -n "$TERM" ]] || [[ -n "$COLORTERM" ]]); then
 		# See if it supports colors.
 		local ncolors
 		ncolors=$(tput colors 2>/dev/null || echo 0)

@@ -1,7 +1,6 @@
 _localFlake: {...}: {
   imports = [
     # keep-sorted start
-    ./modules/command.nix
     ./modules/docker
     ./modules/environment-variables.nix
     ./modules/files.nix

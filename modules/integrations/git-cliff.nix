@@ -106,20 +106,11 @@
     };
 
     config.snowblower = lib.mkIf cfg.enable {
-      command."cliff" = {
-        displayName = "Git-Cliff";
-        description = "Changelog generator";
-        command = "git-cliff";
-        env = "tools";
-        shortcut = {
-          "gen" = {
-            description = "Generate a changelog";
-            args = [
-              "-o"
-              cfg.settings.fileName
-            ];
-          };
-        };
+      integration.just.recipe."cliff" = {
+        enable = true;
+        group = "Git-Cliff";
+        description = "Generate a changelog";
+        exec = "git-cliff -o ${cfg.settings.fileName}";
       };
 
       packages.tools = [

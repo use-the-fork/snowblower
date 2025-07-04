@@ -20,12 +20,6 @@
         cfg.package
       ];
 
-      command."uv" = {
-        displayName = "UV";
-        description = "UV Package Manager";
-        command = "uv";
-      };
-
       file."uv.toml" = {
         enable = true;
         source = tomlFormat.generate "uv.toml" cfg.settings.config;

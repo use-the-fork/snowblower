@@ -35,6 +35,7 @@ in {
           export SB_CONTAINER_NAME="$CONTAINER_NAME"
           export SB_SERVICE_NAME="$SERVICE_NAME"
 
+          _iNote "Executing Pre-Hooks"
           if [ "$SB_SERVICE_TYPE" == "tools" ]; then
             snowblower-hooks tools_pre
           elif [ "$SB_SERVICE_TYPE" == "runtime" ]; then
@@ -42,12 +43,16 @@ in {
           fi
 
           _iNote "Executing: %s" "$*"
+          echo
+          echo
+
           expanded_args=()
           for arg in "$@"; do
               expanded_args+=("$(expand_vars "$arg")")
           done
           exec "''${expanded_args[@]}"
 
+          _iNote "Executing POST-Hooks"
           if [ "$SB_SERVICE_TYPE" == "tools" ]; then
             snowblower-hooks tools_post
           elif [ "$SB_SERVICE_TYPE" == "runtime" ]; then

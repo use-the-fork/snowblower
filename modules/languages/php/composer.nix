@@ -1,7 +1,6 @@
 {flake-parts-lib, ...}: {
   options.perSystem = flake-parts-lib.mkPerSystemOption ({
     lib,
-    pkgs,
     config,
     ...
   }: let
@@ -28,12 +27,6 @@
       packages.runtime = [
         cfg.package
       ];
-
-      command."composer" = {
-        displayName = "Composer";
-        description = "Composer Package Manager";
-        command = "composer";
-      };
     };
   });
 }

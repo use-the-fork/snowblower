@@ -22,13 +22,6 @@
       # even if javascript is off this will get properly merged in.
       language.javascript.package = cfg.package;
 
-      command."npm" = {
-        displayName = "NPM";
-        description = "NPM Package Manager";
-        command = "npm";
-        env = "tools";
-      };
-
       environmentVariables = {
         NPM_CONFIG_CACHE = "\${SB_PROJECT_STATE}/npm";
         NPM_CONFIG_USERCONFIG = "\${SB_PROJECT_STATE}/npm/config";

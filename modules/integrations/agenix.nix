@@ -205,16 +205,12 @@
       in {
         packages.tools = [cfg.package editSecret];
 
-        command."agenix" = {
-          displayName = "Agenix";
-          description = "Secret Management";
-          command = "sb-agenix";
-          env = "tools";
-          shortcut = {
-            "rekey" = {
-              description = "Rekey secrets";
-              args = ["--rekey"];
-            };
+        integration.just.recipe = {
+          "agenix-rekey" = {
+            enable = true;
+            group = "Agenix";
+            description = "Rekey secrets";
+            exec = "sb-agenix --rekey";
           };
         };
 

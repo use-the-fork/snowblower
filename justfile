@@ -7,6 +7,11 @@
 default:
   @just --list
 
+[group('Agenix')]
+[doc('Rekey secrets')]
+agenix-rekey:
+		sb-agenix --rekey
+
 [group('Aider')]
 [doc('using Gemini as base')]
 ai-gem:
@@ -21,3 +26,8 @@ ai-son:
 [doc('Run precommit on all files')]
 pre-commit-all:
 		pre-commit run --all-files
+
+[group('Treefmt')]
+[doc('Formatter multiplexer')]
+treefmt:
+		treefmt
