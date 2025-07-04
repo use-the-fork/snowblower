@@ -40,6 +40,9 @@ while [[ $i -lt ${#BEFORE_SEPARATOR[@]} ]]; do
         -h|--help)
             export HELP=1
             ;;
+        -b|--build)
+            export BUILD=1
+            ;;
         --version)
             echo 25.11-pre
             exit 0

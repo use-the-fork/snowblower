@@ -54,6 +54,7 @@
             name: cmdCfg: {
               "ai-${name}" = {
                 enable = true;
+                group = "Aider";
                 inherit (cmdCfg) description;
                 exec = let
                   args =
