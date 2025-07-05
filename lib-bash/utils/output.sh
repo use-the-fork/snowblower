@@ -120,7 +120,8 @@ function _iError() {
 }
 
 function _iFail() {
-	_iError "$@"
+	_iError "$@" >&2
+	exit 1
 }
 
 function _iWarn() {

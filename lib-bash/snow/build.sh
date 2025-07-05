@@ -2,34 +2,30 @@ function doSnowBuildImagesLogic() {
 
 	_iSnow "Rebuilding Images"
 
-	cursorSave
 	_iNote "Pruning Old Images"
-	runDocker image prune -f --filter "label=org.snowblower.project=$SB_PROJECT_HASH"
-	checkLastCommand "Pruned Old Images" "Prune Failed" 1
-
+	ensure runDocker image prune -f --filter "label=org.snowblower.project=$SB_PROJECT_HASH"
+	_iOk "Pruned Images"
+	
 	rm -f "$SB_PROJECT_ROOT/result"
 
-	cursorSave
 	_iNote "Building Runtime Docker Image"
-	runBuilder nix build --impure --out-link "/snowblower/result" .#dockerRuntimeImagePackage
-	checkLastCommand "Building Runtime Docker Image" "Build Failed" 1
-
-	cursorSave
+	ensure runBuilder nix build --impure --out-link "/snowblower/result" .#dockerRuntimeImagePackage
+	_iOk "Built Runtime Docker Image"
+	
 	_iNote "Loading Runtime Docker Image"
-	runBuilder bash -c "/snowblower/result | sudo docker load"
-	checkLastCommand "Loading Runtime Docker Image" "Load Failed" 1
+	ensure runBuilder bash -c "/snowblower/result | sudo docker load"
+	_iOk "Loaded Runtime Docker Image"
 
 	rm -f "$SB_PROJECT_ROOT/result"
-
-	cursorSave
+	
 	_iNote "Building Tooling Docker Image"
-	runBuilder nix build --impure --out-link "/snowblower/result" .#dockerToolsImagePackage
-	checkLastCommand "Building Tooling Docker Image" "Build Failed" 1
+	ensure runBuilder nix build --impure --out-link "/snowblower/result" .#dockerToolsImagePackage
+	_iOk "Built Tooling Docker Image"
 
-	cursorSave
+	
 	_iNote "Loading Tooling Docker Image"
-	runBuilder bash -c "/snowblower/result | sudo docker load"
-	checkLastCommand "Loading Tooling Docker Image" "Load Failed" 1
+	ensure runBuilder bash -c "/snowblower/result | sudo docker load"
+	_iOk "Loaded Tooling Docker Image"
 
 	rm -f "$SB_PROJECT_ROOT/result"
 
