@@ -56,6 +56,7 @@
     autoStart ? false,
     network ? true,
     environment ? false,
+    user ? false,
   }: let
     profiles = lib.flatten [
       (lib.optional manualStart "manual-start")
@@ -69,6 +70,9 @@
       }
       (lib.optionalAttrs network {
         networks = ["snownet"];
+      })
+      (lib.optionalAttrs user {
+        user = "$\{SB_USER_UID}:\${SB_USER_GID}";
       })
       (lib.optionalAttrs environment {
         environment = {

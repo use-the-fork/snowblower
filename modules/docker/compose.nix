@@ -132,6 +132,7 @@ in {
                 };
                 tty = true;
               };
+              user = true;
               autoStart = true;
             };
           };
@@ -161,6 +162,9 @@ in {
                   "SB_SERVICE_TYPE" = "builder";
                 };
               };
+              user = true;
+              network = true;
+              environment = true;
               manualStart = true;
             };
           };
