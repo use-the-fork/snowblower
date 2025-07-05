@@ -1,6 +1,7 @@
 {flake-parts-lib, ...}: {
   options.perSystem = flake-parts-lib.mkPerSystemOption ({
     lib,
+    pkgs,
     config,
     ...
   }: let
@@ -9,7 +10,7 @@
   in {
     options.snowblower.language.php.composer = mkPackageManager {
       name = "Composer";
-      package = config.snowblower.language.php.package.composer;
+      package = pkgs.php83Packages.composer;
     };
 
     config.snowblower = lib.mkIf cfg.enable {

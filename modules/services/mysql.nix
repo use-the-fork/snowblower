@@ -60,23 +60,17 @@
               volumes = ["${toString config.snowblower.environmentVariables.MYSQLDATA}:/var/lib/mysql"];
               environment =
                 {
-                  MYSQL_ROOT_PASSWORD = cfg.settings.rootPassword;
+                  MYSQL_ROOT_PASSWORD = "\${MYSQL_ROOT_PASSWORD:-${cfg.settings.rootPassword}}";
                 }
                 // lib.optionalAttrs (cfg.settings.database != null) {
-                  MYSQL_DATABASE = cfg.settings.database;
+                  MYSQL_DATABASE = "\${MYSQL_DATABASE:-${cfg.settings.database}}";
                 }
                 // lib.optionalAttrs (cfg.settings.user != null) {
-                  MYSQL_USER = cfg.settings.user;
+                  MYSQL_USER = "\${MYSQL_USER:-${cfg.settings.user}}";
                 }
                 // lib.optionalAttrs (cfg.settings.password != null) {
-                  MYSQL_PASSWORD = cfg.settings.password;
+                  MYSQL_PASSWORD = "\${MYSQL_PASSWORD:-${cfg.settings.password}}";
                 };
-              healthcheck = {
-                test = ["CMD" "mysqladmin" "ping" "-h" "localhost" "-u" "root" "--password=\$MYSQL_ROOT_PASSWORD"];
-                interval = "10s";
-                timeout = "5s";
-                retries = 3;
-              };
             };
             autoStart = true;
           };
