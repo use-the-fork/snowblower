@@ -33,7 +33,7 @@
           service = mkDockerComposeService {
             service = {
               inherit (cfg) image;
-              ports = ["${toString cfg.settings.port}:11211"];
+              ports = ["\${MEMCACHED_FORWARD_PORT:-${toString cfg.settings.port}}:11211"];
               command = ["-m" "${cfg.settings.memoryLimit}"];
               healthcheck = {
                 test = ["CMD" "nc" "-z" "localhost" "11211"];

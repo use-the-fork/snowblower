@@ -23,7 +23,7 @@
           service = mkDockerComposeService {
             service = {
               inherit (cfg) image;
-              ports = ["${toString cfg.settings.port}:6379"];
+              ports = ["\${REDIS_FORWARD_PORT:-${toString cfg.settings.port}}:6379"];
               volumes = ["${toString config.snowblower.environmentVariables.REDISDATA}:/data"];
               healthcheck = {
                 test = ["CMD" "redis-cli" "ping"];

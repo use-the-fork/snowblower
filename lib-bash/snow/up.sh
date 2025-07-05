@@ -35,7 +35,7 @@ function doSnowUpWithMenu() {
 		echo "────────────────────────────────────────"
 
 		# Show last 20 lines of logs
-		runDockerCompose logs --tail=20 2>/dev/null || echo "No logs available yet..."
+		runDockerCompose --profile auto-start logs --tail=20 2>/dev/null || echo "No logs available yet..."
 
 		echo "────────────────────────────────────────"
 		echo -n "Press 'q' to quit or any other key to refresh: "

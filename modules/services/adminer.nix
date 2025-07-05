@@ -31,7 +31,7 @@
           service = mkDockerComposeService {
             service = {
               inherit (cfg) image;
-              ports = ["${toString cfg.settings.port}:8080"];
+              ports = ["\${ADMINER_FORWARD_PORT:-${toString cfg.settings.port}}:8080"];
               environment = {
                 ADMINER_DEFAULT_SERVER = cfg.settings.defaultServer;
               };
