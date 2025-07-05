@@ -51,20 +51,21 @@
     config = lib.mkIf cfg.enable {
       snowblower = let
         finalSettings =
+          lib.recursiveUpdate
           cfg.settings.config
-          // (
-            lib.optionalAttrs (cfg.settings.includes != []) {
+          (
+            (lib.optionalAttrs (cfg.settings.includes != []) {
               files.include = cfg.settings.includes;
-            }
-            // lib.optionalAttrs (cfg.settings.excludes != []) {
+            })
+            // (lib.optionalAttrs (cfg.settings.excludes != []) {
               files.ignore = cfg.settings.excludes;
-            }
-            // lib.optionalAttrs (cfg.settings.lint.enable or false) {
+            })
+            // (lib.optionalAttrs (cfg.settings.lint.enable or false) {
               linter.enabled = true;
-            }
-            // lib.optionalAttrs (cfg.settings.format.enable or false) {
+            })
+            // (lib.optionalAttrs (cfg.settings.format.enable or false) {
               formatter.enabled = true;
-            }
+            })
           );
       in {
         packages.tools = [
