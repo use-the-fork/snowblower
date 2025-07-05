@@ -57,7 +57,7 @@
             service = {
               inherit (cfg) image;
               ports = ["${toString cfg.settings.port}:3306"];
-              volumes = ["${toString config.snowblower.env.MYSQLDATA}:/var/lib/mysql"];
+              volumes = ["${toString config.snowblower.environmentVariables.MYSQLDATA}:/var/lib/mysql"];
               environment =
                 {
                   MYSQL_ROOT_PASSWORD = cfg.settings.rootPassword;
@@ -82,7 +82,7 @@
           };
         };
 
-        environmentVariables.REDISDATA = "\${SB_PROJECT_STATE}/mysql";
+        environmentVariables.MYSQLDATA = "\${SB_PROJECT_STATE}/mysql";
       };
     };
   });
