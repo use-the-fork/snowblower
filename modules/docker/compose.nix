@@ -106,7 +106,9 @@ in {
           // {
             volumes = {
               snowblower-nix = {
-                external = true;
+                labels = {
+                  "org.snowblower.project" = "snowblower";
+                };
               };
             };
           };
@@ -148,13 +150,18 @@ in {
                 };
                 volumes = [
                   ".:/workspace"
-                  "snowblower-nix:/nix"
                   "\${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile"
                   "\${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state"
                   "\${SB_PROJECT_ROOT:-/tmp/snowblower}:/snowblower"
+
+                  "snowblower-nix:/nix"
+                  "/var/run/docker.sock:/var/run/docker.sock"
                 ];
                 environment = {
                   "SB_SERVICE_TYPE" = "builder";
+                  "DOCKER_HOST" = "tcp://docker:2376";
+                  "DOCKER_TLS_VERIFY" = 1;
+                  "DOCKER_CERT_PATH" = "/certs/client";
                 };
               };
               manualStart = true;
@@ -179,7 +186,13 @@ in {
           enable = true;
           source = pkgs.writeText "dockerfileBuilder" ''
             FROM alpine
-            RUN apk add curl sudo xz git gcompat bash openssh-client
+            RUN apk add curl sudo xz git gcompat bash openssh-client docker-cli
+
+            # Add Tini
+            ENV TINI_VERSION=v0.19.0
+            ADD https://github.com/krallin/tini/releases/download/''${TINI_VERSION}/tini /tini
+            RUN chmod 755 /tini
+
             RUN echo "snowuser ALL = NOPASSWD: ALL" > /etc/sudoers
 
             ARG USER_UID=1000
@@ -197,13 +210,14 @@ in {
               cp -Tdar /tmp/nix.orig /nix
             fi
 
-            export USER=snowuser
+            # Nix Has to have a USER set to work.
+            export USER="snowuser"
             source $HOME/.nix-profile/etc/profile.d/nix.sh
 
-            exec "$@"' > /entrypoint.sh
+            "$@"' > /entrypoint.sh
             EOF
 
-            RUN chmod +x /entrypoint.sh
+            RUN chmod 755 /entrypoint.sh
 
             USER snowuser
 
@@ -230,7 +244,7 @@ in {
 
             WORKDIR /workspace
 
-            ENTRYPOINT ["bash", "/entrypoint.sh"]
+            ENTRYPOINT ["/tini", "--", "/entrypoint.sh"]
           '';
         };
       };

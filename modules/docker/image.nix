@@ -72,7 +72,7 @@ in {
               pkgs.glibc # Standard C library
             ];
           in {
-            runtimePackage = pkgs.dockerTools.buildLayeredImage {
+            runtimePackage = pkgs.dockerTools.streamLayeredImage {
               name = "snowblower/${config.snowblower.projectHash}/runtime";
               tag = "latest";
               contents = basePackages ++ config.snowblower.packages.runtime;
@@ -99,10 +99,15 @@ in {
               };
             };
 
-            toolsPackage = pkgs.dockerTools.buildLayeredImage {
+            toolsPackage = pkgs.dockerTools.streamLayeredImage {
               name = "snowblower/${config.snowblower.projectHash}/tools";
               tag = "latest";
-              contents = basePackages ++ config.snowblower.packages.tools ++ config.snowblower.packages.runtime;
+
+              contents = lib.concatLists [
+                basePackages
+                config.snowblower.packages.tools
+                config.snowblower.packages.runtime
+              ];
 
               inherit enableFakechroot;
               fakeRootCommands = concatStringsSep "\n" [

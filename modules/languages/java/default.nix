@@ -1,15 +1,11 @@
-{
-  flake-parts-lib,
-  self,
-  ...
-}: {
+{flake-parts-lib, ...}: {
   options.perSystem = flake-parts-lib.mkPerSystemOption ({
     lib,
     pkgs,
     config,
     ...
   }: let
-    inherit (lib) types mkOption literalExpression optional mkDefault mkEnableOption mkLanguage;
+    inherit (lib) types mkOption literalExpression mkEnableOption mkLanguage;
 
     cfg = config.snowblower.languages.java;
   in {

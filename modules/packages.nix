@@ -4,7 +4,6 @@ in {
   options.perSystem = mkPerSystemOption ({
     lib,
     config,
-    pkgs,
     ...
   }: let
     inherit (lib) types mkOption;

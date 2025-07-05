@@ -6,8 +6,6 @@
     ...
   }: let
     inherit (lib) mkIntegration;
-
-    yamlFormat = pkgs.formats.yaml {};
     cfg = config.snowblower.integration.git;
   in {
     options.snowblower.integration.git = mkIntegration {

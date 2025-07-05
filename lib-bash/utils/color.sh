@@ -18,7 +18,7 @@ function doSetupColors() {
 	WHITE=""
 
 	# Enable colors for terminals, and allow opting out.
-	if [[ ! -v NO_COLOR ]] && ([[ -t 1 ]] || [[ -n "$TERM" ]] || [[ -n "$COLORTERM" ]]); then
+	if [[ ! -v NO_COLOR ]] && ([[ -t 1 ]] || [[ -n $TERM ]] || [[ -n $COLORTERM ]]); then
 		# See if it supports colors.
 		local ncolors
 		ncolors=$(tput colors 2>/dev/null || echo 0)

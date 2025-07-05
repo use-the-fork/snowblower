@@ -1,7 +1,7 @@
 function doSnowUpdate {
 
-    runNix flake update
+	runNix flake update
 	doSnowSwitch
-	
+
 	exit 0
 }

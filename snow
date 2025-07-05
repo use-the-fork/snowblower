@@ -211,6 +211,7 @@ expand_vars() {
 	# Use eval to expand variables, but escape special characters first
 	eval "echo \"$arg\""
 }
+
 # From: https://github.com/kigster/bashmatic/blob/main/lib/output.sh#L94
 
 export LEFT_PREFIX="    "
@@ -504,24 +505,24 @@ function doSnowBuildImagesLogic() {
 
 	cursorSave
 	_iNote "Building Runtime Docker Image"
-	runBuilder bash -c "nix build --impure --out-link "/tmp/result" .#dockerRuntimeImagePackage  && cp -rL /tmp/result /snowblower/result"
+	runBuilder nix build --impure --out-link "/snowblower/result" .#dockerRuntimeImagePackage
 	checkLastCommand "Building Runtime Docker Image" "Build Failed" 1
 
 	cursorSave
 	_iNote "Loading Runtime Docker Image"
-	runDocker load -i "$SB_PROJECT_ROOT/result"
+	runBuilder bash -c "/snowblower/result | sudo docker load"
 	checkLastCommand "Loading Runtime Docker Image" "Load Failed" 1
 
 	rm -f "$SB_PROJECT_ROOT/result"
 
 	cursorSave
 	_iNote "Building Tooling Docker Image"
-	runBuilder bash -c "nix build --impure --out-link "/tmp/result" .#dockerToolsImagePackage  && cp -rL /tmp/result /snowblower/result"
+	runBuilder nix build --impure --out-link "/snowblower/result" .#dockerToolsImagePackage
 	checkLastCommand "Building Tooling Docker Image" "Build Failed" 1
 
 	cursorSave
 	_iNote "Loading Tooling Docker Image"
-	runDocker load -i "$SB_PROJECT_ROOT/result"
+	runBuilder bash -c "/snowblower/result | sudo docker load"
 	checkLastCommand "Loading Tooling Docker Image" "Load Failed" 1
 
 	rm -f "$SB_PROJECT_ROOT/result"
@@ -631,6 +632,7 @@ function doRoutedCommandExecute() {
 		;;
 	esac
 }
+
 function doSnowDev {
 	doRoutedCommandExecute tools zsh
 	exit 0
@@ -914,32 +916,32 @@ fi
 if [[ -n $SNOW_COMMAND ]]; then
 	case $SNOW_COMMAND in
 
-	switch)
-		doSnowSwitch "${SNOW_COMMAND_ARGS[@]}"
+	bash)
+		doSnowBash "${SNOW_COMMAND_ARGS[@]}"
 		;;
 	build)
 		doSnowBuild "${SNOW_COMMAND_ARGS[@]}"
 		;;
-	ps)
-		doSnowPs "${SNOW_COMMAND_ARGS[@]}"
-		;;
-	up)
-		doSnowUp "${SNOW_COMMAND_ARGS[@]}"
+	dev)
+		doSnowDev "${SNOW_COMMAND_ARGS[@]}"
 		;;
 	down)
 		doSnowDown "${SNOW_COMMAND_ARGS[@]}"
 		;;
-	update)
-		doSnowUpdate "${SNOW_COMMAND_ARGS[@]}"
-		;;
-	bash)
-		doSnowBash "${SNOW_COMMAND_ARGS[@]}"
-		;;
-	dev)
-		doSnowDev "${SNOW_COMMAND_ARGS[@]}"
+	ps)
+		doSnowPs "${SNOW_COMMAND_ARGS[@]}"
 		;;
 	reboot)
 		doSnowReboot "${SNOW_COMMAND_ARGS[@]}"
+		;;
+	switch)
+		doSnowSwitch "${SNOW_COMMAND_ARGS[@]}"
+		;;
+	up)
+		doSnowUp "${SNOW_COMMAND_ARGS[@]}"
+		;;
+	update)
+		doSnowUpdate "${SNOW_COMMAND_ARGS[@]}"
 		;;
 
 	help)

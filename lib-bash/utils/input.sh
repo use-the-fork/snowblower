@@ -18,7 +18,7 @@ function confirmAction {
 }
 
 expand_vars() {
-    local arg="$1"
+	local arg="$1"
 	# Use eval to expand variables, but escape special characters first
-    eval "echo \"$arg\""
+	eval "echo \"$arg\""
 }

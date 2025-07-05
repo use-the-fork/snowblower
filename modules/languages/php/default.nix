@@ -13,18 +13,6 @@
     inherit (types) nullOr lines listOf str;
 
     cfg = config.snowblower.language.php;
-
-    filterDefaultExtensions = ext: builtins.length (builtins.filter (inner: inner == ext.extensionName) cfg.disableExtensions) == 0;
-
-    configurePackage = package:
-      package.buildEnv {
-        extensions = {
-          all,
-          enabled,
-        }:
-          with all; (builtins.filter filterDefaultExtensions (enabled ++ attrValues (getAttrs cfg.extensions package.extensions)));
-        extraConfig = cfg.ini;
-      };
   in {
     options.snowblower.language.php = mkLanguage {
       name = "PHP";
@@ -57,9 +45,7 @@
     };
 
     config.snowblower = lib.mkIf cfg.enable {
-      packages.runtime = let
-        finalPackage = configurePackage cfg.package;
-      in [
+      packages.runtime = [
         cfg.package
       ];
     };

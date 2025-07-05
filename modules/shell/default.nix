@@ -3,6 +3,7 @@
 in {
   imports = [
     # keep-sorted start
+    ./atuin.nix
     ./starship.nix
     ./zsh.nix
     # keep-sorted end

@@ -1,5 +1,11 @@
 FROM alpine
-RUN apk add curl sudo xz git gcompat bash openssh-client
+RUN apk add curl sudo xz git gcompat bash openssh-client docker-cli
+
+# Add Tini
+ENV TINI_VERSION=v0.19.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod 755 /tini
+
 RUN echo "snowuser ALL = NOPASSWD: ALL" > /etc/sudoers
 
 ARG USER_UID=1000
@@ -17,13 +23,14 @@ if [ ! -e /nix/store ]; then
   cp -Tdar /tmp/nix.orig /nix
 fi
 
-export USER=snowuser
+# Nix Has to have a USER set to work.
+export USER="snowuser"
 source $HOME/.nix-profile/etc/profile.d/nix.sh
 
-exec "$@"' > /entrypoint.sh
+"$@"' > /entrypoint.sh
 EOF
 
-RUN chmod +x /entrypoint.sh
+RUN chmod 755 /entrypoint.sh
 
 USER snowuser
 
@@ -50,4 +57,4 @@ EOF
 
 WORKDIR /workspace
 
-ENTRYPOINT ["bash", "/entrypoint.sh"]
+ENTRYPOINT ["/tini", "--", "/entrypoint.sh"]

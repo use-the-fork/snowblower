@@ -67,9 +67,7 @@ function doBoot() {
 	doInit
 }
 
-
 function doInit() {
-
 
 	if [ ! -d "$SB_PROJECT_ROOT" ]; then
 		_iOk "Initilizing Project at %s." $SB_PROJECT_ROOT
@@ -80,7 +78,7 @@ function doInit() {
 	fi
 
 	# Check if Docker is installed
-	if SB_DOCKER_PATH=$(command -v docker 2>/dev/null) ; then
+	if SB_DOCKER_PATH=$(command -v docker 2>/dev/null); then
 		_iOk "Docker path set to %s" "${SB_DOCKER_PATH}"
 	else
 		_iError "Docker is not installed or not in PATH. Please install Docker to continue."
@@ -90,13 +88,11 @@ function doInit() {
 	# All Checks passed we can now create the .project_env file so we dont have to do this every time.
 	echo "export SB_DOCKER_PATH=\"$SB_DOCKER_PATH\"" >>"$SB_PROJECT_ENV_FILE"
 
-
 	SB_PROJECT_PROFILE="$SB_PROJECT_ROOT/profile"
 	echo "export SB_PROJECT_PROFILE=\"$SB_PROJECT_PROFILE\"" >>"$SB_PROJECT_ENV_FILE"
 
 	SB_PROJECT_STATE="$SB_PROJECT_ROOT/state"
 	echo "export SB_PROJECT_STATE=\"$SB_PROJECT_STATE\"" >>"$SB_PROJECT_ENV_FILE"
-
 
 	if ! isSnowBlowerNixVolumeCreated; then
 		_iOk "Creating snowblower-nix Docker Volume."

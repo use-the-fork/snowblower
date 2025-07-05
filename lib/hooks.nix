@@ -1,16 +1,7 @@
 {lib, ...}: let
-  inherit (lib.options) mkOption mkEnableOption;
+  inherit (lib.options) mkOption;
   inherit
     (lib.types)
-    oneOf
-    listOf
-    attrsOf
-    str
-    bool
-    int
-    float
-    path
-    either
     lines
     ;
 

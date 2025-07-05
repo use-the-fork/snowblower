@@ -10,7 +10,6 @@
     int
     float
     path
-    either
     ;
 
   valueType = oneOf [
@@ -91,8 +90,31 @@
       // extraOptions;
   };
 
+  mkShellIntegration = {
+    name,
+    package,
+    config ? {},
+    extraOptions ? {},
+  }: {
+    enable = mkEnableOption "${name} Package Manager";
+    package = mkOption {
+      type = lib.types.package;
+      description = "The package ${name} should use.";
+      default = package;
+    };
+    settings =
+      {
+        config = mkOption {
+          type = valueType;
+          description = "Configuration settings for ${name}.";
+          default = config;
+        };
+      }
+      // extraOptions;
+  };
+
   #Same as mkEnableOption but with the default set to true.
   mkEnableOption' = desc: lib.mkEnableOption "${desc}" // {default = true;};
 in {
-  inherit mkIntegration mkLanguage mkEnableOption' mkPackageManager;
+  inherit mkIntegration mkLanguage mkEnableOption' mkPackageManager mkShellIntegration;
 }

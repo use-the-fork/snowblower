@@ -78,6 +78,10 @@
             treefmt.enable = true;
           };
 
+          shell = {
+            atuin.enable = true;
+          };
+
           language.javascript = {
             enable = true;
             npm.enable = true;

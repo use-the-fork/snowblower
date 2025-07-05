@@ -25,7 +25,7 @@ in {
     # keep-sorted end
   };
 
-  inherit (functions) mkIntegration mkLanguage mkEnableOption' mkPackageManager;
+  inherit (functions) mkIntegration mkLanguage mkEnableOption' mkPackageManager mkShellIntegration mkPackagelessIntegration;
   inherit (tool) mkTool mkToolCommand mkToolCommandHook;
   inherit (docker) mkDockerService mkDockerComposeService mkDockerComposeRuntimeService;
 }

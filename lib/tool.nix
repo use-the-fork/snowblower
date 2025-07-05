@@ -10,7 +10,6 @@
     int
     float
     path
-    either
     ;
 
   valueType = oneOf [

@@ -14,6 +14,9 @@ services:
       context: ./
       dockerfile: docker/Dockerfile.builder
     environment:
+      DOCKER_CERT_PATH: /certs/client
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_TLS_VERIFY: 1
       SB_PROJECT_HASH: ${SB_PROJECT_HASH}
       SB_PROJECT_PROFILE: /snowblower/profile
       SB_PROJECT_ROOT: /snowblower
@@ -30,10 +33,11 @@ services:
     user: ${SB_USER_UID}:${SB_USER_GID}
     volumes:
     - .:/workspace
-    - snowblower-nix:/nix
     - ${SB_PROJECT_PROFILE:-/tmp/snowblower/profile}:/snowblower/profile
     - ${SB_PROJECT_STATE:-/tmp/snowblower/state}:/snowblower/state
     - ${SB_PROJECT_ROOT:-/tmp/snowblower}:/snowblower
+    - snowblower-nix:/nix
+    - /var/run/docker.sock:/var/run/docker.sock
   tools:
     environment:
       SB_PROJECT_HASH: ${SB_PROJECT_HASH}
@@ -59,4 +63,5 @@ services:
     working_dir: /workspace
 volumes:
   snowblower-nix:
-    external: true
+    labels:
+      org.snowblower.project: snowblower
